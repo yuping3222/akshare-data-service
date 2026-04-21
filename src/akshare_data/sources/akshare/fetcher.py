@@ -132,6 +132,7 @@ _INTERFACE_METHOD_MAP: Dict[str, Dict[str, str]] = {
     "macro_gdp": {"TushareAdapter": "get_macro_raw", "LixingerAdapter": None},
     "macro_pmi": {"TushareAdapter": "get_macro_raw", "LixingerAdapter": None},
     "billboard_list": {"TushareAdapter": "get_billboard_list", "LixingerAdapter": None},
+    "futures_daily": {"TushareAdapter": None, "LixingerAdapter": None},
     "stock_pe_pb": {"TushareAdapter": "get_stock_pe_pb", "LixingerAdapter": None},
 }
 

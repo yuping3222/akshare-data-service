@@ -859,7 +859,7 @@ tables:
     storage_layer: daily
     schema:
       date: date
-      on: float64
+      "on": float64
       1w: float64
       2w: float64
       1m: float64

@@ -292,6 +292,8 @@ class ParquetWriter:
 
 **位置**: `src/akshare_data/store/fetcher.py`
 
+> 缓存策略编排流程详见 [08-缓存策略](08-cache-strategy.md)，本文档侧重 CachedFetcher 的组件实现细节。
+
 CachedFetcher 是 DataService 的底层缓存执行引擎，替代了旧的 `_fetch_with_cache` 函数。
 
 ### 5.1 FetchConfig
@@ -349,6 +351,8 @@ def _execute_incremental(self, config, strategy, cached, fetch_fn, params):
 ## 6. IncrementalStrategy（增量策略）
 
 **位置**: `src/akshare_data/store/strategies/incremental.py`
+
+> 增量更新机制详见 [08-缓存策略](08-cache-strategy.md)，本文档侧重 IncrementalStrategy 的组件实现细节。
 
 IncrementalStrategy 是时序数据的缓存策略实现，替代了旧的 `IncrementalEngine`。
 

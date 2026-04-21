@@ -29,6 +29,8 @@ offline/
 - [7. CallStatsAnalyzer — 调用统计分析器](#7-callstatsanalyzer--调用统计分析器)
 - [8. Scanner + Registry — 扫描与注册表管理](#8-scanner--registry--扫描与注册表管理)
 
+> 命令行参数和子命令的完整参考详见 [CLI_REFERENCE.md](CLI_REFERENCE.md)。
+
 ---
 
 ## 1. BatchDownloader — 批量下载器

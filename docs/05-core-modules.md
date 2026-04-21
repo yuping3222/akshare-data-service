@@ -310,11 +310,13 @@
 
 ---
 
-## 12. 错误码与异常层次 (`errors.py`)
+## 6. 错误码与异常层次 (`errors.py`)
 
 **文件路径**: `src/akshare_data/core/errors.py`
 
-### 7.1 ErrorCode 枚举
+> 错误处理的最佳实践和使用模式详见 [10-错误处理](10-error-handling.md)。
+
+### 6.1 ErrorCode 枚举
 
 177 个错误码，分为 9 个类别：
 
@@ -330,7 +332,7 @@
 | 8001-8099 | 认证错误 | AUTH_TOKEN_MISSING, AUTH_TOKEN_INVALID |
 | 9001-9099 | 限流错误 | RATE_LIMIT_EXCEEDED, RATE_LIMIT_COOLDOWN |
 
-### 7.2 异常层次
+### 6.2 异常层次
 
 ```
 DataAccessException (基类)
@@ -350,18 +352,18 @@ DataAccessException (基类)
 
 ---
 
-## 11. 缓存策略 (`store/strategies/`)
+## 7. 缓存策略 (`store/strategies/`)
 
 **文件路径**: `src/akshare_data/store/strategies/`
 
-### 8.1 CacheStrategy（抽象基类）
+### 7.1 CacheStrategy（抽象基类）
 
 定义三个抽象方法：
 - `should_fetch(cached, **params) -> bool` — 判断是否需要拉取
 - `merge(cached, fresh, **params) -> pd.DataFrame` — 合并新旧数据
 - `build_where(**params) -> dict` — 构建缓存查询条件
 
-### 8.2 FullCacheStrategy
+### 7.2 FullCacheStrategy
 
 适用：meta/snapshot 数据（如 securities_list、industry_stocks）。
 
@@ -370,7 +372,7 @@ DataAccessException (基类)
 - `merge`: 直接返回 fresh 数据
 - `build_where`: 按 filter_keys 构建等值查询
 
-### 8.3 IncrementalStrategy
+### 7.3 IncrementalStrategy
 
 适用：时序数据（如 stock_daily、index_daily、north_flow）。
 
@@ -383,7 +385,7 @@ DataAccessException (基类)
 
 ---
 
-## 6. Token 管理 (`tokens.py`)
+## 8. Token 管理 (`tokens.py`)
 
 **文件路径**: `src/akshare_data/core/tokens.py`
 
@@ -391,7 +393,7 @@ TokenManager 负责解析 API Token，支持从环境变量或配置文件（`to
 
 ---
 
-## 7. 配置缓存 (`config_cache.py`)
+## 9. 配置缓存 (`config_cache.py`)
 
 **文件路径**: `src/akshare_data/core/config_cache.py`
 
@@ -399,7 +401,7 @@ TokenManager 负责解析 API Token，支持从环境变量或配置文件（`to
 
 ---
 
-## 8. 配置目录发现 (`config_dir.py`)
+## 10. 配置目录发现 (`config_dir.py`)
 
 **文件路径**: `src/akshare_data/core/config_dir.py`
 
@@ -407,7 +409,7 @@ TokenManager 负责解析 API Token，支持从环境变量或配置文件（`to
 
 ---
 
-## 9. 期权工具 (`options.py`)
+## 11. 期权工具 (`options.py`)
 
 **文件路径**: `src/akshare_data/core/options.py`
 
@@ -415,11 +417,11 @@ TokenManager 负责解析 API Token，支持从环境变量或配置文件（`to
 
 ---
 
-## 10. 日志系统 (`logging.py`)
+## 12. 日志系统 (`logging.py`)
 
 **文件路径**: `src/akshare_data/core/logging.py`
 
-### 9.1 Formatter
+### 12.1 Formatter
 
 | 类 | 格式 | 说明 |
 |----|------|------|
@@ -435,11 +437,11 @@ TokenManager 负责解析 API Token，支持从环境变量或配置文件（`to
 | `structured` | StructuredFormatter（默认） |
 | `strategy` | `%(asctime)s - %(message)s` |
 
-### 9.2 ContextFilter
+### 12.2 ContextFilter
 
 为日志记录添加默认上下文的 Filter。
 
-### 9.3 Handler 工具函数
+### 12.3 Handler 工具函数
 
 | 函数 | 说明 |
 |------|------|
@@ -448,11 +450,11 @@ TokenManager 负责解析 API Token，支持从环境变量或配置文件（`to
 | `create_strategy_log_file()` | 策略日志文件处理器 |
 | `close_handler_safely()` | 安全关闭处理器 |
 
-### 9.4 JQLogAdapter
+### 12.4 JQLogAdapter
 
 JoinQuant 风格的日志适配器，支持 info/warn/warning/error/debug/critical 方法。可绑定 strategy 对象或直接输出到 stdout。
 
-### 9.5 LoggingConfig
+### 12.5 LoggingConfig
 
 | 属性 | 默认值 | 说明 |
 |------|--------|------|
@@ -463,7 +465,7 @@ JoinQuant 风格的日志适配器，支持 info/warn/warning/error/debug/critic
 | `backup_count` | `5` | 备份文件数 |
 | `suppress_third_party` | `True` | 抑制 matplotlib/PIL/urllib3/requests 日志 |
 
-### 9.6 LogManager
+### 12.6 LogManager
 
 单例日志管理器。
 
@@ -476,15 +478,15 @@ JoinQuant 风格的日志适配器，支持 info/warn/warning/error/debug/critic
 | `shutdown()` | 关闭日志（输出统计汇总） |
 | `reset()` | 重置日志配置与统计 |
 
-### 9.7 setup_logging()
+### 12.7 setup_logging()
 
 主入口函数，支持 console/file 双输出、多种格式、自动初始化 LogManager 单例。
 
-### 9.8 LogContext
+### 12.8 LogContext
 
 上下文管理器，用于临时向日志添加上下文。
 
-### 9.9 辅助函数
+### 12.9 辅助函数
 
 | 函数 | 说明 |
 |------|------|
@@ -498,13 +500,13 @@ JoinQuant 风格的日志适配器，支持 info/warn/warning/error/debug/critic
 
 ---
 
-## 10. 统计收集 (`stats.py`)
+## 13. 统计收集 (`stats.py`)
 
 **文件路径**: `src/akshare_data/core/stats.py`
 
 > `logging.py` 通过 re-export 将 stats.py 的所有公开 API 作为向后兼容别名重新导出。
 
-### 10.1 RequestStats
+### 13.1 RequestStats
 
 单个数据源的请求统计。
 
@@ -520,7 +522,7 @@ JoinQuant 风格的日志适配器，支持 info/warn/warning/error/debug/critic
 | `error_rate` | 错误率 |
 | `errors` | 错误类型计数字典 |
 
-### 10.2 CacheStats
+### 13.2 CacheStats
 
 单个缓存的统计。
 
@@ -531,7 +533,7 @@ JoinQuant 风格的日志适配器，支持 info/warn/warning/error/debug/critic
 | `total_requests` | 总请求数（hits + misses） |
 | `hit_rate` | 命中率 |
 
-### 10.3 StatsCollector
+### 13.3 StatsCollector
 
 线程安全的单例统计收集器。
 
@@ -551,7 +553,7 @@ JoinQuant 风格的日志适配器，支持 info/warn/warning/error/debug/critic
 | `reset()` | 清空所有统计 |
 | `reset_instance()` (类方法) | 重置单例 |
 
-### 10.4 模块级函数
+### 13.4 模块级函数
 
 | 函数 | 说明 |
 |------|------|

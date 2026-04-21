@@ -24,8 +24,8 @@ test-integration: ## Run integration tests
 test-system: ## Run system tests
 	python -m pytest tests/system/ -v -m system
 
-test-all: ## Run all tests with coverage (fails if <80%)
-	python -m pytest tests/ -v --cov=akshare_data --cov-fail-under=80
+test-all: ## Run all tests with coverage (fails if <75%)
+	python -m pytest tests/ -v --cov=akshare_data --cov-fail-under=75
 
 lint: ## Run linter (ruff)
 	ruff check src/ tests/

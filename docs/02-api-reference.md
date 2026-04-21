@@ -220,8 +220,9 @@ df = service.cn.stock.quote.daily("000001", "2024-01-01", "2024-12-31")
 | `money_flow` | `(symbol, start_date, end_date, source)` | 个股资金流 |
 | `north` | `(start_date, end_date, source)` | 北向资金 |
 | `northbound` | `(symbol, start_date, end_date, source)` | 北向持仓 |
-| `block` | `(symbol, start_date, end_date, source)` | 大宗交易 |
+| `block_deal` | `(symbol, start_date, end_date, source)` | 大宗交易 |
 | `margin` | `(symbol, start_date, end_date, source)` | 融资融券 |
+| `dragon_tiger` | `(date, source)` | 龙虎榜 |
 
 #### `service.cn.stock.event` — 事件
 
@@ -229,14 +230,6 @@ df = service.cn.stock.quote.daily("000001", "2024-01-01", "2024-12-31")
 |------|------|------|
 | `dividend` | `(symbol, source)` | 分红 |
 | `restricted_release` | `(symbol, source)` | 解禁 |
-
-#### `service.cn.stock.securities` — 证券
-
-| 方法 | 参数 | 说明 |
-|------|------|------|
-| `list` | `(type, date, source)` | 证券列表 |
-| `info` | `(symbol, source)` | 证券信息 |
-| `trading_calendar` | `(start_date, end_date, source)` | 交易日历 |
 
 ### `service.cn.index` — 指数
 
@@ -251,8 +244,6 @@ df = service.cn.stock.quote.daily("000001", "2024-01-01", "2024-12-31")
 | 方法 | 参数 | 说明 |
 |------|------|------|
 | `components` | `(index_code, source)` | 成分股(含权重) |
-| `list` | `(source)` | 指数列表 |
-| `weights` | `(index_code, date, source)` | 权重 |
 
 ### `service.cn.fund` — 基金
 
@@ -261,7 +252,6 @@ df = service.cn.stock.quote.daily("000001", "2024-01-01", "2024-12-31")
 | 方法 | 参数 | 说明 |
 |------|------|------|
 | `daily` | `(symbol, start_date, end_date, source)` | 基金日行情 |
-| `open_daily` | `(symbol, start_date, end_date, source)` | 开放式基金日净值 |
 
 ### `service.macro` — 宏观经济
 
@@ -272,7 +262,6 @@ df = service.cn.stock.quote.daily("000001", "2024-01-01", "2024-12-31")
 | `interest_rate` | `(start_date, end_date, source)` | 利率 |
 | `gdp` | `(start_date, end_date, source)` | GDP |
 | `social_financing` | `(start_date, end_date, source)` | 社融 |
-| `shibor` | `(start_date, end_date, source)` | Shibor |
 
 ---
 
@@ -290,7 +279,7 @@ df = service.cn.stock.quote.daily("000001", "2024-01-01", "2024-12-31")
 
 ## 错误处理
 
-详见 [09-错误处理](09-error-handling.md)。所有方法支持 `source` 参数指定数据源，失败时抛出 `DataAccessException` 子类异常。
+详见 [10-错误处理](10-error-handling.md)。所有方法支持 `source` 参数指定数据源，失败时抛出 `DataAccessException` 子类异常。
 
 ```python
 from akshare_data.core.errors import DataAccessException, NoDataError

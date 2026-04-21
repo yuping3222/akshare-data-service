@@ -2,7 +2,7 @@
 
 本文档介绍 akshare-data-service 的完整错误处理系统，包括错误码枚举、异常类层次结构以及使用模式。
 
-## 概述
+## 6. 概述
 
 错误处理系统位于 `src/akshare_data/core/errors.py`，提供结构化的错误分类和报告机制。系统由以下核心组件构成：
 
@@ -236,7 +236,7 @@
 | 9009 | BACKPRESSURE_TRIGGERED | 触发背压机制 |
 | 9010 | CIRCUIT_BREAKER_OPEN | 熔断器已打开 |
 
-## ErrorCode 工具方法
+## 10. ErrorCode 工具方法
 
 ### get_category()
 
@@ -280,7 +280,7 @@ message = ErrorCode.get_message(ErrorCode.INVALID_SYMBOL)
 # 返回: "Invalid stock symbol format"
 ```
 
-## 异常类层次结构
+## 11. 异常类层次结构
 
 所有异常类继承自 `DataAccessException` 基类，提供统一的错误上下文信息。
 
@@ -494,7 +494,7 @@ raise SystemError(
 )
 ```
 
-## 错误使用模式
+## 12. 错误使用模式
 
 ### 数据源中的错误抛出
 
@@ -663,7 +663,7 @@ def process_stock_data(symbol: str):
         raise
 ```
 
-## 错误码统计
+## 13. 错误码统计
 
 | 类别 | 错误码范围 | 数量 |
 |------|------------|------|
@@ -678,7 +678,7 @@ def process_stock_data(symbol: str):
 | 并发/频率限制错误 | 9001-9010 | 10 |
 | **总计** | | **177** |
 
-## 扩展
+## 14. 扩展
 
 ### 添加新错误码
 

@@ -1,5 +1,7 @@
 # 缓存策略
 
+> **注意**：本文档与 [04-存储层](04-storage-layer.md) 有内容重叠。04-storage-layer.md 侧重存储组件实现细节，本文档侧重缓存策略编排流程。
+
 本文档描述 akshare-data-service 的缓存优先（Cache-First）策略、多层缓存架构和增量更新机制。
 
 ---

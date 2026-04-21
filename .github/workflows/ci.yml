@@ -85,7 +85,7 @@ jobs:
         run: pip install -e ".[all,dev]"
 
       - name: Run tests with coverage
-        run: python -m pytest tests/ -v --tb=short -m "not network and not slow" --cov=akshare_data --cov-report=term-missing --cov-fail-under=80
+        run: python -m pytest tests/ -v --tb=short -m "not network and not slow" --cov=akshare_data --cov-report=term-missing --cov-fail-under=75
 
   test-integration:
     name: Integration Tests

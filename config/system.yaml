@@ -23,7 +23,7 @@ cache:
     compression: snappy
     row_group_size: 100000
 
-  retention_hours: 0
+  retention_hours: 24
   strict_schema: false
 
 # ------------------------------------------------------------

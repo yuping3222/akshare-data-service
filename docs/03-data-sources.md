@@ -322,6 +322,8 @@ def __init__(
 2. 如果未找到，尝试去掉 `get_` 前缀再查找
 3. 返回一个 dispatcher 函数，调用 `fetch(interface_name, akshare=self._akshare, **kwargs)`
 
+> 完整的方法名到接口名映射详见 [12-配置参考](12-configuration-reference.md) 中的 akshare_registry.yaml 配置。
+
 ### 4.4 方法名 → 接口名映射
 
 完整的方法名到接口名映射约 100+ 项，覆盖行情、期货/期权/可转债、宏观、财务、资金流向、龙虎榜、公司事件、评级/预测、行业/概念、基金、海外等所有分类。
@@ -348,6 +350,8 @@ def __init__(
 2. 按优先级遍历接口定义中的所有数据源
 3. 对每个数据源：通过 `input_mapping` 映射参数 → 调用 akshare 函数 → 通过 `output_mapping` 重命名列 → 通过 `column_types` 转换列类型
 4. 所有数据源都失败时抛出 `SourceUnavailableError`
+
+> fetch 返回的数据最终通过存储层写入缓存，详见 [04-存储层](04-storage-layer.md)。缓存表的 Schema 定义详见 [07-Schema 注册表](07-schema-registry.md)。
 
 ### 4.6 计算方法（显式定义）
 

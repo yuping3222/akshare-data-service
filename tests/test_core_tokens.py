@@ -62,10 +62,12 @@ class TestTokenManagerSingleton:
         tm.set_token("tushare", "test-token")
         assert tm.get_token("tushare") == "test-token"
         TokenManager.reset()
-        # Clear env and mock token.cfg to ensure no fallback sources
-        with patch.dict("os.environ", {}, clear=True):
+        # Clear _token_cfg_cache on the new instance to avoid stale config cache
+        # and mock _load_token_cfg to return empty (no token.cfg file)
+        with patch.dict(os.environ, {}, clear=True):
             with patch.object(TokenManager, "_load_token_cfg", return_value={}):
                 tm2 = TokenManager.get_instance()
+                tm2._token_cfg_cache = None  # ensure fresh load
                 assert tm2.get_token("tushare") is None
 
 

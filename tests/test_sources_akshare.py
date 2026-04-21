@@ -770,26 +770,23 @@ class TestOptionsMethods:
 class TestFinancialMethods:
     """Test financial statement methods"""
 
-    def test_get_balance_sheet_unavailable(self):
-        """Test get_balance_sheet when akshare unavailable"""
+    def test_get_balance_sheet_not_implemented(self):
+        """Test get_balance_sheet raises NotImplementedError for akshare."""
         adapter = AkShareAdapter()
-        with patch.object(adapter, "_akshare_available", False):
-            with pytest.raises(DataSourceError):
-                adapter.get_balance_sheet("600000")
+        with pytest.raises(NotImplementedError):
+            adapter.get_balance_sheet("600000")
 
-    def test_get_income_statement_unavailable(self):
-        """Test get_income_statement when akshare unavailable"""
+    def test_get_income_statement_not_implemented(self):
+        """Test get_income_statement raises NotImplementedError for akshare."""
         adapter = AkShareAdapter()
-        with patch.object(adapter, "_akshare_available", False):
-            with pytest.raises(DataSourceError):
-                adapter.get_income_statement("600000")
+        with pytest.raises(NotImplementedError):
+            adapter.get_income_statement("600000")
 
-    def test_get_cash_flow_unavailable(self):
-        """Test get_cash_flow when akshare unavailable"""
+    def test_get_cash_flow_not_implemented(self):
+        """Test get_cash_flow raises NotImplementedError for akshare."""
         adapter = AkShareAdapter()
-        with patch.object(adapter, "_akshare_available", False):
-            with pytest.raises(DataSourceError):
-                adapter.get_cash_flow("600000")
+        with pytest.raises(NotImplementedError):
+            adapter.get_cash_flow("600000")
 
     def test_get_basic_info_unavailable(self):
         """Test get_basic_info when akshare unavailable"""

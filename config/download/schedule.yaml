@@ -1,0 +1,22 @@
+schedules:
+  - name: "equity_daily_incremental"
+    interface: "stock_zh_a_daily"
+    cron: "30 15 * * 1-5"
+    mode: "incremental"
+    days_back: 1
+    symbols: "csi300"
+    enabled: true
+
+  - name: "index_daily_full"
+    interface: "stock_zh_index_daily"
+    cron: "0 20 * * *"
+    mode: "full"
+    days_back: 7
+    enabled: true
+
+  - name: "fund_nav_weekly"
+    interface: "fund_open_fund_info_em"
+    cron: "0 10 * * 5"
+    mode: "incremental"
+    days_back: 7
+    enabled: true

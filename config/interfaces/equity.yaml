@@ -1,0 +1,1742 @@
+# 股票行情接口
+# category: equity
+
+equity_daily:
+  name: "equity_daily"
+  category: "equity"
+  description: "A股日线数据（含复权）"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "股票代码，如 000001"}
+    - {name: "start_date", type: "date", required: true, desc: "开始日期 YYYY-MM-DD"}
+    - {name: "end_date", type: "date", required: true, desc: "结束日期 YYYY-MM-DD"}
+    - {name: "adjust", type: "str", required: false, default: "qfq", desc: "复权: qfq/hfq/none"}
+
+  output:
+    - {name: "date", type: "date", desc: "交易日期"}
+    - {name: "open", type: "float", desc: "开盘价"}
+    - {name: "high", type: "float", desc: "最高价"}
+    - {name: "low", type: "float", desc: "最低价"}
+    - {name: "close", type: "float", desc: "收盘价"}
+    - {name: "volume", type: "float", desc: "成交量"}
+    - {name: "amount", type: "float", desc: "成交额"}
+
+  rate_limit_key: "em_push2his"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_zh_a_hist"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        start_date: "start_date"
+        end_date: "end_date"
+        adjust: "adjust"
+      param_transforms:
+        start_date: "YYYYMMDD"
+        end_date: "YYYYMMDD"
+      output_mapping:
+        日期: "date"
+        开盘: "open"
+        最高: "high"
+        最低: "low"
+        收盘: "close"
+        成交量: "volume"
+        成交额: "amount"
+      column_types:
+        date: "date"
+        open: "float"
+        high: "float"
+        low: "float"
+        close: "float"
+        volume: "float"
+        amount: "float"
+
+    - name: "akshare_sina"
+      func: "stock_zh_a_daily"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping:
+        day: "date"
+        open: "open"
+        high: "high"
+        low: "low"
+        close: "close"
+        volume: "volume"
+      column_types:
+        date: "date"
+        open: "float"
+        high: "float"
+        low: "float"
+        close: "float"
+        volume: "float"
+
+    - name: "tushare"
+      func: "daily"
+      enabled: false
+      type: "adapter"
+      requires_token: true
+      input_mapping:
+        symbol: "ts_code"
+        start_date: "start_date"
+        end_date: "end_date"
+      param_transforms:
+        symbol: "to_ts_code"
+        start_date: "YYYYMMDD"
+        end_date: "YYYYMMDD"
+      output_mapping:
+        trade_date: "date"
+        open: "open"
+        high: "high"
+        low: "low"
+        close: "close"
+        vol: "volume"
+        amount: "amount"
+      column_types:
+        date: "date"
+        open: "float"
+        high: "float"
+        low: "float"
+        close: "float"
+        volume: "float"
+        amount: "float"
+
+equity_minute:
+  name: "equity_minute"
+  category: "equity"
+  description: "A股分钟线数据"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+    - {name: "start_date", type: "datetime", required: false}
+    - {name: "end_date", type: "datetime", required: false}
+    - {name: "period", type: "str", required: false, default: "5", desc: "分钟周期: 1/5/15/30/60"}
+    - {name: "adjust", type: "str", required: false, default: ""}
+
+  output:
+    - {name: "datetime", type: "datetime", desc: "时间戳"}
+    - {name: "open", type: "float"}
+    - {name: "high", type: "float"}
+    - {name: "low", type: "float"}
+    - {name: "close", type: "float"}
+    - {name: "volume", type: "float"}
+    - {name: "amount", type: "float"}
+
+  rate_limit_key: "em_push2his"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_zh_a_hist_min_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        start_date: "start_date"
+        end_date: "end_date"
+        period: "period"
+        adjust: "adjust"
+      param_transforms:
+        start_date: "YYYYMMDD"
+        end_date: "YYYYMMDD"
+      output_mapping:
+        时间: "datetime"
+        开盘: "open"
+        最高: "high"
+        最低: "low"
+        收盘: "close"
+        成交量: "volume"
+        成交额: "amount"
+      column_types:
+        datetime: "datetime"
+        open: "float"
+        high: "float"
+        low: "float"
+        close: "float"
+        volume: "float"
+        amount: "float"
+
+equity_realtime:
+  name: "equity_realtime"
+  category: "equity"
+  description: "A股实时行情"
+
+  input:
+    - {name: "symbol", type: "str", required: false, desc: "股票代码，不传返回全部"}
+
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "name", type: "str", desc: "股票名称"}
+    - {name: "price", type: "float", desc: "最新价"}
+    - {name: "change", type: "float", desc: "涨跌额"}
+    - {name: "pct_change", type: "float", desc: "涨跌幅%"}
+    - {name: "volume", type: "float", desc: "成交量"}
+    - {name: "amount", type: "float", desc: "成交额"}
+    - {name: "open", type: "float", desc: "今开"}
+    - {name: "high", type: "float", desc: "最高"}
+    - {name: "low", type: "float", desc: "最低"}
+    - {name: "prev_close", type: "float", desc: "昨收"}
+
+  rate_limit_key: "em_push2"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_zh_a_spot_em"
+      enabled: true
+      input_mapping: {}
+      output_mapping:
+        代码: "symbol"
+        名称: "name"
+        最新价: "price"
+        涨跌额: "change"
+        涨跌幅: "pct_change"
+        成交量: "volume"
+        成交额: "amount"
+        今开: "open"
+        最高: "high"
+        最低: "low"
+        昨收: "prev_close"
+      column_types:
+        price: "float"
+        change: "float"
+        pct_change: "float"
+        volume: "float"
+        amount: "float"
+        open: "float"
+        high: "float"
+        low: "float"
+        prev_close: "float"
+
+    - name: "akshare_sina"
+      func: "stock_zh_a_spot"
+      enabled: true
+      input_mapping: {}
+      output_mapping:
+        code: "symbol"
+        name: "name"
+        trade: "price"
+        changepercent: "pct_change"
+        volume: "volume"
+        amount: "amount"
+        open: "open"
+        high: "high"
+        low: "low"
+        settlement: "prev_close"
+      column_types:
+        price: "float"
+        change: "float"
+        pct_change: "float"
+        volume: "float"
+        amount: "float"
+        open: "float"
+        high: "float"
+        low: "float"
+        prev_close: "float"
+
+securities_list:
+  name: "securities_list"
+  category: "equity"
+  description: "A股股票列表"
+
+  input: []
+
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "name", type: "str", desc: "股票名称"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_info_a_code_name"
+      enabled: true
+      input_mapping: {}
+      output_mapping:
+        code: "symbol"
+        name: "name"
+      column_types:
+        symbol: "str"
+        name: "str"
+
+block_deal:
+  name: "block_deal"
+  category: "equity"
+  description: "大宗交易数据"
+
+  input: []
+
+  output:
+    - {name: "datetime", type: "datetime", desc: "成交时间"}
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "name", type: "str", desc: "股票简称"}
+    - {name: "price", type: "float", desc: "成交价格"}
+    - {name: "volume", type: "float", desc: "成交量"}
+    - {name: "amount", type: "float", desc: "成交额"}
+    - {name: "direction", type: "str", desc: "大单性质"}
+    - {name: "pct_change", type: "float", desc: "涨跌幅"}
+    - {name: "change", type: "float", desc: "涨跌额"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_fund_flow_big_deal"
+      enabled: true
+      input_mapping: {}
+      output_mapping:
+        成交时间: "datetime"
+        股票代码: "symbol"
+        股票简称: "name"
+        成交价格: "price"
+        成交量: "volume"
+        成交额: "amount"
+        大单性质: "direction"
+        涨跌幅: "pct_change"
+        涨跌额: "change"
+      column_types:
+        datetime: "datetime"
+        symbol: "str"
+        name: "str"
+        price: "float"
+        volume: "float"
+        amount: "float"
+        direction: "str"
+        pct_change: "float"
+        change: "float"
+
+# ── 龙虎榜 & 涨跌停 & 融资融券 ─────────────────────────────
+
+dragon_tiger_list:
+  name: "dragon_tiger_list"
+  category: "equity"
+  description: "龙虎榜个股数据"
+
+  input:
+    - {name: "date", type: "date", required: true, desc: "查询日期 YYYY-MM-DD"}
+    - {name: "start_date", type: "date", required: false, desc: "起始日期 (由date自动生成)"}
+    - {name: "end_date", type: "date", required: false, desc: "结束日期 (由date自动生成)"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_lhb_detail_em"
+      enabled: true
+      input_mapping:
+        start_date: "start_date"
+        end_date: "end_date"
+      param_transforms:
+        start_date: "YYYYMMDD"
+        end_date: "YYYYMMDD"
+      output_mapping: {}
+
+dragon_tiger_summary:
+  name: "dragon_tiger_summary"
+  category: "equity"
+  description: "龙虎榜统计数据"
+
+  input:
+    - {name: "start_date", type: "date", required: true, desc: "起始日期 YYYY-MM-DD"}
+    - {name: "end_date", type: "date", required: true, desc: "结束日期 YYYY-MM-DD"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_lhb_detail_em"
+      enabled: true
+      input_mapping:
+        start_date: "start_date"
+        end_date: "end_date"
+      param_transforms:
+        start_date: "YYYYMMDD"
+        end_date: "YYYYMMDD"
+      output_mapping: {}
+
+limit_up_pool:
+  name: "limit_up_pool"
+  category: "equity"
+  description: "涨停池数据"
+
+  input:
+    - {name: "date", type: "date", required: true, desc: "查询日期 YYYY-MM-DD"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_zt_pool_em"
+      enabled: true
+      input_mapping:
+        date: "date"
+      param_transforms:
+        date: "YYYYMMDD"
+      output_mapping: {}
+
+limit_down_pool:
+  name: "limit_down_pool"
+  category: "equity"
+  description: "跌停池数据"
+
+  input:
+    - {name: "date", type: "date", required: true, desc: "查询日期 YYYY-MM-DD"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_zt_pool_dtgc_em"
+      enabled: true
+      input_mapping:
+        date: "date"
+      param_transforms:
+        date: "YYYYMMDD"
+      output_mapping: {}
+
+margin_data:
+  name: "margin_data"
+  category: "equity"
+  description: "融资融券明细数据"
+
+  input:
+    - {name: "date", type: "date", required: true, desc: "查询日期 YYYY-MM-DD"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_sse"
+      func: "stock_margin_detail_sse"
+      enabled: true
+      input_mapping:
+        date: "date"
+      param_transforms:
+        date: "YYYYMMDD"
+      output_mapping: {}
+
+margin_summary:
+  name: "margin_summary"
+  category: "equity"
+  description: "融资融券汇总数据"
+
+  input:
+    - {name: "start_date", type: "date", required: true, desc: "起始日期 YYYY-MM-DD"}
+    - {name: "end_date", type: "date", required: true, desc: "结束日期 YYYY-MM-DD"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_sse"
+      func: "stock_margin_sse"
+      enabled: true
+      input_mapping:
+        start_date: "start_date"
+        end_date: "end_date"
+      param_transforms:
+        start_date: "YYYYMMDD"
+        end_date: "YYYYMMDD"
+      output_mapping: {}
+
+suspended_stocks:
+  name: "suspended_stocks"
+  category: "meta"
+  description: "当前停牌股票列表"
+
+  input: []
+
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "name", type: "str", desc: "股票名称"}
+    - {name: "suspend_date", type: "date", desc: "停牌时间"}
+    - {name: "resume_date", type: "date", desc: "复牌时间"}
+    - {name: "suspend_reason", type: "str", desc: "停牌原因"}
+    - {name: "resume_date_actual", type: "date", desc: "实际复牌日期"}
+
+  rate_limit_key: "em_datacenter"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_tfp_em"
+      enabled: true
+      input_mapping: {}
+      output_mapping:
+        代码: "symbol"
+        名称: "name"
+        停牌时间: "suspend_date"
+        复牌时间: "resume_date"
+        停牌原因: "suspend_reason"
+        复牌日期: "resume_date_actual"
+      column_types:
+        symbol: "str"
+        name: "str"
+        suspend_date: "date"
+        resume_date: "date"
+        suspend_reason: "str"
+        resume_date_actual: "date"
+
+st_stocks:
+  name: "st_stocks"
+  category: "meta"
+  description: "ST股票列表"
+
+  input: []
+
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "name", type: "str", desc: "股票名称"}
+
+  rate_limit_key: "em_push2"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_zh_a_st_em"
+      enabled: true
+      input_mapping: {}
+      output_mapping:
+        代码: "symbol"
+        名称: "name"
+      column_types:
+        symbol: "str"
+        name: "str"
+
+security_info:
+  name: "security_info"
+  category: "meta"
+  description: "个股基本信息"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "股票代码，如 000001"}
+
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "name", type: "str", desc: "股票名称"}
+    - {name: "industry", type: "str", desc: "所属行业"}
+    - {name: "list_date", type: "date", desc: "上市时间"}
+
+  rate_limit_key: "em_datacenter"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_individual_info_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping:
+        代码: "symbol"
+        股票名称: "name"
+        行业: "industry"
+        上市时间: "list_date"
+      column_types:
+        symbol: "str"
+        name: "str"
+        industry: "str"
+        list_date: "date"
+
+industry_stocks:
+  name: "industry_stocks"
+  category: "equity"
+  description: "申万行业成份股"
+
+  input:
+    - {name: "industry_code", type: "str", required: true, desc: "申万行业代码，如 801120（系统会自动添加 .SI 后缀）"}
+
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "name", type: "str", desc: "股票简称"}
+    - {name: "sw_level1", type: "str", desc: "申万一级行业"}
+    - {name: "sw_level2", type: "str", desc: "申万二级行业"}
+    - {name: "sw_level3", type: "str", desc: "申万三级行业"}
+    - {name: "price", type: "float", desc: "价格"}
+    - {name: "pe", type: "float", desc: "市盈率"}
+    - {name: "pe_ttm", type: "float", desc: "市盈率TTM"}
+    - {name: "pb", type: "float", desc: "市净率"}
+    - {name: "dividend_yield", type: "float", desc: "股息率"}
+    - {name: "market_cap", type: "float", desc: "市值"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_sina"
+      func: "sw_index_third_cons"
+      enabled: true
+      input_mapping:
+        industry_code: "symbol"
+      param_transforms:
+        industry_code: "append_suffix:.SI"
+      output_mapping:
+        股票代码: "symbol"
+        股票简称: "name"
+        申万1级: "sw_level1"
+        申万2级: "sw_level2"
+        申万3级: "sw_level3"
+        价格: "price"
+        市盈率: "pe"
+        市盈率ttm: "pe_ttm"
+        市净率: "pb"
+        股息率: "dividend_yield"
+        市值: "market_cap"
+      column_types:
+        symbol: "str"
+        name: "str"
+        sw_level1: "str"
+        sw_level2: "str"
+        sw_level3: "str"
+        price: "float"
+        pe: "float"
+        pe_ttm: "float"
+        pb: "float"
+        dividend_yield: "float"
+        market_cap: "float"
+
+industry_mapping:
+  name: "industry_mapping"
+  category: "equity"
+  description: "个股行业分类变动"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "股票代码，如 002594"}
+    - {name: "start_date", type: "date", required: false, desc: "行业变动起始日期 YYYYMMDD"}
+    - {name: "end_date", type: "date", required: false, desc: "行业变动结束日期 YYYYMMDD"}
+
+  output:
+    - {name: "date", type: "date", desc: "变更日期"}
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "industry_name", type: "str", desc: "行业名称"}
+    - {name: "industry_code", type: "str", desc: "行业代码"}
+    - {name: "standard", type: "str", desc: "分类标准"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_sina"
+      func: "stock_industry_change_cninfo"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        start_date: "start_date"
+        end_date: "end_date"
+      output_mapping: {}
+      column_types: {}
+
+industry_list:
+  name: "industry_list"
+  category: "equity"
+  description: "申万一级行业列表"
+
+  input: []
+
+  output:
+    - {name: "industry_code", type: "str", desc: "行业代码"}
+    - {name: "industry_name", type: "str", desc: "行业名称"}
+    - {name: "count", type: "int", desc: "成份个数"}
+    - {name: "pe_static", type: "float", desc: "静态市盈率"}
+    - {name: "pe_ttm", type: "float", desc: "TTM市盈率"}
+    - {name: "pb", type: "float", desc: "市净率"}
+    - {name: "dividend_yield", type: "float", desc: "静态股息率"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_sina"
+      func: "sw_index_first_info"
+      enabled: true
+      input_mapping: {}
+      output_mapping:
+        行业代码: "industry_code"
+        行业名称: "industry_name"
+        成份个数: "count"
+        静态市盈率: "pe_static"
+        TTM(滚动)市盈率: "pe_ttm"
+        市净率: "pb"
+        静态股息率: "dividend_yield"
+      column_types:
+        industry_code: "str"
+        industry_name: "str"
+        count: "int"
+        pe_static: "float"
+        pe_ttm: "float"
+        pb: "float"
+        dividend_yield: "float"
+
+finance_indicator:
+  name: "finance_indicator"
+  category: "equity"
+  description: "个股财务指标"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "股票代码，如 600519"}
+    - {name: "start_year", type: "str", required: false, default: "2024", desc: "起始年份，如 2024"}
+
+  output:
+    - {name: "report_date", type: "date", desc: "报告日期"}
+    - {name: "basic_eps", type: "float", desc: "基本每股收益"}
+    - {name: "roe", type: "float", desc: "加权净资产收益率"}
+    - {name: "net_profit_margin", type: "float", desc: "销售净利率"}
+    - {name: "gross_profit_margin", type: "float", desc: "销售毛利率"}
+    - {name: "debt_ratio", type: "float", desc: "资产负债率"}
+    - {name: "total_revenue", type: "float", desc: "营业总收入"}
+    - {name: "net_profit", type: "float", desc: "净利润"}
+
+  rate_limit_key: "em_datacenter"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_financial_analysis_indicator"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        start_year: "start_year"
+      output_mapping:
+        报告日期: "report_date"
+        基本每股收益: "basic_eps"
+        加权净资产收益率: "roe"
+        销售净利率: "net_profit_margin"
+        销售毛利率: "gross_profit_margin"
+        资产负债率: "debt_ratio"
+        营业总收入: "total_revenue"
+        净利润: "net_profit"
+      column_types:
+        report_date: "date"
+        basic_eps: "float"
+        roe: "float"
+        net_profit_margin: "float"
+        gross_profit_margin: "float"
+        debt_ratio: "float"
+        total_revenue: "float"
+        net_profit: "float"
+
+# ── 财务报表 ─────────────────────────────────────────────
+
+balance_sheet:
+  name: "balance_sheet"
+  category: "equity"
+  description: "资产负债表"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "股票代码"}
+
+  output: []
+
+  rate_limit_key: "em_datacenter"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_balance_sheet_by_report_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      param_transforms:
+        symbol: "prepend_prefix:SH/SZ"
+      output_mapping: {}
+
+income_statement:
+  name: "income_statement"
+  category: "equity"
+  description: "利润表"
+
+  input:
+    - {name: "date", type: "date", required: false, default: "20240331", desc: "报告日期 YYYYMMDD"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_lrb_em"
+      enabled: true
+      input_mapping:
+        date: "date"
+      output_mapping: {}
+
+cash_flow:
+  name: "cash_flow"
+  category: "equity"
+  description: "现金流量表"
+
+  input:
+    - {name: "date", type: "date", required: false, default: "20240331", desc: "报告日期 YYYYMMDD"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_xjll_em"
+      enabled: true
+      input_mapping:
+        date: "date"
+      output_mapping: {}
+
+# ── 个股信息 ─────────────────────────────────────────────
+
+basic_info:
+  name: "basic_info"
+  category: "equity"
+  description: "个股基本信息"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_xq"
+      func: "stock_individual_basic_info_xq"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      param_transforms:
+        symbol: "prepend_prefix:SH/SZ"
+      output_mapping: {}
+
+# ── 资金流向 ─────────────────────────────────────────────
+
+money_flow:
+  name: "money_flow"
+  category: "equity"
+  description: "个股资金流向"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+    - {name: "market", type: "str", required: false, default: "sh"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_individual_fund_flow"
+      enabled: true
+      input_mapping:
+        symbol: "stock"
+        market: "market"
+      output_mapping: {}
+
+north_money_flow:
+  name: "north_money_flow"
+  category: "equity"
+  description: "北向资金流向汇总"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_hsgt_fund_flow_summary_em"
+      enabled: true
+      output_mapping: {}
+
+northbound_holdings:
+  name: "northbound_holdings"
+  category: "equity"
+  description: "北向资金持股历史"
+
+  input:
+    - {name: "symbol", type: "str", required: false, default: "北向资金"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_hsgt_hist_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+northbound_top_stocks:
+  name: "northbound_top_stocks"
+  category: "equity"
+  description: "北向资金增持行业板块排行"
+
+  input:
+    - {name: "symbol", type: "str", required: false, default: "北向资金增持行业板块排行"}
+    - {name: "indicator", type: "str", required: false, default: "今日"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_hsgt_board_rank_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        indicator: "indicator"
+      output_mapping: {}
+
+# ── 股权质押/冻结 ────────────────────────────────────────
+
+equity_pledge:
+  name: "equity_pledge"
+  category: "equity"
+  description: "股权质押数据"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_ggcg_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+# ── 股东/筹码 ───────────────────────────────────────────
+
+chip_distribution:
+  name: "chip_distribution"
+  category: "equity"
+  description: "筹码分布"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_circulate_stock_holder"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+shareholder_changes:
+  name: "shareholder_changes"
+  category: "equity"
+  description: "股东增减持"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_ths"
+      func: "stock_shareholder_change_ths"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+# ── ESG ─────────────────────────────────────────────────
+
+esg_rating:
+  name: "esg_rating"
+  category: "equity"
+  description: "ESG评级数据"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_sina"
+      func: "stock_esg_msci_sina"
+      enabled: true
+      output_mapping: {}
+
+esg_rank:
+  name: "esg_rank"
+  category: "equity"
+  description: "ESG排名"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_sina"
+      func: "stock_esg_rate_sina"
+      enabled: true
+      output_mapping: {}
+
+# ── 业绩预测/快报 ────────────────────────────────────────
+
+performance_forecast:
+  name: "performance_forecast"
+  category: "equity"
+  description: "业绩预告"
+
+  input:
+    - {name: "date", type: "date", required: false, default: "20200331", desc: "报告日期 YYYYMMDD"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_yjbb_em"
+      enabled: true
+      input_mapping:
+        date: "date"
+      output_mapping: {}
+
+analyst_rank:
+  name: "analyst_rank"
+  category: "equity"
+  description: "分析师排名"
+
+  input:
+    - {name: "year", type: "str", required: false, default: "2024"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_analyst_rank_em"
+      enabled: true
+      input_mapping:
+        year: "year"
+      output_mapping: {}
+
+research_report:
+  name: "research_report"
+  category: "equity"
+  description: "研报数据"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_research_report_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+# ── 分红/业绩 ───────────────────────────────────────────
+
+stock_bonus:
+  name: "stock_bonus"
+  category: "equity"
+  description: "股票分红信息"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_cninfo"
+      func: "stock_dividend_cninfo"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+dividend_by_date:
+  name: "dividend_by_date"
+  category: "equity"
+  description: "按日期查询分红数据"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare"
+      func: "stock_history_dividend"
+      enabled: true
+      output_mapping: {}
+
+repurchase_data:
+  name: "repurchase_data"
+  category: "equity"
+  description: "股票回购数据"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_repurchase_em"
+      enabled: true
+      output_mapping: {}
+
+earnings_forecast:
+  name: "earnings_forecast"
+  category: "equity"
+  description: "盈利预测"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_profit_forecast_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+rights_issue:
+  name: "rights_issue"
+  category: "equity"
+  description: "配股/预约披露时间"
+
+  input:
+    - {name: "symbol", type: "str", required: false, default: "沪深A股"}
+    - {name: "date", type: "str", required: false, default: "20200331"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_yysj_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        date: "date"
+      output_mapping: {}
+
+# ── 管理层/资本变动 ─────────────────────────────────────
+
+management_info:
+  name: "management_info"
+  category: "equity"
+  description: "公司管理层信息"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_cninfo"
+      func: "stock_hold_management_detail_cninfo"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+capital_change:
+  name: "capital_change"
+  category: "equity"
+  description: "股本变动"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_changes_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+# ── 新闻/公告 ───────────────────────────────────────────
+
+disclosure_news:
+  name: "disclosure_news"
+  category: "equity"
+  description: "个股新闻/公告"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_news_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+# ── 限售股解禁 ──────────────────────────────────────────
+
+restricted_release:
+  name: "restricted_release"
+  category: "equity"
+  description: "限售股解禁明细"
+
+  input:
+    - {name: "start_date", type: "str", required: true}
+    - {name: "end_date", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_restricted_release_detail_em"
+      enabled: true
+      input_mapping:
+        start_date: "start_date"
+        end_date: "end_date"
+      output_mapping: {}
+
+restricted_release_calendar:
+  name: "restricted_release_calendar"
+  category: "equity"
+  description: "限售股解禁日历"
+
+  input:
+    - {name: "start_date", type: "str", required: true}
+    - {name: "end_date", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_restricted_release_detail_em"
+      enabled: true
+      input_mapping:
+        start_date: "start_date"
+        end_date: "end_date"
+      output_mapping: {}
+
+restricted_release_detail:
+  name: "restricted_release_detail"
+  category: "equity"
+  description: "限售股解禁详情"
+
+  input:
+    - {name: "start_date", type: "str", required: true}
+    - {name: "end_date", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_restricted_release_detail_em"
+      enabled: true
+      input_mapping:
+        start_date: "start_date"
+        end_date: "end_date"
+      output_mapping: {}
+
+equity_pledge_rank:
+  name: "equity_pledge_rank"
+  category: "equity"
+  description: "股权质押排行"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_ggcg_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+call_auction:
+  name: "call_auction"
+  category: "equity"
+  description: "集合竞价数据"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_bid_ask_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+# ── 板块/概念 ───────────────────────────────────────────
+
+concept_list:
+  name: "concept_list"
+  category: "equity"
+  description: "概念板块列表"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_board_concept_name_em"
+      enabled: true
+      output_mapping: {}
+
+concept_stocks:
+  name: "concept_stocks"
+  category: "equity"
+  description: "概念板块成份股"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_board_concept_cons_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+stock_concepts:
+  name: "stock_concepts"
+  category: "equity"
+  description: "个股所属概念"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_board_concept_cons_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+concept_performance:
+  name: "concept_performance"
+  category: "equity"
+  description: "概念板块行情历史"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+    - {name: "period", type: "str", required: false, default: "daily"}
+    - {name: "start_date", type: "str", required: false, default: "20220101"}
+    - {name: "end_date", type: "str", required: false, default: "20221128"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_board_concept_hist_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        period: "period"
+        start_date: "start_date"
+        end_date: "end_date"
+      output_mapping: {}
+
+stock_industry:
+  name: "stock_industry"
+  category: "equity"
+  description: "个股所属行业"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_board_industry_cons_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+industry_performance:
+  name: "industry_performance"
+  category: "equity"
+  description: "行业板块行情历史"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+    - {name: "start_date", type: "str", required: false, default: "20211201"}
+    - {name: "end_date", type: "str", required: false, default: "20220401"}
+    - {name: "period", type: "str", required: false, default: "日k"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_board_industry_hist_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        start_date: "start_date"
+        end_date: "end_date"
+        period: "period"
+      output_mapping: {}
+
+sw_industry_list:
+  name: "sw_industry_list"
+  category: "equity"
+  description: "申万行业板块列表"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_board_industry_name_em"
+      enabled: true
+      output_mapping: {}
+
+sw_industry_daily:
+  name: "sw_industry_daily"
+  category: "equity"
+  description: "申万行业板块日线行情"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+    - {name: "start_date", type: "str", required: false, default: "20211201"}
+    - {name: "end_date", type: "str", required: false, default: "20220401"}
+    - {name: "period", type: "str", required: false, default: "日k"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_board_industry_hist_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        start_date: "start_date"
+        end_date: "end_date"
+        period: "period"
+      output_mapping: {}
+
+# ── 热点排行 ────────────────────────────────────────────
+
+hot_rank:
+  name: "hot_rank"
+  category: "equity"
+  description: "港股热度排行"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_hk_hot_rank_em"
+      enabled: true
+      output_mapping: {}
+
+# ── 资金流向排行 ────────────────────────────────────────
+
+main_fund_flow_rank:
+  name: "main_fund_flow_rank"
+  category: "equity"
+  description: "主力资金流向排行"
+
+  input:
+    - {name: "indicator", type: "str", required: false, default: "5日"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_individual_fund_flow_rank"
+      enabled: true
+      input_mapping:
+        indicator: "indicator"
+      output_mapping: {}
+
+sector_fund_flow:
+  name: "sector_fund_flow"
+  category: "equity"
+  description: "行业资金流向"
+
+  input:
+    - {name: "symbol", type: "str", required: false, default: "即时"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_fund_flow_industry"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+# ── 交易日历 ────────────────────────────────────────────
+
+trading_days:
+  name: "trading_days"
+  category: "equity"
+  description: "交易日历"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_sina"
+      func: "tool_trade_date_hist_sina"
+      enabled: true
+      output_mapping: {}
+
+# ── 港股 / 美股 / 新股 ────────────────────────────────
+
+hk_stocks:
+  name: "hk_stocks"
+  category: "equity"
+  description: "港股实时行情"
+
+  input: []
+
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "name", type: "str", desc: "股票名称"}
+    - {name: "price", type: "float", desc: "最新价"}
+
+  rate_limit_key: "em_push2"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_hk_spot_em"
+      enabled: true
+      output_mapping:
+        代码: "symbol"
+        名称: "name"
+        最新价: "price"
+      column_types:
+        price: "float"
+
+hk_daily:
+  name: "hk_daily"
+  category: "equity"
+  description: "港股日线数据（新浪源）"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "港股代码"}
+    - {name: "adjust", type: "str", required: false, default: "qfq", desc: "复权: qfq/hfq/none"}
+
+  output:
+    - {name: "date", type: "date", desc: "日期"}
+    - {name: "open", type: "float", desc: "开盘价"}
+    - {name: "high", type: "float", desc: "最高价"}
+    - {name: "low", type: "float", desc: "最低价"}
+    - {name: "close", type: "float", desc: "收盘价"}
+    - {name: "volume", type: "float", desc: "成交量"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_sina"
+      func: "stock_hk_daily"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        adjust: "adjust"
+      output_mapping:
+        day: "date"
+        open: "open"
+        high: "high"
+        low: "low"
+        close: "close"
+        volume: "volume"
+      column_types:
+        date: "date"
+        open: "float"
+        high: "float"
+        low: "float"
+        close: "float"
+        volume: "float"
+
+us_stocks:
+  name: "us_stocks"
+  category: "equity"
+  description: "美股实时行情"
+
+  input: []
+
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "name", type: "str", desc: "股票名称"}
+    - {name: "price", type: "float", desc: "最新价"}
+
+  rate_limit_key: "em_push2"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_us_spot_em"
+      enabled: true
+      output_mapping:
+        代码: "symbol"
+        名称: "name"
+        最新价: "price"
+      column_types:
+        price: "float"
+
+us_index_daily:
+  name: "us_index_daily"
+  category: "equity"
+  description: "美股指数日线数据（新浪源）"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "指数代码，如 .IXIC, .DJI, .INX"}
+
+  output:
+    - {name: "date", type: "date", desc: "日期"}
+    - {name: "open", type: "float", desc: "开盘价"}
+    - {name: "high", type: "float", desc: "最高价"}
+    - {name: "low", type: "float", desc: "最低价"}
+    - {name: "close", type: "float", desc: "收盘价"}
+    - {name: "volume", type: "float", desc: "成交量"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_sina"
+      func: "index_us_stock_sina"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping:
+        date: "date"
+        open: "open"
+        high: "high"
+        low: "low"
+        close: "close"
+        volume: "volume"
+      column_types:
+        date: "date"
+        open: "float"
+        high: "float"
+        low: "float"
+        close: "float"
+        volume: "float"
+
+new_stocks:
+  name: "new_stocks"
+  category: "equity"
+  description: "新股申购与中签数据"
+
+  input:
+    - {name: "symbol", type: "str", required: false, default: "全部股票", desc: "市场: 全部股票/沪市主板/科创板/深市主板/创业板/北交所"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_xgsglb_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+ipo_benefit:
+  name: "ipo_benefit"
+  category: "equity"
+  description: "IPO受益股数据（同花顺源）"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_ths"
+      func: "stock_ipo_benefit_ths"
+      enabled: true
+      output_mapping: {}

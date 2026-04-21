@@ -1,0 +1,81 @@
+# 域名与限速配置
+# 定义真实域名与抽象 rate_limit_key 的映射关系，以及并发限制。
+# rate_limit_key 必须与 config/rate_limits.yaml 中的 key 一一对应。
+
+domains:
+  em_push2his:
+    url_pattern: "push2his.eastmoney.com"
+    rate_limit_key: "em_push2his"
+    description: "东方财富历史数据API"
+    max_concurrent: 3
+
+  em_push2:
+    url_pattern: "push2.eastmoney.com"
+    rate_limit_key: "em_push2"
+    description: "东方财富实时行情API"
+    max_concurrent: 3
+
+  em_datacenter:
+    url_pattern: "datacenter-web.eastmoney.com"
+    rate_limit_key: "em_datacenter"
+    description: "东方财富数据中心"
+    max_concurrent: 3
+
+  sina_vip:
+    url_pattern: "vip.stock.finance.sina.com.cn"
+    rate_limit_key: "sina_vip"
+    description: "新浪财经VIP"
+    max_concurrent: 3
+
+  sina_hq:
+    url_pattern: "hq.sinajs.cn"
+    rate_limit_key: "sina_hq"
+    description: "新浪行情"
+    max_concurrent: 5
+
+  tushare:
+    url_pattern: "tushare.pro"
+    rate_limit_key: "tushare"
+    description: "Tushare Pro"
+    max_concurrent: 3
+
+  lixinger:
+    url_pattern: "open.lixinger.com"
+    rate_limit_key: "lixinger"
+    description: "理杏仁 OpenAPI"
+    max_concurrent: 2
+
+  dce:
+    url_pattern: "www.dce.com.cn"
+    rate_limit_key: "dce"
+    description: "大连商品交易所"
+    max_concurrent: 3
+
+  czce:
+    url_pattern: "www.czce.com.cn"
+    rate_limit_key: "czce"
+    description: "郑州商品交易所"
+    max_concurrent: 3
+
+  shfe:
+    url_pattern: "www.shfe.com.cn"
+    rate_limit_key: "shfe"
+    description: "上海期货交易所"
+    max_concurrent: 3
+
+  cffex:
+    url_pattern: "www.cffex.com.cn"
+    rate_limit_key: "cffex"
+    description: "中国金融期货交易所"
+    max_concurrent: 3
+
+  stats:
+    url_pattern: "data.stats.gov.cn"
+    rate_limit_key: "stats"
+    description: "国家统计局"
+    max_concurrent: 3
+
+  default:
+    rate_limit_key: "default"
+    description: "默认限速"
+    max_concurrent: 3

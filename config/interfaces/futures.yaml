@@ -1,0 +1,157 @@
+# 期货接口
+# category: futures
+
+futures_daily:
+  name: "futures_daily"
+  category: "futures"
+  description: "期货日线数据"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "期货代码，如 AG0"}
+    - {name: "start_date", type: "date", required: true}
+    - {name: "end_date", type: "date", required: true}
+
+  output:
+    - {name: "date", type: "date"}
+    - {name: "open", type: "float"}
+    - {name: "high", type: "float"}
+    - {name: "low", type: "float"}
+    - {name: "close", type: "float"}
+    - {name: "volume", type: "float"}
+    - {name: "open_interest", type: "float", desc: "持仓量"}
+
+  rate_limit_key: "em_push2his"
+
+  sources:
+    - name: "akshare_em"
+      func: "futures_hist_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        start_date: "start_date"
+        end_date: "end_date"
+      param_transforms:
+        start_date: "YYYYMMDD"
+        end_date: "YYYYMMDD"
+        period: "daily"
+      output_mapping:
+        date: "date"
+        open: "open"
+        high: "high"
+        low: "low"
+        close: "close"
+        volume: "volume"
+        open_interest: "open_interest"
+      column_types:
+        date: "date"
+        open: "float"
+        high: "float"
+        low: "float"
+        close: "float"
+        volume: "float"
+        open_interest: "float"
+
+    - name: "akshare_sina"
+      func: "futures_zh_daily_sina"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping:
+        日期: "date"
+        开盘价: "open"
+        最高价: "high"
+        最低价: "low"
+        收盘价: "close"
+        成交量: "volume"
+        持仓量: "open_interest"
+      column_types:
+        date: "date"
+        open: "float"
+        high: "float"
+        low: "float"
+        close: "float"
+        volume: "float"
+        open_interest: "float"
+
+futures_realtime:
+  name: "futures_realtime"
+  category: "futures"
+  description: "期货实时行情"
+
+  input: []
+
+  output:
+    - {name: "symbol", type: "str", desc: "期货代码"}
+    - {name: "name", type: "str", desc: "期货名称"}
+    - {name: "price", type: "float", desc: "最新价"}
+    - {name: "open", type: "float", desc: "开盘价"}
+    - {name: "high", type: "float", desc: "最高价"}
+    - {name: "low", type: "float", desc: "最低价"}
+    - {name: "prev_close", type: "float", desc: "昨结算"}
+    - {name: "volume", type: "float", desc: "成交量"}
+    - {name: "open_interest", type: "float", desc: "持仓量"}
+    - {name: "change", type: "float", desc: "涨跌额"}
+    - {name: "pct_change", type: "float", desc: "涨跌幅%"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_sina"
+      func: "futures_zh_spot"
+      enabled: true
+      input_mapping: {}
+      output_mapping:
+        symbol: "symbol"
+        name: "name"
+        price: "price"
+        open: "open"
+        high: "high"
+        low: "low"
+        yesterday: "prev_close"
+        volume: "volume"
+        open_interest: "open_interest"
+        change: "change"
+        pct_change: "pct_change"
+      column_types:
+        symbol: "str"
+        name: "str"
+        price: "float"
+        open: "float"
+        high: "float"
+        low: "float"
+        prev_close: "float"
+        volume: "float"
+        open_interest: "float"
+        change: "float"
+        pct_change: "float"
+
+futures_main_contracts:
+  name: "futures_main_contracts"
+  category: "futures"
+  description: "期货主力合约列表"
+
+  input: []
+
+  output:
+    - {name: "symbol", type: "str", desc: "主力合约代码"}
+    - {name: "name", type: "str", desc: "合约名称"}
+    - {name: "exchange", type: "str", desc: "交易所"}
+    - {name: "variety", type: "str", desc: "品种代码"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_sina"
+      func: "futures_main_sina"
+      enabled: true
+      input_mapping: {}
+      output_mapping:
+        symbol: "symbol"
+        name: "name"
+        exchange: "exchange"
+        variety: "variety"
+      column_types:
+        symbol: "str"
+        name: "str"
+        exchange: "str"
+        variety: "str"

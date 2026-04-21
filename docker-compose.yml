@@ -1,0 +1,42 @@
+services:
+  akshare-data:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: akshare-data-service
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - AKSHARE_DATA_CACHE_DIR=/app/cache
+      - AKSHARE_DATA_CONFIG_DIR=/app/config
+      - AKSHARE_DATA_CACHE_LOG_LEVEL=${AKSHARE_DATA_CACHE_LOG_LEVEL:-INFO}
+    volumes:
+      # Persist cache data across container restarts
+      - cache-data:/app/cache
+      # Persist logs
+      - log-data:/app/logs
+      # Mount local config for development (optional)
+      # - ./config:/app/config:ro
+    ports:
+      # No exposed ports by default (library mode)
+      # If adding a HTTP server, uncomment:
+      # - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import akshare_data; akshare_data.get_service()"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 1G
+
+volumes:
+  cache-data:
+    driver: local
+  log-data:
+    driver: local

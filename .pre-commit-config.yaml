@@ -1,0 +1,33 @@
+# https://pre-commit.com
+# Install: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+      - id: check-toml
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+      - id: detect-private-key
+
+  - repo: local
+    hooks:
+      - id: config-lint
+        name: Validate YAML config files
+        entry: python -c "import yaml, glob, sys; errors = []; [yaml.safe_load(open(f)) for f in glob.glob('config/**/*.yaml', recursive=True)]; sys.exit(0)"
+        language: python
+        files: ^config/.*\.yaml$
+        additional_dependencies: [pyyaml]
+        pass_filenames: false

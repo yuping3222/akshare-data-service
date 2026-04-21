@@ -1,0 +1,45 @@
+# 数据源注册表
+# 定义所有合法源名称及其类型，作为 sources 名称的单一事实来源。
+
+sources:
+  akshare_em:
+    type: "akshare"
+    description: "东方财富 AKShare 接口"
+
+  akshare_sina:
+    type: "akshare"
+    description: "新浪财经 AKShare 接口"
+
+  akshare_sse:
+    type: "akshare"
+    description: "上交所 AKShare 接口"
+
+  akshare_xq:
+    type: "akshare"
+    description: "雪球 AKShare 接口"
+
+  akshare_ths:
+    type: "akshare"
+    description: "同花顺 AKShare 接口"
+
+  akshare_cninfo:
+    type: "akshare"
+    description: "巨潮资讯 AKShare 接口"
+
+  akshare_csindex:
+    type: "akshare"
+    description: "中证指数 AKShare 接口"
+
+  akshare:
+    type: "akshare"
+    description: "默认 AKShare 接口"
+
+  tushare:
+    type: "adapter"
+    adapter_class: "TushareAdapter"
+    description: "Tushare Pro"
+
+  lixinger:
+    type: "adapter"
+    adapter_class: "LixingerAdapter"
+    description: "理杏仁 OpenAPI"

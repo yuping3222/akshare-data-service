@@ -1,0 +1,12 @@
+probe:
+  max_workers: 64
+  domain_concurrency: 3
+  delay_between_calls: 1.0
+  timeout_limit: 20
+  default_ttl: 2592000
+
+  symbol_fallbacks:
+    - "000001"
+    - "sh000001"
+    - "USD"
+    - "1.0"

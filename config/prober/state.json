@@ -1,0 +1,12 @@
+{
+  "bond_cash_summary_sse": {
+    "func_name": "bond_cash_summary_sse",
+    "domain_group": "bond",
+    "status": "Success",
+    "error_msg": "",
+    "exec_time": 0.09417605400085449,
+    "data_size": 10,
+    "last_check": 1776657931.6942122,
+    "check_count": 1
+  }
+}

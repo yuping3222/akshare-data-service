@@ -1,0 +1,327 @@
+# 基金接口
+# category: fund
+
+etf_daily:
+  name: "etf_daily"
+  category: "fund"
+  description: "ETF日线数据"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+    - {name: "start_date", type: "date", required: true}
+    - {name: "end_date", type: "date", required: true}
+    - {name: "adjust", type: "str", required: false, default: "qfq"}
+
+  output:
+    - {name: "date", type: "date"}
+    - {name: "open", type: "float"}
+    - {name: "high", type: "float"}
+    - {name: "low", type: "float"}
+    - {name: "close", type: "float"}
+    - {name: "volume", type: "float"}
+    - {name: "amount", type: "float"}
+
+  rate_limit_key: "em_push2his"
+
+  sources:
+    - name: "akshare_em"
+      func: "fund_etf_hist_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        start_date: "start_date"
+        end_date: "end_date"
+        adjust: "adjust"
+      param_transforms:
+        start_date: "YYYYMMDD"
+        end_date: "YYYYMMDD"
+      output_mapping:
+        日期: "date"
+        开盘: "open"
+        最高: "high"
+        最低: "low"
+        收盘: "close"
+        成交量: "volume"
+        成交额: "amount"
+      column_types:
+        date: "date"
+        open: "float"
+        high: "float"
+        low: "float"
+        close: "float"
+        volume: "float"
+        amount: "float"
+
+fund_net_value:
+  name: "fund_net_value"
+  category: "fund"
+  description: "开放式基金净值历史数据"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "基金代码"}
+    - {name: "indicator", type: "str", required: false, default: "单位净值走势", desc: "净值指标"}
+    - {name: "period", type: "str", required: false, default: "成立来", desc: "时间周期"}
+
+  output:
+    - {name: "date", type: "date"}
+    - {name: "nav", type: "float", desc: "单位净值"}
+    - {name: "acc_nav", type: "float", desc: "累计净值"}
+
+  rate_limit_key: "em_datacenter"
+
+  sources:
+    - name: "akshare_em"
+      func: "fund_open_fund_info_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        indicator: "indicator"
+        period: "period"
+      output_mapping:
+        净值日期: "date"
+        单位净值: "nav"
+        累计净值: "acc_nav"
+      column_types:
+        date: "date"
+        nav: "float"
+        acc_nav: "float"
+
+fund_manager_info:
+  name: "fund_manager_info"
+  category: "fund"
+  description: "基金经理信息"
+
+  input: []
+
+  output:
+    - {name: "seq", type: "int", desc: "序号"}
+    - {name: "name", type: "str", desc: "姓名"}
+    - {name: "company", type: "str", desc: "所属公司"}
+    - {name: "fund_code", type: "str", desc: "现任基金代码"}
+    - {name: "fund_name", type: "str", desc: "现任基金"}
+    - {name: "tenure_days", type: "int", desc: "累计从业时间"}
+    - {name: "asset_scale", type: "float", desc: "现任基金资产总规模"}
+    - {name: "best_return", type: "float", desc: "现任基金最佳回报"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "fund_manager_em"
+      enabled: true
+      input_mapping: {}
+      output_mapping:
+        序号: "seq"
+        姓名: "name"
+        所属公司: "company"
+        现任基金代码: "fund_code"
+        现任基金: "fund_name"
+        累计从业时间: "tenure_days"
+        现任基金资产总规模: "asset_scale"
+        现任基金最佳回报: "best_return"
+      column_types:
+        seq: "int"
+        name: "str"
+        company: "str"
+        fund_code: "str"
+        fund_name: "str"
+        tenure_days: "int"
+        asset_scale: "float"
+        best_return: "float"
+
+etf_list:
+  name: "etf_list"
+  category: "fund"
+  description: "ETF列表"
+
+  input: []
+
+  output:
+    - {name: "symbol", type: "str", desc: "基金代码"}
+    - {name: "name", type: "str", desc: "基金名称"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "fund_etf_spot_em"
+      enabled: true
+      input_mapping: {}
+      output_mapping:
+        基金代码: "symbol"
+        基金简称: "name"
+      column_types:
+        symbol: "str"
+        name: "str"
+
+lof_list:
+  name: "lof_list"
+  category: "fund"
+  description: "LOF基金列表"
+
+  input: []
+
+  output:
+    - {name: "symbol", type: "str", desc: "基金代码"}
+    - {name: "name", type: "str", desc: "基金名称"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "fund_lof_spot_em"
+      enabled: true
+      input_mapping: {}
+      output_mapping:
+        基金代码: "symbol"
+        基金简称: "name"
+      column_types:
+        symbol: "str"
+        name: "str"
+
+fof_list:
+  name: "fof_list"
+  category: "fund"
+  description: "FOF基金列表 — akshare 暂无独立 FOF 列表接口，需后续补充"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources: []
+
+fof_nav:
+  name: "fof_nav"
+  category: "fund"
+  description: "FOF基金净值历史"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+    - {name: "start_date", type: "str", required: false, default: "19700101"}
+    - {name: "end_date", type: "str", required: false, default: "20500101"}
+    - {name: "adjust", type: "str", required: false, default: ""}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "fund_lof_hist_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        start_date: "start_date"
+        end_date: "end_date"
+        adjust: "adjust"
+      output_mapping: {}
+
+lof_spot:
+  name: "lof_spot"
+  category: "fund"
+  description: "LOF基金实时行情"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "fund_lof_spot_em"
+      enabled: true
+      output_mapping: {}
+
+lof_nav:
+  name: "lof_nav"
+  category: "fund"
+  description: "LOF基金净值历史"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+    - {name: "start_date", type: "str", required: false, default: "19700101"}
+    - {name: "end_date", type: "str", required: false, default: "20500101"}
+    - {name: "adjust", type: "str", required: false, default: ""}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "fund_lof_hist_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        start_date: "start_date"
+        end_date: "end_date"
+        adjust: "adjust"
+      output_mapping: {}
+
+fund_open_daily:
+  name: "fund_open_daily"
+  category: "fund"
+  description: "开放式基金日行情"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "fund_open_fund_daily_em"
+      enabled: true
+      output_mapping: {}
+
+fund_open_nav:
+  name: "fund_open_nav"
+  category: "fund"
+  description: "开放式基金净值"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+    - {name: "indicator", type: "str", required: false, default: "单位净值走势"}
+    - {name: "period", type: "str", required: false, default: "成立来"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "fund_open_fund_info_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        indicator: "indicator"
+        period: "period"
+      output_mapping: {}
+
+fund_open_info:
+  name: "fund_open_info"
+  category: "fund"
+  description: "开放式基金信息"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+    - {name: "indicator", type: "str", required: false, default: "单位净值走势"}
+    - {name: "period", type: "str", required: false, default: "成立来"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "fund_open_fund_info_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        indicator: "indicator"
+        period: "period"
+      output_mapping: {}

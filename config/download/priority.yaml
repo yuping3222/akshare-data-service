@@ -1,0 +1,76 @@
+generated_at: '2026-04-20T13:11:22.856297'
+global:
+  overall_miss_rate: 0.72
+  total_calls_7d: 144
+  total_misses_7d: 104
+priorities:
+  stock_zh_a_daily:
+    avg_latency_ms: 220.14
+    call_count_7d: 64
+    miss_rate_7d: 0.77
+    rank: 1
+    recommendation:
+      frequency: hourly
+      mode: incremental
+    score: 68.17
+    symbols:
+    - calls: 9
+      code: '601318'
+      misses: 8
+    - calls: 13
+      code: '600519'
+      misses: 7
+    - calls: 7
+      code: '000002'
+      misses: 7
+    - calls: 8
+      code: '600000'
+      misses: 6
+    - calls: 7
+      code: '000333'
+      misses: 6
+    - calls: 5
+      code: 000858
+      misses: 4
+    - calls: 5
+      code: '000001'
+      misses: 4
+    - calls: 5
+      code: '601166'
+      misses: 4
+    - calls: 4
+      code: '600036'
+      misses: 3
+    - calls: 1
+      code: '300750'
+      misses: 0
+  stock_zh_index_daily:
+    avg_latency_ms: 105.36
+    call_count_7d: 27
+    miss_rate_7d: 0.7
+    rank: 3
+    recommendation:
+      frequency: daily
+      mode: incremental
+      time: '15:30'
+    score: 56.39
+    symbols:
+    - calls: 7
+      code: '000001'
+      misses: 5
+    - calls: 5
+      code: '399006'
+      misses: 4
+    - calls: 6
+      code: '399001'
+      misses: 5
+    - calls: 2
+      code: '000016'
+      misses: 2
+    - calls: 3
+      code: '000300'
+      misses: 2
+    - calls: 4
+      code: 000905
+      misses: 1
+window: 7d

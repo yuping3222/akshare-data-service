@@ -1,0 +1,182 @@
+# 宏观数据接口
+# category: macro
+
+macro_cpi:
+  name: "macro_cpi"
+  category: "macro"
+  description: "中国CPI数据"
+
+  input: []
+
+  output:
+    - {name: "date", type: "date"}
+    - {name: "cpi", type: "float", desc: "CPI指数"}
+
+  rate_limit_key: "em_datacenter"
+
+  sources:
+    - name: "akshare_em"
+      func: "macro_china_cpi"
+      enabled: true
+      output_mapping:
+        月份: "date"
+        全国居民消费价格指数(CPI)上年同月=100: "cpi"
+      column_types:
+        date: "date"
+
+macro_gdp:
+  name: "macro_gdp"
+  category: "macro"
+  description: "中国GDP数据"
+
+  input: []
+
+  output:
+    - {name: "date", type: "date"}
+    - {name: "gdp", type: "float", desc: "GDP"}
+
+  rate_limit_key: "em_datacenter"
+
+  sources:
+    - name: "akshare_em"
+      func: "macro_china_gdp"
+      enabled: true
+      output_mapping:
+        季度: "date"
+        国内生产总值绝对额(亿元): "gdp"
+      column_types:
+        date: "date"
+
+macro_pmi:
+  name: "macro_pmi"
+  category: "macro"
+  description: "中国PMI数据"
+
+  input: []
+
+  output:
+    - {name: "date", type: "date"}
+    - {name: "pmi", type: "float", desc: "PMI指数"}
+
+  rate_limit_key: "em_datacenter"
+
+  sources:
+    - name: "akshare_em"
+      func: "macro_china_pmi"
+      enabled: true
+      output_mapping:
+        月份: "date"
+        制造业PMI: "pmi"
+      column_types:
+        date: "date"
+
+macro_lpr:
+  name: "macro_lpr"
+  category: "macro"
+  description: "中国LPR利率数据"
+
+  input: []
+
+  output:
+    - {name: "date", type: "date"}
+    - {name: "one_year", type: "float", desc: "1年期LPR"}
+    - {name: "five_year", type: "float", desc: "5年期LPR"}
+
+  rate_limit_key: "em_datacenter"
+
+  sources:
+    - name: "akshare_em"
+      func: "macro_china_lpr"
+      enabled: true
+      output_mapping: {}
+
+macro_ppi:
+  name: "macro_ppi"
+  category: "macro"
+  description: "中国PPI数据"
+
+  input: []
+
+  output:
+    - {name: "date", type: "date"}
+    - {name: "ppi", type: "float", desc: "PPI指数"}
+
+  rate_limit_key: "em_datacenter"
+
+  sources:
+    - name: "akshare_em"
+      func: "macro_china_ppi"
+      enabled: true
+      output_mapping: {}
+
+macro_m2:
+  name: "macro_m2"
+  category: "macro"
+  description: "中国M2货币供应量数据"
+
+  input: []
+
+  output:
+    - {name: "date", type: "date"}
+    - {name: "m2", type: "float", desc: "M2供应量(亿元)"}
+
+  rate_limit_key: "em_datacenter"
+
+  sources:
+    - name: "akshare_em"
+      func: "macro_china_m2_yearly"
+      enabled: true
+      output_mapping: {}
+
+macro_shibor:
+  name: "macro_shibor"
+  category: "macro"
+  description: "上海银行间同业拆放利率(Shibor)"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "em_datacenter"
+
+  sources:
+    - name: "akshare_em"
+      func: "macro_china_shibor_all"
+      enabled: true
+      output_mapping: {}
+
+macro_social_financing:
+  name: "macro_social_financing"
+  category: "macro"
+  description: "中国社会融资规模数据"
+
+  input: []
+
+  output:
+    - {name: "date", type: "date"}
+    - {name: "social_financing", type: "float", desc: "社会融资规模(亿元)"}
+
+  rate_limit_key: "em_datacenter"
+
+  sources:
+    - name: "akshare_em"
+      func: "macro_china_bank_financing"
+      enabled: true
+      output_mapping: {}
+
+macro_exchange_rate:
+  name: "macro_exchange_rate"
+  category: "macro"
+  description: "汇率数据"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "forex_spot_em"
+      enabled: true
+      output_mapping: {}

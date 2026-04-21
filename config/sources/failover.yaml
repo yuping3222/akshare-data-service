@@ -1,0 +1,14 @@
+failover:
+  failure_threshold: 3
+  cooldown_seconds: 300
+
+  auto_recovery:
+    enabled: true
+    interval: 3600
+
+  source_priority:
+    lixinger: 1
+    akshare_em: 2
+    akshare_sina: 3
+    tushare: 4
+    akshare_sse: 5

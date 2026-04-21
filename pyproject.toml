@@ -1,0 +1,48 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "akshare-data-service"
+version = "0.2.0"
+description = "统一金融数据服务 — 多源、容错、缓存加速"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas>=2.0",
+    "duckdb>=0.9",
+    "pyarrow>=14.0",
+    "cachetools>=5.3",
+    "akshare>=1.10",
+    "pyyaml>=6.0",
+    "croniter>=1.3",
+]
+
+[project.optional-dependencies]
+tushare = ["tushare>=1.2"]
+baostock = ["baostock>=0.8"]
+all = ["tushare>=1.2", "baostock>=0.8"]
+dev = ["pytest>=7.0", "pytest-asyncio", "pytest-cov>=4.0"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/akshare_data"]
+
+# Bundle default config files so they're accessible via importlib.resources
+# when running from a pip-installed wheel.
+[tool.hatch.build.targets.wheel.force-include]
+"config" = "akshare_data/_bundled_config"
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+markers = [
+    "unit: unit tests (no external dependencies)",
+    "integration: integration tests (cross-module collaboration)",
+    "system: system tests (end-to-end critical paths)",
+    "slow: long-running tests (>5s)",
+    "network: tests requiring real network access",
+]
+addopts = "-v --tb=short --strict-markers"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]

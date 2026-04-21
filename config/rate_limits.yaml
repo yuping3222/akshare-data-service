@@ -1,0 +1,54 @@
+# 全局限速配置
+# 按底层域名/端点分组，而非按数据源名称
+
+em_push2his:
+  interval: 0.5
+  description: "东方财富历史数据API (push2his.eastmoney.com)"
+
+em_push2:
+  interval: 0.5
+  description: "东方财富实时行情API (push2.eastmoney.com)"
+
+em_datacenter:
+  interval: 1.0
+  description: "东方财富数据中心 (datacenter-web.eastmoney.com)"
+
+sina_vip:
+  interval: 1.0
+  description: "新浪财经VIP (vip.stock.finance.sina.com.cn)"
+
+sina_hq:
+  interval: 0.3
+  description: "新浪行情 (hq.sinajs.cn)"
+
+tushare:
+  interval: 0.2
+  description: "Tushare Pro (tushare.pro)"
+
+lixinger:
+  interval: 2.0
+  description: "理杏仁 OpenAPI (open.lixinger.com)"
+
+default:
+  interval: 0.5
+  description: "默认限速"
+
+dce:
+  interval: 1.0
+  description: "大连商品交易所 (dce.com.cn)"
+
+czce:
+  interval: 1.0
+  description: "郑州商品交易所 (czce.com.cn)"
+
+shfe:
+  interval: 1.0
+  description: "上海期货交易所 (shfe.com.cn)"
+
+cffex:
+  interval: 1.0
+  description: "中国金融期货交易所 (cffex.com.cn)"
+
+stats:
+  interval: 0.5
+  description: "国家统计局 (stats.gov.cn)"

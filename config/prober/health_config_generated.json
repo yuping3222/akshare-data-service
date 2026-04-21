@@ -1,0 +1,9 @@
+{
+  "mock_func": {
+    "params": {
+      "symbol": "000001",
+      "count": 1
+    },
+    "skip": false
+  }
+}

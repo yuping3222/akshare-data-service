@@ -1,0 +1,15 @@
+# Environment secrets
+.env
+token.cfg
+
+# Auto-generated backup files
+config/backups/
+
+# Runtime artifacts
+cache/
+logs/
+.coverage
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+*.pyc

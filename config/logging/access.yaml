@@ -1,0 +1,5 @@
+access_log:
+  log_dir: "logs"
+  max_buffer: 100
+  flush_interval: 5.0
+  backup_days: 30

@@ -1,0 +1,148 @@
+# 期权接口
+# category: options
+
+options_realtime:
+  name: "options_realtime"
+  category: "options"
+  description: "期权实时行情（东方财富全市场）"
+
+  input: []
+
+  output:
+    - {name: "symbol", type: "str", desc: "期权代码"}
+    - {name: "underlying", type: "str", desc: "标的代码"}
+    - {name: "option_type", type: "str", desc: "期权类型: C/P"}
+    - {name: "strike", type: "float", desc: "行权价"}
+    - {name: "expiration", type: "date", desc: "到期日"}
+    - {name: "price", type: "float", desc: "最新价"}
+    - {name: "volume", type: "float", desc: "成交量"}
+    - {name: "open_interest", type: "float", desc: "持仓量"}
+
+  rate_limit_key: "em_push2"
+
+  sources:
+    - name: "akshare_em"
+      func: "option_current_em"
+      enabled: true
+      output_mapping:
+        期权代码: "symbol"
+        标的代码: "underlying"
+        期权类型: "option_type"
+        行权价: "strike"
+        到期日: "expiration"
+        最新价: "price"
+        成交量: "volume"
+        持仓量: "open_interest"
+      column_types:
+        strike: "float"
+        expiration: "date"
+        price: "float"
+        volume: "float"
+        open_interest: "float"
+
+option_current_day_sse:
+  name: "option_current_day_sse"
+  category: "options"
+  description: "上交所期权当日合约（无参数）"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_sse"
+      func: "option_current_day_sse"
+      enabled: true
+      output_mapping: {}
+
+option_sse_daily_sina:
+  name: "option_sse_daily_sina"
+  category: "options"
+  description: "指定期权的日频率历史数据（新浪源）"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "期权代码"}
+
+  output:
+    - {name: "date", type: "date", desc: "日期"}
+    - {name: "open", type: "float", desc: "开盘价"}
+    - {name: "high", type: "float", desc: "最高价"}
+    - {name: "low", type: "float", desc: "最低价"}
+    - {name: "close", type: "float", desc: "收盘价"}
+    - {name: "volume", type: "float", desc: "成交量"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_sina"
+      func: "option_sse_daily_sina"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+options_chain:
+  name: "options_chain"
+  category: "options"
+  description: "期权链数据"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+    - {name: "end_month", type: "str", required: false}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "option_finance_board"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        end_month: "end_month"
+      output_mapping: {}
+
+options_expirations:
+  name: "options_expirations"
+  category: "options"
+  description: "期权到期日列表"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+    - {name: "end_month", type: "str", required: false}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "option_finance_board"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        end_month: "end_month"
+      output_mapping: {}
+
+options_hist:
+  name: "options_hist"
+  category: "options"
+  description: "期权历史行情"
+
+  input:
+    - {name: "symbol", type: "str", required: true}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "option_comm_info"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}

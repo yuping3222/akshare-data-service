@@ -1,0 +1,2582 @@
+version: '1.0'
+description: 域名到接口映射，从 akshare_registry.yaml 自动生成
+domains:
+  1.optbbs.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_option_1000index_min_qvix
+    - index_option_1000index_qvix
+    - index_option_100etf_min_qvix
+    - index_option_100etf_qvix
+    - index_option_300etf_min_qvix
+    - index_option_300etf_qvix
+    - index_option_300index_min_qvix
+    - index_option_300index_qvix
+    - index_option_500etf_min_qvix
+    - index_option_500etf_qvix
+    - index_option_50etf_min_qvix
+    - index_option_50etf_qvix
+    - index_option_50index_min_qvix
+    - index_option_50index_qvix
+    - index_option_cyb_min_qvix
+    - index_option_cyb_qvix
+    - index_option_kcb_min_qvix
+    - index_option_kcb_qvix
+  15.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - stock_hk_index_spot_em
+  16.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - bond_cov_comparison
+  17.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - stock_board_industry_name_em
+  23.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - option_current_em
+    - stock_us_pink_spot_em
+  28.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - stock_zh_b_spot_em
+  29.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - stock_board_concept_cons_em
+    - stock_board_industry_cons_em
+  33.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - stock_hk_ggt_components_em
+  33.push2his.eastmoney.com:
+    rate_limit_key: em_push2his
+    description: 东方财富历史数据API
+    max_concurrent: 3
+    interfaces:
+    - stock_hk_hist
+  40.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - stock_zh_a_new_em
+    - stock_zh_a_st_em
+    - stock_zh_a_stop_em
+  48.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - stock_zh_index_spot_em
+  5.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - stock_staq_net_stop
+  63.push2his.eastmoney.com:
+    rate_limit_key: em_push2his
+    description: 东方财富历史数据API
+    max_concurrent: 3
+    interfaces:
+    - stock_us_hist
+  69.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - stock_hk_famous_spot_em
+    - stock_us_famous_spot_em
+  7.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - stock_cy_a_spot_em
+    - stock_kc_a_spot_em
+  7.push2his.eastmoney.com:
+    rate_limit_key: em_push2his
+    description: 东方财富历史数据API
+    max_concurrent: 3
+    interfaces:
+    - stock_board_industry_hist_em
+    - stock_board_industry_hist_min_em
+  70.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - stock_intraday_em
+  72.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - stock_hk_spot_em
+    - stock_us_spot_em
+  79.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - stock_board_concept_name_em
+  81.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - stock_hk_main_board_spot_em
+  82.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - stock_bj_a_spot_em
+    - stock_new_a_spot_em
+    - stock_sh_a_spot_em
+    - stock_sz_a_spot_em
+    - stock_zh_a_spot_em
+  88.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - fund_etf_spot_em
+    - fund_lof_spot_em
+  91.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - stock_board_concept_spot_em
+    - stock_board_industry_spot_em
+  91.push2his.eastmoney.com:
+    rate_limit_key: em_push2his
+    description: 东方财富历史数据API
+    max_concurrent: 3
+    interfaces:
+    - stock_board_concept_hist_em
+    - stock_board_concept_hist_min_em
+  95.push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - reits_realtime_em
+  api-one-wscn.awtmt.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - macro_info_ws
+  api.currencyscoop.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - currency_convert
+    - currency_currencies
+    - currency_history
+    - currency_latest
+    - currency_time_series
+  api.fund.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - fund_announcement_dividend_em
+    - fund_announcement_personnel_em
+    - fund_announcement_report_em
+    - fund_etf_fund_info_em
+    - fund_financial_fund_daily_em
+    - fund_financial_fund_info_em
+    - fund_graded_fund_info_em
+    - fund_info_index_em
+    - fund_lcx_rank_em
+    - fund_money_fund_info_em
+    - fund_money_rank_em
+    - fund_open_fund_info_em
+    - fund_portfolio_industry_allocation_em
+    - fund_value_estimation_em
+  api.idx365.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_kq_fashion
+  api.ownthink.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - nlp_answer
+    - nlp_ownthink
+  apiserver.chinagoods.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_yw
+  basic.10jqka.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_fhps_detail_ths
+    - stock_financial_abstract_new_ths
+    - stock_financial_abstract_ths
+    - stock_financial_benefit_new_ths
+    - stock_financial_benefit_ths
+    - stock_financial_cash_new_ths
+    - stock_financial_cash_ths
+    - stock_financial_debt_new_ths
+    - stock_financial_debt_ths
+    - stock_hk_fhpx_detail_ths
+    - stock_management_change_ths
+    - stock_profit_forecast_ths
+    - stock_shareholder_change_ths
+    - stock_zyjs_ths
+  biz.finance.sina.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - currency_boc_sina
+    - stock_sector_spot
+  bond.finance.sina.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - bond_gb_us_sina
+    - bond_gb_zh_sina
+  bond.sse.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - bond_cash_summary_sse
+    - bond_deal_summary_sse
+  calendar-api.ushknews.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_price_js
+  cctv.cntv.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - news_cctv
+  cdn.jin10.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - macro_bank_australia_interest_rate
+    - macro_bank_brazil_interest_rate
+    - macro_bank_china_interest_rate
+    - macro_bank_english_interest_rate
+    - macro_bank_euro_interest_rate
+    - macro_bank_india_interest_rate
+    - macro_bank_japan_interest_rate
+    - macro_bank_newzealand_interest_rate
+    - macro_bank_russia_interest_rate
+    - macro_bank_switzerland_interest_rate
+    - macro_china_au_report
+    - macro_china_cx_services_pmi_yearly
+    - macro_china_hk_market_info
+    - macro_china_imports_yoy
+    - macro_china_industrial_production_yoy
+    - macro_china_market_margin_sh
+    - macro_china_market_margin_sz
+    - macro_china_rmb
+    - macro_china_shibor_all
+    - macro_china_trade_balance
+    - macro_euro_cpi_mom
+    - macro_euro_cpi_yoy
+    - macro_euro_current_account_mom
+    - macro_euro_employment_change_qoq
+    - macro_euro_industrial_production_mom
+    - macro_euro_lme_holding
+    - macro_euro_lme_stock
+    - macro_euro_manufacturing_pmi
+    - macro_euro_ppi_mom
+    - macro_euro_retail_sales_mom
+    - macro_euro_sentix_investor_confidence
+    - macro_euro_services_pmi
+    - macro_euro_trade_balance
+    - macro_euro_unemployment_rate_mom
+    - macro_euro_zew_economic_sentiment
+    - macro_usa_api_crude_stock
+    - macro_usa_cftc_c_holding
+    - macro_usa_cftc_merchant_currency_holding
+    - macro_usa_cftc_merchant_goods_holding
+    - macro_usa_cftc_nc_holding
+    - macro_usa_cme_merchant_goods_holding
+    - macro_usa_crude_inner
+    - macro_usa_export_price
+    - macro_usa_rig_count
+  centerapi.fx168api.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_inventory_99
+    - spot_price_qh
+  cn.investing.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - currency_pair_map
+  currencyscoop.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - currency_convert
+    - currency_currencies
+    - currency_history
+    - currency_latest
+    - currency_time_series
+  cxdata.caixin.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_news_main_cx
+  d.10jqka.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_board_concept_index_ths
+    - stock_board_industry_index_ths
+  dachxiu.chicagobooth.edu:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - article_rlab_rv
+  danjuanfunds.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - fund_individual_achievement_xq
+    - fund_individual_analysis_xq
+    - fund_individual_basic_info_xq
+    - fund_individual_detail_hold_xq
+    - fund_individual_detail_info_xq
+    - fund_individual_profit_probability_xq
+  data.10jqka.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - bond_zh_cov_info_ths
+    - macro_rmb_deposit
+    - macro_rmb_loan
+    - macro_stock_finance
+    - stock_fund_flow_big_deal
+    - stock_fund_flow_concept
+    - stock_fund_flow_individual
+    - stock_fund_flow_industry
+    - stock_ipo_benefit_ths
+    - stock_ipo_hk_ths
+    - stock_ipo_ths
+    - stock_lh_yyb_capital
+    - stock_lh_yyb_control
+    - stock_lh_yyb_most
+    - stock_rank_cxd_ths
+    - stock_rank_cxfl_ths
+    - stock_rank_cxg_ths
+    - stock_rank_cxsl_ths
+    - stock_rank_ljqd_ths
+    - stock_rank_ljqs_ths
+    - stock_rank_lxsz_ths
+    - stock_rank_lxxd_ths
+    - stock_rank_xstp_ths
+    - stock_rank_xxtp_ths
+    - stock_rank_xzjp_ths
+    - stock_xgsr_ths
+  data.cpcadata.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - car_market_cate_cpca
+    - car_market_country_cpca
+    - car_market_fuel_cpca
+    - car_market_man_rank_cpca
+    - car_market_segment_cpca
+    - car_market_total_cpca
+  data.eastmoney.com:
+    rate_limit_key: em_datacenter
+    description: 东方财富数据中心
+    max_concurrent: 3
+    interfaces:
+    - bond_zh_cov
+    - bond_zh_cov_info
+    - bond_zh_cov_value_analysis
+    - bond_zh_us_rate
+    - energy_oil_detail
+    - energy_oil_hist
+    - futures_comex_inventory
+    - futures_inventory_em
+    - futures_spot_stock
+    - macro_australia_bank_rate
+    - macro_australia_cpi_quarterly
+    - macro_australia_cpi_yearly
+    - macro_australia_ppi_quarterly
+    - macro_australia_retail_rate_monthly
+    - macro_australia_trade
+    - macro_australia_unemployment_rate
+    - macro_canada_bank_rate
+    - macro_canada_core_cpi_monthly
+    - macro_canada_core_cpi_yearly
+    - macro_canada_cpi_monthly
+    - macro_canada_cpi_yearly
+    - macro_canada_gdp_monthly
+    - macro_canada_new_house_rate
+    - macro_canada_retail_rate_monthly
+    - macro_canada_trade
+    - macro_canada_unemployment_rate
+    - macro_china_agricultural_index
+    - macro_china_agricultural_product
+    - macro_china_bank_financing
+    - macro_china_bdti_index
+    - macro_china_bsi_index
+    - macro_china_commodity_price_index
+    - macro_china_construction_index
+    - macro_china_construction_price_index
+    - macro_china_consumer_goods_retail
+    - macro_china_cpi
+    - macro_china_czsr
+    - macro_china_energy_index
+    - macro_china_enterprise_boom_index
+    - macro_china_fdi
+    - macro_china_fx_gold
+    - macro_china_gdp
+    - macro_china_gdzctz
+    - macro_china_gyzjz
+    - macro_china_hgjck
+    - macro_china_hk_building_amount
+    - macro_china_hk_building_volume
+    - macro_china_hk_cpi
+    - macro_china_hk_cpi_ratio
+    - macro_china_hk_gbp
+    - macro_china_hk_gbp_ratio
+    - macro_china_hk_ppi
+    - macro_china_hk_rate_of_unemployment
+    - macro_china_hk_trade_diff_ratio
+    - macro_china_insurance_income
+    - macro_china_lpi_index
+    - macro_china_lpr
+    - macro_china_mobile_number
+    - macro_china_money_supply
+    - macro_china_national_tax_receipts
+    - macro_china_new_financial_credit
+    - macro_china_new_house_price
+    - macro_china_pmi
+    - macro_china_ppi
+    - macro_china_qyspjg
+    - macro_china_real_estate
+    - macro_china_reserve_requirement_ratio
+    - macro_china_stock_market_cap
+    - macro_china_vegetable_basket
+    - macro_china_wbck
+    - macro_china_whxd
+    - macro_china_xfzxx
+    - macro_china_yw_electronic_index
+    - macro_germany_cpi_monthly
+    - macro_germany_cpi_yearly
+    - macro_germany_gdp
+    - macro_germany_ifo
+    - macro_germany_retail_sale_monthly
+    - macro_germany_retail_sale_yearly
+    - macro_germany_trade_adjusted
+    - macro_germany_zew
+    - macro_global_sox_index
+    - macro_japan_bank_rate
+    - macro_japan_core_cpi_yearly
+    - macro_japan_cpi_yearly
+    - macro_japan_head_indicator
+    - macro_japan_unemployment_rate
+    - macro_shipping_bci
+    - macro_shipping_bcti
+    - macro_shipping_bdi
+    - macro_shipping_bpi
+    - macro_swiss_cpi_yearly
+    - macro_swiss_gbd_bank_rate
+    - macro_swiss_gbd_yearly
+    - macro_swiss_gdp_quarterly
+    - macro_swiss_svme
+    - macro_swiss_trade
+    - macro_uk_bank_rate
+    - macro_uk_core_cpi_monthly
+    - macro_uk_core_cpi_yearly
+    - macro_uk_cpi_monthly
+    - macro_uk_cpi_yearly
+    - macro_uk_gdp_quarterly
+    - macro_uk_gdp_yearly
+    - macro_uk_halifax_monthly
+    - macro_uk_halifax_yearly
+    - macro_uk_retail_monthly
+    - macro_uk_retail_yearly
+    - macro_uk_rightmove_monthly
+    - macro_uk_rightmove_yearly
+    - macro_uk_trade
+    - macro_uk_unemployment_rate
+    - macro_usa_cpi_yoy
+    - macro_usa_phs
+    - option_lhb_em
+    - option_premium_analysis_em
+    - option_risk_analysis_em
+    - option_value_analysis_em
+    - rate_interbank
+    - stock_account_statistics_em
+    - stock_analyst_detail_em
+    - stock_analyst_rank_em
+    - stock_board_industry_cons_em
+    - stock_comment_detail_scrd_desire_em
+    - stock_comment_detail_scrd_focus_em
+    - stock_comment_detail_zhpj_lspf_em
+    - stock_comment_detail_zlkp_jgcyd_em
+    - stock_comment_em
+    - stock_concept_fund_flow_hist
+    - stock_dxsyl_em
+    - stock_dzjy_hygtj
+    - stock_dzjy_hyyybtj
+    - stock_dzjy_mrmx
+    - stock_dzjy_mrtj
+    - stock_dzjy_sctj
+    - stock_dzjy_yybph
+    - stock_fhps_detail_em
+    - stock_fhps_em
+    - stock_gddh_em
+    - stock_gdfx_free_holding_analyse_em
+    - stock_gdfx_free_holding_change_em
+    - stock_gdfx_free_holding_detail_em
+    - stock_gdfx_free_holding_statistics_em
+    - stock_gdfx_free_holding_teamwork_em
+    - stock_gdfx_holding_analyse_em
+    - stock_gdfx_holding_change_em
+    - stock_gdfx_holding_detail_em
+    - stock_gdfx_holding_statistics_em
+    - stock_gdfx_holding_teamwork_em
+    - stock_ggcg_em
+    - stock_gpzy_distribute_statistics_bank_em
+    - stock_gpzy_distribute_statistics_company_em
+    - stock_gpzy_industry_data_em
+    - stock_gpzy_pledge_ratio_em
+    - stock_gpzy_profile_em
+    - stock_gsrl_gsdt_em
+    - stock_hold_management_detail_em
+    - stock_hold_management_person_em
+    - stock_hsgt_board_rank_em
+    - stock_hsgt_fund_flow_summary_em
+    - stock_hsgt_fund_min_em
+    - stock_hsgt_hist_em
+    - stock_hsgt_hold_stock_em
+    - stock_hsgt_individual_detail_em
+    - stock_hsgt_individual_em
+    - stock_hsgt_institution_statistics_em
+    - stock_hsgt_stock_statistics_em
+    - stock_individual_fund_flow
+    - stock_individual_fund_flow_rank
+    - stock_individual_notice_report
+    - stock_ipo_declare_em
+    - stock_ipo_review_em
+    - stock_ipo_tutor_em
+    - stock_jgdy_detail_em
+    - stock_jgdy_tj_em
+    - stock_lhb_detail_em
+    - stock_lhb_hyyyb_em
+    - stock_lhb_jgmmtj_em
+    - stock_lhb_jgstatistic_em
+    - stock_lhb_stock_detail_date_em
+    - stock_lhb_stock_detail_em
+    - stock_lhb_stock_statistic_em
+    - stock_lhb_traderstatistic_em
+    - stock_lhb_yyb_detail_em
+    - stock_lhb_yybph_em
+    - stock_lrb_em
+    - stock_main_fund_flow
+    - stock_margin_account_info
+    - stock_market_fund_flow
+    - stock_notice_report
+    - stock_pg_em
+    - stock_profit_forecast_em
+    - stock_qbzf_em
+    - stock_qsjy_em
+    - stock_register_all_em
+    - stock_register_bj
+    - stock_register_cyb
+    - stock_register_db
+    - stock_register_kcb
+    - stock_register_sh
+    - stock_register_sz
+    - stock_report_fund_hold
+    - stock_report_fund_hold_detail
+    - stock_repurchase_em
+    - stock_research_report_em
+    - stock_restricted_release_detail_em
+    - stock_restricted_release_queue_em
+    - stock_restricted_release_stockholder_em
+    - stock_restricted_release_summary_em
+    - stock_sector_fund_flow_hist
+    - stock_sector_fund_flow_rank
+    - stock_sector_fund_flow_summary
+    - stock_sy_em
+    - stock_sy_hy_em
+    - stock_sy_jz_em
+    - stock_sy_profile_em
+    - stock_sy_yq_em
+    - stock_tfp_em
+    - stock_value_em
+    - stock_xgsglb_em
+    - stock_xjll_em
+    - stock_yjbb_em
+    - stock_yjkb_em
+    - stock_yjyg_em
+    - stock_yysj_em
+    - stock_yzxdr_em
+    - stock_zcfz_bj_em
+    - stock_zcfz_em
+    - stock_zdhtmx_em
+    - stock_zh_a_gdhs
+    - stock_zh_a_gdhs_detail_em
+    - stock_zh_kcb_report_em
+  data.mofcom.gov.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - macro_china_shrzgm
+  data.stats.gov.cn:
+    rate_limit_key: stats
+    description: 国家统计局
+    max_concurrent: 3
+    interfaces:
+    - macro_china_nbs_nation
+    - macro_china_nbs_region
+    - macro_china_urban_unemployment
+  datacenter-api.jin10.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - crypto_bitcoin_cme
+    - crypto_bitcoin_hold_report
+    - crypto_js_spot
+    - futures_stock_shfe_js
+    - macro_cons_gold
+    - macro_cons_opec_month
+    - macro_cons_silver
+    - macro_euro_cpi_mom
+    - macro_euro_cpi_yoy
+    - macro_euro_current_account_mom
+    - macro_euro_employment_change_qoq
+    - macro_euro_gdp_yoy
+    - macro_euro_industrial_production_mom
+    - macro_euro_manufacturing_pmi
+    - macro_euro_ppi_mom
+    - macro_euro_retail_sales_mom
+    - macro_euro_sentix_investor_confidence
+    - macro_euro_services_pmi
+    - macro_euro_trade_balance
+    - macro_euro_unemployment_rate_mom
+    - macro_euro_zew_economic_sentiment
+    - macro_fx_sentiment
+    - stock_js_weibo_nlp_time
+    - stock_js_weibo_report
+  datacenter-web.eastmoney.com:
+    rate_limit_key: em_datacenter
+    description: 东方财富数据中心
+    max_concurrent: 3
+    interfaces:
+    - bond_zh_cov
+    - bond_zh_cov_info
+    - bond_zh_cov_value_analysis
+    - energy_oil_detail
+    - energy_oil_hist
+    - futures_comex_inventory
+    - futures_inventory_em
+    - macro_australia_bank_rate
+    - macro_australia_cpi_quarterly
+    - macro_australia_cpi_yearly
+    - macro_australia_ppi_quarterly
+    - macro_australia_retail_rate_monthly
+    - macro_australia_trade
+    - macro_australia_unemployment_rate
+    - macro_canada_bank_rate
+    - macro_canada_core_cpi_monthly
+    - macro_canada_core_cpi_yearly
+    - macro_canada_cpi_monthly
+    - macro_canada_cpi_yearly
+    - macro_canada_gdp_monthly
+    - macro_canada_new_house_rate
+    - macro_canada_retail_rate_monthly
+    - macro_canada_trade
+    - macro_canada_unemployment_rate
+    - macro_china_agricultural_index
+    - macro_china_agricultural_product
+    - macro_china_bank_financing
+    - macro_china_bdti_index
+    - macro_china_bsi_index
+    - macro_china_commodity_price_index
+    - macro_china_construction_index
+    - macro_china_construction_price_index
+    - macro_china_consumer_goods_retail
+    - macro_china_cpi
+    - macro_china_czsr
+    - macro_china_energy_index
+    - macro_china_enterprise_boom_index
+    - macro_china_fdi
+    - macro_china_fx_gold
+    - macro_china_gdp
+    - macro_china_gdzctz
+    - macro_china_gyzjz
+    - macro_china_hgjck
+    - macro_china_insurance_income
+    - macro_china_lpi_index
+    - macro_china_lpr
+    - macro_china_mobile_number
+    - macro_china_money_supply
+    - macro_china_national_tax_receipts
+    - macro_china_new_financial_credit
+    - macro_china_new_house_price
+    - macro_china_pmi
+    - macro_china_ppi
+    - macro_china_qyspjg
+    - macro_china_real_estate
+    - macro_china_reserve_requirement_ratio
+    - macro_china_stock_market_cap
+    - macro_china_vegetable_basket
+    - macro_china_wbck
+    - macro_china_whxd
+    - macro_china_xfzxx
+    - macro_china_yw_electronic_index
+    - macro_global_sox_index
+    - macro_usa_cpi_yoy
+    - macro_usa_phs
+    - option_lhb_em
+    - rate_interbank
+    - stock_account_statistics_em
+    - stock_comment_detail_scrd_desire_em
+    - stock_comment_detail_scrd_focus_em
+    - stock_comment_detail_zhpj_lspf_em
+    - stock_comment_detail_zlkp_jgcyd_em
+    - stock_comment_em
+    - stock_dxsyl_em
+    - stock_dzjy_hygtj
+    - stock_dzjy_hyyybtj
+    - stock_dzjy_mrmx
+    - stock_dzjy_mrtj
+    - stock_dzjy_sctj
+    - stock_dzjy_yybph
+    - stock_fhps_detail_em
+    - stock_fhps_em
+    - stock_gddh_em
+    - stock_gdfx_free_holding_analyse_em
+    - stock_gdfx_free_holding_change_em
+    - stock_gdfx_free_holding_detail_em
+    - stock_gdfx_free_holding_statistics_em
+    - stock_gdfx_free_holding_teamwork_em
+    - stock_gdfx_holding_analyse_em
+    - stock_gdfx_holding_change_em
+    - stock_gdfx_holding_detail_em
+    - stock_gdfx_holding_statistics_em
+    - stock_gdfx_holding_teamwork_em
+    - stock_ggcg_em
+    - stock_gpzy_distribute_statistics_bank_em
+    - stock_gpzy_distribute_statistics_company_em
+    - stock_gpzy_industry_data_em
+    - stock_gpzy_pledge_ratio_em
+    - stock_gpzy_profile_em
+    - stock_gsrl_gsdt_em
+    - stock_hold_management_detail_em
+    - stock_hold_management_person_em
+    - stock_hsgt_board_rank_em
+    - stock_hsgt_fund_flow_summary_em
+    - stock_hsgt_hist_em
+    - stock_hsgt_hold_stock_em
+    - stock_hsgt_individual_detail_em
+    - stock_hsgt_institution_statistics_em
+    - stock_hsgt_stock_statistics_em
+    - stock_ipo_declare_em
+    - stock_ipo_review_em
+    - stock_ipo_tutor_em
+    - stock_jgdy_detail_em
+    - stock_jgdy_tj_em
+    - stock_lhb_detail_em
+    - stock_lhb_hyyyb_em
+    - stock_lhb_jgmmtj_em
+    - stock_lhb_jgstatistic_em
+    - stock_lhb_stock_detail_date_em
+    - stock_lhb_stock_detail_em
+    - stock_lhb_stock_statistic_em
+    - stock_lhb_traderstatistic_em
+    - stock_lhb_yyb_detail_em
+    - stock_lhb_yybph_em
+    - stock_lrb_em
+    - stock_margin_account_info
+    - stock_pg_em
+    - stock_profit_forecast_em
+    - stock_qbzf_em
+    - stock_qsjy_em
+    - stock_register_all_em
+    - stock_register_bj
+    - stock_register_cyb
+    - stock_register_db
+    - stock_register_kcb
+    - stock_register_sh
+    - stock_register_sz
+    - stock_report_fund_hold_detail
+    - stock_repurchase_em
+    - stock_restricted_release_detail_em
+    - stock_restricted_release_queue_em
+    - stock_restricted_release_stockholder_em
+    - stock_restricted_release_summary_em
+    - stock_sy_em
+    - stock_sy_hy_em
+    - stock_sy_jz_em
+    - stock_sy_profile_em
+    - stock_sy_yq_em
+    - stock_tfp_em
+    - stock_value_em
+    - stock_xgsglb_em
+    - stock_xjll_em
+    - stock_yjbb_em
+    - stock_yysj_em
+    - stock_zcfz_bj_em
+    - stock_zcfz_em
+    - stock_zdhtmx_em
+    - stock_zh_a_gdhs
+    - stock_zh_a_gdhs_detail_em
+  datacenter.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - bond_zh_us_rate
+    - stock_analyst_detail_em
+    - stock_balance_sheet_by_report_delisted_em
+    - stock_cash_flow_sheet_by_report_delisted_em
+    - stock_financial_analysis_indicator_em
+    - stock_financial_hk_analysis_indicator_em
+    - stock_financial_hk_report_em
+    - stock_financial_us_analysis_indicator_em
+    - stock_financial_us_report_em
+    - stock_hk_company_profile_em
+    - stock_hk_dividend_payout_em
+    - stock_hk_financial_indicator_em
+    - stock_hk_growth_comparison_em
+    - stock_hk_scale_comparison_em
+    - stock_hk_security_profile_em
+    - stock_hk_valuation_comparison_em
+    - stock_profit_sheet_by_report_delisted_em
+    - stock_yjkb_em
+    - stock_yjyg_em
+    - stock_yzxdr_em
+    - stock_zh_a_gbjg_em
+    - stock_zh_dupont_comparison_em
+    - stock_zh_growth_comparison_em
+    - stock_zh_scale_comparison_em
+    - stock_zh_valuation_comparison_em
+  datacenter.jin10.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - crypto_bitcoin_cme
+    - crypto_bitcoin_hold_report
+    - crypto_js_spot
+    - futures_stock_shfe_js
+    - macro_bank_australia_interest_rate
+    - macro_bank_brazil_interest_rate
+    - macro_bank_china_interest_rate
+    - macro_bank_english_interest_rate
+    - macro_bank_euro_interest_rate
+    - macro_bank_india_interest_rate
+    - macro_bank_japan_interest_rate
+    - macro_bank_newzealand_interest_rate
+    - macro_bank_russia_interest_rate
+    - macro_bank_switzerland_interest_rate
+    - macro_bank_usa_interest_rate
+    - macro_china_au_report
+    - macro_china_cpi_monthly
+    - macro_china_cpi_yearly
+    - macro_china_cx_pmi_yearly
+    - macro_china_cx_services_pmi_yearly
+    - macro_china_daily_energy
+    - macro_china_exports_yoy
+    - macro_china_fx_reserves_yearly
+    - macro_china_gdp_yearly
+    - macro_china_hk_market_info
+    - macro_china_imports_yoy
+    - macro_china_industrial_production_yoy
+    - macro_china_m2_yearly
+    - macro_china_market_margin_sh
+    - macro_china_market_margin_sz
+    - macro_china_non_man_pmi
+    - macro_china_pmi_yearly
+    - macro_china_ppi_yearly
+    - macro_china_rmb
+    - macro_china_shibor_all
+    - macro_china_trade_balance
+    - macro_cons_gold
+    - macro_cons_opec_month
+    - macro_cons_silver
+    - macro_euro_cpi_mom
+    - macro_euro_cpi_yoy
+    - macro_euro_current_account_mom
+    - macro_euro_employment_change_qoq
+    - macro_euro_gdp_yoy
+    - macro_euro_industrial_production_mom
+    - macro_euro_lme_holding
+    - macro_euro_lme_stock
+    - macro_euro_manufacturing_pmi
+    - macro_euro_ppi_mom
+    - macro_euro_retail_sales_mom
+    - macro_euro_sentix_investor_confidence
+    - macro_euro_services_pmi
+    - macro_euro_trade_balance
+    - macro_euro_unemployment_rate_mom
+    - macro_euro_zew_economic_sentiment
+    - macro_fx_sentiment
+    - macro_usa_adp_employment
+    - macro_usa_api_crude_stock
+    - macro_usa_building_permits
+    - macro_usa_business_inventories
+    - macro_usa_cb_consumer_confidence
+    - macro_usa_cftc_c_holding
+    - macro_usa_cftc_merchant_currency_holding
+    - macro_usa_cftc_merchant_goods_holding
+    - macro_usa_cftc_nc_holding
+    - macro_usa_cme_merchant_goods_holding
+    - macro_usa_core_cpi_monthly
+    - macro_usa_core_pce_price
+    - macro_usa_core_ppi
+    - macro_usa_cpi_monthly
+    - macro_usa_crude_inner
+    - macro_usa_current_account
+    - macro_usa_durable_goods_orders
+    - macro_usa_eia_crude_rate
+    - macro_usa_exist_home_sales
+    - macro_usa_export_price
+    - macro_usa_factory_orders
+    - macro_usa_gdp_monthly
+    - macro_usa_house_price_index
+    - macro_usa_house_starts
+    - macro_usa_import_price
+    - macro_usa_industrial_production
+    - macro_usa_initial_jobless
+    - macro_usa_ism_non_pmi
+    - macro_usa_ism_pmi
+    - macro_usa_job_cuts
+    - macro_usa_lmci
+    - macro_usa_michigan_consumer_sentiment
+    - macro_usa_nahb_house_market_index
+    - macro_usa_new_home_sales
+    - macro_usa_nfib_small_business
+    - macro_usa_non_farm
+    - macro_usa_pending_home_sales
+    - macro_usa_personal_spending
+    - macro_usa_pmi
+    - macro_usa_ppi
+    - macro_usa_real_consumer_spending
+    - macro_usa_retail_sales
+    - macro_usa_rig_count
+    - macro_usa_services_pmi
+    - macro_usa_spcs20
+    - macro_usa_trade_balance
+    - macro_usa_unemployment_rate
+    - stock_js_weibo_nlp_time
+    - stock_js_weibo_report
+  dict.openctp.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - option_contract_info_ctp
+  docs.static.szse.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_szse_sector_summary
+  emappdata.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_hk_hot_rank_detail_em
+    - stock_hk_hot_rank_detail_realtime_em
+    - stock_hk_hot_rank_em
+    - stock_hk_hot_rank_latest_em
+    - stock_hot_keyword_em
+    - stock_hot_rank_detail_em
+    - stock_hot_rank_detail_realtime_em
+    - stock_hot_rank_em
+    - stock_hot_rank_latest_em
+    - stock_hot_rank_relate_em
+    - stock_hot_up_em
+  emweb.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_financial_us_analysis_indicator_em
+    - stock_financial_us_report_em
+  emweb.securities.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_balance_sheet_by_report_delisted_em
+    - stock_balance_sheet_by_report_em
+    - stock_balance_sheet_by_yearly_em
+    - stock_cash_flow_sheet_by_quarterly_em
+    - stock_cash_flow_sheet_by_report_delisted_em
+    - stock_cash_flow_sheet_by_report_em
+    - stock_cash_flow_sheet_by_yearly_em
+    - stock_financial_analysis_indicator_em
+    - stock_financial_hk_analysis_indicator_em
+    - stock_financial_hk_report_em
+    - stock_gdfx_free_top_10_em
+    - stock_gdfx_top_10_em
+    - stock_hk_company_profile_em
+    - stock_hk_dividend_payout_em
+    - stock_hk_financial_indicator_em
+    - stock_hk_growth_comparison_em
+    - stock_hk_scale_comparison_em
+    - stock_hk_security_profile_em
+    - stock_hk_valuation_comparison_em
+    - stock_profit_sheet_by_quarterly_em
+    - stock_profit_sheet_by_report_delisted_em
+    - stock_profit_sheet_by_report_em
+    - stock_profit_sheet_by_yearly_em
+    - stock_zh_a_gbjg_em
+    - stock_zh_dupont_comparison_em
+    - stock_zh_growth_comparison_em
+    - stock_zh_scale_comparison_em
+    - stock_zh_valuation_comparison_em
+    - stock_zygc_em
+  eniu.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_hk_indicator_eniu
+  ets.cnemission.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - energy_carbon_gz
+  finance.baidu.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - news_economic_baidu
+    - news_report_time_baidu
+    - news_trade_notify_dividend_baidu
+    - news_trade_notify_suspend_baidu
+  finance.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_info_global_em
+    - stock_news_em
+  finance.pae.baidu.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - fx_quote_baidu
+    - stock_hot_search_baidu
+    - stock_zh_vote_baidu
+  finance.sina.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - fund_etf_dividend_sina
+    - fund_etf_hist_sina
+    - futures_contract_detail
+    - futures_display_main_sina
+    - futures_foreign_commodity_realtime
+    - futures_foreign_commodity_subscribe_exchange_symbol
+    - futures_foreign_detail
+    - futures_foreign_hist
+    - futures_hq_subscribe_exchange_symbol
+    - futures_zh_daily_sina
+    - index_global_hist_sina
+    - index_global_name_table
+    - index_us_stock_sina
+    - macro_china_central_bank_balance
+    - macro_china_foreign_exchange_gold
+    - macro_china_freight_index
+    - macro_china_insurance
+    - macro_china_international_tourism_fx
+    - macro_china_passenger_load_factor
+    - macro_china_postal_telecommunicational
+    - macro_china_retail_price_index
+    - macro_china_society_electricity
+    - macro_china_society_traffic_volume
+    - macro_china_supply_of_money
+    - spot_goods
+    - stock_esg_hz_sina
+    - stock_esg_msci_sina
+    - stock_esg_rate_sina
+    - stock_esg_rft_sina
+    - stock_esg_zd_sina
+    - stock_hk_index_daily_sina
+    - stock_info_global_sina
+    - stock_sector_detail
+    - stock_sector_spot
+    - stock_us_daily
+    - stock_us_spot
+    - stock_zh_a_cdr_daily
+    - stock_zh_a_daily
+    - stock_zh_a_minute
+    - stock_zh_b_daily
+    - stock_zh_b_minute
+    - stock_zh_index_daily
+    - stock_zh_kcb_daily
+    - tool_trade_date_hist_sina
+  fund.10jqka.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - fund_etf_category_ths
+    - fund_etf_spot_ths
+    - fund_new_found_ths
+  fund.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - fund_aum_em
+    - fund_aum_hist_em
+    - fund_aum_trend_em
+    - fund_cf_em
+    - fund_etf_fund_daily_em
+    - fund_exchange_rank_em
+    - fund_fh_em
+    - fund_fh_rank_em
+    - fund_financial_fund_daily_em
+    - fund_graded_fund_daily_em
+    - fund_hk_rank_em
+    - fund_hold_structure_em
+    - fund_info_index_em
+    - fund_lcx_rank_em
+    - fund_manager_em
+    - fund_money_fund_daily_em
+    - fund_money_rank_em
+    - fund_name_em
+    - fund_new_found_em
+    - fund_open_fund_daily_em
+    - fund_open_fund_info_em
+    - fund_open_fund_rank_em
+    - fund_purchase_em
+    - fund_rating_all
+    - fund_rating_ja
+    - fund_rating_sh
+    - fund_rating_zs
+    - fund_scale_change_em
+    - fund_value_estimation_em
+  fund.szse.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - fund_etf_scale_szse
+  fundf10.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - fund_announcement_dividend_em
+    - fund_announcement_personnel_em
+    - fund_announcement_report_em
+    - fund_etf_fund_info_em
+    - fund_fee_em
+    - fund_financial_fund_info_em
+    - fund_graded_fund_info_em
+    - fund_money_fund_info_em
+    - fund_open_fund_info_em
+    - fund_overview_em
+    - fund_portfolio_bond_hold_em
+    - fund_portfolio_change_em
+    - fund_portfolio_hold_em
+    - fund_portfolio_industry_allocation_em
+  futsse-static.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_contract_detail_em
+  futsseapi.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_global_spot_em
+  gi.finance.sina.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_global_hist_sina
+  github.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - hf_sp_500
+    - volatility_yz_rv
+  global.finance.sina.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_esg_hz_sina
+    - stock_esg_msci_sina
+    - stock_esg_rate_sina
+    - stock_esg_rft_sina
+    - stock_esg_zd_sina
+  gs.amac.org.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - amac_aoin_info
+    - amac_fund_abs
+    - amac_fund_account_info
+    - amac_fund_info
+    - amac_fund_sub_info
+    - amac_futures_info
+    - amac_manager_cancelled_info
+    - amac_manager_classify_info
+    - amac_manager_info
+    - amac_member_info
+    - amac_member_sub_info
+    - amac_person_fund_org_list
+    - amac_securities_info
+  gu.qq.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_zh_a_hist_tx
+    - stock_zh_a_tick_tx_js
+    - stock_zh_ah_daily
+    - stock_zh_index_daily_tx
+  guba.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_hk_hot_rank_detail_em
+    - stock_hk_hot_rank_detail_realtime_em
+    - stock_hk_hot_rank_em
+    - stock_hk_hot_rank_latest_em
+    - stock_hot_keyword_em
+    - stock_hot_rank_detail_em
+    - stock_hot_rank_detail_realtime_em
+    - stock_hot_rank_em
+    - stock_hot_rank_latest_em
+    - stock_hot_rank_relate_em
+    - stock_hot_up_em
+  gushitong.baidu.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - fx_quote_baidu
+    - stock_hk_valuation_baidu
+    - stock_hot_search_baidu
+    - stock_us_valuation_baidu
+    - stock_zh_valuation_baidu
+    - stock_zh_vote_baidu
+  hq.cnindex.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_hist_cni
+  hq.sinajs.cn:
+    rate_limit_key: sina_hq
+    description: 新浪行情
+    max_concurrent: 5
+    interfaces:
+    - futures_foreign_commodity_realtime
+    - futures_zh_spot
+    - option_sse_codes_sina
+    - option_sse_greeks_sina
+    - option_sse_spot_price_sina
+    - option_sse_underlying_spot_price_sina
+    - stock_hk_index_spot_sina
+  hqb.nxin.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_hog_spot_price
+  huiyan.baidu.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - migration_area_baidu
+    - migration_scale_baidu
+  human.amac.org.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - amac_person_bond_org_list
+  i.gasgoo.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - car_sale_rank_gasgoo
+  index.0256.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_price_cflp
+    - index_volume_cflp
+  infogram.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - drewry_wci_index
+  investor.szse.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - option_daily_stats_szse
+  irm.cninfo.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_irm_ans_cninfo
+    - stock_irm_cninfo
+  k.tanjiaoyi.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - energy_carbon_domestic
+  kuaixun.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_info_global_em
+  legulegu.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - fund_balance_position_lg
+    - fund_linghuo_position_lg
+    - fund_stock_position_lg
+    - stock_a_all_pb
+    - stock_a_below_net_asset_statistics
+    - stock_a_congestion_lg
+    - stock_a_gxl_lg
+    - stock_a_ttm_lyr
+    - stock_buffett_index_lg
+    - stock_ebs_lg
+    - stock_hk_gxl_lg
+    - stock_index_pb_lg
+    - stock_index_pe_lg
+    - stock_market_activity_legu
+    - stock_market_pb_lg
+    - stock_market_pe_lg
+    - sw_index_first_info
+    - sw_index_second_info
+    - sw_index_third_cons
+    - sw_index_third_info
+  links.sgx.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_settlement_price_sgx
+  mba.tuck.dartmouth.edu:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - article_ff_crr
+  money.finance.sina.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - bond_cb_profile_sina
+    - bond_cb_summary_sina
+    - stock_financial_analysis_indicator
+    - stock_sector_spot
+  mp-api.jin10.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_comm_js
+  news.10jqka.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_info_global_ths
+  news.futunn.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_info_global_futu
+  np-anotice-stock.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_zh_kcb_report_em
+  np-listapi.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_info_cjzc_em
+  np-weblist.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_info_global_em
+  openctp.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_fees_info
+    - option_contract_info_ctp
+  oss-ch.csindex.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_stock_cons_csindex
+    - index_stock_cons_weight_csindex
+    - stock_zh_index_value_csindex
+  overseas.1234567.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - fund_hk_fund_hist_em
+    - fund_hk_rank_em
+  ownthink.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - nlp_answer
+    - nlp_ownthink
+  pdf.dfcfw.com:
+    rate_limit_key: em_datacenter
+    description: 东方财富数据中心
+    max_concurrent: 3
+    interfaces:
+    - stock_ipo_declare_em
+    - stock_register_all_em
+    - stock_register_bj
+    - stock_register_cyb
+    - stock_register_kcb
+    - stock_register_sh
+    - stock_register_sz
+    - stock_research_report_em
+  portal.dce.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - get_dce_rank_table
+  proxy.finance.qq.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_zh_a_hist_tx
+    - stock_zh_index_daily_tx
+  push2.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - bond_sh_buy_back_em
+    - bond_sz_buy_back_em
+    - bond_zh_hs_cov_min
+    - bond_zh_hs_cov_pre_min
+    - forex_spot_em
+    - index_global_spot_em
+    - option_minute_em
+    - option_premium_analysis_em
+    - option_risk_analysis_em
+    - option_value_analysis_em
+    - reits_hist_min_em
+    - stock_bid_ask_em
+    - stock_hk_hot_rank_em
+    - stock_hot_rank_em
+    - stock_hot_up_em
+    - stock_hsgt_fund_min_em
+    - stock_hsgt_sh_hk_spot_em
+    - stock_individual_fund_flow_rank
+    - stock_individual_info_em
+    - stock_main_fund_flow
+    - stock_sector_fund_flow_rank
+    - stock_sector_fund_flow_summary
+    - stock_zh_a_hist_pre_min_em
+    - stock_zh_ab_comparison_em
+    - stock_zh_ah_spot_em
+  push2ex.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_board_change_em
+    - stock_changes_em
+    - stock_zt_pool_dtgc_em
+    - stock_zt_pool_em
+    - stock_zt_pool_previous_em
+    - stock_zt_pool_strong_em
+    - stock_zt_pool_sub_new_em
+    - stock_zt_pool_zbgc_em
+  push2his.eastmoney.com:
+    rate_limit_key: em_push2his
+    description: 东方财富历史数据API
+    max_concurrent: 3
+    interfaces:
+    - bond_buy_back_hist_em
+    - bond_zh_hs_cov_min
+    - forex_hist_em
+    - fund_etf_hist_em
+    - fund_etf_hist_min_em
+    - fund_lof_hist_em
+    - fund_lof_hist_min_em
+    - futures_global_hist_em
+    - futures_hist_em
+    - index_global_hist_em
+    - index_zh_a_hist
+    - index_zh_a_hist_min_em
+    - reits_hist_em
+    - stock_board_concept_hist_min_em
+    - stock_board_industry_hist_min_em
+    - stock_concept_fund_flow_hist
+    - stock_cyq_em
+    - stock_hk_hist_min_em
+    - stock_hk_index_daily_em
+    - stock_individual_fund_flow
+    - stock_market_fund_flow
+    - stock_sector_fund_flow_hist
+    - stock_us_hist_min_em
+    - stock_zh_a_hist
+    - stock_zh_a_hist_min_em
+    - stock_zh_index_daily_em
+  q.10jqka.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_board_concept_index_ths
+    - stock_board_concept_info_ths
+    - stock_board_concept_name_ths
+    - stock_board_concept_summary_ths
+    - stock_board_industry_index_ths
+    - stock_board_industry_info_ths
+    - stock_board_industry_name_ths
+    - stock_board_industry_summary_ths
+  qhkch.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - get_qhkc_index
+    - get_qhkc_index_profit_loss
+    - get_qhkc_index_trend
+  qhweb.eastmoney.com:
+    rate_limit_key: em_push2his
+    description: 东方财富历史数据API
+    max_concurrent: 3
+    interfaces:
+    - futures_hist_em
+  qianxi.baidu.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - migration_area_baidu
+    - migration_scale_baidu
+  query.sse.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - bond_cash_summary_sse
+    - bond_deal_summary_sse
+    - fund_etf_scale_sse
+    - option_current_day_sse
+    - option_daily_stats_sse
+    - option_risk_indicator_sse
+    - stock_info_sh_delist
+    - stock_margin_detail_sse
+    - stock_margin_sse
+    - stock_sgt_reference_exchange_rate_sse
+    - stock_sgt_settlement_exchange_rate_sse
+    - stock_share_hold_change_sse
+    - stock_sse_deal_daily
+    - stock_sse_summary
+  quote.eastmoney.com:
+    rate_limit_key: em_push2his
+    description: 东方财富历史数据API
+    max_concurrent: 3
+    interfaces:
+    - bond_buy_back_hist_em
+    - bond_cov_comparison
+    - bond_sh_buy_back_em
+    - bond_sz_buy_back_em
+    - bond_zh_hs_cov_min
+    - bond_zh_hs_cov_pre_min
+    - forex_hist_em
+    - forex_spot_em
+    - fund_etf_hist_em
+    - fund_etf_hist_min_em
+    - fund_etf_spot_em
+    - fund_lof_hist_em
+    - fund_lof_hist_min_em
+    - fund_lof_spot_em
+    - futures_contract_detail_em
+    - futures_global_hist_em
+    - futures_global_spot_em
+    - futures_hist_table_em
+    - index_global_hist_em
+    - index_global_spot_em
+    - index_zh_a_hist
+    - index_zh_a_hist_min_em
+    - option_current_em
+    - reits_hist_em
+    - reits_hist_min_em
+    - reits_realtime_em
+    - rv_from_stock_zh_a_hist_min_em
+    - stock_bid_ask_em
+    - stock_bj_a_spot_em
+    - stock_board_change_em
+    - stock_board_concept_cons_em
+    - stock_board_concept_hist_em
+    - stock_board_concept_hist_min_em
+    - stock_board_concept_name_em
+    - stock_board_concept_spot_em
+    - stock_board_industry_hist_em
+    - stock_board_industry_hist_min_em
+    - stock_board_industry_name_em
+    - stock_board_industry_spot_em
+    - stock_changes_em
+    - stock_cy_a_spot_em
+    - stock_cyq_em
+    - stock_hk_famous_spot_em
+    - stock_hk_ggt_components_em
+    - stock_hk_hist
+    - stock_hk_hist_min_em
+    - stock_hk_index_daily_em
+    - stock_hk_index_spot_em
+    - stock_hk_main_board_spot_em
+    - stock_hk_spot_em
+    - stock_hsgt_sh_hk_spot_em
+    - stock_individual_info_em
+    - stock_intraday_em
+    - stock_kc_a_spot_em
+    - stock_new_a_spot_em
+    - stock_sh_a_spot_em
+    - stock_staq_net_stop
+    - stock_sz_a_spot_em
+    - stock_us_famous_spot_em
+    - stock_us_hist
+    - stock_us_hist_min_em
+    - stock_us_pink_spot_em
+    - stock_us_spot_em
+    - stock_zh_a_hist
+    - stock_zh_a_hist_min_em
+    - stock_zh_a_hist_pre_min_em
+    - stock_zh_a_new_em
+    - stock_zh_a_spot_em
+    - stock_zh_a_st_em
+    - stock_zh_a_stop_em
+    - stock_zh_ab_comparison_em
+    - stock_zh_ah_spot_em
+    - stock_zh_b_spot_em
+    - stock_zh_index_daily_em
+    - stock_zh_index_spot_em
+    - stock_zt_pool_dtgc_em
+    - stock_zt_pool_em
+    - stock_zt_pool_previous_em
+    - stock_zt_pool_strong_em
+    - stock_zt_pool_sub_new_em
+    - stock_zt_pool_zbgc_em
+  quotes.sina.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - macro_china_central_bank_balance
+    - macro_china_foreign_exchange_gold
+    - macro_china_freight_index
+    - macro_china_insurance
+    - macro_china_international_tourism_fx
+    - macro_china_passenger_load_factor
+    - macro_china_postal_telecommunicational
+    - macro_china_retail_price_index
+    - macro_china_society_electricity
+    - macro_china_society_traffic_volume
+    - macro_china_supply_of_money
+    - stock_financial_abstract
+    - stock_financial_report_sina
+    - stock_zh_a_minute
+    - stock_zh_b_minute
+  realized.oxford-man.ox.ac.uk:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - article_oman_rv
+    - article_oman_rv_short
+  reportapi.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_research_report_em
+  s3.amazonaws.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - fred_md
+    - fred_qd
+  search-api-web.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_news_em
+  service.ikuyu.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - xincaifu_rank
+  sns.sseinfo.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_sns_sseinfo
+  so.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_news_em
+  ss.kqindex.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_kq_fashion
+  stats.areppim.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_bloomberg_billionaires_hist
+  stock.eastmoney.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_info_cjzc_em
+  stock.finance.sina.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - bond_gb_us_sina
+    - bond_gb_zh_sina
+    - index_us_stock_sina
+    - option_cffex_hs300_daily_sina
+    - option_cffex_hs300_list_sina
+    - option_cffex_hs300_spot_sina
+    - option_cffex_sz50_daily_sina
+    - option_cffex_sz50_list_sina
+    - option_cffex_sz50_spot_sina
+    - option_cffex_zz1000_daily_sina
+    - option_cffex_zz1000_list_sina
+    - option_cffex_zz1000_spot_sina
+    - option_commodity_contract_sina
+    - option_commodity_contract_table_sina
+    - option_commodity_hist_sina
+    - option_finance_minute_sina
+    - option_sse_codes_sina
+    - option_sse_daily_sina
+    - option_sse_expire_day_sina
+    - option_sse_list_sina
+    - option_sse_minute_sina
+    - option_sse_spot_price_sina
+    - spot_goods
+    - stock_hk_daily
+    - stock_hk_index_daily_sina
+    - stock_institute_recommend
+    - stock_institute_recommend_detail
+  stock.gtimg.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_zh_a_tick_tx_js
+  stock.pingan.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_margin_ratio_pa
+  stock.xueqiu.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_individual_basic_info_hk_xq
+    - stock_individual_basic_info_us_xq
+    - stock_individual_basic_info_xq
+    - stock_individual_spot_xq
+  stock2.finance.sina.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_foreign_hist
+    - futures_main_sina
+    - futures_zh_daily_sina
+    - futures_zh_minute_sina
+  stockapp.finance.qq.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_zh_ah_name
+    - stock_zh_ah_spot
+  stockpage.10jqka.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_hk_fhpx_detail_ths
+  tsite.shfe.com.cn:
+    rate_limit_key: shfe
+    description: 上海期货交易所
+    max_concurrent: 3
+    interfaces:
+    - futures_contract_info_shfe
+    - futures_delivery_shfe
+    - futures_shfe_warehouse_receipt
+    - futures_to_spot_shfe
+    - get_shfe_daily
+    - get_shfe_rank_table
+  tv.cctv.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - news_cctv
+  vip.stock.finance.sina.com.cn:
+    rate_limit_key: sina_vip
+    description: 新浪财经VIP
+    max_concurrent: 3
+    interfaces:
+    - bond_zh_hs_cov_daily
+    - bond_zh_hs_cov_spot
+    - bond_zh_hs_daily
+    - bond_zh_hs_spot
+    - fund_etf_category_sina
+    - fund_scale_close_sina
+    - fund_scale_open_sina
+    - fund_scale_structured_sina
+    - futures_hold_pos_sina
+    - futures_main_sina
+    - futures_zh_minute_sina
+    - futures_zh_realtime
+    - futures_zh_spot
+    - index_stock_cons
+    - index_stock_cons_sina
+    - match_main_contract
+    - option_sse_greeks_sina
+    - option_sse_underlying_spot_price_sina
+    - rv_from_futures_zh_minute_sina
+    - stock_add_stock
+    - stock_circulate_stock_holder
+    - stock_classify_sina
+    - stock_financial_abstract
+    - stock_financial_report_sina
+    - stock_fund_stock_holder
+    - stock_history_dividend
+    - stock_history_dividend_detail
+    - stock_hk_index_spot_sina
+    - stock_hk_spot
+    - stock_info_change_name
+    - stock_institute_hold
+    - stock_institute_hold_detail
+    - stock_intraday_sina
+    - stock_ipo_info
+    - stock_lhb_detail_daily_sina
+    - stock_lhb_ggtj_sina
+    - stock_lhb_jgmx_sina
+    - stock_lhb_jgzz_sina
+    - stock_lhb_yytj_sina
+    - stock_main_stock_holder
+    - stock_restricted_release_queue_sina
+    - stock_sector_detail
+    - stock_sector_spot
+    - stock_zh_a_new
+    - stock_zh_a_spot
+    - stock_zh_b_spot
+    - stock_zh_index_spot_sina
+    - stock_zh_kcb_spot
+  wallstreetcn.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - macro_info_ws
+  wap.eastmoney.com:
+    rate_limit_key: em_push2
+    description: 东方财富实时行情API
+    max_concurrent: 3
+    interfaces:
+    - option_minute_em
+  web.ifzq.gtimg.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_zh_ah_daily
+  webapi.cninfo.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - bond_corporate_issue_cninfo
+    - bond_cov_issue_cninfo
+    - bond_cov_stock_issue_cninfo
+    - bond_local_government_issue_cninfo
+    - bond_treasure_issue_cninfo
+    - fund_report_asset_allocation_cninfo
+    - fund_report_industry_allocation_cninfo
+    - fund_report_stock_cninfo
+    - stock_allotment_cninfo
+    - stock_cg_equity_mortgage_cninfo
+    - stock_cg_guarantee_cninfo
+    - stock_cg_lawsuit_cninfo
+    - stock_dividend_cninfo
+    - stock_hold_change_cninfo
+    - stock_hold_control_cninfo
+    - stock_hold_management_detail_cninfo
+    - stock_hold_num_cninfo
+    - stock_industry_category_cninfo
+    - stock_industry_change_cninfo
+    - stock_industry_pe_ratio_cninfo
+    - stock_ipo_summary_cninfo
+    - stock_new_gh_cninfo
+    - stock_new_ipo_cninfo
+    - stock_profile_cninfo
+    - stock_rank_forecast_cninfo
+    - stock_share_change_cninfo
+  www.100ppi.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_spot_price
+    - futures_spot_price_daily
+    - futures_spot_price_previous
+    - futures_spot_sys
+  www.99qh.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_inventory_99
+    - spot_price_qh
+    - spot_price_table_qh
+  www.9qihuo.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_comm_info
+    - option_comm_info
+  www.bjets.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - energy_carbon_bj
+  www.bloomberg.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_bloomberg_billionaires
+  www.bse.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_share_hold_change_bse
+  www.ccidx.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_index_ccidx
+  www.cerx.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - energy_carbon_eu
+    - energy_carbon_sz
+  www.cffex.com.cn:
+    rate_limit_key: cffex
+    description: 中国金融期货交易所
+    max_concurrent: 3
+    interfaces:
+    - futures_contract_info_cffex
+    - futures_hist_daily_cffex
+    - futures_settle_cffex
+    - get_cffex_daily
+    - get_cffex_rank_table
+    - option_finance_board
+  www.chinabond.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - bond_china_yield
+  www.chinamoney.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - bond_china_close_return
+    - bond_spot_deal
+    - bond_spot_quote
+    - fx_pair_quote
+    - fx_spot_quote
+    - fx_swap_quote
+    - macro_china_bond_public
+    - macro_china_swap_rate
+    - repo_rate_hist
+    - repo_rate_query
+  www.chinamoney.org.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - fx_c_swap_cm
+  www.chinascope.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_news_sentiment_scope
+  www.cls.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_info_global_cls
+  www.cnemission.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - energy_carbon_gz
+  www.cnindex.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_all_cni
+    - index_detail_cni
+    - index_detail_hist_adjust_cni
+    - index_detail_hist_cni
+    - index_hist_cni
+  www.cninfo.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_report_disclosure
+    - stock_zh_a_disclosure_relation_cninfo
+    - stock_zh_a_disclosure_report_cninfo
+  www.csindex.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_csindex_all
+    - index_stock_cons_csindex
+    - index_stock_cons_weight_csindex
+    - stock_zh_index_hist_csindex
+    - stock_zh_index_value_csindex
+  www.czce.com.cn:
+    rate_limit_key: czce
+    description: 郑州商品交易所
+    max_concurrent: 3
+    interfaces:
+    - futures_contract_info_czce
+    - futures_delivery_czce
+    - futures_delivery_match_czce
+    - futures_settle_czce
+    - futures_to_spot_czce
+    - futures_warehouse_receipt_czce
+    - get_czce_daily
+    - get_rank_table_czce
+    - option_hist_czce
+    - option_hist_yearly_czce
+  www.dce.com.cn:
+    rate_limit_key: dce
+    description: 大连商品交易所
+    max_concurrent: 3
+    interfaces:
+    - futures_contract_info_dce
+    - futures_dce_position_rank
+    - futures_dce_position_rank_other
+    - futures_delivery_dce
+    - futures_delivery_match_dce
+    - futures_to_spot_dce
+    - futures_warehouse_receipt_dce
+    - get_dce_daily
+    - option_hist_dce
+  www.endata.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - business_value_artist
+    - movie_boxoffice_cinema_daily
+    - movie_boxoffice_cinema_weekly
+    - movie_boxoffice_daily
+    - movie_boxoffice_monthly
+    - movie_boxoffice_realtime
+    - movie_boxoffice_weekly
+    - movie_boxoffice_yearly
+    - movie_boxoffice_yearly_first_week
+    - online_value_artist
+    - video_tv
+    - video_variety_show
+  www.etnet.com.hk:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_hk_profit_forecast_et
+  www.forbeschina.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - forbes_rank
+  www.futunn.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_concept_cons_futu
+  www.gfex.com.cn:
+    rate_limit_key: cffex
+    description: 中国金融期货交易所
+    max_concurrent: 3
+    interfaces:
+    - futures_contract_info_cffex
+    - futures_contract_info_gfex
+    - futures_gfex_position_rank
+    - futures_gfex_warehouse_receipt
+    - futures_settle_gfex
+    - get_gfex_daily
+    - option_hist_gfex
+    - option_vol_gfex
+  www.gtjaqh.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_rule
+  www.hbets.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - energy_carbon_hb
+  www.hurun.net:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - hurun_rank
+  www.ine.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_contract_info_ine
+    - futures_settle_ine
+    - get_ine_daily
+  www.jin10.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_comm_js
+  www.jisilu.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - bond_cb_adj_logs_jsl
+    - bond_cb_index_jsl
+    - bond_cb_jsl
+    - bond_cb_redeem_jsl
+    - qdii_a_index_jsl
+    - qdii_e_comm_jsl
+    - qdii_e_index_jsl
+  www.joinquant.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_stock_info
+  www.jstor.org:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - volatility_yz_rv
+  www.kqindex.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_kq_fz
+  www.legulegu.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_a_below_net_asset_statistics
+    - stock_a_high_low_statistics
+    - stock_a_ttm_lyr
+    - stock_market_activity_legu
+  www.msweet.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_inner_quote_sugar_msweet
+    - index_outer_quote_sugar_msweet
+    - index_sugar_msweet
+  www.nfra.gov.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - bank_fjcf_table_detail
+  www.policyuncertainty.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - article_epu_index
+  www.safe.gov.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - currency_boc_safe
+  www.sge.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - spot_golden_benchmark_sge
+    - spot_hist_sge
+    - spot_quotations_sge
+    - spot_silver_benchmark_sge
+    - spot_symbol_table_sge
+  www.sgx.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_settlement_price_sgx
+  www.shfe.com.cn:
+    rate_limit_key: shfe
+    description: 上海期货交易所
+    max_concurrent: 3
+    interfaces:
+    - futures_contract_info_shfe
+    - futures_settle_shfe
+    - futures_shfe_warehouse_receipt
+    - get_shfe_rank_table
+    - option_hist_shfe
+    - option_vol_shfe
+  www.shmet.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_news_shmet
+  www.soozhu.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - spot_corn_price_soozhu
+    - spot_hog_crossbred_soozhu
+    - spot_hog_lean_price_soozhu
+    - spot_hog_soozhu
+    - spot_hog_three_way_soozhu
+    - spot_hog_year_trend_soozhu
+    - spot_mixed_feed_soozhu
+    - spot_soybean_price_soozhu
+  www.sse.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - fund_etf_scale_sse
+    - option_current_day_sse
+    - option_daily_stats_sse
+    - option_finance_board
+    - option_finance_sse_underlying
+    - option_risk_indicator_sse
+    - stock_info_sh_delist
+    - stock_margin_detail_sse
+    - stock_margin_sse
+    - stock_sgt_reference_exchange_rate_sse
+    - stock_sgt_settlement_exchange_rate_sse
+    - stock_share_hold_change_sse
+    - stock_sse_deal_daily
+    - stock_sse_summary
+  www.sse.org.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - option_current_day_szse
+  www.swsresearch.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_analysis_daily_sw
+    - index_analysis_monthly_sw
+    - index_analysis_week_month_sw
+    - index_analysis_weekly_sw
+    - index_component_sw
+    - index_hist_fund_sw
+    - index_hist_sw
+    - index_min_sw
+    - index_realtime_fund_sw
+    - index_realtime_sw
+    - stock_industry_clf_hist_sw
+  www.szse.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - fund_scale_daily_szse
+    - option_finance_board
+    - stock_info_sz_change_name
+    - stock_info_sz_delist
+    - stock_margin_detail_szse
+    - stock_margin_szse
+    - stock_margin_underlying_info_szse
+    - stock_sgt_reference_exchange_rate_szse
+    - stock_sgt_settlement_exchange_rate_szse
+    - stock_share_hold_change_szse
+    - stock_szse_area_summary
+    - stock_szse_sector_summary
+    - stock_szse_summary
+  www.tanjiaoyi.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - energy_carbon_domestic
+  www.timeanddate.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - sunrise_daily
+    - sunrise_monthly
+  www.ushknews.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_price_js
+  www.xcf.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - xincaifu_rank
+  www.ywindex.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_yw
+  www.zq12369.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - air_city_table
+    - air_quality_hist
+    - air_quality_rank
+    - air_quality_watch_point
+  xt.yangzhu.vip:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_hog_core
+    - futures_hog_cost
+    - futures_hog_supply
+  xueqiu.com:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_hot_deal_xq
+    - stock_hot_follow_xq
+    - stock_hot_tweet_xq
+    - stock_individual_basic_info_hk_xq
+    - stock_individual_basic_info_us_xq
+    - stock_individual_basic_info_xq
+    - stock_individual_spot_xq
+    - stock_inner_trade_xq
+  yield.chinabond.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - bond_available_index_cbond
+    - bond_china_yield
+    - bond_composite_index_cbond
+    - bond_index_general_cbond
+    - bond_new_composite_index_cbond
+    - bond_treasury_index_cbond
+  ys.endata.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - movie_boxoffice_realtime
+  yun.ccxe.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_ai_cx
+    - index_awpr_cx
+    - index_bei_cx
+    - index_bi_cx
+    - index_cci_cx
+    - index_ci_cx
+    - index_dei_cx
+    - index_fi_cx
+    - index_ii_cx
+    - index_li_cx
+    - index_neaw_cx
+    - index_neei_cx
+    - index_nei_cx
+    - index_pmi_com_cx
+    - index_pmi_man_cx
+    - index_pmi_ser_cx
+    - index_qli_cx
+    - index_si_cx
+    - index_ti_cx
+  zhibo.sina.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - stock_info_global_sina
+  zhuce.nafmii.org.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - bond_debt_nafmii
+  zhujia.zhuwang.com.cn:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - futures_hog_core
+    - futures_hog_cost
+    - futures_hog_supply
+  zs.zjpwq.net:
+    rate_limit_key: default
+    description: 默认限速
+    max_concurrent: 3
+    interfaces:
+    - index_eri

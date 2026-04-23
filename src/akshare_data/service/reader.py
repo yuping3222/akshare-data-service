@@ -45,8 +45,7 @@ class ServedReader:
         Returns empty DataFrame if no data found (never fetches from source).
         """
         storage_layer = self._resolve_storage_layer(table)
-        if partition_by is None:
-            partition_by = self._resolve_partition_by(table)
+        partition_by = self._validate_partition_by(table, partition_by)
 
         try:
             result = self._cache.read(
@@ -74,8 +73,7 @@ class ServedReader:
     ) -> bool:
         """Check if data exists in Served layer."""
         storage_layer = self._resolve_storage_layer(table)
-        if partition_by is None:
-            partition_by = self._resolve_partition_by(table)
+        partition_by = self._validate_partition_by(table, partition_by)
 
         try:
             return self._cache.exists(
@@ -94,22 +92,21 @@ class ServedReader:
         start: str,
         end: str,
         date_col: str = "date",
+        where: Optional[Dict[str, Any]] = None,
         partition_by: Optional[str] = None,
         partition_value: Optional[str] = None,
     ) -> bool:
         """Check if Served has data covering the given date range."""
         storage_layer = self._resolve_storage_layer(table)
-        if partition_by is None:
-            partition_by = self._resolve_partition_by(table)
+        partition_by = self._validate_partition_by(table, partition_by)
 
         try:
             return self._cache.has_range(
                 table,
                 storage_layer=storage_layer,
                 partition_by=partition_by,
-                where={partition_by: partition_value}
-                if partition_by and partition_value
-                else None,
+                where=where
+                or ({partition_by: partition_value} if partition_by and partition_value else None),
                 date_col=date_col,
                 start=start,
                 end=end,
@@ -146,3 +143,26 @@ class ServedReader:
         if schema is not None:
             return schema.partition_by
         return None
+
+    def _validate_partition_by(
+        self,
+        table: str,
+        partition_by: Optional[str],
+    ) -> Optional[str]:
+        """Ensure read partition key matches schema contract.
+
+        On mismatch, warn and fallback to schema.partition_by.
+        """
+        expected = self._resolve_partition_by(table)
+        if partition_by is None:
+            return expected
+        if expected is None or partition_by == expected:
+            return partition_by
+
+        logger.warning(
+            "ServedReader partition_by mismatch for table=%s: got=%s expected=%s; fallback to expected",
+            table,
+            partition_by,
+            expected,
+        )
+        return expected

@@ -142,11 +142,10 @@ class DataService:
     ) -> QueryResult:
         """Query daily time-series data from Served."""
         sym = normalize_symbol(symbol)
+        where = {"date": (start_date, end_date), "symbol": sym}
         return self.query(
             table=table,
-            where={"date": (start_date, end_date)},
-            partition_by="symbol",
-            partition_value=sym,
+            where=where,
             version=version,
         )
 
@@ -202,6 +201,5 @@ class DataService:
             table,
             start=start_date,
             end=end_date,
-            partition_by="symbol",
-            partition_value=sym,
+            where={"symbol": sym},
         )

@@ -202,6 +202,15 @@ INDEX_DAILY = CacheTable(
     storage_layer="daily",
 )
 
+# 首批统一语义审计（stock_daily / etf_daily / index_daily）
+# 当前定义 vs 实际查询方式（变更后）
+#
+# | table       | schema.partition_by | 实际查询过滤（where）                          | 备注 |
+# |-------------|---------------------|-----------------------------------------------|------|
+# | stock_daily | date                | symbol + date range（DataService.query_daily） | 业务键统一进 where，分区键保持 date |
+# | etf_daily   | date                | symbol + date range（CNETFQuoteAPI.daily）     | 禁止按 symbol 作为 partition_by |
+# | index_daily | date                | symbol + date range（CNIndexQuoteAPI.daily）   | 禁止按 symbol 作为 partition_by |
+
 FUTURES_DAILY = CacheTable(
     name="futures_daily",
     partition_by="date",

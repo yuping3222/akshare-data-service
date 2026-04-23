@@ -276,9 +276,7 @@ class CNIndexQuoteAPI:
         sym = normalize_symbol(symbol)
         result = self.service._served.query(
             table="index_daily",
-            where={"date": (start_date, end_date)},
-            partition_by="symbol",
-            partition_value=sym,
+            where={"date": (start_date, end_date), "symbol": sym},
         )
         return result.data
 
@@ -313,9 +311,7 @@ class CNETFQuoteAPI:
         sym = normalize_symbol(symbol)
         result = self.service._served.query(
             table="etf_daily",
-            where={"date": (start_date, end_date)},
-            partition_by="symbol",
-            partition_value=sym,
+            where={"date": (start_date, end_date), "symbol": sym},
         )
         return result.data
 

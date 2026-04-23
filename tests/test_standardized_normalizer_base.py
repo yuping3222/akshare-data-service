@@ -1,6 +1,5 @@
 """Tests for akshare_data.standardized.normalizer.base module."""
 
-import pytest
 import pandas as pd
 
 from akshare_data.standardized.normalizer.base import (

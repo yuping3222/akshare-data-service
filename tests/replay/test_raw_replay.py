@@ -10,8 +10,6 @@ Verifies that:
 
 from __future__ import annotations
 
-import json
-import tempfile
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -28,8 +26,6 @@ from akshare_data.raw.manifest import (
     load_schema_snapshot,
 )
 from akshare_data.raw.system_fields import (
-    SYSTEM_FIELD_NAMES,
-    SYSTEM_FIELD_TYPES,
     SYSTEM_FIELDS,
     get_system_field_names,
     get_system_field_types,

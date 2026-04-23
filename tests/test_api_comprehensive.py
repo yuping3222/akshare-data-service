@@ -16,8 +16,7 @@ Methods covered:
 """
 
 import pytest
-from datetime import datetime, timedelta
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch
 
 import pandas as pd
 
@@ -226,7 +225,7 @@ class TestGetMinute:
             patch.object(service.cache, "write", return_value=""),
             patch.object(
                 service.akshare, "get_minute_data", return_value=test_df
-            ) as mock_fetch,
+            ),
         ):
             df = service.get_minute("sh600000", freq="1min")
             assert df is not None
@@ -247,10 +246,10 @@ class TestGetMinute:
         cached_df = create_minute_df(periods=100)
 
         with (
-            patch.object(service.cache, "read", return_value=cached_df) as mock_read,
+            patch.object(service.cache, "read", return_value=cached_df),
             patch.object(service.akshare, "get_minute_data") as mock_fetch,
         ):
-            df = service.get_minute(
+            service.get_minute(
                 "sh600000", freq="1min", start_date="2024-01-01", end_date="2024-01-01"
             )
             mock_fetch.assert_not_called()
@@ -381,7 +380,7 @@ class TestGetIndex:
         cached_df = create_index_df()
 
         with (
-            patch.object(service.cache, "read", return_value=cached_df) as mock_read,
+            patch.object(service.cache, "read", return_value=cached_df),
             patch.object(service.akshare, "get_index_daily") as mock_fetch,
         ):
             df = service.get_index("000300", "2024-01-01", "2024-01-10")
@@ -485,7 +484,7 @@ class TestGetETF:
         cached_df = create_etf_df()
 
         with (
-            patch.object(service.cache, "read", return_value=cached_df) as mock_read,
+            patch.object(service.cache, "read", return_value=cached_df),
             patch.object(service.akshare, "get_etf_daily") as mock_fetch,
         ):
             df = service.get_etf("510300", "2024-01-01", "2024-01-10")
@@ -600,7 +599,7 @@ class TestGetIndexStocks:
         )
 
         with (
-            patch.object(service.cache, "read", return_value=cached_df) as mock_read,
+            patch.object(service.cache, "read", return_value=cached_df),
             patch.object(service.akshare, "get_index_stocks") as mock_fetch,
         ):
             stocks = service.get_index_stocks("000300")
@@ -738,7 +737,7 @@ class TestGetTradingDays:
         )
 
         with (
-            patch.object(service.cache, "read", return_value=cached_df) as mock_read,
+            patch.object(service.cache, "read", return_value=cached_df),
             patch.object(service.akshare, "get_trading_days") as mock_fetch,
         ):
             days = service.get_trading_days("2024-01-01", "2024-01-10")
@@ -765,7 +764,7 @@ class TestGetTradingDays:
             patch.object(service.cache, "write", return_value=""),
             patch.object(
                 service.akshare, "get_trading_days", return_value=mock_days
-            ) as mock_fetch,
+            ),
         ):
             days = service.get_trading_days()
             assert days == mock_days
@@ -861,7 +860,7 @@ class TestGetMoneyFlow:
         )
 
         with (
-            patch.object(service.cache, "read", return_value=cached_df) as mock_read,
+            patch.object(service.cache, "read", return_value=cached_df),
             patch.object(service.akshare, "get_money_flow") as mock_fetch,
         ):
             df = service.get_money_flow("600000", "2024-01-01", "2024-01-10")
@@ -889,7 +888,7 @@ class TestGetMoneyFlow:
             patch.object(service.cache, "write", return_value="") as mock_write,
             patch.object(service.akshare, "get_money_flow", return_value=test_df),
         ):
-            df = service.get_money_flow("600000", "2024-01-01", "2024-01-10")
+            service.get_money_flow("600000", "2024-01-01", "2024-01-10")
             mock_write.assert_called_once()
             written_df = mock_write.call_args[0][1]
             assert "symbol" in written_df.columns
@@ -984,7 +983,7 @@ class TestGetNorthMoneyFlow:
         )
 
         with (
-            patch.object(service.cache, "read", return_value=cached_df) as mock_read,
+            patch.object(service.cache, "read", return_value=cached_df),
             patch.object(service.akshare, "get_north_money_flow") as mock_fetch,
         ):
             df = service.get_north_money_flow("2024-01-01", "2024-01-10")
@@ -1083,7 +1082,7 @@ class TestGetFinanceIndicator:
         )
 
         with (
-            patch.object(service.cache, "read", return_value=cached_df) as mock_read,
+            patch.object(service.cache, "read", return_value=cached_df),
             patch.object(service.akshare, "get_finance_indicator") as mock_fetch,
         ):
             df = service.get_finance_indicator("600000", "2024-01-01", "2024-01-10")
@@ -1113,7 +1112,7 @@ class TestGetFinanceIndicator:
                 service.akshare, "get_finance_indicator", return_value=test_df
             ),
         ):
-            df = service.get_finance_indicator("600000", "2024-01-01", "2024-01-10")
+            service.get_finance_indicator("600000", "2024-01-01", "2024-01-10")
             mock_write.assert_called_once()
             written_df = mock_write.call_args[0][1]
             assert "symbol" in written_df.columns

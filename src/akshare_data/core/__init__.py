@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """Core module: compatibility shell for common/ capabilities.
 
 DEPRECATED: Use `akshare_data.common` instead.

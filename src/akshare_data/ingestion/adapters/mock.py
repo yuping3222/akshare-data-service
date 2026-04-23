@@ -539,16 +539,6 @@ class MockAdapter(DataSource):
             {"symbol": [symbol], "margin_balance": [1000000.0], "date": ["2024-01-01"]}
         )
 
-    def get_north_money_flow(
-        self,
-        start_date: Optional[Union[str, date]] = None,
-        end_date: Optional[Union[str, date]] = None,
-        **kwargs,
-    ) -> pd.DataFrame:
-        return pd.DataFrame(
-            {"date": ["2024-01-01", "2024-01-02"], "north_money": [1000.0, 1100.0]}
-        )
-
     def get_dividend_data(self, symbol: str, **kwargs) -> pd.DataFrame:
         return pd.DataFrame(
             {"symbol": [symbol], "dividend": [1.0], "date": ["2024-01-01"]}
@@ -579,22 +569,6 @@ class MockAdapter(DataSource):
         return pd.DataFrame(
             {"symbol": [symbol], "operating_cf": [1e7], "report_date": ["2024-01-01"]}
         )
-
-    def get_index_components(
-        self, index_code: str, include_weights: bool = True, **kwargs
-    ) -> pd.DataFrame:
-        stocks = self.get_index_stocks(index_code)
-        if include_weights:
-            weight = 100.0 / len(stocks)
-            return pd.DataFrame(
-                {
-                    "index_code": [index_code] * len(stocks),
-                    "code": stocks,
-                    "stock_name": [f"stock_{s}" for s in stocks],
-                    "weight": [weight] * len(stocks),
-                }
-            )
-        return pd.DataFrame({"index_code": [index_code] * len(stocks), "code": stocks})
 
     def get_etf_daily(
         self,
@@ -662,17 +636,6 @@ class MockAdapter(DataSource):
     def get_stock_concepts(self, symbol: str, **kwargs) -> pd.DataFrame:
         return pd.DataFrame(
             {"code": [symbol], "concept": ["人工智能"]}
-        )
-
-    def get_equity_pledge(
-        self,
-        symbol: Optional[str] = None,
-        start_date: Optional[Union[str, date]] = None,
-        end_date: Optional[Union[str, date]] = None,
-        **kwargs,
-    ) -> pd.DataFrame:
-        return pd.DataFrame(
-            {"symbol": ["600000"], "pledged_shares": [1e6], "date": ["2024-01-01"]}
         )
 
     def get_sw_index_daily(

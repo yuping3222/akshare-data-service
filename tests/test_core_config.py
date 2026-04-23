@@ -1,6 +1,5 @@
 """测试 akshare_data.core.config 模块"""
 
-import pytest
 import json
 import os
 import tempfile

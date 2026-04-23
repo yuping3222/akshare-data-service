@@ -9,10 +9,8 @@ Verifies that RawReader can:
 
 from __future__ import annotations
 
-import tempfile
 from datetime import date
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
 import pytest

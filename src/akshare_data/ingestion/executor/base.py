@@ -1,32 +1,20 @@
-"""统一执行器接口（T2-004）。
-
-本模块定义 ingestion 层统一执行抽象，供下载、探测、回放等任务复用。
-该接口强调：
-
-1. 任务上下文（batch/request/source）可追踪
-2. 执行结果结构化（状态、指标、错误）
-3. 资源生命周期可控（open/close、上下文管理器）
-"""Unified extraction executor contracts.
-
-Task executors in online ingestion, offline downloader, and backfill/replay
-should all conform to this contract so scheduling, audit and metrics can be
-shared.
-"""
+"""Unified executor contracts for ingestion workflows."""
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, Generic, Optional, TypeVar
+from typing import Any, Dict, Generic, Mapping, MutableMapping, Optional, TypeVar
 
 TaskT = TypeVar("TaskT")
 ResultT = TypeVar("ResultT")
+PayloadT = TypeVar("PayloadT")
 
 
 class ExecutionMode(str, Enum):
-    """执行模式。"""
+    """Execution mode for unified executors."""
 
     SYNC = "sync"
     ASYNC = "async"
@@ -35,7 +23,7 @@ class ExecutionMode(str, Enum):
 
 @dataclass(frozen=True)
 class ExecutionContext:
-    """单次执行上下文。"""
+    """Context for structured unified execution."""
 
     request_id: str
     batch_id: str
@@ -47,7 +35,7 @@ class ExecutionContext:
 
 @dataclass(frozen=True)
 class ExecutorStats:
-    """执行统计信息。"""
+    """Metrics for a unified execution run."""
 
     attempt: int = 1
     latency_ms: float = 0.0
@@ -57,7 +45,7 @@ class ExecutorStats:
 
 @dataclass(frozen=True)
 class ExecutionResult(Generic[ResultT]):
-    """统一执行结果。"""
+    """Structured execution result used by modern executor APIs."""
 
     ok: bool
     payload: Optional[ResultT] = None
@@ -100,12 +88,7 @@ class ExecutionResult(Generic[ResultT]):
 
 
 class Executor(ABC, Generic[TaskT, ResultT]):
-    """统一执行器抽象。
-
-    子类实现 `execute`，负责把一个任务转换为结构化结果。
-
-    为兼容历史调用，`context` 允许为空；推荐显式传入。
-    """
+    """Base interface for structured executor implementations."""
 
     mode: ExecutionMode = ExecutionMode.SYNC
 
@@ -117,10 +100,10 @@ class Executor(ABC, Generic[TaskT, ResultT]):
         self.close()
 
     def open(self) -> None:
-        """可选资源初始化钩子。"""
+        """Optional resource initialization hook."""
 
     def close(self) -> None:
-        """可选资源释放钩子。"""
+        """Optional resource cleanup hook."""
 
     @abstractmethod
     def execute(
@@ -128,23 +111,16 @@ class Executor(ABC, Generic[TaskT, ResultT]):
         task: TaskT,
         *,
         context: ExecutionContext | None = None,
-    ) -> ExecutionResult[ResultT]:
-        """执行单任务并返回统一结果。"""
+    ) -> ResultT | None:
+        """Execute one task and return a backward-compatible payload."""
 
     def healthcheck(self) -> bool:
-        """执行器健康检查，默认可用。"""
         return True
-from datetime import datetime, timezone
-from typing import Any, Dict, Generic, Mapping, MutableMapping, Optional, TypeVar
-
-
-TaskT = TypeVar("TaskT")
-PayloadT = TypeVar("PayloadT")
 
 
 @dataclass(frozen=True)
 class ExecutorContext:
-    """Execution context shared by all task runs."""
+    """Context for legacy task executors."""
 
     batch_id: str = ""
     run_id: str = ""
@@ -153,8 +129,8 @@ class ExecutorContext:
 
 
 @dataclass(frozen=True)
-class ExecutionResult(Generic[PayloadT]):
-    """Unified result model for extraction execution."""
+class TaskExecutionResult(Generic[PayloadT]):
+    """Legacy result model kept for downloader/task compatibility."""
 
     success: bool
     task_name: str
@@ -183,7 +159,7 @@ class ExecutionResult(Generic[PayloadT]):
 
 
 class BaseTaskExecutor(ABC, Generic[TaskT, PayloadT]):
-    """Base contract for all extract task executors."""
+    """Base contract for legacy task executors."""
 
     @abstractmethod
     def run(
@@ -191,8 +167,8 @@ class BaseTaskExecutor(ABC, Generic[TaskT, PayloadT]):
         task: TaskT,
         *,
         context: Optional[ExecutorContext] = None,
-    ) -> ExecutionResult[PayloadT]:
-        """Run a task and return unified execution result."""
+    ) -> TaskExecutionResult[PayloadT]:
+        """Run a task and return a normalized legacy result."""
 
     def result(
         self,
@@ -205,11 +181,10 @@ class BaseTaskExecutor(ABC, Generic[TaskT, PayloadT]):
         started_at: Optional[datetime] = None,
         finished_at: Optional[datetime] = None,
         metadata: Optional[MutableMapping[str, Any]] = None,
-    ) -> ExecutionResult[PayloadT]:
-        """Helper to build normalized results with timestamps."""
+    ) -> TaskExecutionResult[PayloadT]:
         start = started_at or datetime.now(timezone.utc)
         end = finished_at or datetime.now(timezone.utc)
-        return ExecutionResult(
+        return TaskExecutionResult(
             success=success,
             task_name=task_name,
             rows=rows,
@@ -222,7 +197,12 @@ class BaseTaskExecutor(ABC, Generic[TaskT, PayloadT]):
 
 
 __all__ = [
-    "ExecutorContext",
-    "ExecutionResult",
     "BaseTaskExecutor",
+    "ExecutionContext",
+    "ExecutionMode",
+    "ExecutionResult",
+    "Executor",
+    "ExecutorContext",
+    "ExecutorStats",
+    "TaskExecutionResult",
 ]

@@ -80,7 +80,7 @@ class TestNormalizeSymbol:
         with patch("akshare_data.sources.akshare_source._jq_code_to_ak") as mock_fn:
             mock_fn.return_value = "sh600000"
             adapter = AkShareAdapter()
-            result = adapter._normalize_symbol("sh600000")
+            adapter._normalize_symbol("sh600000")
             mock_fn.assert_called_once_with("sh600000")
 
 

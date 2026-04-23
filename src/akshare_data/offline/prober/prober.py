@@ -8,13 +8,13 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import akshare as ak
 import pandas as pd
 import yaml
 
 from akshare_data.offline.core.paths import paths
-from akshare_data.offline.core.errors import ProbeError
 from akshare_data.offline.prober.checkpoint import CheckpointManager, ProbeResult
 from akshare_data.offline.prober.samples import SampleManager
 from akshare_data.offline.prober.task_builder import TaskBuilder, ValidationResult

@@ -1,9 +1,7 @@
 """Integration tests for router.py and MultiSourceRouter with real data."""
 
-import os
 import pytest
 import pandas as pd
-from unittest.mock import MagicMock, patch
 
 from akshare_data.ingestion.router import (
     MultiSourceRouter,
@@ -162,7 +160,7 @@ class TestMultiSourceRouter:
         router = MultiSourceRouter(
             providers=[("good", good)],
         )
-        result = router.execute()
+        router.execute()
         assert router._stats["total_calls"] == 1
         assert router._stats["successes"] == 1
 

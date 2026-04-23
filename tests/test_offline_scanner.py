@@ -5,9 +5,7 @@
 参考 test_offline.py 编写风格
 """
 
-import pytest
 import inspect
-import re
 from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 
@@ -690,7 +688,8 @@ class TestScannerEdgeCases:
         """测试 lambda 函数"""
         extractor = DomainExtractor()
 
-        lam = lambda x: x
+        def lam(x):
+            return x
         result = extractor.extract(lam)
         assert result == []
 

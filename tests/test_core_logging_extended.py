@@ -13,10 +13,6 @@ Coverage gaps filled:
 
 import pytest
 import logging
-import tempfile
-import os
-import shutil
-from pathlib import Path
 from unittest.mock import patch, MagicMock
 from akshare_data.core.logging import (
     create_rotating_file_handler,
@@ -25,7 +21,6 @@ from akshare_data.core.logging import (
     close_handler_safely,
     LogManager,
     setup_logging,
-    LoggingConfig,
 )
 
 

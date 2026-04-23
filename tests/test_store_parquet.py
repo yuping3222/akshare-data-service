@@ -196,7 +196,7 @@ class TestPartitionManagerEnsureDir:
         pm = PartitionManager(temp_base_dir)
         path = temp_base_dir / "existing"
         path.mkdir()
-        result = pm.ensure_dir(path)
+        pm.ensure_dir(path)
         assert path.exists()
 
 

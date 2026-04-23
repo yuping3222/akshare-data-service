@@ -8,10 +8,8 @@ Verifies system behavior under adverse conditions:
 - Memory limit reached -> cache eviction behavior
 """
 
-import os
-import struct
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest

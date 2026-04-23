@@ -11,7 +11,7 @@ Design:
 
 import logging
 from datetime import date, datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Union
 
 import pandas as pd
 
@@ -174,9 +174,7 @@ _METHOD_TO_INTERFACE = {
     # 全市场实时行情
     "get_spot_em": "stock_zh_a_spot_em",
     # 概念板块
-    "get_concept_list": "stock_board_concept_name_em",
     "get_concept_components": "stock_board_concept_cons_em",
-    "get_stock_concepts": "stock_board_concept_name_em",  # 需要用其他方式实现
     "get_hk_stocks": "hk_stocks",
     "get_us_stocks": "us_stocks",
     "get_new_stocks": "new_stocks",
@@ -434,9 +432,8 @@ class AkShareAdapter(DataSource):
                 symbol=symbol,
             )
 
-        import numpy as np
 
-        h = float(kwargs.get("h", 0.01))
+        float(kwargs.get("h", 0.01))
         r = float(kwargs.get("r", 0.03))
         S = float(kwargs.get("spot", 0))
         K = float(kwargs.get("strike", 0))
@@ -489,7 +486,6 @@ class AkShareAdapter(DataSource):
                 symbol=symbol,
             )
 
-        import numpy as np
         from akshare_data.core.options import black_scholes_price
 
         spot = float(kwargs.get("spot", 0))

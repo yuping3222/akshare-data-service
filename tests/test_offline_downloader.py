@@ -9,10 +9,7 @@ Adapted for current API:
 """
 
 import pytest
-import time
-from datetime import datetime, timedelta
-from unittest.mock import patch, MagicMock, PropertyMock, call
-from concurrent.futures import ThreadPoolExecutor
+from unittest.mock import patch, MagicMock
 
 import pandas as pd
 
@@ -22,6 +19,8 @@ from akshare_data.offline.downloader import (
     validate_ohlcv_data,
     convert_wide_to_long,
 )
+
+RateLimiter = DomainRateLimiter
 
 
 # ---------------------------------------------------------------------------

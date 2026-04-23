@@ -5,10 +5,6 @@ partitioned, incremental, overwrite), storage strategies, and the
 end-to-end write pipeline (schema -> validate -> parquet -> verify).
 """
 
-import pytest
-
-pytestmark = pytest.mark.integration
-
 from datetime import date
 from pathlib import Path
 from unittest.mock import patch
@@ -25,6 +21,8 @@ from akshare_data.store.validator import SchemaValidationError, SchemaValidator
 from akshare_data.store.manager import CacheManager, reset_cache_manager
 from akshare_data.store.parquet import AtomicWriter, PartitionManager
 from akshare_data.store.strategies import FullCacheStrategy, IncrementalStrategy
+
+pytestmark = pytest.mark.integration
 
 
 # ---------------------------------------------------------------------------
@@ -304,7 +302,7 @@ class TestParquetAtomicWrite:
         writer = AtomicWriter(temp_cache_dir)
 
         df1 = pd.DataFrame({"value": [1]})
-        path1 = writer.write("test_table", "daily", df1)
+        writer.write("test_table", "daily", df1)
 
         df2 = pd.DataFrame({"value": [2, 3]})
         path2 = writer.write("test_table", "daily", df2)

@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """Token management - compatibility shell.
 
 DEPRECATED: Use `akshare_data.common.config` instead.

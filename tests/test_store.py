@@ -5,12 +5,8 @@
 参考 jk2bt cache/tests/ 编写
 """
 
-import pytest
 import tempfile
-import shutil
 from pathlib import Path
-from datetime import datetime, timedelta
-from unittest.mock import patch, MagicMock
 
 import pandas as pd
 
@@ -22,7 +18,7 @@ from akshare_data.store.manager import (
 )
 from akshare_data.store.memory import MemoryCache
 from akshare_data.store.duckdb import DuckDBEngine
-from akshare_data.store.parquet import AtomicWriter, PartitionManager
+from akshare_data.store.parquet import PartitionManager
 
 
 class TestCacheManagerInit:
@@ -138,7 +134,7 @@ class TestDuckDBEngine:
 
     def test_duckdb_table_info(self, tmp_path):
         """测试表信息获取"""
-        db_path = tmp_path / "test.duckdb"
+        tmp_path / "test.duckdb"
         engine = DuckDBEngine(base_dir=str(tmp_path))
 
         result = engine.query("nonexistent_table", "daily")

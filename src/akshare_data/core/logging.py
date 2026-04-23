@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """Structured logging module - compatibility shell.
 
 DEPRECATED: Use `akshare_data.common.logging` instead.

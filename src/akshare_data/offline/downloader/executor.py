@@ -3,22 +3,20 @@
 from __future__ import annotations
 
 import logging
-import time
-from datetime import datetime
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 import pandas as pd
 
 from akshare_data.ingestion.executor.base import (
+    BaseTaskExecutor,
     ExecutionContext,
     ExecutionMode,
     ExecutionResult as UnifiedExecutionResult,
     Executor,
-    ExecutorStats,
-    BaseTaskExecutor,
-    ExecutionResult,
     ExecutorContext,
+    ExecutorStats,
+    TaskExecutionResult,
 )
 from akshare_data.offline.core.errors import DownloadError
 from akshare_data.offline.core.retry import RetryConfig, retry
@@ -31,7 +29,7 @@ logger = logging.getLogger("akshare_data")
 _RETRY_CONFIG = RetryConfig(max_retries=2, delay=1.0, backoff=1.0)
 
 
-class TaskExecutor(Executor[DownloadTask, pd.DataFrame]):
+class TaskExecutor(Executor[DownloadTask, pd.DataFrame], BaseTaskExecutor[DownloadTask, pd.DataFrame]):
     """下载任务执行器。"""
 
     mode = ExecutionMode.SYNC
@@ -40,30 +38,22 @@ class TaskExecutor(Executor[DownloadTask, pd.DataFrame]):
         self._rate_limiter = rate_limiter
         self._cache_manager = cache_manager
 
-    def execute(self, task: DownloadTask, context: ExecutionContext | None = None) -> Dict[str, Any]:
-        """执行单个下载任务（兼容旧接口）。"""
-        if context is None:
-            context = ExecutionContext(
-                request_id=f"download-{task.interface}",
-                batch_id=f"batch-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
-                source="akshare",
-                dataset=task.table,
+    def execute(
+        self,
+        task: DownloadTask,
+        *,
+        context: ExecutionContext | None = None,
+    ) -> Dict[str, Any]:
+        """兼容旧调用方：返回 dict 结构。"""
+        legacy_context = None
+        if context is not None:
+            legacy_context = ExecutorContext(
+                batch_id=context.batch_id,
+                run_id=context.request_id,
+                trigger=context.source,
+                metadata=context.tags,
             )
-
-        result = self.execute_structured(task, context=context)
-        if not result.ok:
-            return {
-                "success": False,
-                "error": result.error_message or result.error_code,
-                "task": task.interface,
-            }
-
-        payload = result.payload if result.payload is not None else pd.DataFrame()
-        return {
-            "success": True,
-            "rows": len(payload),
-            "task": task.interface,
-        }
+        return self.run(task, context=legacy_context).to_dict()
 
     def execute_structured(
         self,
@@ -71,56 +61,68 @@ class TaskExecutor(Executor[DownloadTask, pd.DataFrame]):
         *,
         context: ExecutionContext,
     ) -> UnifiedExecutionResult[pd.DataFrame]:
-        """执行单个下载任务并返回统一结构结果。"""
-        start = time.perf_counter()
+        start = datetime.now(timezone.utc)
+        result = self.run(
+            task,
+            context=ExecutorContext(
+                batch_id=context.batch_id,
+                run_id=context.request_id,
+                trigger=context.source,
+                metadata=context.tags,
+            ),
+        )
+
+        if result.success:
+            return UnifiedExecutionResult.success(
+                payload=result.payload,
+                stats=ExecutorStats(
+                    latency_ms=(result.finished_at - start).total_seconds() * 1000,
+                    input_count=1,
+                    output_count=result.rows,
+                ),
+                metadata=result.metadata,
+            )
+
+        return UnifiedExecutionResult.failure(
+            error_code="download_failed",
+            error_message=result.error,
+            stats=ExecutorStats(
+                latency_ms=(result.finished_at - start).total_seconds() * 1000,
+            ),
+            metadata=result.metadata,
+        )
+
     def run(
         self,
         task: DownloadTask,
         *,
         context: Optional[ExecutorContext] = None,
-    ) -> ExecutionResult[pd.DataFrame]:
+    ) -> TaskExecutionResult[pd.DataFrame]:
         """执行单个下载任务，返回统一结果对象。"""
         started_at = datetime.now(timezone.utc)
-        metadata = {
+        metadata: Dict[str, Any] = {
             "interface": task.interface,
             "table": task.table,
             "rate_limit_key": task.rate_limit_key,
         }
         if context:
-            metadata["batch_id"] = context.batch_id
-            metadata["run_id"] = context.run_id
-            metadata["trigger"] = context.trigger
+            metadata.update(
+                {
+                    "batch_id": context.batch_id,
+                    "run_id": context.run_id,
+                    "trigger": context.trigger,
+                }
+            )
 
         try:
             self._rate_limiter.wait(task.rate_limit_key)
             df = self._call_akshare(task.func, **task.kwargs)
-        except Exception as e:
-            logger.error("Task %s failed: %s", task.interface, e)
-            return UnifiedExecutionResult.failure(
-                error_code="download_failed",
-                error_message=str(e),
-                stats=ExecutorStats(latency_ms=(time.perf_counter() - start) * 1000),
-                metadata={
-                    "task": task.interface,
-                    "request_id": context.request_id,
-                    "batch_id": context.batch_id,
-                },
-            )
-
-        if df is None or df.empty:
-            return UnifiedExecutionResult.failure(
-                error_code="empty_data",
-                error_message="Empty data",
-                stats=ExecutorStats(latency_ms=(time.perf_counter() - start) * 1000),
-                metadata={
-                    "task": task.interface,
-                    "request_id": context.request_id,
-                    "batch_id": context.batch_id,
-                },
+        except Exception as exc:
+            logger.error("Task %s failed: %s", task.interface, exc)
             return self.result(
                 success=False,
                 task_name=task.interface,
-                error=str(e),
+                error=str(exc),
                 started_at=started_at,
                 finished_at=datetime.now(timezone.utc),
                 metadata=metadata,
@@ -139,19 +141,6 @@ class TaskExecutor(Executor[DownloadTask, pd.DataFrame]):
         if self._cache_manager:
             self._write_to_cache(task, df)
 
-        return UnifiedExecutionResult.success(
-            payload=df,
-            stats=ExecutorStats(
-                latency_ms=(time.perf_counter() - start) * 1000,
-                input_count=1,
-                output_count=len(df),
-            ),
-            metadata={
-                "task": task.interface,
-                "request_id": context.request_id,
-                "batch_id": context.batch_id,
-            },
-        )
         return self.result(
             success=True,
             task_name=task.interface,
@@ -161,10 +150,6 @@ class TaskExecutor(Executor[DownloadTask, pd.DataFrame]):
             finished_at=datetime.now(timezone.utc),
             metadata=metadata,
         )
-
-    def execute(self, task: DownloadTask) -> Dict[str, Any]:
-        """兼容旧调用方：返回 dict 结构。"""
-        return self.run(task).to_dict()
 
     @retry(_RETRY_CONFIG)
     def _call_akshare(self, func_name: str, **kwargs) -> Optional[pd.DataFrame]:
@@ -178,23 +163,42 @@ class TaskExecutor(Executor[DownloadTask, pd.DataFrame]):
 
     def _write_to_cache(self, task: DownloadTask, df: pd.DataFrame):
         """写入缓存（先做字段规范化）"""
-        if self._cache_manager:
-            try:
-                df = self._normalize_columns(task, df)
-                self._cache_manager.write(
-                    table=task.table,
-                    data=df,
-                    storage_layer="duckdb",
-                    partition_by="date",
-                )
-            except Exception as e:
-                logger.warning("Failed to write cache for %s: %s", task.table, e)
+        mapped = self._map_columns(task.table, df)
+        try:
+            if hasattr(self._cache_manager, "write"):
+                self._cache_manager.write(table=task.table, data=mapped, partition_value=None)
+            elif hasattr(self._cache_manager, "write_data"):
+                self._cache_manager.write_data(table=task.table, data=mapped)
+            else:
+                logger.warning("cache_manager has no write/write_data method")
+        except Exception as e:
+            logger.warning(f"Cache write failed for {task.table}: {e}")
 
-    @staticmethod
-    def _normalize_columns(task: DownloadTask, df: pd.DataFrame) -> pd.DataFrame:
-        """按任务映射或全局映射重命名列"""
-        mapping = task.output_mapping if task.output_mapping else EXTENDED_CN_TO_EN
-        rename_map = {col: mapping[col] for col in df.columns if col in mapping}
+    def _map_columns(self, table: str, df: pd.DataFrame) -> pd.DataFrame:
+        if df is None or df.empty:
+            return df
+
+        from akshare_data.core.schema import get_table_schema
+
+        schema = get_table_schema(table)
+        if schema is None:
+            return df
+
+        target_cols = set(schema.schema.keys())
+        rename_map: Dict[str, str] = {}
+
+        for col in df.columns:
+            if col in target_cols:
+                continue
+            mapped = EXTENDED_CN_TO_EN.get(col)
+            if mapped and mapped in target_cols:
+                rename_map[col] = mapped
+
         if rename_map:
             df = df.rename(columns=rename_map)
+
+        drop_cols = [c for c in df.columns if c not in target_cols]
+        if drop_cols:
+            df = df.drop(columns=drop_cols)
+
         return df

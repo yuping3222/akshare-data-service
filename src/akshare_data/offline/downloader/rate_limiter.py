@@ -9,12 +9,11 @@ from __future__ import annotations
 import logging
 from typing import Dict, Optional
 
-logger = logging.getLogger("akshare_data")
-
-
 from akshare_data.ingestion.router import (
     DomainRateLimiter as _RouterDomainRateLimiter,
 )
+
+logger = logging.getLogger("akshare_data")
 
 
 class DomainRateLimiter:

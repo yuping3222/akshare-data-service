@@ -145,7 +145,6 @@ class TestFieldMappingsContract:
             assert source_cfg[source].get("current_version"), (
                 f"{path}: current_version missing for {dataset}/{source}"
             )
-import yaml
 
 
 def _mapping_files() -> list[Path]:

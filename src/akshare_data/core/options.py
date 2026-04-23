@@ -11,7 +11,7 @@ Uses scipy.stats.norm when available, falls back to math.erf otherwise.
 from __future__ import annotations
 
 import math
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 # ── Normal distribution helpers (scipy or math fallback) ─────────────
 

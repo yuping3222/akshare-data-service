@@ -12,6 +12,7 @@ dependencies = [
     "duckdb>=0.9",
     "pyarrow>=14.0",
     "cachetools>=5.3",
+    "filelock>=3.0",
     "akshare>=1.10",
     "pyyaml>=6.0",
     "croniter>=1.3",

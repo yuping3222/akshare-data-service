@@ -26,6 +26,23 @@
 import pandas as pd
 
 
+def calculate_conversion_value(
+    bond_price: float,
+    conversion_ratio: float,
+    stock_price: float,
+) -> dict:
+    """本地计算转股价值与溢价率（避免依赖 adapter 私有方法）。"""
+    conversion_value = conversion_ratio * stock_price
+    premium_rate = ((bond_price - conversion_value) / conversion_value) * 100
+    return {
+        "bond_price": bond_price,
+        "conversion_ratio": conversion_ratio,
+        "stock_price": stock_price,
+        "conversion_value": conversion_value,
+        "premium_rate": premium_rate,
+    }
+
+
 # ============================================================
 # 示例 1: 获取可转债列表
 # ============================================================
@@ -127,10 +144,7 @@ def example_conversion_value():
     print("示例 4: 计算转股价值")
     print("=" * 60)
 
-    from akshare_data import get_service
-
-    service = get_service()
-    result = service.akshare.calculate_conversion_value(
+    result = calculate_conversion_value(
         bond_price=120.5,
         conversion_ratio=8.5,
         stock_price=14.2,

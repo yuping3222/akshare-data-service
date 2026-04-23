@@ -69,9 +69,10 @@
                        │
 ┌──────────────────────▼──────────────────────────────────────┐
 │                      API 层 (api.py)                         │
-│  DataService: 缓存优先编排器                                  │
-│  ├── 95+ get_* 便捷方法                                     │
-│  ├── cached_fetch(): 统一的缓存读写入口                       │
+│  薄封装/兼容导出：仅重导出 DataService 与命名空间              │
+│  业务拆分：service_facade + legacy_adapter + namespace_assembly│
+│  ├── 在线 DataService: 只读查询 + 缺数回填请求（异步）          │
+│  ├── cached_fetch(): 只读缓存查询（不回源、不写入）             │
 │  └── 命名空间类: cn / hk / us / macro                        │
 │      ├── cn.stock.quote (daily/minute/realtime/call_auction) │
 │      ├── cn.stock.finance (balance_sheet/income/cash/indicators)│

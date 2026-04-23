@@ -281,7 +281,7 @@ class TestMockSourceWithoutDataService:
 
     def test_mock_source_as_callable_in_router(self):
         """MockSource methods can be wrapped as callables for MultiSourceRouter."""
-        from akshare_data.sources.router import MultiSourceRouter
+        from akshare_data.ingestion.router import MultiSourceRouter
 
         source = MockSource()
 

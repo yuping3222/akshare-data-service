@@ -4,7 +4,6 @@
 """
 
 import pytest
-from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 
 import pandas as pd

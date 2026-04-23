@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 import logging
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 
-import numpy as np
 import pandas as pd
 
-from akshare_data.quality.engine import BaseCheck, GateAction, RuleDef, RuleResult, RuleStatus, Severity
+from akshare_data.quality.engine import BaseCheck, RuleDef, RuleResult, RuleStatus
 
 logger = logging.getLogger(__name__)
 
@@ -161,7 +160,7 @@ class NumericRangeAnomalyCheck(BaseCheck):
                     status=RuleStatus.PASSED,
                     severity=rule.severity,
                     gate_action=rule.gate_action,
-                    message=f"Zero std dev, no outliers possible",
+                    message="Zero std dev, no outliers possible",
                     total_count=len(vals),
                 )
             zscores = (vals - mean).abs() / std

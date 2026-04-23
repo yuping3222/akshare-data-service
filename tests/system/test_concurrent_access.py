@@ -15,7 +15,7 @@ import pandas as pd
 import pytest
 
 from akshare_data import DataService
-from akshare_data.store.manager import CacheManager, reset_cache_manager
+from akshare_data.store.manager import CacheManager
 
 
 @pytest.mark.system
@@ -72,7 +72,7 @@ class TestConcurrentReadAccess:
         # All non-empty results should have data (lengths may vary due to
         # incremental accumulation across concurrent threads)
         lengths = [len(r) for r in non_empty]
-        assert all(l >= 7 for l in lengths), (
+        assert all(length >= 7 for length in lengths), (
             f"Some results have unexpectedly few rows: {lengths}"
         )
 
@@ -186,7 +186,7 @@ class TestConcurrentWriteAccess:
         with ThreadPoolExecutor(max_workers=5) as executor:
             futures = [executor.submit(write_data, sym) for sym in symbols]
             for future in as_completed(futures):
-                result = future.result()
+                future.result()
                 # No assertion on content; just checking no exceptions
 
         assert not errors, f"Errors during concurrent writes: {errors}"

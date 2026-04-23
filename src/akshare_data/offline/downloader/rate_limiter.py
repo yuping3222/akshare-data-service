@@ -1,8 +1,9 @@
 """Offline batch downloader rate limiter.
 
 Delegates to the canonical implementation in
-akshare_data.sources.router.DomainRateLimiter.
+akshare_data.ingestion.router.DomainRateLimiter.
 """
+# ruff: noqa: E402
 
 from __future__ import annotations
 
@@ -12,7 +13,7 @@ from typing import Dict, Optional
 logger = logging.getLogger("akshare_data")
 
 
-from akshare_data.sources.router import (
+from akshare_data.ingestion.router import (
     DomainRateLimiter as _RouterDomainRateLimiter,
 )
 
@@ -20,7 +21,7 @@ from akshare_data.sources.router import (
 class DomainRateLimiter:
     """Offline batch domain rate limiter.
 
-    Delegates to ``akshare_data.sources.router.DomainRateLimiter``.
+    Delegates to ``akshare_data.ingestion.router.DomainRateLimiter``.
     Accepts a plain ``intervals`` dict for backward compatibility.
     """
 

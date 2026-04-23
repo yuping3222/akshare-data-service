@@ -3,6 +3,7 @@
 DEPRECATED: Use `akshare_data.common.types` instead.
 This module re-exports from common/types.py for backward compatibility.
 """
+# ruff: noqa: E402
 
 import warnings
 

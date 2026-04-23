@@ -5,11 +5,7 @@
 """
 
 import pytest
-import os
 import json
-import tempfile
-from datetime import datetime
-from pathlib import Path
 from unittest.mock import patch, MagicMock
 
 import yaml
@@ -18,7 +14,6 @@ from akshare_data.offline.registry.builder import (
     RegistryBuilder,
     _load_rate_limits,
     _load_domain_mapping,
-    RATE_LIMITS_FILE,
 )
 from akshare_data.offline.registry.exporter import RegistryExporter
 from akshare_data.offline.registry.merger import RegistryMerger
@@ -165,7 +160,7 @@ class TestRegistryBuilder:
         builder = RegistryBuilder()
         with patch("akshare_data.offline.registry.builder.getattr") as mock_getattr:
             mock_getattr.return_value = lambda: None
-            result = builder._get_func_obj("test_func")
+            builder._get_func_obj("test_func")
             mock_getattr.assert_called_once()
 
     def test_get_func_obj_not_found(self):

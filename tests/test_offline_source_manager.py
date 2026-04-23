@@ -3,13 +3,11 @@
 数据源管理模块测试
 """
 
-import pytest
 import time
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from akshare_data.offline.source_manager.health_tracker import HealthTracker
 from akshare_data.offline.source_manager.failover import FailoverManager
-from akshare_data.offline.core.errors import SourceError
 
 
 class TestHealthTrackerInit:
@@ -437,7 +435,7 @@ class TestFailoverManagerFailover:
         }
         manager._health = tracker
 
-        result = manager.failover("daily_bar", "src1", ["src1", "src2"])
+        manager.failover("daily_bar", "src1", ["src1", "src2"])
 
         assert "src1" in manager._cooldowns
 

@@ -3,6 +3,7 @@
 DEPRECATED: Use `akshare_data.common.errors` instead.
 This module re-exports from common/errors.py for backward compatibility.
 """
+# ruff: noqa: E402
 
 import warnings
 

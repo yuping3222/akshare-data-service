@@ -11,7 +11,6 @@ Covers:
 - Column standardization functions
 """
 
-import pytest
 import pandas as pd
 from akshare_data.core.fields import (
     FLOAT_FIELDS,

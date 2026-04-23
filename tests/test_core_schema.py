@@ -11,7 +11,6 @@ Covers:
 import pytest
 from datetime import datetime
 from akshare_data.core.schema import (
-    CacheTable,
     TableInfo,
     TableRegistry,
     STOCK_DAILY,

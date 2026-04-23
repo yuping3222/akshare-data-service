@@ -7,7 +7,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-import pandas as pd
 
 from akshare_data.offline.core.paths import paths
 from akshare_data.offline.report.renderer import ReportRenderer

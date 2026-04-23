@@ -5,14 +5,11 @@
 参考 jk2bt tests/ 编写
 """
 
-import pytest
-import tempfile
-from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 
 import pandas as pd
 
-from akshare_data.sources.router import (
+from akshare_data.ingestion.router import (
     MultiSourceRouter,
     EmptyDataPolicy,
     ExecutionResult,
@@ -344,7 +341,7 @@ class TestCreateSimpleRouter:
 
     def test_create_with_all_params(self):
         """测试创建时指定所有参数"""
-        cache_func = MagicMock()
+        MagicMock()
         router = create_simple_router(
             callables={"src1": MagicMock()},
             required_columns=["open"],

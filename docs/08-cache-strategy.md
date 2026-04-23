@@ -8,11 +8,11 @@
 
 ## 1. 核心原则
 
-DataService 是缓存策略的核心编排器。数据源对缓存一无所知，API 层完全拥有缓存策略的控制权。
+DataService 是缓存策略的核心编排器。在线 API 为只读门面：仅查询已落地数据与提交异步补数请求；不做同步回源、不做写入。
 
 ### 1.1 统一入口：`cached_fetch()`
 
-所有数据请求通过 `DataService.cached_fetch()` 进入缓存流程：
+在线查询可通过 `DataService.cached_fetch()` 走只读缓存查询：
 
 ```python
 def cached_fetch(
@@ -27,18 +27,14 @@ def cached_fetch(
 ) -> pd.DataFrame:
 ```
 
-内部构建 `FetchConfig`，委托给 `CachedFetcher.execute()` 执行。
+该方法仅构建查询条件并委托 Served 查询；`fetch_fn` 参数仅保留签名兼容，不会被在线 API 执行。
 
 ### 1.2 执行流程
 
 ```
-请求 → FetchConfig → CachedFetcher.execute()
-                    ├── 推断策略（有 start_date/end_date → IncrementalStrategy，否则 → FullCacheStrategy）
-                    ├── 构建 WHERE 条件
-                    ├── 读缓存（CacheManager.read）
-                    ├── should_fetch() 判断是否需要拉取
-                    ├── 需要 → 执行 fetch_fn → CacheManager.write → 合并返回
-                    └── 不需要 → 直接返回缓存
+请求 → 构建 WHERE 条件 → ServedDataService.query()
+                     ├── 命中数据 → 返回 DataFrame
+                     └── 缺数 → 返回空结果 + 缺数策略（可异步 backfill）
 ```
 
 ---
@@ -55,7 +51,7 @@ L2 磁盘缓存（Parquet 文件）
     │  通过 DuckDB SQL 查询
     ▼ 无文件
 L3 回源（Data Source）
-    └─ 拉取 → 写入 Parquet → 写入内存 → 返回
+    └─ 仅在离线/ingestion 场景触发（不在在线 API 同步执行）
 ```
 
 ### 2.1 MemoryCache

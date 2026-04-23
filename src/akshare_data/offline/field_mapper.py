@@ -13,16 +13,14 @@
 from __future__ import annotations
 
 import csv
-import inspect
 import json
 import logging
-import os
 import re
 import time
 from collections import defaultdict
-from dataclasses import dataclass, field, asdict
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import yaml
 
@@ -378,7 +376,6 @@ EXTENDED_CN_TO_EN = {
     "占比": "ratio",
     "比例": "ratio",
     "百分比": "percentage",
-    "涨跌幅": "pct_change",
     "涨幅": "change_pct",
     "跌幅": "drop_pct",
     "排名": "rank",
@@ -777,7 +774,7 @@ class FieldMapper:
                     f"({result.exec_time:.1f}s)"
                 )
             elif result.status == "empty":
-                logger.info(f"  -> Empty data")
+                logger.info("  -> Empty data")
             else:
                 failed_count += 1
                 logger.warning(f"  -> Failed: {result.error_msg[:80]}")
@@ -815,8 +812,8 @@ class FieldMapper:
             [
                 "## 概览",
                 "",
-                f"| 指标 | 数量 |",
-                f"|------|------|",
+                "| 指标 | 数量 |",
+                "|------|------|",
                 f"| 成功分析 | {len(success)} |",
                 f"| 调用失败 | {len(failed)} |",
                 f"| 返回空数据 | {len(empty)} |",
@@ -1125,7 +1122,7 @@ def main():
     print(f"总列数: {total_cols}")
     print(f"已映射: {total_mapped} ({total_mapped / max(total_cols, 1) * 100:.1f}%)")
     print(f"未映射: {total_cols - total_mapped}")
-    print(f"\n输出文件:")
+    print("\n输出文件:")
     print(f"  报告: {REPORT_FILE}")
     print(f"  未映射列: {UNMAPPED_FILE}")
     print(f"  映射结果: {MAPPING_RESULT_FILE}")

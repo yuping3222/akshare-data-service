@@ -5,11 +5,9 @@
 
 import json
 import os
-import pytest
 import tempfile
-import datetime
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 import pandas as pd
 
@@ -23,12 +21,12 @@ class TestReporterInit:
         """测试初始化创建报告目录"""
         with tempfile.TemporaryDirectory() as tmpdir:
             with patch.object(Reporter, "REPORT_DIR", tmpdir):
-                reporter = Reporter()
+                Reporter()
                 assert os.path.exists(tmpdir)
 
     def test_reporter_init_existing_dir(self):
         """测试初始化已存在目录"""
-        with tempfile.TemporaryDirectory() as tmpdir:
+        with tempfile.TemporaryDirectory():
             reporter = Reporter()
             assert os.path.exists(reporter.REPORT_DIR)
 

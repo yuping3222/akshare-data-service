@@ -40,7 +40,7 @@ from .executor.base import (
     Executor,
     ExecutorStats,
 )
-from .executor import BaseTaskExecutor, ExecutionResult as TaskExecutionResult, ExecutorContext
+from .executor import BaseTaskExecutor, ExecutorContext, TaskExecutionResult
 
 __all__ = [
     "ExtractTask",

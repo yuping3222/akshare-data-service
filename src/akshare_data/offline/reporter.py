@@ -6,7 +6,7 @@ import json
 import os
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import pandas as pd
 
@@ -131,12 +131,6 @@ class Reporter:
                 "crypto": "Crypto",
             }
 
-            freq_map = {
-                "daily": "Daily",
-                "weekly": "Weekly",
-                "monthly": "Monthly",
-                "realtime": "Realtime",
-            }
 
             categories = df["分类"].value_counts()
             if not categories.empty:

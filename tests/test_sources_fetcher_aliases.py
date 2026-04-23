@@ -3,13 +3,11 @@
 import pytest
 import pandas as pd
 import akshare as ak
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from akshare_data.sources.akshare import fetcher
 from akshare_data.sources.akshare.fetcher import (
     fetch_daily_data,
-    fetch_index_daily,
-    fetch_etf_daily,
     fetch_money_flow,
     fetch_north_money_flow,
     fetch_macro_gdp,
@@ -17,41 +15,18 @@ from akshare_data.sources.akshare.fetcher import (
     fetch_balance_sheet,
     fetch_income_statement,
     fetch_cash_flow,
-    fetch_basic_info,
     fetch_finance_indicator,
     fetch_block_deal,
-    fetch_margin_data,
     fetch_margin_summary,
-    fetch_equity_pledge,
-    fetch_restricted_release,
-    fetch_stock_bonus,
-    fetch_rights_issue,
-    fetch_performance_forecast,
-    fetch_chip_distribution,
-    fetch_management_info,
-    fetch_shareholder_change,
-    fetch_capital_change,
-    fetch_disclosure_news,
-    fetch_call_auction,
     fetch_st_stocks,
     fetch_suspended_stocks,
     fetch_index_stocks,
-    fetch_index_components,
     fetch_fund_net_value,
     fetch_sector_fund_flow,
     fetch_industry_stocks,
     fetch_industry_mapping,
     fetch_hot_rank,
-    fetch_dragon_tiger_list,
-    fetch_limit_up_pool,
-    fetch_limit_down_pool,
-    fetch_convert_bond_premium,
-    fetch_convert_bond_spot,
-    fetch_futures_realtime_data,
-    fetch_futures_main_contracts,
-    fetch_news_data,
 )
-from akshare_data.core.errors import SourceUnavailableError
 
 
 class TestFetchDailyData:

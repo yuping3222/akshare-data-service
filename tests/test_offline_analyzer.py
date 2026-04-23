@@ -10,13 +10,10 @@ Covers:
 
 import json
 import time
-import queue
-import pytest
 from pathlib import Path
 from datetime import datetime, timedelta
-from unittest.mock import patch, MagicMock, Mock, mock_open
+from unittest.mock import patch
 import pandas as pd
-import numpy as np
 
 
 class TestAccessLoggerAnalyzer:
@@ -121,7 +118,6 @@ class TestAccessLoggerAnalyzer:
 
         logger.record("equity_daily", "000001", False, 100)
 
-        old_date = logger._current_date
         with patch("akshare_data.offline.access_logger.datetime") as mock_dt:
             mock_dt.now.return_value = datetime(2020, 1, 2)
             mock_dt.strftime.return_value = "2020-01-02"
@@ -621,7 +617,7 @@ class TestCallStatsAnalyzer:
 
         analyzer = CallStatsAnalyzer(log_dir=log_dir, output_path=output_path)
 
-        now = datetime.now()
+        datetime.now()
         ranked = [
             {
                 "interface": "iface1",
@@ -1198,7 +1194,6 @@ class TestFieldMapperAnalyzer:
         from akshare_data.offline.field_mapper import (
             FieldMapper,
             InterfaceFieldResult,
-            ColumnInfo,
         )
 
         mapper = FieldMapper(
@@ -1279,7 +1274,7 @@ class TestFieldMapperAnalyzer:
 
         output_dir = tmp_path / "output"
 
-        mapper = FieldMapper(
+        FieldMapper(
             registry_path=tmp_path / "registry.yaml",
             output_dir=output_dir,
         )
@@ -1287,7 +1282,7 @@ class TestFieldMapperAnalyzer:
         assert output_dir.exists()
 
     def test_analyze_interface_with_empty_result(self, tmp_path):
-        from akshare_data.offline.field_mapper import FieldMapper, InterfaceFieldResult
+        from akshare_data.offline.field_mapper import FieldMapper
 
         mapper = FieldMapper(
             registry_path=tmp_path / "registry.yaml",
@@ -1302,7 +1297,7 @@ class TestFieldMapperAnalyzer:
     def test_cn_to_en_copy_exists(self, tmp_path):
         from akshare_data.offline.field_mapper import FieldMapper, EXTENDED_CN_TO_EN
 
-        mapper = FieldMapper(
+        FieldMapper(
             registry_path=tmp_path / "registry.yaml",
             output_dir=tmp_path / "output",
         )

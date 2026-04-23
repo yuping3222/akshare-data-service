@@ -6,8 +6,7 @@ Verifies correct interface routing, parameter passing, and result processing.
 
 import pytest
 import pandas as pd
-from datetime import datetime, date
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 from akshare_data.sources.akshare_source import AkShareAdapter
 from akshare_data.core.errors import DataSourceError, SourceUnavailableError

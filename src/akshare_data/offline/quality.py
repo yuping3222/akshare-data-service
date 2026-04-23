@@ -11,10 +11,6 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
-from akshare_data.offline.analyzer.cache_analysis.completeness import (
-    CompletenessChecker,
-)
-from akshare_data.offline.analyzer.cache_analysis.anomaly import AnomalyDetector
 from akshare_data.store.manager import get_cache_manager
 
 

@@ -16,7 +16,6 @@ Test scenarios cover:
 """
 
 import time
-from pathlib import Path
 from unittest.mock import MagicMock
 
 import pandas as pd
@@ -115,7 +114,7 @@ class TestCachePipeline:
         assert len(files) >= 1, "Expected at least one parquet file after write"
 
         # 5. Verify memory cache was populated
-        cache_key = manager._make_cache_key(table, "daily", None, None)
+        cache_key = manager._make_cache_key(table, "daily", None, None, None, None)
         cached = manager.memory_cache.get(cache_key)
         assert cached is not None, "Expected data in memory cache after write"
 
@@ -184,7 +183,7 @@ class TestCachePipeline:
 
         # Write data to parquet and memory cache
         manager.write(table, sample_stock_data, storage_layer="daily")
-        cache_key = manager._make_cache_key(table, "daily", None, None)
+        cache_key = manager._make_cache_key(table, "daily", None, None, None, None)
 
         # Verify memory cache hit right after write
         assert manager.memory_cache.get(cache_key) is not None
@@ -401,7 +400,7 @@ class TestCachePipeline:
 
         # Write data
         _fetch_and_write(manager, mock_data_source, table)
-        cache_key = manager._make_cache_key(table, "daily", None, None)
+        cache_key = manager._make_cache_key(table, "daily", None, None, None, None)
 
         # Verify memory cache populated
         assert manager.memory_cache.get(cache_key) is not None

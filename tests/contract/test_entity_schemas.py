@@ -16,7 +16,7 @@ from typing import Any
 import pytest
 import yaml
 
-from akshare_data.governance.schema_registry import SchemaRegistry, EntitySchema
+from akshare_data.governance.schema_registry import SchemaRegistry
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 ENTITY_CONFIG_DIR = PROJECT_ROOT / "config" / "standards" / "entities"

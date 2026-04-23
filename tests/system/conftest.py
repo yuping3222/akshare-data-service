@@ -5,11 +5,9 @@ system-test-specific helpers such as mock sources wired into DataService
 and Docker-related test infrastructure.
 """
 
-import subprocess
-import tempfile
 from pathlib import Path
 from typing import Generator
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest

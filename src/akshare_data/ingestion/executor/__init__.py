@@ -8,6 +8,7 @@ from akshare_data.ingestion.executor.base import (
     Executor,
     ExecutorContext,
     ExecutorStats,
+    TaskExecutionResult,
 )
 
 __all__ = [
@@ -18,4 +19,5 @@ __all__ = [
     "ExecutorStats",
     "BaseTaskExecutor",
     "ExecutorContext",
+    "TaskExecutionResult",
 ]

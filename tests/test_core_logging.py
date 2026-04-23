@@ -19,10 +19,7 @@ import pytest
 import logging
 import json
 import os
-import tempfile
-import threading
-from datetime import datetime, timezone
-from unittest.mock import patch, MagicMock
+from unittest.mock import MagicMock
 
 from akshare_data.core.logging import (
     StructuredFormatter,

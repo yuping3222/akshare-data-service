@@ -66,12 +66,16 @@ class HealthTracker:
             return
 
         success_rate = s["success_count"] / total
-        avg_latency = s["total_latency"] / s["success_count"] if s["success_count"] > 0 else 0
+        avg_latency = (
+            s["total_latency"] / s["success_count"] if s["success_count"] > 0 else 0
+        )
 
         latency_penalty = min(avg_latency / 1000, 0.3)
         failure_penalty = s["consecutive_failures"] * 0.1
 
-        s["health_score"] = max(0, (success_rate * 100) - (latency_penalty * 100) - (failure_penalty * 100))
+        s["health_score"] = max(
+            0, (success_rate * 100) - (latency_penalty * 100) - (failure_penalty * 100)
+        )
 
     def get_health_score(self, source: str) -> float:
         """获取健康分数"""

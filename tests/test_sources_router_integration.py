@@ -1,4 +1,5 @@
 """Integration tests for router.py and MultiSourceRouter with real data."""
+
 import os
 import pytest
 import pandas as pd
@@ -29,6 +30,7 @@ class TestDomainRateLimiter:
     def test_rate_limiter_respects_interval(self):
         """Test that rapid calls are properly rate-limited."""
         import time
+
         limiter = DomainRateLimiter(intervals={"test": 0.2})
         limiter.wait_if_needed("test")
         start = time.time()
@@ -39,15 +41,12 @@ class TestDomainRateLimiter:
     def test_domain_map_routing(self):
         limiter = DomainRateLimiter(
             intervals={"default": 0.1, "api.example.com": 0.5},
-            domain_map={"api.example.com": "api.example.com"}
+            domain_map={"api.example.com": "api.example.com"},
         )
         limiter.wait_if_needed("api.example.com")
 
     def test_resolve_rate_key_fallback(self):
-        limiter = DomainRateLimiter(
-            intervals={"default": 0.1},
-            domain_map={}
-        )
+        limiter = DomainRateLimiter(intervals={"default": 0.1}, domain_map={})
         limiter.wait_if_needed("unknown.domain.com")
 
 
@@ -84,8 +83,16 @@ class TestMultiSourceRouter:
     def test_router_execute_akshare_only(self):
         """Test router with only akshare source."""
         import akshare as ak
+
         def ak_daily():
-            return ak.stock_zh_a_hist(symbol="000001", period="daily", start_date="20240101", end_date="20240105", adjust="qfq")
+            return ak.stock_zh_a_hist(
+                symbol="000001",
+                period="daily",
+                start_date="20240101",
+                end_date="20240105",
+                adjust="qfq",
+            )
+
         router = MultiSourceRouter(
             providers=[("akshare", ak_daily)],
             policy=EmptyDataPolicy.STRICT,
@@ -102,8 +109,10 @@ class TestMultiSourceRouter:
     def test_router_execute_macro(self):
         """Test router with macro data."""
         import akshare as ak
+
         def ak_macro():
             return ak.macro_china_cpi_yearly()
+
         router = MultiSourceRouter(
             providers=[("akshare", ak_macro)],
             policy=EmptyDataPolicy.STRICT,
@@ -118,8 +127,10 @@ class TestMultiSourceRouter:
     @pytest.mark.network
     def test_router_best_effort_policy(self):
         """Test BEST_EFFORT policy returns even with empty result."""
+
         def bad_source():
             return pd.DataFrame()
+
         router = MultiSourceRouter(
             providers=[("bad", bad_source)],
             policy=EmptyDataPolicy.BEST_EFFORT,
@@ -130,8 +141,10 @@ class TestMultiSourceRouter:
 
     def test_router_all_sources_disabled(self):
         """Test router when all providers fail."""
+
         def bad():
             raise RuntimeError("disabled")
+
         router = MultiSourceRouter(
             providers=[("bad", bad)],
             policy=EmptyDataPolicy.STRICT,
@@ -142,8 +155,10 @@ class TestMultiSourceRouter:
 
     def test_router_stats_tracking(self):
         """Test that router tracks source stats."""
+
         def good():
             return pd.DataFrame({"a": [1]})
+
         router = MultiSourceRouter(
             providers=[("good", good)],
         )
@@ -158,12 +173,14 @@ class TestCreateSimpleRouter:
     def test_create_with_callables(self):
         def good():
             return pd.DataFrame({"a": [1]})
+
         router = create_simple_router(callables={"test": good})
         assert isinstance(router, MultiSourceRouter)
 
     def test_create_with_best_effort(self):
         def good():
             return pd.DataFrame({"a": [1]})
+
         router = create_simple_router(
             callables={"test": good},
             policy=EmptyDataPolicy.BEST_EFFORT,

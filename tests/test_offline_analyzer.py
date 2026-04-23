@@ -367,7 +367,7 @@ class TestCallStatsAnalyzer:
         now = datetime.now()
         five_days_ago = now - timedelta(days=5)
         entries = []
-        
+
         for i in range(100):
             entries.append(
                 {
@@ -378,7 +378,7 @@ class TestCallStatsAnalyzer:
                     "latency_ms": 5,
                 }
             )
-        
+
         for i in range(3):
             entries.append(
                 {
@@ -438,21 +438,31 @@ class TestCallStatsAnalyzer:
         recent_log = Path(log_dir) / f"access.log.{recent_date}"
         old_log = Path(log_dir) / f"access.log.{old_date}"
 
-        recent_log.write_text(json.dumps({
-            "ts": now.isoformat(),
-            "interface": "recent_iface",
-            "symbol": "000001",
-            "cache_hit": False,
-            "latency_ms": 100,
-        }) + "\n")
+        recent_log.write_text(
+            json.dumps(
+                {
+                    "ts": now.isoformat(),
+                    "interface": "recent_iface",
+                    "symbol": "000001",
+                    "cache_hit": False,
+                    "latency_ms": 100,
+                }
+            )
+            + "\n"
+        )
 
-        old_log.write_text(json.dumps({
-            "ts": (now - timedelta(days=10)).isoformat(),
-            "interface": "old_iface",
-            "symbol": "000001",
-            "cache_hit": False,
-            "latency_ms": 100,
-        }) + "\n")
+        old_log.write_text(
+            json.dumps(
+                {
+                    "ts": (now - timedelta(days=10)).isoformat(),
+                    "interface": "old_iface",
+                    "symbol": "000001",
+                    "cache_hit": False,
+                    "latency_ms": 100,
+                }
+            )
+            + "\n"
+        )
 
         analyzer = CallStatsAnalyzer(log_dir=log_dir, output_path=output_path)
         config = analyzer.analyze(window_days=7)
@@ -487,7 +497,9 @@ class TestCallStatsAnalyzer:
         Path(log_dir).mkdir(parents=True, exist_ok=True)
         bad_log = Path(log_dir) / "access.log.notadate"
         now = datetime.now()
-        bad_log.write_text(f'{{"ts": "{now.isoformat()}", "interface": "bad", "symbol": "000001", "cache_hit": false, "latency_ms": 100}}\n')
+        bad_log.write_text(
+            f'{{"ts": "{now.isoformat()}", "interface": "bad", "symbol": "000001", "cache_hit": false, "latency_ms": 100}}\n'
+        )
 
         analyzer = CallStatsAnalyzer(log_dir=log_dir, output_path=output_path)
         config = analyzer.analyze(window_days=7)
@@ -713,10 +725,12 @@ class TestAnomalyDetector:
         from akshare_data.offline.analyzer.cache_analysis.anomaly import AnomalyDetector
 
         detector = AnomalyDetector()
-        df = pd.DataFrame({
-            "pct_change": [1.0, 25.0, 3.0, -30.0],
-            "symbol": ["a", "b", "c", "d"],
-        })
+        df = pd.DataFrame(
+            {
+                "pct_change": [1.0, 25.0, 3.0, -30.0],
+                "symbol": ["a", "b", "c", "d"],
+            }
+        )
 
         result = detector.detect(df, price_change_threshold=20.0)
 
@@ -728,10 +742,12 @@ class TestAnomalyDetector:
         from akshare_data.offline.analyzer.cache_analysis.anomaly import AnomalyDetector
 
         detector = AnomalyDetector()
-        df = pd.DataFrame({
-            "涨跌幅": [1.0, 25.0, 3.0],
-            "symbol": ["a", "b", "c"],
-        })
+        df = pd.DataFrame(
+            {
+                "涨跌幅": [1.0, 25.0, 3.0],
+                "symbol": ["a", "b", "c"],
+            }
+        )
 
         result = detector.detect(df, price_change_threshold=20.0)
 
@@ -741,10 +757,12 @@ class TestAnomalyDetector:
         from akshare_data.offline.analyzer.cache_analysis.anomaly import AnomalyDetector
 
         detector = AnomalyDetector()
-        df = pd.DataFrame({
-            "close": [100, 101, 102],
-            "symbol": ["a", "b", "c"],
-        })
+        df = pd.DataFrame(
+            {
+                "close": [100, 101, 102],
+                "symbol": ["a", "b", "c"],
+            }
+        )
 
         result = detector.detect(df)
 
@@ -755,10 +773,12 @@ class TestAnomalyDetector:
         from akshare_data.offline.analyzer.cache_analysis.anomaly import AnomalyDetector
 
         detector = AnomalyDetector()
-        df = pd.DataFrame({
-            "pct_change": [1.0, "N/A", 3.0, None],
-            "symbol": ["a", "b", "c", "d"],
-        })
+        df = pd.DataFrame(
+            {
+                "pct_change": [1.0, "N/A", 3.0, None],
+                "symbol": ["a", "b", "c", "d"],
+            }
+        )
 
         result = detector.detect(df, price_change_threshold=20.0)
 
@@ -768,11 +788,13 @@ class TestAnomalyDetector:
         from akshare_data.offline.analyzer.cache_analysis.anomaly import AnomalyDetector
 
         detector = AnomalyDetector()
-        df = pd.DataFrame({
-            "high": [100, 105, 110],
-            "low": [90, 95, 100],
-            "symbol": ["a", "b", "c"],
-        })
+        df = pd.DataFrame(
+            {
+                "high": [100, 105, 110],
+                "low": [90, 95, 100],
+                "symbol": ["a", "b", "c"],
+            }
+        )
 
         result = detector.detect(df)
 
@@ -783,11 +805,13 @@ class TestAnomalyDetector:
         from akshare_data.offline.analyzer.cache_analysis.anomaly import AnomalyDetector
 
         detector = AnomalyDetector()
-        df = pd.DataFrame({
-            "high": [100, 90, 110],
-            "low": [90, 100, 100],
-            "symbol": ["a", "b", "c"],
-        })
+        df = pd.DataFrame(
+            {
+                "high": [100, 90, 110],
+                "low": [90, 100, 100],
+                "symbol": ["a", "b", "c"],
+            }
+        )
 
         result = detector.detect(df)
 
@@ -798,11 +822,13 @@ class TestAnomalyDetector:
         from akshare_data.offline.analyzer.cache_analysis.anomaly import AnomalyDetector
 
         detector = AnomalyDetector()
-        df = pd.DataFrame({
-            "high": ["N/A", 105, 110],
-            "low": [90, "N/A", 100],
-            "symbol": ["a", "b", "c"],
-        })
+        df = pd.DataFrame(
+            {
+                "high": ["N/A", 105, 110],
+                "low": [90, "N/A", 100],
+                "symbol": ["a", "b", "c"],
+            }
+        )
 
         result = detector.detect(df)
 
@@ -812,10 +838,12 @@ class TestAnomalyDetector:
         from akshare_data.offline.analyzer.cache_analysis.anomaly import AnomalyDetector
 
         detector = AnomalyDetector()
-        df = pd.DataFrame({
-            "volume": [100, 200, 300, 1000, 1100, 1200, 100000],
-            "symbol": ["a", "b", "c", "d", "e", "f", "g"],
-        })
+        df = pd.DataFrame(
+            {
+                "volume": [100, 200, 300, 1000, 1100, 1200, 100000],
+                "symbol": ["a", "b", "c", "d", "e", "f", "g"],
+            }
+        )
 
         result = detector.detect(df, volume_change_threshold=2.0)
 
@@ -826,10 +854,12 @@ class TestAnomalyDetector:
         from akshare_data.offline.analyzer.cache_analysis.anomaly import AnomalyDetector
 
         detector = AnomalyDetector()
-        df = pd.DataFrame({
-            "close": [100, 101, 102],
-            "symbol": ["a", "b", "c"],
-        })
+        df = pd.DataFrame(
+            {
+                "close": [100, 101, 102],
+                "symbol": ["a", "b", "c"],
+            }
+        )
 
         result = detector.detect(df)
 
@@ -839,10 +869,12 @@ class TestAnomalyDetector:
         from akshare_data.offline.analyzer.cache_analysis.anomaly import AnomalyDetector
 
         detector = AnomalyDetector()
-        df = pd.DataFrame({
-            "volume": [100],
-            "symbol": ["a"],
-        })
+        df = pd.DataFrame(
+            {
+                "volume": [100],
+                "symbol": ["a"],
+            }
+        )
 
         result = detector.detect(df, volume_change_threshold=2.0)
 
@@ -852,10 +884,12 @@ class TestAnomalyDetector:
         from akshare_data.offline.analyzer.cache_analysis.anomaly import AnomalyDetector
 
         detector = AnomalyDetector()
-        df = pd.DataFrame({
-            "volume": [100, 100, 100, 100],
-            "symbol": ["a", "b", "c", "d"],
-        })
+        df = pd.DataFrame(
+            {
+                "volume": [100, 100, 100, 100],
+                "symbol": ["a", "b", "c", "d"],
+            }
+        )
 
         result = detector.detect(df, volume_change_threshold=2.0)
 
@@ -865,10 +899,12 @@ class TestAnomalyDetector:
         from akshare_data.offline.analyzer.cache_analysis.anomaly import AnomalyDetector
 
         detector = AnomalyDetector()
-        df = pd.DataFrame({
-            "pct_change": [50.0] * 100,
-            "symbol": [f"s{i}" for i in range(100)],
-        })
+        df = pd.DataFrame(
+            {
+                "pct_change": [50.0] * 100,
+                "symbol": [f"s{i}" for i in range(100)],
+            }
+        )
 
         result = detector.detect(df, price_change_threshold=20.0)
 
@@ -880,7 +916,9 @@ class TestCompletenessChecker:
     """Tests for CompletenessChecker (cache_analysis/completeness.py)"""
 
     def test_check_none_dataframe(self):
-        from akshare_data.offline.analyzer.cache_analysis.completeness import CompletenessChecker
+        from akshare_data.offline.analyzer.cache_analysis.completeness import (
+            CompletenessChecker,
+        )
 
         checker = CompletenessChecker()
         result = checker.check(None)
@@ -891,7 +929,9 @@ class TestCompletenessChecker:
         assert result["is_complete"] is False
 
     def test_check_empty_dataframe(self):
-        from akshare_data.offline.analyzer.cache_analysis.completeness import CompletenessChecker
+        from akshare_data.offline.analyzer.cache_analysis.completeness import (
+            CompletenessChecker,
+        )
 
         checker = CompletenessChecker()
         result = checker.check(pd.DataFrame())
@@ -900,15 +940,21 @@ class TestCompletenessChecker:
         assert result["total_records"] == 0
 
     def test_check_with_expected_dates(self):
-        from akshare_data.offline.analyzer.cache_analysis.completeness import CompletenessChecker
+        from akshare_data.offline.analyzer.cache_analysis.completeness import (
+            CompletenessChecker,
+        )
 
         checker = CompletenessChecker()
-        df = pd.DataFrame({
-            "date": ["2024-01-01", "2024-01-02", "2024-01-03"],
-            "close": [100, 101, 102],
-        })
+        df = pd.DataFrame(
+            {
+                "date": ["2024-01-01", "2024-01-02", "2024-01-03"],
+                "close": [100, 101, 102],
+            }
+        )
 
-        result = checker.check(df, expected_dates=["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04"])
+        result = checker.check(
+            df, expected_dates=["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04"]
+        )
 
         assert result["has_data"] is True
         assert result["total_records"] == 3
@@ -917,15 +963,21 @@ class TestCompletenessChecker:
         assert result["is_complete"] is False
 
     def test_check_complete_data(self):
-        from akshare_data.offline.analyzer.cache_analysis.completeness import CompletenessChecker
+        from akshare_data.offline.analyzer.cache_analysis.completeness import (
+            CompletenessChecker,
+        )
 
         checker = CompletenessChecker()
-        df = pd.DataFrame({
-            "date": ["2024-01-01", "2024-01-02", "2024-01-03"],
-            "close": [100, 101, 102],
-        })
+        df = pd.DataFrame(
+            {
+                "date": ["2024-01-01", "2024-01-02", "2024-01-03"],
+                "close": [100, 101, 102],
+            }
+        )
 
-        result = checker.check(df, expected_dates=["2024-01-01", "2024-01-02", "2024-01-03"])
+        result = checker.check(
+            df, expected_dates=["2024-01-01", "2024-01-02", "2024-01-03"]
+        )
 
         assert result["has_data"] is True
         assert result["missing_dates_count"] == 0
@@ -933,13 +985,17 @@ class TestCompletenessChecker:
         assert result["completeness_ratio"] == 1.0
 
     def test_check_missing_fields(self):
-        from akshare_data.offline.analyzer.cache_analysis.completeness import CompletenessChecker
+        from akshare_data.offline.analyzer.cache_analysis.completeness import (
+            CompletenessChecker,
+        )
 
         checker = CompletenessChecker()
-        df = pd.DataFrame({
-            "date": ["2024-01-01", "2024-01-02"],
-            "close": [100, 101],
-        })
+        df = pd.DataFrame(
+            {
+                "date": ["2024-01-01", "2024-01-02"],
+                "close": [100, 101],
+            }
+        )
 
         result = checker.check(df, required_fields=["date", "close", "volume"])
 
@@ -947,14 +1003,18 @@ class TestCompletenessChecker:
         assert result["is_complete"] is False
 
     def test_check_no_missing_fields(self):
-        from akshare_data.offline.analyzer.cache_analysis.completeness import CompletenessChecker
+        from akshare_data.offline.analyzer.cache_analysis.completeness import (
+            CompletenessChecker,
+        )
 
         checker = CompletenessChecker()
-        df = pd.DataFrame({
-            "date": ["2024-01-01", "2024-01-02"],
-            "close": [100, 101],
-            "volume": [1000, 1100],
-        })
+        df = pd.DataFrame(
+            {
+                "date": ["2024-01-01", "2024-01-02"],
+                "close": [100, 101],
+                "volume": [1000, 1100],
+            }
+        )
 
         result = checker.check(df, required_fields=["date", "close", "volume"])
 
@@ -962,7 +1022,9 @@ class TestCompletenessChecker:
         assert result["is_complete"] is True
 
     def test_find_date_column_variants(self):
-        from akshare_data.offline.analyzer.cache_analysis.completeness import CompletenessChecker
+        from akshare_data.offline.analyzer.cache_analysis.completeness import (
+            CompletenessChecker,
+        )
 
         checker = CompletenessChecker()
 
@@ -972,7 +1034,9 @@ class TestCompletenessChecker:
             assert result == col, f"Failed for column {col}"
 
     def test_find_date_column_not_found(self):
-        from akshare_data.offline.analyzer.cache_analysis.completeness import CompletenessChecker
+        from akshare_data.offline.analyzer.cache_analysis.completeness import (
+            CompletenessChecker,
+        )
 
         checker = CompletenessChecker()
         df = pd.DataFrame({"close": [100], "symbol": ["a"]})
@@ -981,13 +1045,17 @@ class TestCompletenessChecker:
         assert result is None
 
     def test_check_without_expected_dates(self):
-        from akshare_data.offline.analyzer.cache_analysis.completeness import CompletenessChecker
+        from akshare_data.offline.analyzer.cache_analysis.completeness import (
+            CompletenessChecker,
+        )
 
         checker = CompletenessChecker()
-        df = pd.DataFrame({
-            "date": ["2024-01-01", "2024-01-02", "2024-01-03"],
-            "close": [100, 101, 102],
-        })
+        df = pd.DataFrame(
+            {
+                "date": ["2024-01-01", "2024-01-02", "2024-01-03"],
+                "close": [100, 101, 102],
+            }
+        )
 
         result = checker.check(df)
 
@@ -996,26 +1064,36 @@ class TestCompletenessChecker:
         assert result["missing_dates_count"] == 0
 
     def test_check_completeness_ratio_calculation(self):
-        from akshare_data.offline.analyzer.cache_analysis.completeness import CompletenessChecker
+        from akshare_data.offline.analyzer.cache_analysis.completeness import (
+            CompletenessChecker,
+        )
 
         checker = CompletenessChecker()
-        df = pd.DataFrame({
-            "date": ["2024-01-01", "2024-01-02"],
-            "close": [100, 101],
-        })
+        df = pd.DataFrame(
+            {
+                "date": ["2024-01-01", "2024-01-02"],
+                "close": [100, 101],
+            }
+        )
 
-        result = checker.check(df, expected_dates=["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04"])
+        result = checker.check(
+            df, expected_dates=["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04"]
+        )
 
         assert result["completeness_ratio"] == 0.5
 
     def test_check_no_date_column(self):
-        from akshare_data.offline.analyzer.cache_analysis.completeness import CompletenessChecker
+        from akshare_data.offline.analyzer.cache_analysis.completeness import (
+            CompletenessChecker,
+        )
 
         checker = CompletenessChecker()
-        df = pd.DataFrame({
-            "close": [100, 101, 102],
-            "symbol": ["a", "b", "c"],
-        })
+        df = pd.DataFrame(
+            {
+                "close": [100, 101, 102],
+                "symbol": ["a", "b", "c"],
+            }
+        )
 
         result = checker.check(df, expected_dates=["2024-01-01", "2024-01-02"])
 
@@ -1023,13 +1101,17 @@ class TestCompletenessChecker:
         assert result["missing_dates"] == []
 
     def test_check_required_fields_not_in_df(self):
-        from akshare_data.offline.analyzer.cache_analysis.completeness import CompletenessChecker
+        from akshare_data.offline.analyzer.cache_analysis.completeness import (
+            CompletenessChecker,
+        )
 
         checker = CompletenessChecker()
-        df = pd.DataFrame({
-            "date": ["2024-01-01", "2024-01-02"],
-            "close": [100, 101],
-        })
+        df = pd.DataFrame(
+            {
+                "date": ["2024-01-01", "2024-01-02"],
+                "close": [100, 101],
+            }
+        )
 
         result = checker.check(df, required_fields=["nonexistent_field"])
 
@@ -1043,7 +1125,9 @@ class TestFieldMapperAnalyzer:
     def test_column_info_dataclass(self):
         from akshare_data.offline.field_mapper import ColumnInfo
 
-        col_info = ColumnInfo(original_name="日期", dtype="object", sample_value="2024-01-01")
+        col_info = ColumnInfo(
+            original_name="日期", dtype="object", sample_value="2024-01-01"
+        )
         assert col_info.original_name == "日期"
         assert col_info.dtype == "object"
         assert col_info.is_mapped is False
@@ -1124,8 +1208,20 @@ class TestFieldMapperAnalyzer:
 
         result = InterfaceFieldResult(interface_name="test_func")
         result.columns = [
-            {"original_name": "日期", "mapped_name": "date", "is_mapped": True, "dtype": "object", "sample_value": "2024-01-01"},
-            {"original_name": "unknown_col", "mapped_name": None, "is_mapped": False, "dtype": "object", "sample_value": "val"},
+            {
+                "original_name": "日期",
+                "mapped_name": "date",
+                "is_mapped": True,
+                "dtype": "object",
+                "sample_value": "2024-01-01",
+            },
+            {
+                "original_name": "unknown_col",
+                "mapped_name": None,
+                "is_mapped": False,
+                "dtype": "object",
+                "sample_value": "val",
+            },
         ]
         result.mapped_columns = 1
         result.unmapped_columns = 1
@@ -1149,7 +1245,13 @@ class TestFieldMapperAnalyzer:
 
         result = InterfaceFieldResult(interface_name="test_func")
         result.columns = [
-            {"original_name": "日期", "mapped_name": "date", "is_mapped": True, "dtype": "object", "sample_value": "2024-01-01"},
+            {
+                "original_name": "日期",
+                "mapped_name": "date",
+                "is_mapped": True,
+                "dtype": "object",
+                "sample_value": "2024-01-01",
+            },
         ]
         result.mapped_columns = 1
         result.unmapped_columns = 0

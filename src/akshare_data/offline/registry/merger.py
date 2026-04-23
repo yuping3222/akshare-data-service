@@ -80,7 +80,14 @@ class RegistryMerger:
         self, auto_iface: Dict[str, Any], manual_iface: Dict[str, Any]
     ):
         """合并单个接口配置"""
-        for key in ("sources", "input", "output", "interface_name", "description", "category"):
+        for key in (
+            "sources",
+            "input",
+            "output",
+            "interface_name",
+            "description",
+            "category",
+        ):
             if key in manual_iface:
                 auto_iface[key] = manual_iface[key]
 

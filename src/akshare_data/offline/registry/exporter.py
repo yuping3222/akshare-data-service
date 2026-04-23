@@ -18,7 +18,9 @@ logger = logging.getLogger("akshare_data")
 class RegistryExporter:
     """注册表导出器"""
 
-    def export_yaml(self, registry: Dict[str, Any], output_path: Optional[Path] = None) -> Path:
+    def export_yaml(
+        self, registry: Dict[str, Any], output_path: Optional[Path] = None
+    ) -> Path:
         """导出为单个 YAML 文件（兼容旧格式）"""
         if output_path is None:
             output_path = paths.legacy_registry_file
@@ -74,7 +76,9 @@ class RegistryExporter:
 
         return output_dir
 
-    def export_json(self, registry: Dict[str, Any], output_path: Optional[Path] = None) -> Path:
+    def export_json(
+        self, registry: Dict[str, Any], output_path: Optional[Path] = None
+    ) -> Path:
         """导出为 JSON 文件"""
         if output_path is None:
             output_path = paths.config_dir / "akshare_registry.json"

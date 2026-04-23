@@ -344,6 +344,7 @@ class TestSchedulerRunLoop:
 
         def side_effect(seconds):
             scheduler._running = False
+
         mock_sleep.side_effect = side_effect
 
         scheduler._running = True
@@ -355,7 +356,9 @@ class TestSchedulerRunLoop:
     @patch("akshare_data.offline.scheduler.scheduler.time.sleep")
     @patch("akshare_data.offline.scheduler.scheduler.datetime")
     @patch("akshare_data.offline.scheduler.scheduler.croniter")
-    def test_run_loop_executes_due_tasks(self, mock_croniter, mock_datetime, mock_sleep, mock_paths):
+    def test_run_loop_executes_due_tasks(
+        self, mock_croniter, mock_datetime, mock_sleep, mock_paths
+    ):
         """测试循环执行到期任务"""
         mock_paths.schedule_file.exists.return_value = False
         mock_next = MagicMock()
@@ -370,6 +373,7 @@ class TestSchedulerRunLoop:
 
         def side_effect(seconds):
             scheduler._running = False
+
         mock_sleep.side_effect = side_effect
 
         scheduler._running = True
@@ -379,7 +383,9 @@ class TestSchedulerRunLoop:
     @patch("akshare_data.offline.scheduler.scheduler.paths")
     @patch("akshare_data.offline.scheduler.scheduler.time.sleep")
     @patch("akshare_data.offline.scheduler.scheduler.datetime")
-    def test_run_loop_stops_when_not_running(self, mock_datetime, mock_sleep, mock_paths):
+    def test_run_loop_stops_when_not_running(
+        self, mock_datetime, mock_sleep, mock_paths
+    ):
         """测试循环在_running为False时停止"""
         mock_paths.schedule_file.exists.return_value = False
         scheduler = Scheduler()

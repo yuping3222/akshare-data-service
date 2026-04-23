@@ -46,14 +46,16 @@ class ProgressTracker:
         logger.info(msg)
 
         if self._callback:
-            self._callback({
-                "total": self._total,
-                "completed": self._completed,
-                "failed": self._failed,
-                "percentage": pct,
-                "rate": rate,
-                "elapsed": elapsed,
-            })
+            self._callback(
+                {
+                    "total": self._total,
+                    "completed": self._completed,
+                    "failed": self._failed,
+                    "percentage": pct,
+                    "rate": rate,
+                    "elapsed": elapsed,
+                }
+            )
 
     def finish(self) -> Dict[str, Any]:
         """完成并返回汇总"""

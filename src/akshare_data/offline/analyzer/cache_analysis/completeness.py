@@ -44,7 +44,11 @@ class CompletenessChecker:
             missing_fields = [f for f in required_fields if f not in df.columns]
 
         total_expected = len(expected_dates) if expected_dates else len(df)
-        completeness = (total_expected - len(missing_dates)) / total_expected if total_expected > 0 else 0
+        completeness = (
+            (total_expected - len(missing_dates)) / total_expected
+            if total_expected > 0
+            else 0
+        )
 
         return {
             "has_data": True,

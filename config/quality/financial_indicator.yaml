@@ -1,0 +1,136 @@
+# Quality rules for financial_indicator
+#
+# Dataset: financial_indicator (P0)
+# Entity: financial_indicator
+# Schema: v1
+#
+# Rules reference standard fields from docs/design/30-standard-entities.md
+# and config/standards/entities/financial_indicator.yaml
+
+version: '1.0'
+dataset: financial_indicator
+entity: financial_indicator
+schema_version: v1
+
+rules:
+  # ---- Primary key & non-null ----
+  - rule_id: fin_indicator_pk_unique
+    layer: standardized
+    type: unique_key
+    severity: error
+    gate_action: block
+    fields: [security_id, report_date, report_type]
+    description: 主键必须唯一
+
+  - rule_id: fin_indicator_required_non_null
+    layer: standardized
+    type: non_null
+    severity: error
+    gate_action: block
+    fields: [security_id, report_date, report_type]
+    description: 必填字段非空
+
+  # ---- Financial ratio ranges ----
+  - rule_id: fin_indicator_roe_range
+    layer: standardized
+    type: range
+    severity: warning
+    gate_action: alert
+    field: roe_pct
+    min: -100
+    max: 100
+    description: ROE在合理范围内 [-100%, 100%]
+
+  - rule_id: fin_indicator_roa_range
+    layer: standardized
+    type: range
+    severity: warning
+    gate_action: alert
+    field: roa_pct
+    min: -100
+    max: 100
+    description: ROA在合理范围内 [-100%, 100%]
+
+  - rule_id: fin_indicator_debt_ratio_range
+    layer: standardized
+    type: range
+    severity: warning
+    gate_action: alert
+    field: debt_ratio_pct
+    min: 0
+    max: 200
+    description: 资产负债率在合理范围内 [0%, 200%]
+
+  - rule_id: fin_indicator_gross_margin_range
+    layer: standardized
+    type: range
+    severity: warning
+    gate_action: alert
+    field: gross_margin_pct
+    min: -100
+    max: 100
+    description: 毛利率在合理范围内 [-100%, 100%]
+
+  - rule_id: fin_indicator_net_margin_range
+    layer: standardized
+    type: range
+    severity: warning
+    gate_action: alert
+    field: net_margin_pct
+    min: -100
+    max: 100
+    description: 净利率在合理范围内 [-100%, 100%]
+
+  # ---- Currency enum ----
+  - rule_id: fin_indicator_currency_enum
+    layer: standardized
+    type: enum
+    severity: warning
+    gate_action: alert
+    field: currency
+    values: [CNY, USD, HKD, EUR, JPY]
+    description: 币种为标准枚举值
+
+  # ---- Numeric anomaly detection ----
+  - rule_id: fin_indicator_net_profit_anomaly
+    layer: standardized
+    type: numeric_anomaly
+    severity: info
+    gate_action: ignore
+    field: net_profit
+    method: iqr
+    iqr_multiplier: 5.0
+    description: 净利润IQR异常检测
+
+  - rule_id: fin_indicator_revenue_anomaly
+    layer: standardized
+    type: numeric_anomaly
+    severity: info
+    gate_action: ignore
+    field: revenue
+    method: iqr
+    iqr_multiplier: 5.0
+    description: 营业收入IQR异常检测
+
+  # ---- PK coverage ----
+  - rule_id: fin_indicator_pk_coverage
+    layer: standardized
+    type: pk_coverage
+    severity: error
+    gate_action: block
+    fields: [security_id, report_date, report_type]
+    min_coverage: 1.0
+    description: 主键字段覆盖率100%
+
+  # ---- Cross-source diff (warning) ----
+  - rule_id: fin_indicator_cross_source_roe
+    layer: standardized
+    type: cross_source_diff
+    severity: warning
+    gate_action: alert
+    field: roe_pct
+    source_col: source_name
+    key_fields: [security_id, report_date, report_type]
+    tolerance: 0.05
+    tolerance_type: relative
+    description: 跨源ROE偏差检测（容忍5%相对偏差）

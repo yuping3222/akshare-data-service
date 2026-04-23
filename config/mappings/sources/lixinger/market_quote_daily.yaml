@@ -1,0 +1,51 @@
+# Source field mapping: lixinger -> market_quote_daily
+#
+# dataset: market_quote_daily
+# source:  lixinger
+#
+# Loaded by:
+#   - standardized/mapping_loader.py
+#   - normalizers (via MappingLoader)
+#   - lineage tracker
+#   - contract tests
+
+mapping_version: 'v1'
+dataset: market_quote_daily
+source: lixinger
+normalize_version: v1
+updated_at: '2026-04-22'
+
+fields:
+  date:
+    standard_field: trade_date
+    status: active
+  open:
+    standard_field: open_price
+    status: active
+  high:
+    standard_field: high_price
+    status: active
+  low:
+    standard_field: low_price
+    status: active
+  close:
+    standard_field: close_price
+    status: active
+  volume:
+    standard_field: volume
+    status: active
+  amount:
+    standard_field: turnover_amount
+    status: active
+  pct_change:
+    standard_field: change_pct
+    status: active
+  turnover_rate:
+    standard_field: turnover_rate
+    status: active
+  symbol:
+    standard_field: security_id
+    status: active
+  code:
+    standard_field: security_id
+    status: active

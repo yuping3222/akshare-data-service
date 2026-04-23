@@ -23,6 +23,7 @@ from akshare_data.sources.lixinger_client import LixingerClient, get_lixinger_cl
 
 logger = logging.getLogger(__name__)
 
+
 class LixingerAdapter(DataSource):
     """Lixinger data source adapter."""
 
@@ -135,9 +136,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_daily_data: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_daily_data: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_daily_data: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -159,12 +158,15 @@ class LixingerAdapter(DataSource):
             if not stocks and "stockCode" in df.columns:
                 stocks = df["stockCode"].tolist()
             import numpy as np
+
             return [
                 f"{s.zfill(6)}.XSHG"
                 if str(s).startswith(("6", "9"))
                 else f"{s.zfill(6)}.XSHE"
                 for s in stocks
-                if isinstance(s, (list, np.ndarray)) and len(s) > 0 or (not isinstance(s, (list, np.ndarray)) and pd.notna(s))
+                if isinstance(s, (list, np.ndarray))
+                and len(s) > 0
+                or (not isinstance(s, (list, np.ndarray)) and pd.notna(s))
             ]
         except (requests.RequestException, ConnectionError, OSError) as e:
             raise SourceUnavailableError(
@@ -179,9 +181,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_index_stocks: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_index_stocks: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_index_stocks: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -234,9 +234,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_index_components: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_index_components: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_index_components: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -279,9 +277,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_securities_list: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_securities_list: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_securities_list: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -378,9 +374,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_industry_stocks: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_industry_stocks: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_industry_stocks: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -411,9 +405,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_industry_mapping: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_industry_mapping: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_industry_mapping: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -454,9 +446,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_finance_indicator: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_finance_indicator: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_finance_indicator: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -507,9 +497,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_etf_daily: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_etf_daily: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_etf_daily: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -547,9 +535,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_index_daily: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_index_daily: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_index_daily: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -573,9 +559,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_index_list: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_index_list: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_index_list: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -599,9 +583,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_etf_list: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_etf_list: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_etf_list: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -625,9 +607,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_fund_manager_info: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_fund_manager_info: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_fund_manager_info: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -658,9 +638,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_fund_net_value: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_fund_net_value: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_fund_net_value: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -728,9 +706,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_block_deal: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_block_deal: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_block_deal: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -766,9 +742,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_margin_data: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_margin_data: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_margin_data: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -797,9 +771,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_lpr_rate: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_lpr_rate: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_lpr_rate: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -823,9 +795,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_pmi_index: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_pmi_index: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_pmi_index: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -849,9 +819,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_cpi_data: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_cpi_data: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_cpi_data: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -875,9 +843,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_ppi_data: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_ppi_data: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_ppi_data: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -901,9 +867,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_m2_supply: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_m2_supply: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_m2_supply: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -949,9 +913,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_basic_info: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_basic_info: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_basic_info: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1019,9 +981,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_balance_sheet: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_balance_sheet: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_balance_sheet: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1033,9 +993,7 @@ class LixingerAdapter(DataSource):
         self._ensure_configured()
         try:
             df = self._get_combined_financial_statements(symbol)
-            return self._filter_by_report_type(
-                df, ["is", "income_statement", "利润表"]
-            )
+            return self._filter_by_report_type(df, ["is", "income_statement", "利润表"])
         except (requests.RequestException, ConnectionError, OSError) as e:
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_income_statement: {e}",
@@ -1049,9 +1007,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_income_statement: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_income_statement: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_income_statement: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1063,9 +1019,7 @@ class LixingerAdapter(DataSource):
         self._ensure_configured()
         try:
             df = self._get_combined_financial_statements(symbol)
-            return self._filter_by_report_type(
-                df, ["cf", "cash_flow", "现金流量表"]
-            )
+            return self._filter_by_report_type(df, ["cf", "cash_flow", "现金流量表"])
         except (requests.RequestException, ConnectionError, OSError) as e:
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_cash_flow: {e}",
@@ -1079,9 +1033,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_cash_flow: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_cash_flow: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_cash_flow: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1118,9 +1070,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_financial_metrics: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_financial_metrics: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_financial_metrics: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1179,9 +1129,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_shareholder_changes: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_shareholder_changes: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_shareholder_changes: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1210,9 +1158,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_top_shareholders: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_top_shareholders: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_top_shareholders: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1285,7 +1231,10 @@ class LixingerAdapter(DataSource):
             ) from e
 
     def get_performance_forecast(
-        self, symbol: str, start_date: Optional[str] = None, end_date: Optional[str] = None
+        self,
+        symbol: str,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
     ) -> pd.DataFrame:
         self._ensure_configured()
         try:
@@ -1313,7 +1262,10 @@ class LixingerAdapter(DataSource):
             ) from e
 
     def get_performance_express(
-        self, symbol: str, start_date: Optional[str] = None, end_date: Optional[str] = None
+        self,
+        symbol: str,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
     ) -> pd.DataFrame:
         self._ensure_configured()
         try:
@@ -1331,9 +1283,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_performance_express: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_performance_express: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_performance_express: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1359,9 +1309,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_analyst_rank: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_analyst_rank: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_analyst_rank: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1369,7 +1317,10 @@ class LixingerAdapter(DataSource):
             ) from e
 
     def get_research_report(
-        self, symbol: str, start_date: Optional[str] = None, end_date: Optional[str] = None
+        self,
+        symbol: str,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
     ) -> pd.DataFrame:
         self._ensure_configured()
         try:
@@ -1387,9 +1338,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_research_report: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_research_report: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_research_report: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1425,9 +1374,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_industry_list: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_industry_list: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_industry_list: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1472,9 +1419,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_hk_stocks: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_hk_stocks: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_hk_stocks: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1498,9 +1443,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_us_stocks: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_us_stocks: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_us_stocks: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1524,9 +1467,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_new_stocks: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_new_stocks: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_new_stocks: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1620,9 +1561,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_disclosure_news: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_disclosure_news: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_disclosure_news: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1651,9 +1590,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_dividend_data: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_dividend_data: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_dividend_data: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1683,9 +1620,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_shibor_rate: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_shibor_rate: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_shibor_rate: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1709,9 +1644,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_social_financing: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_social_financing: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_social_financing: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1743,9 +1676,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_equity_pledge: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_equity_pledge: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_equity_pledge: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1777,9 +1708,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_restricted_release: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_restricted_release: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_restricted_release: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1846,9 +1775,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_index_weights: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_index_weights: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_index_weights: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1912,9 +1839,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_name_history: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_name_history: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_name_history: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -1964,9 +1889,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_rights_issue: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_rights_issue: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_rights_issue: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -2004,9 +1927,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_topholder_change: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_topholder_change: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_topholder_change: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -2035,9 +1956,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_major_holder_trade: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_major_holder_trade: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_major_holder_trade: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -2118,9 +2037,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_lof_spot: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_lof_spot: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_lof_spot: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -2147,9 +2064,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_fof_list: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_fof_list: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_fof_list: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -2175,9 +2090,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_fof_nav: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_fof_nav: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_fof_nav: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -2220,9 +2133,7 @@ class LixingerAdapter(DataSource):
                 source="lixinger",
             ) from e
         except Exception as e:
-            logger.error(
-                f"[Lixinger] Unexpected error in get_etf_hist_data: {e}"
-            )
+            logger.error(f"[Lixinger] Unexpected error in get_etf_hist_data: {e}")
             raise SourceUnavailableError(
                 f"Lixinger API call failed for get_etf_hist_data: {e}",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
@@ -2265,5 +2176,6 @@ class LixingerAdapter(DataSource):
             "description": "Lixinger financial data API",
             "requires_auth": True,
         }
+
 
 __all__ = ["LixingerAdapter"]

@@ -24,7 +24,9 @@ from akshare_data.store.manager import CacheManager
 class TestStockDailyDataFlow:
     """End-to-end daily stock data retrieval tests."""
 
-    def test_service_creation_with_cache_manager(self, system_cache_manager: CacheManager) -> None:
+    def test_service_creation_with_cache_manager(
+        self, system_cache_manager: CacheManager
+    ) -> None:
         """DataService can be created with a custom CacheManager instance."""
         service = DataService(cache_manager=system_cache_manager)
         assert service is not None
@@ -213,7 +215,9 @@ class TestStockDailyDataFlow:
         assert not df1.empty
         assert not df2.empty
 
-    def test_convenience_method_get_daily(self, data_service_with_stock_source: DataService) -> None:
+    def test_convenience_method_get_daily(
+        self, data_service_with_stock_source: DataService
+    ) -> None:
         """get_daily() convenience method delegates to cn.stock.quote.daily()."""
         df = data_service_with_stock_source.get_daily(
             symbol="sh600000",

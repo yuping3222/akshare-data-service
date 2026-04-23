@@ -28,7 +28,9 @@ class IncrementalStrategy(CacheStrategy):
             return cached is None or cached.empty
         return not self._is_complete(cached, start_date, end_date)
 
-    def merge(self, cached: pd.DataFrame | None, fresh: pd.DataFrame, **params) -> pd.DataFrame:
+    def merge(
+        self, cached: pd.DataFrame | None, fresh: pd.DataFrame, **params
+    ) -> pd.DataFrame:
         if cached is None or cached.empty:
             result = fresh
         else:
@@ -76,13 +78,10 @@ class IncrementalStrategy(CacheStrategy):
 
         return min_date <= target_start and max_date >= target_end
 
-    def _extract_ranges(
-        self, df: pd.DataFrame
-    ) -> list[tuple[str, str]]:
+    def _extract_ranges(self, df: pd.DataFrame) -> list[tuple[str, str]]:
         if df is None or df.empty or self.date_col not in df.columns:
             return []
 
         min_date = str(pd.to_datetime(df[self.date_col].min()).date())
         max_date = str(pd.to_datetime(df[self.date_col].max()).date())
         return [(min_date, max_date)]
-

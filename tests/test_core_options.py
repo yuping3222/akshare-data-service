@@ -138,9 +138,19 @@ class TestCalculateOptionGreeks:
         """Should return all expected dictionary keys."""
         greeks = calculate_option_greeks(100.0, 100.0, 1.0, 0.05, 0.2, "call")
         expected_keys = {
-            "delta", "gamma", "theta", "vega", "rho",
-            "d1", "d2", "option_type", "spot", "strike",
-            "sigma", "time_to_expiry", "rate"
+            "delta",
+            "gamma",
+            "theta",
+            "vega",
+            "rho",
+            "d1",
+            "d2",
+            "option_type",
+            "spot",
+            "strike",
+            "sigma",
+            "time_to_expiry",
+            "rate",
         }
         assert set(greeks.keys()) == expected_keys
 
@@ -208,8 +218,11 @@ class TestCalculateConversionValue:
         """Should return all expected dictionary keys."""
         result = calculate_conversion_value(105.0, 10.0, 100.0)
         expected_keys = {
-            "bond_price", "conversion_ratio", "stock_price",
-            "conversion_value", "premium_rate"
+            "bond_price",
+            "conversion_ratio",
+            "stock_price",
+            "conversion_value",
+            "premium_rate",
         }
         assert set(result.keys()) == expected_keys
 

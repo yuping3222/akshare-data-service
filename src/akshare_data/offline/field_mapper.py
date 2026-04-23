@@ -88,7 +88,6 @@ EXTENDED_CN_TO_EN = {
     "成交日期": "transaction_date",
     "评级日期": "rating_date",
     "净值日期": "nav_date",
-
     # === OHLCV 行情类 ===
     "开盘": "open",
     "最高": "high",
@@ -127,7 +126,6 @@ EXTENDED_CN_TO_EN = {
     "卖价": "ask",
     "买量": "bid_volume",
     "卖量": "ask_volume",
-
     # === 代码名称类 ===
     "代码": "symbol",
     "名称": "name",
@@ -169,7 +167,6 @@ EXTENDED_CN_TO_EN = {
     "质权人": "pledgee",
     "受让人": "transferee",
     "出让方": "transferor",
-
     # === 财务指标类 ===
     "总市值": "total_market_cap",
     "流通市值": "circulating_market_cap",
@@ -231,7 +228,6 @@ EXTENDED_CN_TO_EN = {
     "商誉占净资产比例": "goodwill_to_net_assets",
     "研发投入": "rd_expense",
     "研发占比": "rd_to_revenue",
-
     # === 资金流向类 ===
     "主力净流入": "main_net_inflow",
     "超大单净流入": "super_large_net_inflow",
@@ -256,7 +252,6 @@ EXTENDED_CN_TO_EN = {
     "变动数量": "change_count",
     "变动比例": "change_ratio",
     "变动占流通股比例": "change_to_circulating_ratio",
-
     # === 板块行业类 ===
     "行业": "industry",
     "所属行业": "industry",
@@ -279,7 +274,6 @@ EXTENDED_CN_TO_EN = {
     "上涨家数": "up_count",
     "下跌家数": "down_count",
     "平盘家数": "flat_count",
-
     # === 交易状态类 ===
     "交易状态": "trade_status",
     "状态": "status",
@@ -289,14 +283,12 @@ EXTENDED_CN_TO_EN = {
     "退市": "is_delisted",
     "上市": "is_listed",
     "是否停牌": "is_suspended",
-
     # === 复权/调整类 ===
     "复权类型": "adjust_type",
     "复权": "adjust",
     "前复权": "qfq",
     "后复权": "hfq",
     "不复权": "none",
-
     # === 期货期权类 ===
     "持仓量": "open_interest",
     "昨持仓": "pre_open_interest",
@@ -327,7 +319,6 @@ EXTENDED_CN_TO_EN = {
     "仓单数量": "warrant_count",
     "注册仓单": "registered_warrants",
     "有效仓单": "valid_warrants",
-
     # === 债券类 ===
     "转债代码": "bond_code",
     "转债名称": "bond_name",
@@ -354,7 +345,6 @@ EXTENDED_CN_TO_EN = {
     "申购代码": "subscription_code",
     "中签号": "lottery_number",
     "中签率": "lottery_rate",
-
     # === 宏观数据类 ===
     "指标": "indicator",
     "数值": "value",
@@ -383,7 +373,6 @@ EXTENDED_CN_TO_EN = {
     "汇率": "exchange_rate",
     "中间价": "central_parity_rate",
     "美元指数": "dollar_index",
-
     # === 其他通用类 ===
     "权重": "weight",
     "占比": "ratio",
@@ -593,7 +582,9 @@ class FieldMapper:
         with open(self.registry_path, "r", encoding="utf-8") as f:
             self.registry = yaml.safe_load(f) or {}
 
-        logger.info(f"Loaded registry: {len(self.registry.get('interfaces', {}))} interfaces")
+        logger.info(
+            f"Loaded registry: {len(self.registry.get('interfaces', {}))} interfaces"
+        )
         return self.registry
 
     def get_interfaces(
@@ -611,7 +602,9 @@ class FieldMapper:
                 for name, iface in interfaces.items()
                 if iface.get("category") == category
             }
-            logger.info(f"Filtered by category '{category}': {len(interfaces)} interfaces")
+            logger.info(
+                f"Filtered by category '{category}': {len(interfaces)} interfaces"
+            )
 
         # 限制数量
         if sample_size:
@@ -659,7 +652,7 @@ class FieldMapper:
             if mapped:
                 col_info.mapped_name = mapped
                 col_info.is_mapped = True
-            elif col.islower() and re.match(r'^[a-z][a-z0-9_]*$', col):
+            elif col.islower() and re.match(r"^[a-z][a-z0-9_]*$", col):
                 # 已经是英文小写下划线格式，保持原样
                 col_info.mapped_name = col
                 col_info.is_mapped = True
@@ -770,7 +763,7 @@ class FieldMapper:
                     skipped_count += 1
                     continue
 
-            logger.info(f"[{idx+1}/{total}] Analyzing: {func_name}")
+            logger.info(f"[{idx + 1}/{total}] Analyzing: {func_name}")
 
             result = self.analyze_interface(func_name, iface_def)
             results.append(result)
@@ -818,28 +811,32 @@ class FieldMapper:
         total_mapped = sum(r.mapped_columns for r in success)
         total_unmapped = sum(r.unmapped_columns for r in success)
 
-        lines.extend([
-            "## 概览",
-            "",
-            f"| 指标 | 数量 |",
-            f"|------|------|",
-            f"| 成功分析 | {len(success)} |",
-            f"| 调用失败 | {len(failed)} |",
-            f"| 返回空数据 | {len(empty)} |",
-            f"| 总列数 | {total_cols} |",
-            f"| 已映射列 | {total_mapped} ({total_mapped/max(total_cols,1)*100:.1f}%) |",
-            f"| 未映射列 | {total_unmapped} ({total_unmapped/max(total_cols,1)*100:.1f}%) |",
-            "",
-        ])
+        lines.extend(
+            [
+                "## 概览",
+                "",
+                f"| 指标 | 数量 |",
+                f"|------|------|",
+                f"| 成功分析 | {len(success)} |",
+                f"| 调用失败 | {len(failed)} |",
+                f"| 返回空数据 | {len(empty)} |",
+                f"| 总列数 | {total_cols} |",
+                f"| 已映射列 | {total_mapped} ({total_mapped / max(total_cols, 1) * 100:.1f}%) |",
+                f"| 未映射列 | {total_unmapped} ({total_unmapped / max(total_cols, 1) * 100:.1f}%) |",
+                "",
+            ]
+        )
 
         # 高频字段统计
         if self.global_column_stats:
-            lines.extend([
-                "## 高频字段 Top 30",
-                "",
-                "| 字段名 | 出现次数 |",
-                "|--------|----------|",
-            ])
+            lines.extend(
+                [
+                    "## 高频字段 Top 30",
+                    "",
+                    "| 字段名 | 出现次数 |",
+                    "|--------|----------|",
+                ]
+            )
             sorted_stats = sorted(
                 self.global_column_stats.items(), key=lambda x: x[1], reverse=True
             )[:30]
@@ -849,12 +846,14 @@ class FieldMapper:
 
         # 未映射字段统计
         if self.global_unmapped:
-            lines.extend([
-                "## 未映射字段 Top 50",
-                "",
-                "| 原始列名 | 出现接口数 | 示例接口 |",
-                "|----------|-----------|----------|",
-            ])
+            lines.extend(
+                [
+                    "## 未映射字段 Top 50",
+                    "",
+                    "| 原始列名 | 出现接口数 | 示例接口 |",
+                    "|----------|-----------|----------|",
+                ]
+            )
             sorted_unmapped = sorted(
                 self.global_unmapped.items(), key=lambda x: len(x[1]), reverse=True
             )[:50]
@@ -864,10 +863,12 @@ class FieldMapper:
             lines.append("")
 
         # 各接口详情
-        lines.extend([
-            "## 各接口字段详情",
-            "",
-        ])
+        lines.extend(
+            [
+                "## 各接口字段详情",
+                "",
+            ]
+        )
 
         for r in success:
             if r.total_columns == 0:
@@ -899,17 +900,19 @@ class FieldMapper:
                         f"| {c['original_name']} | {c['dtype']} | {c['sample_value'][:50]} |"
                     )
                 if len(unmapped) > 20:
-                    lines.append(f"| ... 还有 {len(unmapped)-20} 列 | | |")
+                    lines.append(f"| ... 还有 {len(unmapped) - 20} 列 | | |")
                 lines.append("")
 
         # 失败的接口
         if failed:
-            lines.extend([
-                "## 调用失败的接口",
-                "",
-                "| 接口名 | 错误信息 |",
-                "|--------|----------|",
-            ])
+            lines.extend(
+                [
+                    "## 调用失败的接口",
+                    "",
+                    "| 接口名 | 错误信息 |",
+                    "|--------|----------|",
+                ]
+            )
             for r in failed:
                 lines.append(f"| {r.interface_name} | {r.error_msg[:100]} |")
             lines.append("")
@@ -930,7 +933,9 @@ class FieldMapper:
 
         with open(csv_path, "w", encoding="utf-8-sig", newline="") as f:
             writer = csv.writer(f)
-            writer.writerow(["original_column", "interface_count", "interfaces", "sample_value"])
+            writer.writerow(
+                ["original_column", "interface_count", "interfaces", "sample_value"]
+            )
 
             sorted_unmapped = sorted(
                 self.global_unmapped.items(), key=lambda x: len(x[1]), reverse=True
@@ -948,12 +953,14 @@ class FieldMapper:
                     if sample:
                         break
 
-                writer.writerow([
-                    col_name,
-                    len(ifaces),
-                    "; ".join(ifaces[:5]),
-                    sample,
-                ])
+                writer.writerow(
+                    [
+                        col_name,
+                        len(ifaces),
+                        "; ".join(ifaces[:5]),
+                        sample,
+                    ]
+                )
 
         logger.info(f"Unmapped columns saved to {csv_path}")
 
@@ -988,6 +995,7 @@ class FieldMapper:
                 f"{self.registry_path.stem}_backup_{time.strftime('%Y%m%d_%H%M%S')}{self.registry_path.suffix}"
             )
             import shutil
+
             shutil.copy2(self.registry_path, backup_path)
             logger.info(f"Backed up registry to {backup_path}")
 
@@ -1043,27 +1051,17 @@ def main():
     import argparse
 
     parser = argparse.ArgumentParser(description="AkShare 离线字段映射分析器")
-    parser.add_argument(
-        "--sample-size", type=int, help="只分析前 N 个接口"
-    )
-    parser.add_argument(
-        "--category", type=str, help="只分析指定分类的接口"
-    )
+    parser.add_argument("--sample-size", type=int, help="只分析前 N 个接口")
+    parser.add_argument("--category", type=str, help="只分析指定分类的接口")
     parser.add_argument(
         "--skip-existing", action="store_true", help="跳过已有映射的接口"
     )
-    parser.add_argument(
-        "--merge", action="store_true", help="分析后合并到注册表"
-    )
+    parser.add_argument("--merge", action="store_true", help="分析后合并到注册表")
     parser.add_argument(
         "--report-only", action="store_true", help="仅生成报告（从已有结果）"
     )
-    parser.add_argument(
-        "--output-dir", type=str, help="输出目录"
-    )
-    parser.add_argument(
-        "--registry", type=str, help="注册表文件路径"
-    )
+    parser.add_argument("--output-dir", type=str, help="输出目录")
+    parser.add_argument("--registry", type=str, help="注册表文件路径")
     args = parser.parse_args()
 
     mapper = FieldMapper(
@@ -1125,7 +1123,7 @@ def main():
     print("=" * 60)
     print(f"成功分析接口: {len(success)}")
     print(f"总列数: {total_cols}")
-    print(f"已映射: {total_mapped} ({total_mapped/max(total_cols,1)*100:.1f}%)")
+    print(f"已映射: {total_mapped} ({total_mapped / max(total_cols, 1) * 100:.1f}%)")
     print(f"未映射: {total_cols - total_mapped}")
     print(f"\n输出文件:")
     print(f"  报告: {REPORT_FILE}")

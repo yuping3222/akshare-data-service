@@ -221,9 +221,7 @@ class TestAllSourcesFail:
         src1 = MagicMock(side_effect=RuntimeError("src1 down"))
         src2 = MagicMock(side_effect=TimeoutError("src2 timeout"))
 
-        router = MultiSourceRouter(
-            providers=[("lixinger", src1), ("akshare", src2)]
-        )
+        router = MultiSourceRouter(providers=[("lixinger", src1), ("akshare", src2)])
         result = router.execute()
 
         assert result.success is False
@@ -236,9 +234,7 @@ class TestAllSourcesFail:
         src1 = MagicMock(side_effect=RuntimeError("error1"))
         src2 = MagicMock(side_effect=ValueError("error2"))
 
-        router = MultiSourceRouter(
-            providers=[("lixinger", src1), ("akshare", src2)]
-        )
+        router = MultiSourceRouter(providers=[("lixinger", src1), ("akshare", src2)])
         result = router.execute()
 
         assert len(result.error_details) == 2
@@ -251,9 +247,7 @@ class TestAllSourcesFail:
         src1 = MagicMock(side_effect=RuntimeError("fail"))
         src2 = MagicMock(side_effect=RuntimeError("fail"))
 
-        router = MultiSourceRouter(
-            providers=[("src1", src1), ("src2", src2)]
-        )
+        router = MultiSourceRouter(providers=[("src1", src1), ("src2", src2)])
         router._health = monitor
         router.execute()
 
@@ -267,9 +261,7 @@ class TestAllSourcesFail:
         src1 = MagicMock(side_effect=RuntimeError("fail"))
         src2 = MagicMock(side_effect=RuntimeError("fail"))
 
-        router = MultiSourceRouter(
-            providers=[("src1", src1), ("src2", src2)]
-        )
+        router = MultiSourceRouter(providers=[("src1", src1), ("src2", src2)])
         router.execute()
 
         stats = router.get_stats()
@@ -321,9 +313,7 @@ class TestCircuitBreakerTrigger:
         assert result.success is False
         good_func.assert_not_called()
 
-    def test_router_tries_remaining_sources_when_first_disabled(
-        self, sample_df
-    ):
+    def test_router_tries_remaining_sources_when_first_disabled(self, sample_df):
         """When primary is circuit-opened, router tries backup sources."""
         monitor = SourceHealthMonitor()
         for _ in range(5):
@@ -350,9 +340,7 @@ class TestCircuitBreakerTrigger:
         src1 = MagicMock(side_effect=RuntimeError("fail"))
         src2 = MagicMock(side_effect=RuntimeError("fail"))
 
-        router = MultiSourceRouter(
-            providers=[("src1", src1), ("src2", src2)]
-        )
+        router = MultiSourceRouter(providers=[("src1", src1), ("src2", src2)])
         # Run enough times to trip the circuit breaker on src1
         for _ in range(5):
             router.execute()
@@ -487,9 +475,7 @@ class TestSourcePriorityOrdering:
             call_order.append("B")
             return sample_df
 
-        router = MultiSourceRouter(
-            providers=[("source_a", src_a), ("source_b", src_b)]
-        )
+        router = MultiSourceRouter(providers=[("source_a", src_a), ("source_b", src_b)])
         router.execute()
         assert call_order == ["A"]
 
@@ -751,9 +737,7 @@ class TestHealthTracking:
         primary = MagicMock(side_effect=RuntimeError("fail"))
         backup = MagicMock(return_value=sample_df)
 
-        router = MultiSourceRouter(
-            providers=[("primary", primary), ("backup", backup)]
-        )
+        router = MultiSourceRouter(providers=[("primary", primary), ("backup", backup)])
         router.execute()
 
         assert router._health.get_status()["primary"]["error_count"] == 1

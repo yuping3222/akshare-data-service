@@ -526,7 +526,9 @@ class TestGetETF:
         with (
             patch.object(service.cache, "read", side_effect=mock_read),
             patch.object(service.cache, "write", return_value=""),
-            patch.object(service.lixinger, "get_etf_daily", return_value=pd.DataFrame()),
+            patch.object(
+                service.lixinger, "get_etf_daily", return_value=pd.DataFrame()
+            ),
         ):
             df = service.get_etf("510300", "2024-01-01", "2024-01-10")
             assert df is not None
@@ -718,10 +720,22 @@ class TestGetTradingDays:
 
     def test_get_trading_days_from_cache(self, service):
         """Test trading days from cache - cache covers full range"""
-        cached_df = pd.DataFrame({"date": ["2024-01-01", "2024-01-02", "2024-01-03",
-                                            "2024-01-04", "2024-01-05", "2024-01-06",
-                                            "2024-01-07", "2024-01-08", "2024-01-09",
-                                            "2024-01-10"]})
+        cached_df = pd.DataFrame(
+            {
+                "date": [
+                    "2024-01-01",
+                    "2024-01-02",
+                    "2024-01-03",
+                    "2024-01-04",
+                    "2024-01-05",
+                    "2024-01-06",
+                    "2024-01-07",
+                    "2024-01-08",
+                    "2024-01-09",
+                    "2024-01-10",
+                ]
+            }
+        )
 
         with (
             patch.object(service.cache, "read", return_value=cached_df) as mock_read,
@@ -1149,4 +1163,3 @@ class TestGetFinanceIndicator:
         ):
             df = service.get_finance_indicator("600000")
             assert df is not None
-

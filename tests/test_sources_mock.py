@@ -97,7 +97,8 @@ class TestMockSource:
             start = datetime(2024, 1, 1)
             end = datetime(2024, 1, 31)
             expected_days = sum(
-                1 for d in range((end - start).days + 1)
+                1
+                for d in range((end - start).days + 1)
                 if (start + pd.Timedelta(days=d)).weekday() < 5
             )
             result = source.get_daily_data("000001", "2024-01-01", "2024-01-31")

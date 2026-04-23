@@ -140,15 +140,23 @@ class Paths:
     def logs_dir(self) -> Path:
         if self._project_root:
             return self._project_root / "logs"
-        return Path(os.environ.get("AKSHARE_DATA_LOGS_DIR",
-                                   Path.home() / ".cache" / "akshare-data" / "logs"))
+        return Path(
+            os.environ.get(
+                "AKSHARE_DATA_LOGS_DIR",
+                Path.home() / ".cache" / "akshare-data" / "logs",
+            )
+        )
 
     @property
     def reports_dir(self) -> Path:
         if self._project_root:
             return self._project_root / "reports"
-        return Path(os.environ.get("AKSHARE_DATA_REPORTS_DIR",
-                                   Path.home() / ".local" / "share" / "akshare-data" / "reports"))
+        return Path(
+            os.environ.get(
+                "AKSHARE_DATA_REPORTS_DIR",
+                Path.home() / ".local" / "share" / "akshare-data" / "reports",
+            )
+        )
 
     @property
     def health_reports_dir(self) -> Path:

@@ -1,0 +1,63 @@
+# Owner configuration for data governance
+#
+# Loaded by: governance/ownership.py
+#
+# Sections:
+#   domains: Data domain owners
+#   datasets: Dataset-level owners
+#   quality_rules: Quality rule package owners
+
+domains:
+  quote:
+    owner_id: "data-team-lead"
+    owner_name: "Data Team Lead"
+    since: "2026-04-22"
+    backup_owner_id: "data-team-backup"
+
+  finance:
+    owner_id: "finance-data-owner"
+    owner_name: "Finance Data Owner"
+    since: "2026-04-22"
+
+  macro:
+    owner_id: "macro-data-owner"
+    owner_name: "Macro Data Owner"
+    since: "2026-04-22"
+
+datasets:
+  market_quote_daily:
+    owner_id: "data-team-lead"
+    owner_name: "Data Team Lead"
+    domain: quote
+    since: "2026-04-22"
+
+  financial_indicator:
+    owner_id: "finance-data-owner"
+    owner_name: "Finance Data Owner"
+    domain: finance
+    since: "2026-04-22"
+
+  macro_indicator:
+    owner_id: "macro-data-owner"
+    owner_name: "Macro Data Owner"
+    domain: macro
+    since: "2026-04-22"
+
+quality_rules:
+  market_quote_daily_rules:
+    owner_id: "data-team-lead"
+    owner_name: "Data Team Lead"
+    dataset: market_quote_daily
+    since: "2026-04-22"
+
+  financial_indicator_rules:
+    owner_id: "finance-data-owner"
+    owner_name: "Finance Data Owner"
+    dataset: financial_indicator
+    since: "2026-04-22"
+
+  macro_indicator_rules:
+    owner_id: "macro-data-owner"
+    owner_name: "Macro Data Owner"
+    dataset: macro_indicator
+    since: "2026-04-22"

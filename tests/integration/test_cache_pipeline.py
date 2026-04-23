@@ -38,8 +38,14 @@ def mock_data_source(sample_stock_data):
 # Helper: simulate a "fetch then write" cycle
 # ---------------------------------------------------------------------------
 
-def _fetch_and_write(manager: CacheManager, source: MagicMock, table: str,
-                     storage_layer: str = "daily", **write_kwargs):
+
+def _fetch_and_write(
+    manager: CacheManager,
+    source: MagicMock,
+    table: str,
+    storage_layer: str = "daily",
+    **write_kwargs,
+):
     """Call the mock source, then write its return value through CacheManager."""
     data = source.fetch()
     manager.write(table, data, storage_layer=storage_layer, **write_kwargs)
@@ -49,6 +55,7 @@ def _fetch_and_write(manager: CacheManager, source: MagicMock, table: str,
 # ===================================================================
 # Test class
 # ===================================================================
+
 
 @pytest.mark.integration
 class TestCachePipeline:
@@ -75,8 +82,9 @@ class TestCachePipeline:
     # Test 1: First read -- full miss path
     # ----------------------------------------------------------------
 
-    def test_first_read_full_miss_path(self, temp_cache_dir, sample_stock_data,
-                                       mock_data_source):
+    def test_first_read_full_miss_path(
+        self, temp_cache_dir, sample_stock_data, mock_data_source
+    ):
         """First read: memory miss -> parquet miss -> DuckDB miss ->
         fetch from mock source -> write parquet -> write memory -> return data.
 
@@ -120,8 +128,9 @@ class TestCachePipeline:
     # Test 2: Second read -- memory hit
     # ----------------------------------------------------------------
 
-    def test_second_read_memory_hit(self, temp_cache_dir, sample_stock_data,
-                                    mock_data_source):
+    def test_second_read_memory_hit(
+        self, temp_cache_dir, sample_stock_data, mock_data_source
+    ):
         """Second read: memory hit -> return immediately (no lower layer calls).
 
         After data is written, a subsequent read should:
@@ -142,10 +151,10 @@ class TestCachePipeline:
         result = manager.read(table, storage_layer="daily")
 
         # Verify memory hit counters increased
-        assert manager.memory_cache.size == size_before, \
+        assert manager.memory_cache.size == size_before, (
             "Memory cache size should not change on a hit"
-        assert manager.memory_cache._hits > hits_before, \
-            "Expected a memory cache hit"
+        )
+        assert manager.memory_cache._hits > hits_before, "Expected a memory cache hit"
 
         # Verify returned data matches
         pd.testing.assert_frame_equal(
@@ -157,8 +166,7 @@ class TestCachePipeline:
     # Test 3: Expired read -- memory TTL expired
     # ----------------------------------------------------------------
 
-    def test_expired_read_memory_ttl_expired(self, temp_cache_dir,
-                                             sample_stock_data):
+    def test_expired_read_memory_ttl_expired(self, temp_cache_dir, sample_stock_data):
         """Expired read: memory TTL expired -> fall through to disk layer.
 
         Uses a CacheManager with a 1-second TTL for the memory cache:
@@ -189,8 +197,9 @@ class TestCachePipeline:
         time.sleep(1.5)
 
         # Memory cache should now return None (TTL expired)
-        assert manager.memory_cache.get(cache_key) is None, \
+        assert manager.memory_cache.get(cache_key) is None, (
             "Expected memory cache miss after TTL expiry"
+        )
 
         # Read falls through to DuckDB layer
         result = manager.read(table, storage_layer="daily")
@@ -202,7 +211,8 @@ class TestCachePipeline:
 
         # But parquet files still exist on disk (data was persisted)
         parquet_files_after = list(
-            manager.partition_manager.base_dir.rglob("*.parquet"))
+            manager.partition_manager.base_dir.rglob("*.parquet")
+        )
         assert len(parquet_files_after) >= 1
 
         # Verify parquet files contain the correct data by reading directly
@@ -213,8 +223,9 @@ class TestCachePipeline:
     # Test 4: Cache miss then backfill
     # ----------------------------------------------------------------
 
-    def test_cache_miss_then_backfill(self, temp_cache_dir, sample_stock_data,
-                                      mock_data_source):
+    def test_cache_miss_then_backfill(
+        self, temp_cache_dir, sample_stock_data, mock_data_source
+    ):
         """After fetch on cache miss, verify both parquet and memory have data.
 
         1. Start with empty cache
@@ -236,8 +247,7 @@ class TestCachePipeline:
         _fetch_and_write(manager, mock_data_source, table)
 
         # Verify parquet files exist
-        parquet_files = list(
-            manager.partition_manager.base_dir.rglob("*.parquet"))
+        parquet_files = list(manager.partition_manager.base_dir.rglob("*.parquet"))
         assert len(parquet_files) >= 1
 
         # Verify memory cache populated
@@ -288,16 +298,20 @@ class TestCachePipeline:
         manager = CacheManager(base_dir=temp_cache_dir)
         table = "multi_symbol_test"
 
-        df_a = pd.DataFrame({
-            "date": pd.date_range("2024-01-02", "2024-01-05", freq="B"),
-            "symbol": ["sh600000"] * 4,
-            "close": [10.0, 10.1, 10.2, 10.3],
-        })
-        df_b = pd.DataFrame({
-            "date": pd.date_range("2024-01-02", "2024-01-05", freq="B"),
-            "symbol": ["sz000001"] * 4,
-            "close": [20.0, 20.1, 20.2, 20.3],
-        })
+        df_a = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-02", "2024-01-05", freq="B"),
+                "symbol": ["sh600000"] * 4,
+                "close": [10.0, 10.1, 10.2, 10.3],
+            }
+        )
+        df_b = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-02", "2024-01-05", freq="B"),
+                "symbol": ["sz000001"] * 4,
+                "close": [20.0, 20.1, 20.2, 20.3],
+            }
+        )
 
         # Write both datasets (each write overwrites memory cache)
         manager.write(table, df_a, storage_layer="daily")
@@ -305,7 +319,8 @@ class TestCachePipeline:
 
         # Query with where clause for symbol A -- different cache key
         result_a = manager.read(
-            table, storage_layer="daily",
+            table,
+            storage_layer="daily",
             where={"symbol": "sh600000"},
         )
         # Memory miss (different cache key) -> falls to engine -> empty
@@ -314,7 +329,8 @@ class TestCachePipeline:
 
         # Query for symbol B -- also a different cache key
         result_b = manager.read(
-            table, storage_layer="daily",
+            table,
+            storage_layer="daily",
             where={"symbol": "sz000001"},
         )
         assert result_b.empty
@@ -328,8 +344,7 @@ class TestCachePipeline:
     # Test 7: Data consistency across layers
     # ----------------------------------------------------------------
 
-    def test_data_consistency_across_layers(self, temp_cache_dir,
-                                            sample_stock_data):
+    def test_data_consistency_across_layers(self, temp_cache_dir, sample_stock_data):
         """Write via CacheManager, verify parquet files on disk contain
         the same data.
 
@@ -344,8 +359,7 @@ class TestCachePipeline:
         manager.write(table, sample_stock_data, storage_layer="daily")
 
         # Verify parquet files exist on disk
-        parquet_files = list(
-            manager.partition_manager.base_dir.rglob("*.parquet"))
+        parquet_files = list(manager.partition_manager.base_dir.rglob("*.parquet"))
         assert len(parquet_files) >= 1
 
         # Read parquet files directly with pyarrow to verify content
@@ -369,9 +383,9 @@ class TestCachePipeline:
     # Test 8: Cache invalidation
     # ----------------------------------------------------------------
 
-    def test_cache_invalidation_triggers_refetch(self, temp_cache_dir,
-                                                 sample_stock_data,
-                                                 mock_data_source):
+    def test_cache_invalidation_triggers_refetch(
+        self, temp_cache_dir, sample_stock_data, mock_data_source
+    ):
         """Delete cache entry, verify memory cleared, write re-populates.
 
         1. Write data through CacheManager
@@ -394,8 +408,7 @@ class TestCachePipeline:
         source_calls_before = mock_data_source.fetch.call_count
 
         # Verify parquet files exist on disk
-        parquet_files = list(
-            manager.partition_manager.base_dir.rglob("*.parquet"))
+        parquet_files = list(manager.partition_manager.base_dir.rglob("*.parquet"))
         assert len(parquet_files) >= 1
 
         # Invalidate
@@ -403,8 +416,9 @@ class TestCachePipeline:
         assert deleted >= 1, "Expected at least one file deleted"
 
         # Verify memory cache cleared for this key
-        assert manager.memory_cache.get(cache_key) is None, \
+        assert manager.memory_cache.get(cache_key) is None, (
             "Expected memory cache cleared after invalidation"
+        )
 
         # Read returns empty (disk path mismatch)
         result = manager.read(table, storage_layer="daily")

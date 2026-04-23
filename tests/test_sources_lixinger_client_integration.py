@@ -3,6 +3,7 @@
 Without LIXINGER_TOKEN, these fail with auth errors. We verify the error handling
 is correct and that the API call pattern works.
 """
+
 import os
 import pytest
 import pandas as pd
@@ -235,29 +236,41 @@ class TestLixingerClientShareholderAPIs:
     @pytest.mark.integration
     def test_get_company_shareholders_num(self, client):
         if client.is_configured():
-            df = client.get_company_shareholders_num("000001", "2024-01-01", "2024-02-01")
+            df = client.get_company_shareholders_num(
+                "000001", "2024-01-01", "2024-02-01"
+            )
             assert isinstance(df, pd.DataFrame)
         else:
             with pytest.raises(Exception):
-                client.get_company_shareholders_num("000001", "2024-01-01", "2024-02-01")
+                client.get_company_shareholders_num(
+                    "000001", "2024-01-01", "2024-02-01"
+                )
 
     @pytest.mark.integration
     def test_get_company_fund_shareholders(self, client):
         if client.is_configured():
-            df = client.get_company_fund_shareholders("000001", "2024-01-01", "2024-02-01")
+            df = client.get_company_fund_shareholders(
+                "000001", "2024-01-01", "2024-02-01"
+            )
             assert isinstance(df, pd.DataFrame)
         else:
             with pytest.raises(Exception):
-                client.get_company_fund_shareholders("000001", "2024-01-01", "2024-02-01")
+                client.get_company_fund_shareholders(
+                    "000001", "2024-01-01", "2024-02-01"
+                )
 
     @pytest.mark.integration
     def test_get_company_majority_shareholders(self, client):
         if client.is_configured():
-            df = client.get_company_majority_shareholders("000001", "2024-01-01", "2024-02-01")
+            df = client.get_company_majority_shareholders(
+                "000001", "2024-01-01", "2024-02-01"
+            )
             assert isinstance(df, pd.DataFrame)
         else:
             with pytest.raises(Exception):
-                client.get_company_majority_shareholders("000001", "2024-01-01", "2024-02-01")
+                client.get_company_majority_shareholders(
+                    "000001", "2024-01-01", "2024-02-01"
+                )
 
 
 class TestLixingerClientErrorHandling:

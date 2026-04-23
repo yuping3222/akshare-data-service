@@ -438,9 +438,7 @@ class TestCreateSimpleRouter:
         """测试创建时添加缓存provider"""
         callables = {"src1": MagicMock(), "src2": MagicMock()}
         cache_func = MagicMock()
-        router = create_simple_router(
-            callables={**callables, "__cache__": cache_func}
-        )
+        router = create_simple_router(callables={**callables, "__cache__": cache_func})
         assert len(router.providers) == 3
         provider_names = [name for name, _ in router.providers]
         assert "__cache__" in provider_names

@@ -3,6 +3,7 @@
 Tests the AkShareAdapter methods using mocked fetch() responses.
 Verifies correct interface routing, parameter passing, and result processing.
 """
+
 import pytest
 import pandas as pd
 from datetime import datetime, date
@@ -24,14 +25,16 @@ class TestAkShareAdapterMocked:
 
     def test_get_daily_data_calls_correct_interface(self, source):
         """get_daily_data routes to equity_daily interface."""
-        mock_df = pd.DataFrame({
-            "date": pd.date_range("2024-01-02", "2024-01-10", freq="B"),
-            "open": [10.0] * 7,
-            "high": [11.0] * 7,
-            "low": [9.0] * 7,
-            "close": [10.5] * 7,
-            "volume": [100_000] * 7,
-        })
+        mock_df = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-02", "2024-01-10", freq="B"),
+                "open": [10.0] * 7,
+                "high": [11.0] * 7,
+                "low": [9.0] * 7,
+                "close": [10.5] * 7,
+                "volume": [100_000] * 7,
+            }
+        )
         with patch(
             "akshare_data.sources.akshare_source.fetch",
             return_value=mock_df,
@@ -78,11 +81,13 @@ class TestAkShareAdapterMocked:
 
     def test_get_index_components_calls_correct_interface(self, source):
         """get_index_components routes to index_components interface."""
-        mock_df = pd.DataFrame({
-            "code": ["000001", "000002", "600000"],
-            "name": ["平安银行", "万科A", "浦发银行"],
-            "weight": [0.5, 0.3, 0.2],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "code": ["000001", "000002", "600000"],
+                "name": ["平安银行", "万科A", "浦发银行"],
+                "weight": [0.5, 0.3, 0.2],
+            }
+        )
         with patch(
             "akshare_data.sources.akshare_source.fetch",
             return_value=mock_df,
@@ -100,10 +105,12 @@ class TestAkShareAdapterMocked:
 
     def test_get_st_stocks_calls_correct_interface(self, source):
         """get_st_stocks routes to st_stocks interface."""
-        mock_df = pd.DataFrame({
-            "code": ["000001", "600000"],
-            "name": ["平安银行", "浦发银行"],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "code": ["000001", "600000"],
+                "name": ["平安银行", "浦发银行"],
+            }
+        )
         with patch(
             "akshare_data.sources.akshare_source.fetch",
             return_value=mock_df,
@@ -125,12 +132,14 @@ class TestAkShareAdapterMocked:
 
     def test_get_finance_indicator_calls_correct_interface(self, source):
         """get_finance_indicator routes to finance_indicator interface."""
-        mock_df = pd.DataFrame({
-            "date": ["2024-03-31", "2023-12-31"],
-            "roe": [0.15, 0.14],
-            "pe": [12.5, 13.0],
-            "pb": [1.2, 1.1],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "date": ["2024-03-31", "2023-12-31"],
+                "roe": [0.15, 0.14],
+                "pe": [12.5, 13.0],
+                "pb": [1.2, 1.1],
+            }
+        )
         with patch(
             "akshare_data.sources.akshare_source.fetch",
             return_value=mock_df,
@@ -155,10 +164,12 @@ class TestAkShareAdapterMocked:
 
     def test_get_industry_stocks_calls_correct_interface(self, source):
         """get_industry_stocks routes to industry_stocks interface."""
-        mock_df = pd.DataFrame({
-            "code": ["000001", "000002"],
-            "name": ["平安银行", "万科A"],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "code": ["000001", "000002"],
+                "name": ["平安银行", "万科A"],
+            }
+        )
         with patch(
             "akshare_data.sources.akshare_source.fetch",
             return_value=mock_df,
@@ -178,12 +189,14 @@ class TestAkShareAdapterMocked:
 
     def test_get_realtime_data_calls_correct_interface(self, source):
         """get_realtime_data routes to equity_realtime interface."""
-        mock_df = pd.DataFrame({
-            "code": ["000001"],
-            "name": ["平安银行"],
-            "price": [12.5],
-            "change": [0.02],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "code": ["000001"],
+                "name": ["平安银行"],
+                "price": [12.5],
+                "change": [0.02],
+            }
+        )
         with patch(
             "akshare_data.sources.akshare_source.fetch",
             return_value=mock_df,
@@ -197,11 +210,13 @@ class TestAkShareAdapterMocked:
 
     def test_get_money_flow_calls_correct_interface(self, source):
         """get_money_flow routes to money_flow interface."""
-        mock_df = pd.DataFrame({
-            "date": ["2024-01-02"],
-            "main_net_inflow": [1_000_000.0],
-            "small_net_inflow": [500_000.0],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "date": ["2024-01-02"],
+                "main_net_inflow": [1_000_000.0],
+                "small_net_inflow": [500_000.0],
+            }
+        )
         with patch(
             "akshare_data.sources.akshare_source.fetch",
             return_value=mock_df,
@@ -219,10 +234,12 @@ class TestAkShareAdapterMocked:
 
     def test_get_sector_fund_flow_calls_correct_interface(self, source):
         """get_sector_fund_flow routes to sector_fund_flow interface."""
-        mock_df = pd.DataFrame({
-            "sector": ["银行", "券商"],
-            "net_inflow": [1e9, 5e8],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "sector": ["银行", "券商"],
+                "net_inflow": [1e9, 5e8],
+            }
+        )
         with patch(
             "akshare_data.sources.akshare_source.fetch",
             return_value=mock_df,
@@ -241,10 +258,12 @@ class TestAkShareAdapterMocked:
 
     def test_get_suspended_stocks_calls_correct_interface(self, source):
         """get_suspended_stocks routes to suspended_stocks interface."""
-        mock_df = pd.DataFrame({
-            "code": ["000001"],
-            "name": ["平安银行"],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "code": ["000001"],
+                "name": ["平安银行"],
+            }
+        )
         with patch(
             "akshare_data.sources.akshare_source.fetch",
             return_value=mock_df,
@@ -260,10 +279,12 @@ class TestAkShareAdapterMocked:
 
     def test_get_north_money_flow_calls_correct_interface(self, source):
         """get_north_money_flow routes to north_money_flow interface."""
-        mock_df = pd.DataFrame({
-            "date": ["2024-01-02"],
-            "net_amount": [1e8],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "date": ["2024-01-02"],
+                "net_amount": [1e8],
+            }
+        )
         with patch(
             "akshare_data.sources.akshare_source.fetch",
             return_value=mock_df,
@@ -284,8 +305,7 @@ class TestAkShareSourceOptionMethods:
         """Test black_scholes_price with valid params."""
         try:
             result = source.black_scholes_price(
-                S=100.0, K=100.0, T=0.25,
-                r=0.05, sigma=0.2, option_type="call"
+                S=100.0, K=100.0, T=0.25, r=0.05, sigma=0.2, option_type="call"
             )
             assert result is not None
         except ImportError:
@@ -295,8 +315,7 @@ class TestAkShareSourceOptionMethods:
         """Test black_scholes_price with put option."""
         try:
             result = source.black_scholes_price(
-                S=100.0, K=100.0, T=0.25,
-                r=0.05, sigma=0.2, option_type="put"
+                S=100.0, K=100.0, T=0.25, r=0.05, sigma=0.2, option_type="put"
             )
             assert result is not None
         except ImportError:
@@ -306,8 +325,11 @@ class TestAkShareSourceOptionMethods:
         """Test implied vol calculation."""
         try:
             result = source.calculate_option_implied_vol(
-                symbol="510050", price=5.0, strike=2.5,
-                expiry="2024-06-30", risk_free_rate=0.05
+                symbol="510050",
+                price=5.0,
+                strike=2.5,
+                expiry="2024-06-30",
+                risk_free_rate=0.05,
             )
             assert result is not None
         except ImportError:

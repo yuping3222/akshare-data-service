@@ -12,7 +12,9 @@ class CacheStrategy(ABC):
         """判断是否需要拉取新数据"""
 
     @abstractmethod
-    def merge(self, cached: pd.DataFrame | None, fresh: pd.DataFrame, **params) -> pd.DataFrame:
+    def merge(
+        self, cached: pd.DataFrame | None, fresh: pd.DataFrame, **params
+    ) -> pd.DataFrame:
         """合并缓存数据和新数据"""
 
     @abstractmethod

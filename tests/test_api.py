@@ -125,7 +125,9 @@ class TestDataServiceGetDaily:
         with (
             patch.object(service.cache, "read", side_effect=mock_read),
             patch.object(service.cache, "write", return_value=""),
-            patch.object(service.lixinger, "get_daily_data", return_value=pd.DataFrame()),
+            patch.object(
+                service.lixinger, "get_daily_data", return_value=pd.DataFrame()
+            ),
             patch.object(service.akshare, "get_daily_data", return_value=test_df),
         ):
             df = service.get_daily("sh600000", "2024-01-01", "2024-01-10")
@@ -148,7 +150,9 @@ class TestDataServiceGetDaily:
         with (
             patch.object(service.cache, "read", side_effect=mock_read),
             patch.object(service.cache, "write", return_value=""),
-            patch.object(service.lixinger, "get_daily_data", return_value=pd.DataFrame()),
+            patch.object(
+                service.lixinger, "get_daily_data", return_value=pd.DataFrame()
+            ),
             patch.object(
                 service.akshare, "get_daily_data", return_value=test_df
             ) as mock_get,
@@ -184,7 +188,9 @@ class TestDataServiceGetDaily:
         with (
             patch.object(service.cache, "read", side_effect=mock_read),
             patch.object(service.cache, "write", return_value=""),
-            patch.object(service.lixinger, "get_daily_data", return_value=pd.DataFrame()),
+            patch.object(
+                service.lixinger, "get_daily_data", return_value=pd.DataFrame()
+            ),
             patch.object(
                 service.akshare, "get_daily_data", return_value=pd.DataFrame()
             ),
@@ -232,7 +238,9 @@ class TestDataServiceGetDaily:
         with (
             patch.object(service.cache, "read", side_effect=mock_read),
             patch.object(service.cache, "write", return_value=""),
-            patch.object(service.lixinger, "get_daily_data", return_value=pd.DataFrame()),
+            patch.object(
+                service.lixinger, "get_daily_data", return_value=pd.DataFrame()
+            ),
             patch.object(
                 service.akshare, "get_daily_data", return_value=test_df
             ) as mock_get,
@@ -480,9 +488,20 @@ class TestDataServiceGetTradingDays:
         service = DataService()
         # Cached data must cover the full requested range so the incremental
         # strategy considers it complete and skips fetching from akshare.
-        cached_df = pd.DataFrame({"date": ["2024-01-01", "2024-01-02", "2024-01-03",
-                                           "2024-01-04", "2024-01-05", "2024-01-08",
-                                           "2024-01-09", "2024-01-10"]})
+        cached_df = pd.DataFrame(
+            {
+                "date": [
+                    "2024-01-01",
+                    "2024-01-02",
+                    "2024-01-03",
+                    "2024-01-04",
+                    "2024-01-05",
+                    "2024-01-08",
+                    "2024-01-09",
+                    "2024-01-10",
+                ]
+            }
+        )
 
         with patch.object(service.cache, "read", return_value=cached_df) as mock_read:
             days = service.get_trading_days("2024-01-01", "2024-01-10")
@@ -638,61 +657,101 @@ class TestCacheStrategies:
 
     def test_incremental_strategy_empty_df(self):
         from akshare_data.store.strategies import IncrementalStrategy
+
         strategy = IncrementalStrategy()
-        assert strategy.should_fetch(pd.DataFrame(), start_date="2024-01-01", end_date="2024-01-10") is True
+        assert (
+            strategy.should_fetch(
+                pd.DataFrame(), start_date="2024-01-01", end_date="2024-01-10"
+            )
+            is True
+        )
 
     def test_incremental_strategy_none(self):
         from akshare_data.store.strategies import IncrementalStrategy
+
         strategy = IncrementalStrategy()
-        assert strategy.should_fetch(None, start_date="2024-01-01", end_date="2024-01-10") is True
+        assert (
+            strategy.should_fetch(None, start_date="2024-01-01", end_date="2024-01-10")
+            is True
+        )
 
     def test_incremental_strategy_full_range(self):
         from akshare_data.store.strategies import IncrementalStrategy
+
         strategy = IncrementalStrategy()
-        test_df = pd.DataFrame({
-            "date": pd.date_range("2024-01-01", "2024-01-10"),
-            "symbol": ["600000"] * 10,
-        })
-        assert strategy.should_fetch(test_df, start_date="2024-01-01", end_date="2024-01-10") is False
+        test_df = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-01", "2024-01-10"),
+                "symbol": ["600000"] * 10,
+            }
+        )
+        assert (
+            strategy.should_fetch(
+                test_df, start_date="2024-01-01", end_date="2024-01-10"
+            )
+            is False
+        )
 
     def test_incremental_strategy_partial_range(self):
         from akshare_data.store.strategies import IncrementalStrategy
+
         strategy = IncrementalStrategy()
-        test_df = pd.DataFrame({
-            "date": pd.date_range("2024-01-01", "2024-01-05"),
-            "symbol": ["600000"] * 5,
-        })
-        assert strategy.should_fetch(test_df, start_date="2024-01-01", end_date="2024-01-10") is True
+        test_df = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-01", "2024-01-05"),
+                "symbol": ["600000"] * 5,
+            }
+        )
+        assert (
+            strategy.should_fetch(
+                test_df, start_date="2024-01-01", end_date="2024-01-10"
+            )
+            is True
+        )
 
     def test_incremental_find_missing_empty(self):
         from akshare_data.store.strategies import IncrementalStrategy
+
         strategy = IncrementalStrategy()
         gaps = strategy.find_missing_ranges(None, "2024-01-01", "2024-01-10")
         assert gaps == [("2024-01-01", "2024-01-10")]
 
     def test_incremental_find_missing_no_gaps(self):
         from akshare_data.store.strategies import IncrementalStrategy
+
         strategy = IncrementalStrategy()
-        test_df = pd.DataFrame({
-            "date": pd.date_range("2024-01-01", "2024-01-10"),
-            "symbol": ["600000"] * 10,
-        })
+        test_df = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-01", "2024-01-10"),
+                "symbol": ["600000"] * 10,
+            }
+        )
         gaps = strategy.find_missing_ranges(test_df, "2024-01-01", "2024-01-10")
         assert len(gaps) == 0
 
     def test_incremental_find_missing_with_gaps(self):
         from akshare_data.store.strategies import IncrementalStrategy
+
         strategy = IncrementalStrategy()
-        test_df = pd.DataFrame({
-            "date": ["2024-01-01", "2024-01-02", "2024-01-03", "2024-01-04", "2024-01-05"],
-            "symbol": ["600000"] * 5,
-        })
+        test_df = pd.DataFrame(
+            {
+                "date": [
+                    "2024-01-01",
+                    "2024-01-02",
+                    "2024-01-03",
+                    "2024-01-04",
+                    "2024-01-05",
+                ],
+                "symbol": ["600000"] * 5,
+            }
+        )
         gaps = strategy.find_missing_ranges(test_df, "2024-01-01", "2024-01-10")
         assert len(gaps) == 1
         assert gaps[0] == ("2024-01-06", "2024-01-10")
 
     def test_full_cache_strategy(self):
         from akshare_data.store.strategies import FullCacheStrategy
+
         strategy = FullCacheStrategy()
         assert strategy.should_fetch(None) is True
         assert strategy.should_fetch(pd.DataFrame()) is True
@@ -700,6 +759,7 @@ class TestCacheStrategies:
 
     def test_cached_fetch_basic(self):
         from akshare_data.store.fetcher import CachedFetcher, FetchConfig
+
         service = DataService()
         fetcher = CachedFetcher(service.cache)
         config = FetchConfig(table="test_table", storage_layer="meta")

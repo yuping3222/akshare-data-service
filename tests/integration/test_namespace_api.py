@@ -33,19 +33,22 @@ from akshare_data.api import (
 # Helper: create a minimal stock-data DataFrame for mocked returns
 # ---------------------------------------------------------------------------
 
+
 def _daily_df(symbol="600000", start="2024-01-02", end="2024-01-10"):
     dates = pd.date_range(start, end, freq="B")
     n = len(dates)
-    return pd.DataFrame({
-        "date": dates,
-        "symbol": [symbol] * n,
-        "open": [10.0 + i * 0.1 for i in range(n)],
-        "high": [11.0 + i * 0.1 for i in range(n)],
-        "low": [9.0 + i * 0.1 for i in range(n)],
-        "close": [10.5 + i * 0.1 for i in range(n)],
-        "volume": [100_000] * n,
-        "amount": [1_000_000.0] * n,
-    })
+    return pd.DataFrame(
+        {
+            "date": dates,
+            "symbol": [symbol] * n,
+            "open": [10.0 + i * 0.1 for i in range(n)],
+            "high": [11.0 + i * 0.1 for i in range(n)],
+            "low": [9.0 + i * 0.1 for i in range(n)],
+            "close": [10.5 + i * 0.1 for i in range(n)],
+            "volume": [100_000] * n,
+            "amount": [1_000_000.0] * n,
+        }
+    )
 
 
 @pytest.mark.integration
@@ -374,9 +377,7 @@ class TestSourceProxy:
         ) as mock_exec:
             result = proxy.some_method(arg1="a", arg2=123)
 
-        mock_exec.assert_called_once_with(
-            "some_method", "lixinger", arg1="a", arg2=123
-        )
+        mock_exec.assert_called_once_with("some_method", "lixinger", arg1="a", arg2=123)
         assert result == 42
 
     def test_source_proxy_with_none_source(self, data_service):
@@ -427,7 +428,9 @@ class TestNamespaceErrorHandling:
         with pytest.raises(AttributeError):
             _ = data_service.cn.fund.nonexistent
 
-    def test_macro_china_invalid_method_is_callable_but_returns_from_source(self, data_service):
+    def test_macro_china_invalid_method_is_callable_but_returns_from_source(
+        self, data_service
+    ):
         """macro.china allows any attribute access (via __getattr__ is not defined,
         so invalid attribute raises AttributeError)."""
         with pytest.raises(AttributeError):

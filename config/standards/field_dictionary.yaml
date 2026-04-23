@@ -1,0 +1,320 @@
+# Field Dictionary — 标准字段字典
+#
+# 本文档是标准字段命名的事实来源，供 normalizer、quality、service 统一引用。
+# 所有字段名必须与 docs/design/30-standard-entities.md 保持一致。
+#
+# 加载方：
+#   - governance catalog：用于元数据注册
+#   - quality DSL：用于规则字段引用校验
+#   - service docgen：用于输出字段文档
+#
+# 版本历史：
+#   v1 — 2026-04-22 — 首批 3 个 P0 实体字段
+
+version: '1.0'
+
+# ---------------------------------------------------------------------------
+# 1. 系统字段（所有 Standardized / Served 数据集统一使用）
+# ---------------------------------------------------------------------------
+system_fields:
+  batch_id:
+    type: string
+    description: 来源批次标识
+    required: true
+  source_name:
+    type: string
+    description: 来源数据源名称
+    required: true
+  interface_name:
+    type: string
+    description: 来源接口名称
+    required: true
+  ingest_time:
+    type: timestamp
+    description: 进入系统时间
+    required: true
+  normalize_version:
+    type: string
+    description: 标准化规则版本
+    required: true
+  schema_version:
+    type: string
+    description: 实体 schema 版本
+    required: true
+  quality_status:
+    type: string
+    description: 质量状态
+    required: true
+  publish_time:
+    type: timestamp
+    description: 发布到 Served 的时间
+    required: false
+  release_version:
+    type: string
+    description: 发布版本
+    required: false
+
+# ---------------------------------------------------------------------------
+# 2. 业务字段全集（按领域分组）
+# ---------------------------------------------------------------------------
+fields:
+
+  # ---- 标识类 ----
+  security_id:
+    type: string
+    description: 证券唯一标识
+    aliases: [symbol, code, ts_code]
+
+  exchange:
+    type: string
+    description: 交易所
+    aliases: [market]
+
+  indicator_code:
+    type: string
+    description: 宏观指标代码
+    aliases: []
+
+  indicator_name:
+    type: string
+    description: 宏观指标名称
+    aliases: []
+
+  # ---- 时间类 ----
+  trade_date:
+    type: date
+    description: 交易日期
+    aliases: [date, datetime]
+
+  report_date:
+    type: date
+    description: 报告期截止日
+    aliases: []
+
+  observation_date:
+    type: date
+    description: 统计观测期
+    aliases: [date]
+
+  publish_date:
+    type: date
+    description: 公告/官方发布日期
+    aliases: [announce_date]
+
+  # ---- 复权与报告类型 ----
+  adjust_type:
+    type: string
+    description: 复权类型
+    aliases: [adjust, adjust_flag]
+
+  report_type:
+    type: string
+    description: 报告类型（如 Q1/H1/Q3/A）
+    aliases: []
+
+  frequency:
+    type: string
+    description: 数据频率（D/W/M/Q/Y）
+    aliases: []
+
+  # ---- 地域与币种 ----
+  region:
+    type: string
+    description: 地区/国家
+    aliases: [country, area]
+
+  currency:
+    type: string
+    description: 币种
+    aliases: []
+
+  # ---- OHLCV 行情 ----
+  open_price:
+    type: double
+    description: 开盘价
+    unit: CNY
+    aliases: [open]
+
+  high_price:
+    type: double
+    description: 最高价
+    unit: CNY
+    aliases: [high]
+
+  low_price:
+    type: double
+    description: 最低价
+    unit: CNY
+    aliases: [low]
+
+  close_price:
+    type: double
+    description: 收盘价
+    unit: CNY
+    aliases: [close]
+
+  volume:
+    type: double
+    description: 成交量
+    unit: share
+    aliases: [vol]
+
+  turnover_amount:
+    type: double
+    description: 成交额
+    unit: CNY
+    aliases: [amount, turnover]
+
+  # ---- 行情衍生 ----
+  change_pct:
+    type: double
+    description: 涨跌幅
+    unit: pct
+    aliases: [pct_chg, pct_change]
+
+  turnover_rate:
+    type: double
+    description: 换手率
+    unit: pct
+    aliases: [turn]
+
+  # ---- 估值比率 ----
+  pe_ratio_ttm:
+    type: double
+    description: 市盈率（TTM）
+    unit: ratio
+    aliases: [pe]
+
+  pb_ratio:
+    type: double
+    description: 市净率
+    unit: ratio
+    aliases: [pb]
+
+  ps_ratio_ttm:
+    type: double
+    description: 市销率（TTM）
+    unit: ratio
+    aliases: [ps]
+
+  # ---- 盈利能力 ----
+  roe_pct:
+    type: double
+    description: 净资产收益率
+    unit: pct
+    aliases: [roe]
+
+  roa_pct:
+    type: double
+    description: 总资产收益率
+    unit: pct
+    aliases: [roa]
+
+  gross_margin_pct:
+    type: double
+    description: 毛利率
+    unit: pct
+    aliases: []
+
+  net_margin_pct:
+    type: double
+    description: 净利率
+    unit: pct
+    aliases: []
+
+  # ---- 财务绝对值 ----
+  net_profit:
+    type: double
+    description: 净利润
+    unit: CNY
+    aliases: []
+
+  revenue:
+    type: double
+    description: 营业收入
+    unit: CNY
+    aliases: [total_revenue]
+
+  total_assets:
+    type: double
+    description: 总资产
+    unit: CNY
+    aliases: []
+
+  total_equity:
+    type: double
+    description: 所有者权益
+    unit: CNY
+    aliases: [net_assets]
+
+  debt_ratio_pct:
+    type: double
+    description: 资产负债率
+    unit: pct
+    aliases: [debt_ratio]
+
+  # ---- 宏观指标值 ----
+  value:
+    type: double
+    description: 指标观测值
+    unit: by indicator
+    aliases: []
+
+  value_yoy_pct:
+    type: double
+    description: 同比增速
+    unit: pct
+    aliases: [yoy]
+
+  value_mom_pct:
+    type: double
+    description: 环比增速
+    unit: pct
+    aliases: [mom]
+
+  unit:
+    type: string
+    description: 指标单位
+    aliases: []
+
+  source_org:
+    type: string
+    description: 发布机构
+    aliases: [agency, publisher]
+
+# ---------------------------------------------------------------------------
+# 3. 历史字段别名到标准字段的映射（供 normalizer 映射层使用）
+# ---------------------------------------------------------------------------
+alias_map:
+  symbol: security_id
+  code: security_id
+  ts_code: security_id
+  date: trade_date
+  datetime: trade_date
+  adjust: adjust_type
+  adjust_flag: adjust_type
+  amount: turnover_amount
+  turnover: turnover_amount
+  open: open_price
+  high: high_price
+  low: low_price
+  close: close_price
+  vol: volume
+  pe: pe_ratio_ttm
+  pb: pb_ratio
+  ps: ps_ratio_ttm
+  roe: roe_pct
+  roa: roa_pct
+  pct_chg: change_pct
+  pct_change: change_pct
+  announce_date: publish_date
+  total_revenue: revenue
+  net_assets: total_equity
+  debt_ratio: debt_ratio_pct
+  yoy: value_yoy_pct
+  mom: value_mom_pct
+  agency: source_org
+  publisher: source_org
+  market: exchange
+  country: region
+  area: region

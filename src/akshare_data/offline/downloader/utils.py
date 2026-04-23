@@ -59,7 +59,11 @@ def convert_wide_to_long(
             if symbol not in df.columns:
                 continue
             for idx in df.index:
-                record = {"date": idx, "stock_code": symbol, col_name: df.loc[idx, symbol]}
+                record = {
+                    "date": idx,
+                    "stock_code": symbol,
+                    col_name: df.loc[idx, symbol],
+                }
                 records.append(record)
 
     if not records:

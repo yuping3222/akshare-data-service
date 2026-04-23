@@ -48,12 +48,14 @@ class AnomalyDetector:
             try:
                 pct = float(row[col])
                 if abs(pct) > threshold:
-                    anomalies.append({
-                        "type": "price",
-                        "index": idx,
-                        "value": pct,
-                        "threshold": threshold,
-                    })
+                    anomalies.append(
+                        {
+                            "type": "price",
+                            "index": idx,
+                            "value": pct,
+                            "threshold": threshold,
+                        }
+                    )
             except (ValueError, TypeError):
                 continue
         return anomalies
@@ -67,12 +69,14 @@ class AnomalyDetector:
         for idx, row in df.iterrows():
             try:
                 if float(row["high"]) < float(row["low"]):
-                    anomalies.append({
-                        "type": "high_low",
-                        "index": idx,
-                        "high": row["high"],
-                        "low": row["low"],
-                    })
+                    anomalies.append(
+                        {
+                            "type": "high_low",
+                            "index": idx,
+                            "high": row["high"],
+                            "low": row["low"],
+                        }
+                    )
             except (ValueError, TypeError):
                 continue
         return anomalies
@@ -98,13 +102,15 @@ class AnomalyDetector:
                     vol = float(row["volume"])
                     z_score = abs(vol - mean) / std
                     if z_score >= threshold:
-                        anomalies.append({
-                            "type": "volume",
-                            "index": idx,
-                            "value": vol,
-                            "z_score": round(z_score, 2),
-                            "threshold": threshold,
-                        })
+                        anomalies.append(
+                            {
+                                "type": "volume",
+                                "index": idx,
+                                "value": vol,
+                                "z_score": round(z_score, 2),
+                                "threshold": threshold,
+                            }
+                        )
                 except (ValueError, TypeError):
                     continue
         except Exception:

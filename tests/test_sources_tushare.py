@@ -110,7 +110,9 @@ class TestTushareAdapter:
         def test_raises_error_when_pro_not_set(self, adapter_uninitialized):
             """Test raises SourceUnavailableError when pro not set."""
             with patch.dict("os.environ", {}, clear=True):
-                with patch("akshare_data.sources.tushare_source._get_token", return_value=None):
+                with patch(
+                    "akshare_data.sources.tushare_source._get_token", return_value=None
+                ):
                     with pytest.raises(SourceUnavailableError):
                         adapter_uninitialized._ensure_configured()
 

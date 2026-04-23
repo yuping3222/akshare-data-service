@@ -3,6 +3,7 @@
 These tests attempt to call lixinger adapter methods. Without LIXINGER_TOKEN,
 they will fail with auth errors — we categorize these properly.
 """
+
 import os
 import pytest
 import pandas as pd
@@ -31,29 +32,41 @@ class TestLixingerPriceData:
     def test_get_daily_data_requires_token(self, adapter):
         """get_daily_data should fail gracefully without token."""
         if adapter.is_configured():
-            df = adapter.get_daily_data(symbol="000001", start_date="2024-01-01", end_date="2024-02-01")
+            df = adapter.get_daily_data(
+                symbol="000001", start_date="2024-01-01", end_date="2024-02-01"
+            )
             assert isinstance(df, pd.DataFrame)
         else:
             with pytest.raises((SourceUnavailableError, DataSourceError, Exception)):
-                adapter.get_daily_data(symbol="000001", start_date="2024-01-01", end_date="2024-02-01")
+                adapter.get_daily_data(
+                    symbol="000001", start_date="2024-01-01", end_date="2024-02-01"
+                )
 
     @pytest.mark.integration
     def test_get_index_daily_requires_token(self, adapter):
         if adapter.is_configured():
-            df = adapter.get_index_daily(symbol="000300", start_date="2024-01-01", end_date="2024-02-01")
+            df = adapter.get_index_daily(
+                symbol="000300", start_date="2024-01-01", end_date="2024-02-01"
+            )
             assert isinstance(df, pd.DataFrame)
         else:
             with pytest.raises(Exception):
-                adapter.get_index_daily(symbol="000300", start_date="2024-01-01", end_date="2024-02-01")
+                adapter.get_index_daily(
+                    symbol="000300", start_date="2024-01-01", end_date="2024-02-01"
+                )
 
     @pytest.mark.integration
     def test_get_etf_daily_requires_token(self, adapter):
         if adapter.is_configured():
-            df = adapter.get_etf_daily(symbol="510050", start_date="2024-01-01", end_date="2024-02-01")
+            df = adapter.get_etf_daily(
+                symbol="510050", start_date="2024-01-01", end_date="2024-02-01"
+            )
             assert isinstance(df, pd.DataFrame)
         else:
             with pytest.raises(Exception):
-                adapter.get_etf_daily(symbol="510050", start_date="2024-01-01", end_date="2024-02-01")
+                adapter.get_etf_daily(
+                    symbol="510050", start_date="2024-01-01", end_date="2024-02-01"
+                )
 
 
 # ── Securities & List Methods ────────────────────────────────────────
@@ -190,11 +203,15 @@ class TestLixingerFundMethods:
     @pytest.mark.integration
     def test_get_etf_hist_data(self, adapter):
         if adapter.is_configured():
-            df = adapter.get_etf_hist_data(symbol="510050", start_date="2024-01-01", end_date="2024-02-01")
+            df = adapter.get_etf_hist_data(
+                symbol="510050", start_date="2024-01-01", end_date="2024-02-01"
+            )
             assert isinstance(df, pd.DataFrame)
         else:
             with pytest.raises(Exception):
-                adapter.get_etf_hist_data(symbol="510050", start_date="2024-01-01", end_date="2024-02-01")
+                adapter.get_etf_hist_data(
+                    symbol="510050", start_date="2024-01-01", end_date="2024-02-01"
+                )
 
     @pytest.mark.integration
     def test_get_lof_spot(self, adapter):

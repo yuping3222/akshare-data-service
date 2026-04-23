@@ -82,7 +82,9 @@ class TestBatchDownloader:
             mock_executor_cls.return_value = mock_executor
 
             tasks = []
-            with patch.object(downloader._task_builder, "build_tasks", return_value=tasks):
+            with patch.object(
+                downloader._task_builder, "build_tasks", return_value=tasks
+            ):
                 result = downloader.download_incremental(days_back=1)
                 assert "success_count" in result
 
@@ -102,7 +104,9 @@ class TestBatchDownloader:
             mock_executor_cls.return_value = mock_executor
 
             tasks = []
-            with patch.object(downloader._task_builder, "build_tasks", return_value=tasks):
+            with patch.object(
+                downloader._task_builder, "build_tasks", return_value=tasks
+            ):
                 result = downloader.download_incremental(days_back=1)
                 assert result["failed_count"] == 0  # no tasks, so no failures in result
 

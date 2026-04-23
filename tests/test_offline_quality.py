@@ -303,8 +303,14 @@ class TestCheckAnomalies:
         assert result["anomaly_count"] >= 2
 
         pct_anomaly_dates = [str(a["date"]) for a in result["price_anomalies"]]
-        assert "2024-01-02" in pct_anomaly_dates or "2024-01-02 00:00:00" in pct_anomaly_dates
-        assert "2024-01-03" in pct_anomaly_dates or "2024-01-03 00:00:00" in pct_anomaly_dates
+        assert (
+            "2024-01-02" in pct_anomaly_dates
+            or "2024-01-02 00:00:00" in pct_anomaly_dates
+        )
+        assert (
+            "2024-01-03" in pct_anomaly_dates
+            or "2024-01-03 00:00:00" in pct_anomaly_dates
+        )
 
     def test_anomalies_change_column(self):
         """测试使用 change 列而非 pct_chg"""
@@ -369,7 +375,10 @@ class TestCheckAnomalies:
 
         assert len(result["volume_anomalies"]) >= 1
         volume_anomaly_dates = [str(a["date"]) for a in result["volume_anomalies"]]
-        assert "2024-01-09" in volume_anomaly_dates or "2024-01-09 00:00:00" in volume_anomaly_dates
+        assert (
+            "2024-01-09" in volume_anomaly_dates
+            or "2024-01-09 00:00:00" in volume_anomaly_dates
+        )
 
     def test_anomalies_combined(self):
         """测试综合异常检测"""
@@ -593,7 +602,10 @@ class TestGenerateReport:
         with patch.object(checker.cache_manager, "read", return_value=None):
             result = checker.generate_report("stock_daily")
 
-            assert "Data completeness issues detected" in result["summary"]["critical_issues"]
+            assert (
+                "Data completeness issues detected"
+                in result["summary"]["critical_issues"]
+            )
 
     def test_generate_report_overall_score(self):
         """测试总体评分"""

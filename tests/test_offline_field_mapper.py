@@ -266,11 +266,13 @@ interfaces:
         """Test _analyze_columns with Chinese columns that can be mapped"""
         mapper = FieldMapper.__new__(FieldMapper)
 
-        df = pd.DataFrame({
-            "日期": pd.date_range("2024-01-01", periods=3),
-            "股票代码": ["sh600000", "sh600519", "sh600036"],
-            "收盘": [10.0, 20.0, 30.0],
-        })
+        df = pd.DataFrame(
+            {
+                "日期": pd.date_range("2024-01-01", periods=3),
+                "股票代码": ["sh600000", "sh600519", "sh600036"],
+                "收盘": [10.0, 20.0, 30.0],
+            }
+        )
 
         columns = mapper._analyze_columns(df)
 
@@ -292,11 +294,13 @@ interfaces:
         """Test _analyze_columns with already English columns"""
         mapper = FieldMapper.__new__(FieldMapper)
 
-        df = pd.DataFrame({
-            "date": pd.date_range("2024-01-01", periods=3),
-            "symbol": ["sh600000", "sh600519", "sh600036"],
-            "close": [10.0, 20.0, 30.0],
-        })
+        df = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-01", periods=3),
+                "symbol": ["sh600000", "sh600519", "sh600036"],
+                "close": [10.0, 20.0, 30.0],
+            }
+        )
 
         columns = mapper._analyze_columns(df)
 
@@ -306,10 +310,12 @@ interfaces:
         """Test _analyze_columns with unmapped columns"""
         mapper = FieldMapper.__new__(FieldMapper)
 
-        df = pd.DataFrame({
-            "不明字段": [1, 2, 3],
-            "unknown_col": [4, 5, 6],
-        })
+        df = pd.DataFrame(
+            {
+                "不明字段": [1, 2, 3],
+                "unknown_col": [4, 5, 6],
+            }
+        )
 
         columns = mapper._analyze_columns(df)
 
@@ -332,11 +338,13 @@ interfaces:
         symbol: sh600000
 """)
 
-        mock_df = pd.DataFrame({
-            "日期": pd.date_range("2024-01-01", periods=3),
-            "股票代码": ["sh600000"] * 3,
-            "收盘": [10.0, 20.0, 30.0],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "日期": pd.date_range("2024-01-01", periods=3),
+                "股票代码": ["sh600000"] * 3,
+                "收盘": [10.0, 20.0, 30.0],
+            }
+        )
 
         mock_ak = MagicMock()
         mock_ak.stock_zh_a_daily = MagicMock(return_value=mock_df)
@@ -344,7 +352,9 @@ interfaces:
         mapper = FieldMapper(registry_path=registry_file)
         mapper.ak = mock_ak
 
-        result = mapper.analyze_interface("stock_zh_a_daily", {"probe": {"params": {"symbol": "sh600000"}}})
+        result = mapper.analyze_interface(
+            "stock_zh_a_daily", {"probe": {"params": {"symbol": "sh600000"}}}
+        )
 
         assert result.status == "success"
         assert result.row_count == 3
@@ -445,9 +455,11 @@ interfaces:
       params: {}
 """)
 
-        mock_df = pd.DataFrame({
-            "日期": pd.date_range("2024-01-01", periods=3),
-        })
+        mock_df = pd.DataFrame(
+            {
+                "日期": pd.date_range("2024-01-01", periods=3),
+            }
+        )
 
         mock_ak = MagicMock()
         mock_ak.func1 = MagicMock(return_value=mock_df)
@@ -476,9 +488,11 @@ interfaces:
           日期: date
 """)
 
-        mock_df = pd.DataFrame({
-            "日期": pd.date_range("2024-01-01", periods=3),
-        })
+        mock_df = pd.DataFrame(
+            {
+                "日期": pd.date_range("2024-01-01", periods=3),
+            }
+        )
 
         mock_ak = MagicMock()
         mock_ak.func1 = MagicMock(return_value=mock_df)
@@ -493,7 +507,9 @@ interfaces:
 
     def test_generate_report(self, tmp_path):
         """Test generate_report method"""
-        mapper = FieldMapper(registry_path=tmp_path / "registry.yaml", output_dir=tmp_path)
+        mapper = FieldMapper(
+            registry_path=tmp_path / "registry.yaml", output_dir=tmp_path
+        )
 
         result1 = InterfaceFieldResult(
             interface_name="func1",
@@ -504,9 +520,27 @@ interfaces:
             row_count=10,
             exec_time=1.0,
             columns=[
-                {"original_name": "日期", "mapped_name": "date", "is_mapped": True, "dtype": "object", "sample_value": "2024-01-01"},
-                {"original_name": "代码", "mapped_name": "symbol", "is_mapped": True, "dtype": "object", "sample_value": "sh600000"},
-                {"original_name": "未知", "mapped_name": None, "is_mapped": False, "dtype": "object", "sample_value": "val"},
+                {
+                    "original_name": "日期",
+                    "mapped_name": "date",
+                    "is_mapped": True,
+                    "dtype": "object",
+                    "sample_value": "2024-01-01",
+                },
+                {
+                    "original_name": "代码",
+                    "mapped_name": "symbol",
+                    "is_mapped": True,
+                    "dtype": "object",
+                    "sample_value": "sh600000",
+                },
+                {
+                    "original_name": "未知",
+                    "mapped_name": None,
+                    "is_mapped": False,
+                    "dtype": "object",
+                    "sample_value": "val",
+                },
             ],
             output_mapping={"日期": "date", "代码": "symbol"},
         )
@@ -532,7 +566,9 @@ interfaces:
 
     def test_export_unmapped_csv(self, tmp_path):
         """Test export_unmapped_csv method"""
-        mapper = FieldMapper(registry_path=tmp_path / "registry.yaml", output_dir=tmp_path)
+        mapper = FieldMapper(
+            registry_path=tmp_path / "registry.yaml", output_dir=tmp_path
+        )
 
         result = InterfaceFieldResult(
             interface_name="func1",
@@ -541,7 +577,13 @@ interfaces:
             mapped_columns=0,
             unmapped_columns=1,
             columns=[
-                {"original_name": "未知字段", "mapped_name": None, "is_mapped": False, "dtype": "object", "sample_value": "test"},
+                {
+                    "original_name": "未知字段",
+                    "mapped_name": None,
+                    "is_mapped": False,
+                    "dtype": "object",
+                    "sample_value": "test",
+                },
             ],
         )
 
@@ -555,7 +597,9 @@ interfaces:
 
     def test_export_mappings_json(self, tmp_path):
         """Test export_mappings_json method"""
-        mapper = FieldMapper(registry_path=tmp_path / "registry.yaml", output_dir=tmp_path)
+        mapper = FieldMapper(
+            registry_path=tmp_path / "registry.yaml", output_dir=tmp_path
+        )
 
         result = InterfaceFieldResult(
             interface_name="func1",
@@ -629,12 +673,18 @@ interfaces:
         output_dir = tmp_path / "output"
         output_dir.mkdir()
 
-        with patch("sys.argv", [
-            "field_mapper",
-            "--registry", str(registry_file),
-            "--output-dir", str(output_dir),
-            "--sample-size", "1",
-        ]):
+        with patch(
+            "sys.argv",
+            [
+                "field_mapper",
+                "--registry",
+                str(registry_file),
+                "--output-dir",
+                str(output_dir),
+                "--sample-size",
+                "1",
+            ],
+        ):
             with patch("time.sleep"):
                 main()
 
@@ -646,20 +696,28 @@ interfaces:
         output_dir.mkdir()
 
         mappings_file = output_dir / "field_mappings.json"
-        mappings_file.write_text(json.dumps({
-            "func1": {
-                "output_mapping": {"日期": "date"},
-                "total_columns": 1,
-                "mapped_columns": 1,
-                "unmapped_columns": 0,
-            }
-        }))
+        mappings_file.write_text(
+            json.dumps(
+                {
+                    "func1": {
+                        "output_mapping": {"日期": "date"},
+                        "total_columns": 1,
+                        "mapped_columns": 1,
+                        "unmapped_columns": 0,
+                    }
+                }
+            )
+        )
 
-        with patch("sys.argv", [
-            "field_mapper",
-            "--output-dir", str(output_dir),
-            "--report-only",
-        ]):
+        with patch(
+            "sys.argv",
+            [
+                "field_mapper",
+                "--output-dir",
+                str(output_dir),
+                "--report-only",
+            ],
+        ):
             main()
 
     def test_main_report_only_no_file(self, tmp_path):
@@ -669,10 +727,14 @@ interfaces:
         output_dir = tmp_path / "output"
         output_dir.mkdir()
 
-        with patch("sys.argv", [
-            "field_mapper",
-            "--output-dir", str(output_dir),
-            "--report-only",
-        ]):
+        with patch(
+            "sys.argv",
+            [
+                "field_mapper",
+                "--output-dir",
+                str(output_dir),
+                "--report-only",
+            ],
+        ):
             with patch("akshare_data.offline.field_mapper.logger"):
                 main()

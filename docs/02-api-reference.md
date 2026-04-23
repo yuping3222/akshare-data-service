@@ -278,6 +278,89 @@ df = service.cn.stock.quote.daily("000001", "2024-01-01", "2024-12-31")
 | Tushare | `"600519.SH"` | `.SH`=上交所 / `.SZ`=深交所 |
 | BaoStock | `"sh.600519"` | 带点前缀 |
 
+## 服务层查询契约 (Service Query Contract)
+
+自 v0.3.0 起，服务层提供基于标准实体 schema 的查询契约，字段说明来自字段字典，不再手写散落注释。
+
+```python
+from akshare_data.service.query_contract import (
+    get_contract,
+    MarketQuoteDailyParams,
+    QueryExecutor,
+    QueryResult,
+)
+from akshare_data.service.error_mapper import ErrorMapper, ServiceErrorCategory
+from akshare_data.service.docgen import generate_markdown, generate_all_markdown
+
+# 查询数据集契约
+contract = get_contract("market_quote_daily")
+print(contract.schema.primary_key)  # ['security_id', 'trade_date', 'adjust_type']
+
+# 构建查询参数（自动校验）
+params = MarketQuoteDailyParams(
+    security_id="000001",
+    start_date="2024-01-01",
+    end_date="2024-12-31",
+    adjust_type="qfq",
+    fields=["trade_date", "close_price", "volume"],
+    sort_by="trade_date",
+    sort_order="desc",
+    limit=100,
+)
+params.validate(contract.schema)  # 抛出 QueryContractError 如果参数非法
+
+# 生成文档（绑定字段字典）
+md = generate_markdown("market_quote_daily")
+all_md = generate_all_markdown()
+```
+
+### 错误语义
+
+服务层清晰区分以下错误类型：
+
+| 错误类型 | 异常类 | 说明 |
+|----------|--------|------|
+| 参数错误 | `QueryContractError` | 参数格式错误、字段不存在、日期范围非法 |
+| 无数据 | `NoDataError` | 查询范围内确实没有数据记录 |
+| 数据未发布 | `DataNotPublishedError` | 数据集尚未通过质量门禁发布到 Served 层 |
+| 质量阻断 | `QualityBlockedError` | 最新批次质量门禁未通过，数据被阻断 |
+| 版本不存在 | `VersionNotFoundError` | 指定的 release_version 不存在 |
+
+```python
+from akshare_data.service.query_contract import (
+    DataNotPublishedError,
+    QualityBlockedError,
+    QueryContractError,
+    VersionNotFoundError,
+)
+from akshare_data.service.error_mapper import ErrorMapper
+
+try:
+    ...
+except QueryContractError as e:
+    # 参数问题，客户端应修正请求
+    ...
+except DataNotPublishedError as e:
+    # 数据尚未发布，不是"没数据"
+    ...
+except QualityBlockedError as e:
+    # 质量门禁阻断，可查看 failed_rules
+    print(e.failed_rules)
+except VersionNotFoundError as e:
+    # 请求的版本不存在
+    ...
+except NoDataError:
+    # 数据已发布，但查询范围为空
+    ...
+
+# 统一错误映射
+response = ErrorMapper.map_error(exc, dataset="market_quote_daily")
+print(response.to_dict())
+# {"category": "param_error", "code": "3003_INVALID_PARAMETER", ...}
+```
+
+---
+
 ## 错误处理
 
 详见 [10-错误处理](10-error-handling.md)。所有方法支持 `source` 参数指定数据源，失败时抛出 `DataAccessException` 子类异常。

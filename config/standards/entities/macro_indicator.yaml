@@ -1,0 +1,147 @@
+# Entity: macro_indicator
+#
+# 宏观指标标准实体配置
+# 优先级: P0
+#
+# 加载方：
+#   - governance catalog：实体注册
+#   - quality DSL：规则字段引用
+#   - service docgen：输出字段文档
+#   - normalizer：schema 校验与 merge
+
+version: '1.0'
+
+entity: macro_indicator
+description: 宏观指标（GDP、CPI、PMI 等）
+priority: P0
+storage_layer: daily
+
+# ---------------------------------------------------------------------------
+# 主键与分区
+# ---------------------------------------------------------------------------
+primary_key:
+  - indicator_code
+  - observation_date
+
+partition_by:
+  - indicator_code
+  - observation_date
+
+# ---------------------------------------------------------------------------
+# 时间字段
+# ---------------------------------------------------------------------------
+time_fields:
+  observation_date:
+    description: 统计观测期
+    role: business
+  publish_date:
+    description: 官方发布时间
+    role: business
+    nullable: true
+  ingest_time:
+    description: 入库时间
+    role: system
+
+# ---------------------------------------------------------------------------
+# 必填字段
+# ---------------------------------------------------------------------------
+required_fields:
+  - indicator_code
+  - indicator_name
+  - frequency
+  - observation_date
+  - value
+
+# ---------------------------------------------------------------------------
+# 字段定义
+# ---------------------------------------------------------------------------
+fields:
+  indicator_code:
+    type: string
+    description: 宏观指标代码
+    required: true
+
+  indicator_name:
+    type: string
+    description: 宏观指标名称
+    required: true
+
+  frequency:
+    type: string
+    description: 数据频率（D/W/M/Q/Y）
+    required: true
+
+  region:
+    type: string
+    description: 地区/国家
+    required: false
+
+  observation_date:
+    type: date
+    description: 统计观测期
+    required: true
+
+  publish_date:
+    type: date
+    description: 官方发布时间
+    required: false
+
+  value:
+    type: double
+    description: 指标观测值
+    unit: by indicator
+    required: true
+
+  value_yoy_pct:
+    type: double
+    description: 同比增速
+    unit: pct
+    required: false
+
+  value_mom_pct:
+    type: double
+    description: 环比增速
+    unit: pct
+    required: false
+
+  unit:
+    type: string
+    description: 指标单位
+    required: false
+
+  source_org:
+    type: string
+    description: 发布机构
+    required: false
+
+# ---------------------------------------------------------------------------
+# 系统字段（所有 Standardized / Served 数据集统一）
+# ---------------------------------------------------------------------------
+system_fields:
+  batch_id:
+    type: string
+    required: true
+  source_name:
+    type: string
+    required: true
+  interface_name:
+    type: string
+    required: true
+  ingest_time:
+    type: timestamp
+    required: true
+  normalize_version:
+    type: string
+    required: true
+  schema_version:
+    type: string
+    required: true
+  quality_status:
+    type: string
+    required: true
+  publish_time:
+    type: timestamp
+    required: false
+  release_version:
+    type: string
+    required: false

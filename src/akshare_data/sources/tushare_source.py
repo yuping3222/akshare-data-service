@@ -190,7 +190,9 @@ class TushareAdapter(DataSource):
             return self._normalize_daily_df(df)
 
         except (KeyError, IndexError, ValueError) as e:
-            logger.error(f"[Tushare] Auth or parsing error in get_daily_data for {symbol}: {e}")
+            logger.error(
+                f"[Tushare] Auth or parsing error in get_daily_data for {symbol}: {e}"
+            )
             raise SourceUnavailableError(
                 f"Tushare auth or parsing error: {e}",
                 error_code=ErrorCode.SOURCE_AUTH_FAILED,
@@ -236,7 +238,9 @@ class TushareAdapter(DataSource):
             return result
 
         except (KeyError, IndexError, ValueError) as e:
-            logger.error(f"[Tushare] Auth or parsing error in get_index_stocks for {index_code}: {e}")
+            logger.error(
+                f"[Tushare] Auth or parsing error in get_index_stocks for {index_code}: {e}"
+            )
             raise SourceUnavailableError(
                 f"Tushare auth or parsing error: {e}",
                 error_code=ErrorCode.SOURCE_AUTH_FAILED,
@@ -297,7 +301,9 @@ class TushareAdapter(DataSource):
             return result
 
         except (KeyError, IndexError, ValueError) as e:
-            logger.error(f"[Tushare] Auth or parsing error in get_index_components for {index_code}: {e}")
+            logger.error(
+                f"[Tushare] Auth or parsing error in get_index_components for {index_code}: {e}"
+            )
             raise SourceUnavailableError(
                 f"Tushare auth or parsing error: {e}",
                 error_code=ErrorCode.SOURCE_AUTH_FAILED,
@@ -437,7 +443,9 @@ class TushareAdapter(DataSource):
             }
 
         except (KeyError, IndexError, ValueError) as e:
-            logger.error(f"[Tushare] Auth or parsing error in get_security_info for {symbol}: {e}")
+            logger.error(
+                f"[Tushare] Auth or parsing error in get_security_info for {symbol}: {e}"
+            )
             raise SourceUnavailableError(
                 f"Tushare auth or parsing error: {e}",
                 error_code=ErrorCode.SOURCE_AUTH_FAILED,
@@ -483,7 +491,9 @@ class TushareAdapter(DataSource):
             return df
 
         except (KeyError, IndexError, ValueError) as e:
-            logger.error(f"[Tushare] Auth or parsing error in get_money_flow for {symbol}: {e}")
+            logger.error(
+                f"[Tushare] Auth or parsing error in get_money_flow for {symbol}: {e}"
+            )
             raise SourceUnavailableError(
                 f"Tushare auth or parsing error: {e}",
                 error_code=ErrorCode.SOURCE_AUTH_FAILED,
@@ -516,7 +526,9 @@ class TushareAdapter(DataSource):
             return df
 
         except (KeyError, IndexError, ValueError) as e:
-            logger.error(f"[Tushare] Auth or parsing error in get_north_money_flow: {e}")
+            logger.error(
+                f"[Tushare] Auth or parsing error in get_north_money_flow: {e}"
+            )
             raise SourceUnavailableError(
                 f"Tushare auth or parsing error: {e}",
                 error_code=ErrorCode.SOURCE_AUTH_FAILED,
@@ -583,7 +595,9 @@ class TushareAdapter(DataSource):
             return df
 
         except (KeyError, IndexError, ValueError) as e:
-            logger.error(f"[Tushare] Auth or parsing error in get_finance_indicator for {symbol}: {e}")
+            logger.error(
+                f"[Tushare] Auth or parsing error in get_finance_indicator for {symbol}: {e}"
+            )
             raise SourceUnavailableError(
                 f"Tushare auth or parsing error: {e}",
                 error_code=ErrorCode.SOURCE_AUTH_FAILED,
@@ -656,7 +670,9 @@ class TushareAdapter(DataSource):
             )
 
         except (KeyError, IndexError, ValueError) as e:
-            logger.error(f"[Tushare] Auth or parsing error in get_stock_pe_pb for {symbol}: {e}")
+            logger.error(
+                f"[Tushare] Auth or parsing error in get_stock_pe_pb for {symbol}: {e}"
+            )
             raise SourceUnavailableError(
                 f"Tushare auth or parsing error: {e}",
                 error_code=ErrorCode.SOURCE_AUTH_FAILED,
@@ -701,7 +717,9 @@ class TushareAdapter(DataSource):
             return df
 
         except (KeyError, IndexError, ValueError) as e:
-            logger.error(f"[Tushare] Auth or parsing error in get_financial_report for {symbol}: {e}")
+            logger.error(
+                f"[Tushare] Auth or parsing error in get_financial_report for {symbol}: {e}"
+            )
             raise SourceUnavailableError(
                 f"Tushare auth or parsing error: {e}",
                 error_code=ErrorCode.SOURCE_AUTH_FAILED,
@@ -727,7 +745,9 @@ class TushareAdapter(DataSource):
             return df
 
         except (KeyError, IndexError, ValueError) as e:
-            logger.error(f"[Tushare] Auth or parsing error in get_dividend for {symbol}: {e}")
+            logger.error(
+                f"[Tushare] Auth or parsing error in get_dividend for {symbol}: {e}"
+            )
             raise SourceUnavailableError(
                 f"Tushare auth or parsing error: {e}",
                 error_code=ErrorCode.SOURCE_AUTH_FAILED,
@@ -753,7 +773,9 @@ class TushareAdapter(DataSource):
             return df
 
         except (KeyError, IndexError, ValueError) as e:
-            logger.error(f"[Tushare] Auth or parsing error in get_top10_holders for {symbol}: {e}")
+            logger.error(
+                f"[Tushare] Auth or parsing error in get_top10_holders for {symbol}: {e}"
+            )
             raise SourceUnavailableError(
                 f"Tushare auth or parsing error: {e}",
                 error_code=ErrorCode.SOURCE_AUTH_FAILED,
@@ -779,7 +801,9 @@ class TushareAdapter(DataSource):
             return df
 
         except (KeyError, IndexError, ValueError) as e:
-            logger.error(f"[Tushare] Auth or parsing error in get_top10_float_holders for {symbol}: {e}")
+            logger.error(
+                f"[Tushare] Auth or parsing error in get_top10_float_holders for {symbol}: {e}"
+            )
             raise SourceUnavailableError(
                 f"Tushare auth or parsing error: {e}",
                 error_code=ErrorCode.SOURCE_AUTH_FAILED,
@@ -852,7 +876,9 @@ class TushareAdapter(DataSource):
             return df
 
         except (KeyError, IndexError, ValueError) as e:
-            logger.error(f"[Tushare] Auth or parsing error in get_macro_raw for {indicator}: {e}")
+            logger.error(
+                f"[Tushare] Auth or parsing error in get_macro_raw for {indicator}: {e}"
+            )
             raise SourceUnavailableError(
                 f"Tushare auth or parsing error: {e}",
                 error_code=ErrorCode.SOURCE_AUTH_FAILED,

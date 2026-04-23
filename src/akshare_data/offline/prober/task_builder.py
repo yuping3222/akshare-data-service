@@ -15,6 +15,7 @@ from akshare_data.offline.prober.checkpoint import DEFAULT_STABLE_TTL
 @dataclass
 class ValidationResult:
     """验证结果"""
+
     func_name: str
     domain_group: str
     status: str
@@ -29,6 +30,7 @@ class ValidationResult:
 @dataclass
 class ProbeTask:
     """探测任务"""
+
     func_name: str
     func: Callable
     params: Dict[str, Any]

@@ -47,7 +47,9 @@ class TaskExecutor:
 
         return ValidationResult(
             func_name=task.func_name,
-            domain_group=task.func_name.split("_")[0] if "_" in task.func_name else "default",
+            domain_group=task.func_name.split("_")[0]
+            if "_" in task.func_name
+            else "default",
             status=status,
             error_msg=error or "",
             exec_time=exec_time,
@@ -58,9 +60,7 @@ class TaskExecutor:
         )
 
     @retry(_RETRY_CONFIG)
-    def _call_with_retry(
-        self, func: Callable, kwargs: Dict[str, Any]
-    ) -> Any:
+    def _call_with_retry(self, func: Callable, kwargs: Dict[str, Any]) -> Any:
         """带重试和符号回退的调用"""
         try:
             return func(**kwargs)

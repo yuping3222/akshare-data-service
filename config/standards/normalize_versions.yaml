@@ -1,0 +1,89 @@
+# Normalize Version Registry
+#
+# Tracks the current and historical normalize_version for each
+# (dataset, source) pair. Updated whenever field mapping rules change.
+#
+# Consumers:
+#   - MappingLoader: resolves current normalize_version for a dataset+source
+#   - Normalizers: inject normalize_version into system fields
+#   - Lineage: traces which version produced a given record
+#   - Tests: validates mapping completeness per version
+#
+# Versioning rules:
+#   - Versions are monotonically increasing: v1, v2, v3, ...
+#   - Each entry records changed_from (previous version) and change_reason
+#   - current: true marks the active version for new normalizations
+#   - Historical versions remain for replay/backfill of old batches
+
+version: '1.0'
+
+datasets:
+
+  # -----------------------------------------------------------------------
+  # market_quote_daily
+  # -----------------------------------------------------------------------
+  market_quote_daily:
+    entity: market_quote_daily
+    schema_version: v1
+    sources:
+      akshare:
+        current_version: v1
+        versions:
+          v1:
+            mapping_version: v1
+            current: true
+            effective_from: '2026-04-22'
+            changed_from: null
+            change_reason: "Initial mapping — akshare_em + akshare_sina"
+      lixinger:
+        current_version: v1
+        versions:
+          v1:
+            mapping_version: v1
+            current: true
+            effective_from: '2026-04-22'
+            changed_from: null
+            change_reason: "Initial mapping"
+      tushare:
+        current_version: v1
+        versions:
+          v1:
+            mapping_version: v1
+            current: true
+            effective_from: '2026-04-22'
+            changed_from: null
+            change_reason: "Initial mapping"
+
+  # -----------------------------------------------------------------------
+  # financial_indicator
+  # -----------------------------------------------------------------------
+  financial_indicator:
+    entity: financial_indicator
+    schema_version: v1
+    sources:
+      akshare:
+        current_version: v1
+        versions:
+          v1:
+            mapping_version: v1
+            current: true
+            effective_from: '2026-04-22'
+            changed_from: null
+            change_reason: "Initial mapping — akshare_em financial analysis indicator"
+
+  # -----------------------------------------------------------------------
+  # macro_indicator
+  # -----------------------------------------------------------------------
+  macro_indicator:
+    entity: macro_indicator
+    schema_version: v1
+    sources:
+      akshare:
+        current_version: v1
+        versions:
+          v1:
+            mapping_version: v1
+            current: true
+            effective_from: '2026-04-22'
+            changed_from: null
+            change_reason: "Initial mapping — cpi/gdp/pmi/lpr/ppi/m2 interfaces"

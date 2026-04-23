@@ -24,6 +24,7 @@ from akshare_data.offline.core import config_loader, data_loader, errors, paths,
 # errors.py 测试
 # =============================================================================
 
+
 class TestOfflineErrors:
     """OfflineError 异常类测试"""
 
@@ -70,6 +71,7 @@ class TestOfflineErrors:
 # =============================================================================
 # paths.py 测试
 # =============================================================================
+
 
 @pytest.fixture(autouse=True)
 def reset_paths_singleton():
@@ -322,7 +324,7 @@ class TestPathsEnsureDirs:
         test_root = Path("/test_ensure")
         p = paths.Paths(test_root)
 
-        with patch.object(Path, 'mkdir') as mock_mkdir:
+        with patch.object(Path, "mkdir") as mock_mkdir:
             p.ensure_dirs()
             assert mock_mkdir.call_count > 0
 
@@ -330,6 +332,7 @@ class TestPathsEnsureDirs:
 # =============================================================================
 # config_loader.py 测试
 # =============================================================================
+
 
 class TestConfigLoaderInit:
     """ConfigLoader 初始化测试"""
@@ -347,10 +350,10 @@ class TestConfigLoaderLoadYaml:
         """测试使用缓存"""
         loader = config_loader.ConfigLoader()
         test_path = Path("/test/config.yaml")
-        loader._cache['/test/config.yaml'] = {'key': 'value'}
+        loader._cache["/test/config.yaml"] = {"key": "value"}
 
         result = loader.load_yaml(test_path)
-        assert result == {'key': 'value'}
+        assert result == {"key": "value"}
 
     def test_load_yaml_no_cache(self):
         """测试无缓存时加载文件"""
@@ -360,18 +363,18 @@ class TestConfigLoaderLoadYaml:
 
         yaml_content = "key: value"
 
-        with patch('pathlib.Path.exists', return_value=True):
-            with patch('builtins.open', mock_open(read_data=yaml_content)):
-                with patch('yaml.safe_load', return_value={'key': 'value'}):
+        with patch("pathlib.Path.exists", return_value=True):
+            with patch("builtins.open", mock_open(read_data=yaml_content)):
+                with patch("yaml.safe_load", return_value={"key": "value"}):
                     result = loader.load_yaml(test_path, use_cache=False)
-                    assert result == {'key': 'value'}
+                    assert result == {"key": "value"}
 
     def test_load_yaml_file_not_found(self):
         """测试文件不存在"""
         loader = config_loader.ConfigLoader()
         test_path = Path("/nonexistent/config.yaml")
 
-        with patch('pathlib.Path.exists', return_value=False):
+        with patch("pathlib.Path.exists", return_value=False):
             with pytest.raises(errors.ConfigError, match="Config file not found"):
                 loader.load_yaml(test_path)
 
@@ -380,10 +383,12 @@ class TestConfigLoaderLoadYaml:
         loader = config_loader.ConfigLoader()
         test_path = Path("/test/bad.yaml")
 
-        with patch('pathlib.Path.exists', return_value=True):
-            with patch('builtins.open', mock_open(read_data="invalid: yaml: content:")):
-                with patch('yaml.safe_load', side_effect=yaml.YAMLError("parse error")):
-                    with pytest.raises(errors.ConfigError, match="Failed to parse YAML"):
+        with patch("pathlib.Path.exists", return_value=True):
+            with patch("builtins.open", mock_open(read_data="invalid: yaml: content:")):
+                with patch("yaml.safe_load", side_effect=yaml.YAMLError("parse error")):
+                    with pytest.raises(
+                        errors.ConfigError, match="Failed to parse YAML"
+                    ):
                         loader.load_yaml(test_path)
 
     def test_load_yaml_caches_result(self):
@@ -393,11 +398,11 @@ class TestConfigLoaderLoadYaml:
         loader._cache = {}
         yaml_content = "key: value"
 
-        with patch('pathlib.Path.exists', return_value=True):
-            with patch('builtins.open', mock_open(read_data=yaml_content)):
-                with patch('yaml.safe_load', return_value={'key': 'value'}):
+        with patch("pathlib.Path.exists", return_value=True):
+            with patch("builtins.open", mock_open(read_data=yaml_content)):
+                with patch("yaml.safe_load", return_value={"key": "value"}):
                     loader.load_yaml(test_path, use_cache=True)
-                    assert '/test/config.yaml' in loader._cache
+                    assert "/test/config.yaml" in loader._cache
 
 
 class TestConfigLoaderLoadRegistry:
@@ -407,21 +412,21 @@ class TestConfigLoaderLoadRegistry:
         """测试带分类的加载"""
         loader = config_loader.ConfigLoader()
 
-        with patch('akshare_data.offline.core.config_loader.ConfigCache') as mock_cache:
-            mock_cache.load_registry.return_value = {'key': 'value'}
+        with patch("akshare_data.offline.core.config_loader.ConfigCache") as mock_cache:
+            mock_cache.load_registry.return_value = {"key": "value"}
             result = loader.load_registry("stocks")
             mock_cache.load_registry.assert_called_once()
-            assert result == {'key': 'value'}
+            assert result == {"key": "value"}
 
     def test_load_registry_without_category(self):
         """测试不带分类的加载"""
         loader = config_loader.ConfigLoader()
 
-        with patch('akshare_data.offline.core.config_loader.ConfigCache') as mock_cache:
-            mock_cache.load_registry.return_value = {'key': 'base'}
+        with patch("akshare_data.offline.core.config_loader.ConfigCache") as mock_cache:
+            mock_cache.load_registry.return_value = {"key": "base"}
             result = loader.load_registry()
             mock_cache.load_registry.assert_called_once()
-            assert result == {'key': 'base'}
+            assert result == {"key": "base"}
 
 
 class TestConfigLoaderLoadAllRegistries:
@@ -447,14 +452,14 @@ class TestConfigLoaderLoadAllRegistries:
         mock_registry_dir.glob.return_value = mock_glob_iterator
 
         def load_yaml_side_effect(file_path, use_cache=True):
-            return {'data': 'value'}
+            return {"data": "value"}
 
-        with patch.object(config_loader, 'paths') as mock_paths_obj:
+        with patch.object(config_loader, "paths") as mock_paths_obj:
             mock_paths_obj.registry_dir = mock_registry_dir
-            with patch.object(loader, 'load_yaml', side_effect=load_yaml_side_effect):
+            with patch.object(loader, "load_yaml", side_effect=load_yaml_side_effect):
                 result = loader.load_all_registries()
-                assert 'stocks' in result
-                assert 'funds' in result
+                assert "stocks" in result
+                assert "funds" in result
 
     def test_load_all_registries_skips_underscore_files(self):
         """测试跳过下划线开头的文件"""
@@ -471,13 +476,13 @@ class TestConfigLoaderLoadAllRegistries:
         mock_registry_dir.glob.return_value = mock_glob_iterator
 
         def load_yaml_side_effect(file_path, use_cache=True):
-            return {'data': 'value'}
+            return {"data": "value"}
 
-        with patch.object(config_loader, 'paths') as mock_paths_obj:
+        with patch.object(config_loader, "paths") as mock_paths_obj:
             mock_paths_obj.registry_dir = mock_registry_dir
-            with patch.object(loader, 'load_yaml', side_effect=load_yaml_side_effect):
+            with patch.object(loader, "load_yaml", side_effect=load_yaml_side_effect):
                 result = loader.load_all_registries()
-                assert '_base' not in result
+                assert "_base" not in result
 
     def test_load_all_registries_dir_not_found(self):
         """测试注册表目录不存在"""
@@ -486,9 +491,11 @@ class TestConfigLoaderLoadAllRegistries:
         mock_registry_dir = MagicMock()
         mock_registry_dir.exists.return_value = False
 
-        with patch.object(config_loader, 'paths') as mock_paths_obj:
+        with patch.object(config_loader, "paths") as mock_paths_obj:
             mock_paths_obj.registry_dir = mock_registry_dir
-            with pytest.raises(errors.ConfigError, match="Registry directory not found"):
+            with pytest.raises(
+                errors.ConfigError, match="Registry directory not found"
+            ):
                 loader.load_all_registries()
 
 
@@ -499,11 +506,11 @@ class TestConfigLoaderLoadDomains:
         """测试加载域名配置"""
         loader = config_loader.ConfigLoader()
 
-        with patch.object(loader, 'load_yaml', return_value={'sina': 10}) as mock_load:
-            with patch('akshare_data.offline.core.paths.paths') as mock_paths:
+        with patch.object(loader, "load_yaml", return_value={"sina": 10}) as mock_load:
+            with patch("akshare_data.offline.core.paths.paths") as mock_paths:
                 mock_paths.domains_file = Path("/test/sources/domains.yaml")
                 result = loader.load_domains()
-                assert result == {'sina': 10}
+                assert result == {"sina": 10}
 
 
 class TestConfigLoaderLoadFailover:
@@ -513,11 +520,13 @@ class TestConfigLoaderLoadFailover:
         """测试加载切源配置"""
         loader = config_loader.ConfigLoader()
 
-        with patch.object(loader, 'load_yaml', return_value={'enabled': True}) as mock_load:
-            with patch('akshare_data.offline.core.paths.paths') as mock_paths:
+        with patch.object(
+            loader, "load_yaml", return_value={"enabled": True}
+        ) as mock_load:
+            with patch("akshare_data.offline.core.paths.paths") as mock_paths:
                 mock_paths.failover_file = Path("/test/sources/failover.yaml")
                 result = loader.load_failover()
-                assert result == {'enabled': True}
+                assert result == {"enabled": True}
 
 
 class TestConfigLoaderLoadPriority:
@@ -527,11 +536,13 @@ class TestConfigLoaderLoadPriority:
         """测试加载优先级配置"""
         loader = config_loader.ConfigLoader()
 
-        with patch.object(loader, 'load_yaml', return_value={'priority': 1}) as mock_load:
-            with patch('akshare_data.offline.core.paths.paths') as mock_paths:
+        with patch.object(
+            loader, "load_yaml", return_value={"priority": 1}
+        ) as mock_load:
+            with patch("akshare_data.offline.core.paths.paths") as mock_paths:
                 mock_paths.priority_file = Path("/test/download/priority.yaml")
                 result = loader.load_priority()
-                assert result == {'priority': 1}
+                assert result == {"priority": 1}
 
 
 class TestConfigLoaderLoadSchedule:
@@ -541,11 +552,13 @@ class TestConfigLoaderLoadSchedule:
         """测试加载调度配置"""
         loader = config_loader.ConfigLoader()
 
-        with patch.object(loader, 'load_yaml', return_value={'schedule': 'daily'}) as mock_load:
-            with patch('akshare_data.offline.core.paths.paths') as mock_paths:
+        with patch.object(
+            loader, "load_yaml", return_value={"schedule": "daily"}
+        ) as mock_load:
+            with patch("akshare_data.offline.core.paths.paths") as mock_paths:
                 mock_paths.schedule_file = Path("/test/download/schedule.yaml")
                 result = loader.load_schedule()
-                assert result == {'schedule': 'daily'}
+                assert result == {"schedule": "daily"}
 
 
 class TestConfigLoaderLoadProberConfig:
@@ -555,11 +568,13 @@ class TestConfigLoaderLoadProberConfig:
         """测试加载探测配置"""
         loader = config_loader.ConfigLoader()
 
-        with patch.object(loader, 'load_yaml', return_value={'timeout': 30}) as mock_load:
-            with patch('akshare_data.offline.core.paths.paths') as mock_paths:
+        with patch.object(
+            loader, "load_yaml", return_value={"timeout": 30}
+        ) as mock_load:
+            with patch("akshare_data.offline.core.paths.paths") as mock_paths:
                 mock_paths.prober_config_file = Path("/test/prober/config.yaml")
                 result = loader.load_prober_config()
-                assert result == {'timeout': 30}
+                assert result == {"timeout": 30}
 
 
 class TestConfigLoaderLoadProberState:
@@ -569,11 +584,13 @@ class TestConfigLoaderLoadProberState:
         """测试加载探测状态"""
         loader = config_loader.ConfigLoader()
 
-        with patch.object(loader, 'load_yaml', return_value={'last_probe': '2024-01-01'}) as mock_load:
-            with patch('akshare_data.offline.core.paths.paths') as mock_paths:
+        with patch.object(
+            loader, "load_yaml", return_value={"last_probe": "2024-01-01"}
+        ) as mock_load:
+            with patch("akshare_data.offline.core.paths.paths") as mock_paths:
                 mock_paths.prober_state_file = Path("/test/prober/state.json")
                 result = loader.load_prober_state()
-                assert result == {'last_probe': '2024-01-01'}
+                assert result == {"last_probe": "2024-01-01"}
 
 
 class TestConfigLoaderInvalidateCache:
@@ -582,16 +599,16 @@ class TestConfigLoaderInvalidateCache:
     def test_invalidate_cache_specific_file(self):
         """测试清除特定文件缓存"""
         loader = config_loader.ConfigLoader()
-        loader._cache = {'/test/file1.yaml': {}, '/test/file2.yaml': {}}
+        loader._cache = {"/test/file1.yaml": {}, "/test/file2.yaml": {}}
 
         loader.invalidate_cache(Path("/test/file1.yaml"))
-        assert '/test/file1.yaml' not in loader._cache
-        assert '/test/file2.yaml' in loader._cache
+        assert "/test/file1.yaml" not in loader._cache
+        assert "/test/file2.yaml" in loader._cache
 
     def test_invalidate_cache_all(self):
         """测试清除所有缓存"""
         loader = config_loader.ConfigLoader()
-        loader._cache = {'/test/file1.yaml': {}, '/test/file2.yaml': {}}
+        loader._cache = {"/test/file1.yaml": {}, "/test/file2.yaml": {}}
 
         loader.invalidate_cache()
         assert loader._cache == {}
@@ -600,6 +617,7 @@ class TestConfigLoaderInvalidateCache:
 # =============================================================================
 # retry.py 测试
 # =============================================================================
+
 
 class TestRetryConfig:
     """RetryConfig 测试"""
@@ -697,7 +715,11 @@ class TestRetryDecorator:
         """测试只捕获指定的异常类型"""
         call_count = 0
 
-        @retry.retry(config=retry.RetryConfig(max_retries=1, delay=0.01, exceptions=(ValueError,)))
+        @retry.retry(
+            config=retry.RetryConfig(
+                max_retries=1, delay=0.01, exceptions=(ValueError,)
+            )
+        )
         def type_error_func():
             nonlocal call_count
             call_count += 1
@@ -727,26 +749,33 @@ class TestRetryDecorator:
 # data_loader.py 测试
 # =============================================================================
 
+
 class TestLoadTable:
     """load_table 测试"""
 
     def test_load_table_with_specific_layer(self):
         """测试加载指定层"""
         mock_manager = MagicMock()
-        mock_df = pd.DataFrame({'col': [1, 2, 3]})
+        mock_df = pd.DataFrame({"col": [1, 2, 3]})
         mock_manager.read.return_value = mock_df
 
-        with patch('akshare_data.store.manager.get_cache_manager', return_value=mock_manager):
+        with patch(
+            "akshare_data.store.manager.get_cache_manager", return_value=mock_manager
+        ):
             result = data_loader.load_table("test_table", layer="daily")
             assert not result.empty
-            mock_manager.read.assert_called_once_with("test_table", storage_layer="daily")
+            mock_manager.read.assert_called_once_with(
+                "test_table", storage_layer="daily"
+            )
 
     def test_load_table_with_empty_df(self):
         """测试加载返回空 DataFrame"""
         mock_manager = MagicMock()
         mock_manager.read.return_value = pd.DataFrame()
 
-        with patch('akshare_data.store.manager.get_cache_manager', return_value=mock_manager):
+        with patch(
+            "akshare_data.store.manager.get_cache_manager", return_value=mock_manager
+        ):
             result = data_loader.load_table("test_table", layer="daily")
             assert result.empty
 
@@ -755,17 +784,21 @@ class TestLoadTable:
         mock_manager = MagicMock()
         mock_manager.read.return_value = None
 
-        with patch('akshare_data.store.manager.get_cache_manager', return_value=mock_manager):
+        with patch(
+            "akshare_data.store.manager.get_cache_manager", return_value=mock_manager
+        ):
             result = data_loader.load_table("test_table", layer="daily")
             assert result.empty
 
     def test_load_table_falls_back_through_layers(self):
         """测试遍历所有层"""
         mock_manager = MagicMock()
-        mock_manager.read.side_effect = [None, pd.DataFrame({'col': [1]})]
+        mock_manager.read.side_effect = [None, pd.DataFrame({"col": [1]})]
 
-        with patch('akshare_data.store.manager.get_cache_manager', return_value=mock_manager):
-            with patch('akshare_data.offline.core.data_loader.logger'):
+        with patch(
+            "akshare_data.store.manager.get_cache_manager", return_value=mock_manager
+        ):
+            with patch("akshare_data.offline.core.data_loader.logger"):
                 result = data_loader.load_table("test_table")
                 assert not result.empty
 
@@ -774,7 +807,9 @@ class TestLoadTable:
         mock_manager = MagicMock()
         mock_manager.read.return_value = None
 
-        with patch('akshare_data.store.manager.get_cache_manager', return_value=mock_manager):
+        with patch(
+            "akshare_data.store.manager.get_cache_manager", return_value=mock_manager
+        ):
             result = data_loader.load_table("nonexistent_table")
             assert result.empty
             assert "No cached data found" in capture_akshare_logs.getvalue()
@@ -787,6 +822,8 @@ class TestGetCacheManagerInstance:
         """测试返回 CacheManager 实例"""
         mock_instance = MagicMock()
 
-        with patch('akshare_data.store.manager.CacheManager', return_value=mock_instance):
+        with patch(
+            "akshare_data.store.manager.CacheManager", return_value=mock_instance
+        ):
             result = data_loader.get_cache_manager_instance()
             assert result is mock_instance

@@ -18,7 +18,9 @@ class FullCacheStrategy(CacheStrategy):
     def should_fetch(self, cached: pd.DataFrame | None, **params) -> bool:
         return cached is None or cached.empty
 
-    def merge(self, cached: pd.DataFrame | None, fresh: pd.DataFrame, **params) -> pd.DataFrame:
+    def merge(
+        self, cached: pd.DataFrame | None, fresh: pd.DataFrame, **params
+    ) -> pd.DataFrame:
         return fresh
 
     def build_where(self, **params) -> dict[str, Any]:

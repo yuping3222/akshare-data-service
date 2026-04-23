@@ -353,9 +353,7 @@ class TestTokenManagerResolutionOrder:
         cfg.write_text("TUSHARE_TOKEN=cfg-token\n")
         with patch.object(self.tm, "_find_token_cfg", return_value=cfg):
             self.tm._token_cfg_cache = None
-            with patch.dict(
-                os.environ, {"TUSHARE_TOKEN": "env-token"}, clear=False
-            ):
+            with patch.dict(os.environ, {"TUSHARE_TOKEN": "env-token"}, clear=False):
                 assert self.tm.get_token("tushare") == "env-token"
 
     def test_cfg_used_as_fallback(self, tmp_path):

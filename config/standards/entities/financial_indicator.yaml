@@ -1,0 +1,184 @@
+# Entity: financial_indicator
+#
+# 财务指标标准实体配置
+# 优先级: P0
+#
+# 加载方：
+#   - governance catalog：实体注册
+#   - quality DSL：规则字段引用
+#   - service docgen：输出字段文档
+#   - normalizer：schema 校验与 merge
+
+version: '1.0'
+
+entity: financial_indicator
+description: 财务指标（市盈率、ROE、净利润等）
+priority: P0
+storage_layer: daily
+
+# ---------------------------------------------------------------------------
+# 主键与分区
+# ---------------------------------------------------------------------------
+primary_key:
+  - security_id
+  - report_date
+  - report_type
+
+partition_by:
+  - report_date
+
+# ---------------------------------------------------------------------------
+# 时间字段
+# ---------------------------------------------------------------------------
+time_fields:
+  report_date:
+    description: 报告期截止日
+    role: business
+  publish_date:
+    description: 公告发布日期
+    role: business
+    nullable: true
+  ingest_time:
+    description: 入库时间
+    role: system
+
+# ---------------------------------------------------------------------------
+# 必填字段
+# ---------------------------------------------------------------------------
+required_fields:
+  - security_id
+  - report_date
+  - report_type
+
+# ---------------------------------------------------------------------------
+# 字段定义
+# ---------------------------------------------------------------------------
+fields:
+  security_id:
+    type: string
+    description: 证券唯一标识
+    required: true
+
+  report_date:
+    type: date
+    description: 报告期截止日
+    required: true
+
+  report_type:
+    type: string
+    description: 报告类型（如 Q1/H1/Q3/A）
+    required: true
+
+  publish_date:
+    type: date
+    description: 公告发布日期
+    required: false
+
+  currency:
+    type: string
+    description: 币种
+    required: false
+
+  pe_ratio_ttm:
+    type: double
+    description: 市盈率（TTM）
+    unit: ratio
+    required: false
+
+  pb_ratio:
+    type: double
+    description: 市净率
+    unit: ratio
+    required: false
+
+  ps_ratio_ttm:
+    type: double
+    description: 市销率（TTM）
+    unit: ratio
+    required: false
+
+  roe_pct:
+    type: double
+    description: 净资产收益率
+    unit: pct
+    required: false
+
+  roa_pct:
+    type: double
+    description: 总资产收益率
+    unit: pct
+    required: false
+
+  net_profit:
+    type: double
+    description: 净利润
+    unit: CNY
+    required: false
+
+  revenue:
+    type: double
+    description: 营业收入
+    unit: CNY
+    required: false
+
+  total_assets:
+    type: double
+    description: 总资产
+    unit: CNY
+    required: false
+
+  total_equity:
+    type: double
+    description: 所有者权益
+    unit: CNY
+    required: false
+
+  debt_ratio_pct:
+    type: double
+    description: 资产负债率
+    unit: pct
+    required: false
+
+  gross_margin_pct:
+    type: double
+    description: 毛利率
+    unit: pct
+    required: false
+
+  net_margin_pct:
+    type: double
+    description: 净利率
+    unit: pct
+    required: false
+
+# ---------------------------------------------------------------------------
+# 系统字段（所有 Standardized / Served 数据集统一）
+# ---------------------------------------------------------------------------
+system_fields:
+  batch_id:
+    type: string
+    required: true
+  source_name:
+    type: string
+    required: true
+  interface_name:
+    type: string
+    required: true
+  ingest_time:
+    type: timestamp
+    required: true
+  normalize_version:
+    type: string
+    required: true
+  schema_version:
+    type: string
+    required: true
+  quality_status:
+    type: string
+    required: true
+  publish_time:
+    type: timestamp
+    required: false
+  release_version:
+    type: string
+    required: false

@@ -33,7 +33,9 @@ from akshare_data.offline.downloader import (
 class TestRateLimiter:
     """RateLimiter 限速器测试 — skipped; old RateLimiter class removed."""
 
-    @pytest.mark.skip(reason="TODO: RateLimiter class removed; DomainRateLimiter has different API (wait/set_interval/get_interval/reset). Rewrite against actual DomainRateLimiter.")
+    @pytest.mark.skip(
+        reason="TODO: RateLimiter class removed; DomainRateLimiter has different API (wait/set_interval/get_interval/reset). Rewrite against actual DomainRateLimiter."
+    )
     def test_init_with_domain_config(self):
         limiter = RateLimiter("example.com", max_calls=10, time_window=1.0)
         assert limiter.domain == "example.com"
@@ -50,11 +52,15 @@ class TestRateLimiter:
     def test_acquire_resets_after_time_window(self):
         pass
 
-    @pytest.mark.skip(reason="TODO: wait_if_needed replaced by DomainRateLimiter.wait().")
+    @pytest.mark.skip(
+        reason="TODO: wait_if_needed replaced by DomainRateLimiter.wait()."
+    )
     def test_wait_if_needed_returns_immediately_when_allowed(self):
         pass
 
-    @pytest.mark.skip(reason="TODO: wait_if_needed replaced by DomainRateLimiter.wait().")
+    @pytest.mark.skip(
+        reason="TODO: wait_if_needed replaced by DomainRateLimiter.wait()."
+    )
     def test_wait_if_needed_blocks_when_limited(self):
         pass
 
@@ -107,7 +113,9 @@ class TestBatchDownloaderUpdateOne:
         dl = BatchDownloader(cache_manager=mock_cache, max_workers=2, batch_size=2)
         yield dl
 
-    @pytest.mark.skip(reason="TODO: _update_one() removed; execution now uses TaskExecutor.execute(). Adapt test to mock TaskExecutor or use download_incremental/download_full.")
+    @pytest.mark.skip(
+        reason="TODO: _update_one() removed; execution now uses TaskExecutor.execute(). Adapt test to mock TaskExecutor or use download_incremental/download_full."
+    )
     def test_update_success_with_data(self, downloader):
         pass
 
@@ -145,13 +153,21 @@ class TestBatchDownloaderIncremental:
         """测试提供股票列表的增量更新 — adapted: mock TaskExecutor.execute"""
         with patch.object(downloader._task_builder, "build_tasks") as mock_build:
             from akshare_data.offline.downloader.task_builder import DownloadTask
+
             mock_build.return_value = [
-                DownloadTask(interface="iface1", func="ak.func1", table="t1", kwargs={"a": 1}),
-                DownloadTask(interface="iface2", func="ak.func2", table="t2", kwargs={"b": 2}),
+                DownloadTask(
+                    interface="iface1", func="ak.func1", table="t1", kwargs={"a": 1}
+                ),
+                DownloadTask(
+                    interface="iface2", func="ak.func2", table="t2", kwargs={"b": 2}
+                ),
             ]
 
             mock_result = {"success": True, "rows": 10, "task": "iface1"}
-            with patch("akshare_data.offline.downloader.executor.TaskExecutor.execute", return_value=mock_result):
+            with patch(
+                "akshare_data.offline.downloader.executor.TaskExecutor.execute",
+                return_value=mock_result,
+            ):
                 result = downloader.download_incremental(
                     stock_list=["600000", "600001"],
                     start="2024-01-01",
@@ -175,11 +191,17 @@ class TestBatchDownloaderIncremental:
         """测试自动日期计算 — adapted: mock task execution"""
         with patch.object(downloader._task_builder, "build_tasks") as mock_build:
             from akshare_data.offline.downloader.task_builder import DownloadTask
+
             mock_build.return_value = [
-                DownloadTask(interface="iface1", func="ak.func1", table="t1", kwargs={}),
+                DownloadTask(
+                    interface="iface1", func="ak.func1", table="t1", kwargs={}
+                ),
             ]
             mock_result = {"success": True, "rows": 5, "task": "iface1"}
-            with patch("akshare_data.offline.downloader.executor.TaskExecutor.execute", return_value=mock_result):
+            with patch(
+                "akshare_data.offline.downloader.executor.TaskExecutor.execute",
+                return_value=mock_result,
+            ):
                 result = downloader.download_incremental(days_back=3)
 
         assert result["success_count"] == 1
@@ -189,20 +211,33 @@ class TestBatchDownloaderIncremental:
         """测试包含失败任务 — adapted: mock TaskExecutor with mixed results"""
         with patch.object(downloader._task_builder, "build_tasks") as mock_build:
             from akshare_data.offline.downloader.task_builder import DownloadTask
+
             mock_build.return_value = [
-                DownloadTask(interface="iface_ok", func="ak.func1", table="t1", kwargs={}),
-                DownloadTask(interface="iface_fail", func="ak.func2", table="t2", kwargs={}),
+                DownloadTask(
+                    interface="iface_ok", func="ak.func1", table="t1", kwargs={}
+                ),
+                DownloadTask(
+                    interface="iface_fail", func="ak.func2", table="t2", kwargs={}
+                ),
             ]
 
             call_count = [0]
+
             def fake_execute(task):
                 call_count[0] += 1
                 if call_count[0] == 1:
                     return {"success": True, "rows": 5, "task": task.interface}
                 else:
-                    return {"success": False, "error": "API Error", "task": task.interface}
+                    return {
+                        "success": False,
+                        "error": "API Error",
+                        "task": task.interface,
+                    }
 
-            with patch("akshare_data.offline.downloader.executor.TaskExecutor.execute", side_effect=fake_execute):
+            with patch(
+                "akshare_data.offline.downloader.executor.TaskExecutor.execute",
+                side_effect=fake_execute,
+            ):
                 result = downloader.download_incremental(start="2024-01-01")
 
         assert result["success_count"] == 1
@@ -228,13 +263,21 @@ class TestBatchDownloaderFullMarket:
         """测试全量下载成功 — adapted: use download_full(), mock TaskExecutor"""
         with patch.object(downloader._task_builder, "build_tasks") as mock_build:
             from akshare_data.offline.downloader.task_builder import DownloadTask
+
             mock_build.return_value = [
-                DownloadTask(interface="iface1", func="ak.func1", table="t1", kwargs={}),
-                DownloadTask(interface="iface2", func="ak.func2", table="t2", kwargs={}),
+                DownloadTask(
+                    interface="iface1", func="ak.func1", table="t1", kwargs={}
+                ),
+                DownloadTask(
+                    interface="iface2", func="ak.func2", table="t2", kwargs={}
+                ),
             ]
 
             mock_result = {"success": True, "rows": 10, "task": "iface1"}
-            with patch("akshare_data.offline.downloader.executor.TaskExecutor.execute", return_value=mock_result):
+            with patch(
+                "akshare_data.offline.downloader.executor.TaskExecutor.execute",
+                return_value=mock_result,
+            ):
                 result = downloader.download_full(
                     interfaces=["iface1", "iface2"],
                     start="2024-01-01",
@@ -246,8 +289,12 @@ class TestBatchDownloaderFullMarket:
 
     def test_full_download_default_interfaces(self, downloader):
         """测试默认接口列表 — when interfaces=None, uses registry keys[:20]"""
-        downloader._registry = {"interfaces": {f"iface{i}": {"func": f"func{i}"} for i in range(5)}}
-        with patch.object(downloader._task_builder, "build_tasks", return_value=[]) as mock_build:
+        downloader._registry = {
+            "interfaces": {f"iface{i}": {"func": f"func{i}"} for i in range(5)}
+        }
+        with patch.object(
+            downloader._task_builder, "build_tasks", return_value=[]
+        ) as mock_build:
             downloader.download_full()
             mock_build.assert_called_once()
             args = mock_build.call_args[0]
@@ -258,13 +305,19 @@ class TestBatchDownloaderFullMarket:
         """测试缓存场景 — adapted: mock executor to simulate cache skip via empty data result"""
         with patch.object(downloader._task_builder, "build_tasks") as mock_build:
             from akshare_data.offline.downloader.task_builder import DownloadTask
+
             mock_build.return_value = [
-                DownloadTask(interface="iface1", func="ak.func1", table="t1", kwargs={}),
+                DownloadTask(
+                    interface="iface1", func="ak.func1", table="t1", kwargs={}
+                ),
             ]
 
             # Executor returns failure (empty data -> simulates "already cached / nothing new")
             mock_result = {"success": False, "error": "Empty data", "task": "iface1"}
-            with patch("akshare_data.offline.downloader.executor.TaskExecutor.execute", return_value=mock_result):
+            with patch(
+                "akshare_data.offline.downloader.executor.TaskExecutor.execute",
+                return_value=mock_result,
+            ):
                 result = downloader.download_full(
                     interfaces=["iface1"],
                     start="2024-01-01",
@@ -278,11 +331,17 @@ class TestBatchDownloaderFullMarket:
         """测试强制更新参数 — force flag passed through"""
         with patch.object(downloader._task_builder, "build_tasks") as mock_build:
             from akshare_data.offline.downloader.task_builder import DownloadTask
+
             mock_build.return_value = [
-                DownloadTask(interface="iface1", func="ak.func1", table="t1", kwargs={}),
+                DownloadTask(
+                    interface="iface1", func="ak.func1", table="t1", kwargs={}
+                ),
             ]
             mock_result = {"success": True, "rows": 10, "task": "iface1"}
-            with patch("akshare_data.offline.downloader.executor.TaskExecutor.execute", return_value=mock_result):
+            with patch(
+                "akshare_data.offline.downloader.executor.TaskExecutor.execute",
+                return_value=mock_result,
+            ):
                 result = downloader.download_full(
                     interfaces=["iface1"],
                     start="2024-01-01",
@@ -304,7 +363,9 @@ class TestBatchDownloaderByIndex:
         dl = BatchDownloader(cache_manager=mock_cache, max_workers=2)
         yield dl
 
-    @pytest.mark.skip(reason="TODO: download_by_index() does not exist in current API. Equivalent functionality: download_full(interfaces=...) or download_incremental(). Adapt test.")
+    @pytest.mark.skip(
+        reason="TODO: download_by_index() does not exist in current API. Equivalent functionality: download_full(interfaces=...) or download_incremental(). Adapt test."
+    )
     def test_download_by_index_success(self, downloader):
         pass
 
@@ -329,7 +390,9 @@ class TestBatchDownloaderBatch:
         dl = BatchDownloader(cache_manager=mock_cache, max_workers=2)
         yield dl
 
-    @pytest.mark.skip(reason="TODO: download_batch() does not exist in current API. Equivalent: download_full() or download_incremental(). Adapt test.")
+    @pytest.mark.skip(
+        reason="TODO: download_batch() does not exist in current API. Equivalent: download_full() or download_incremental(). Adapt test."
+    )
     def test_batch_download_success(self, downloader):
         pass
 

@@ -98,6 +98,7 @@ class TestLixingerClient:
                 ):
                     # Also reset the TokenManager singleton to clear any cached state
                     from akshare_data.core.tokens import TokenManager
+
                     TokenManager.reset()
                     token = LixingerClient._load_token()
                     assert token == ""

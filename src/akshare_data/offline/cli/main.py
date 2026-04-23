@@ -55,7 +55,9 @@ def main():
 def _add_download_parser(subparsers):
     parser = subparsers.add_parser("download", help="Download data")
     parser.add_argument("--interface", type=str, help="Interface name")
-    parser.add_argument("--mode", choices=["incremental", "full"], default="incremental")
+    parser.add_argument(
+        "--mode", choices=["incremental", "full"], default="incremental"
+    )
     parser.add_argument("--days", type=int, default=1, help="Days back")
     parser.add_argument("--start", type=str, help="Start date YYYY-MM-DD")
     parser.add_argument("--end", type=str, help="End date YYYY-MM-DD")
@@ -99,6 +101,7 @@ def _handle_download(args):
 
     if args.schedule:
         from akshare_data.offline.scheduler import Scheduler
+
         scheduler = Scheduler()
         scheduler.set_downloader(downloader)
         scheduler.start()
@@ -106,6 +109,7 @@ def _handle_download(args):
         try:
             while True:
                 import time
+
                 time.sleep(1)
         except KeyboardInterrupt:
             scheduler.stop()
@@ -135,7 +139,9 @@ def _handle_probe(args):
         if results:
             print(f"Last probe results ({len(results)} interfaces):")
             for func_name, r in results.items():
-                print(f"  {func_name}: {r['status']} ({r['exec_time']:.2f}s, {r['data_size']} rows)")
+                print(
+                    f"  {func_name}: {r['status']} ({r['exec_time']:.2f}s, {r['data_size']} rows)"
+                )
         print(f"Summary: {prober.get_summary()}")
         return
 
@@ -151,11 +157,14 @@ def _handle_probe(args):
 
     results = prober.get_results()
     for func_name, result in results.items():
-        print(f"  {func_name}: {result.status} ({result.exec_time:.2f}s, {result.data_size} rows)")
+        print(
+            f"  {func_name}: {result.status} ({result.exec_time:.2f}s, {result.data_size} rows)"
+        )
         if result.error_msg:
             print(f"    Error: {result.error_msg}")
 
     from akshare_data.offline.report import HealthReportGenerator
+
     report_data = {}
     for func_name, result in results.items():
         report_data[func_name] = {
@@ -175,6 +184,7 @@ def _handle_analyze(args):
     """处理分析命令"""
     if args.type == "logs":
         from akshare_data.offline.analyzer import CallStatsAnalyzer
+
         analyzer = CallStatsAnalyzer()
         result = analyzer.analyze(window_days=args.window)
         print(f"Analysis completed: {len(result.get('priorities', {}))} interfaces")
@@ -196,6 +206,7 @@ def _handle_analyze(args):
         if date_col and date_col in df.columns:
             import pandas as pd
             from datetime import datetime, timedelta
+
             dates = pd.to_datetime(df[date_col]).dropna().sort_values()
             if len(dates) > 0:
                 min_date = dates.min()
@@ -207,7 +218,9 @@ def _handle_analyze(args):
                     current += timedelta(days=1)
 
         checker = CompletenessChecker()
-        result = checker.check(df, expected_dates=expected_dates if expected_dates else None)
+        result = checker.check(
+            df, expected_dates=expected_dates if expected_dates else None
+        )
 
         print(f"=== Cache Completeness Analysis: {args.table} ===")
         print(f"Total records: {result['total_records']}")
@@ -222,6 +235,7 @@ def _handle_analyze(args):
 
     elif args.type == "fields":
         from akshare_data.offline.analyzer import FieldMapper
+
         mapper = FieldMapper()
         mapper.analyze_all(category=args.category, sample_size=50)
         report = mapper.generate_report()
@@ -258,7 +272,10 @@ def _handle_report(args):
             print("Error: --table required for quality report")
             sys.exit(1)
         from akshare_data.offline.report import QualityReportGenerator
-        from akshare_data.offline.analyzer.cache_analysis import CompletenessChecker, AnomalyDetector
+        from akshare_data.offline.analyzer.cache_analysis import (
+            CompletenessChecker,
+            AnomalyDetector,
+        )
 
         df = _load_table_data(args.table)
         checker = CompletenessChecker()
@@ -276,7 +293,9 @@ def _handle_report(args):
             },
             "summary": {
                 "total_records": len(df) if df is not None and not df.empty else 0,
-                "columns": df.columns.tolist() if df is not None and not df.empty else [],
+                "columns": df.columns.tolist()
+                if df is not None and not df.empty
+                else [],
                 "has_data": df is not None and not df.empty,
             },
         }
@@ -322,10 +341,13 @@ def _handle_report(args):
             }
             if total > 0:
                 import pandas as pd
+
                 df = pd.DataFrame(probe_results)
                 if "exec_time" in df.columns:
                     slowest = df.sort_values("exec_time", ascending=False).head(10)
-                    sections["Top 10 Slowest APIs"] = slowest[["func_name", "exec_time", "status"]]
+                    sections["Top 10 Slowest APIs"] = slowest[
+                        ["func_name", "exec_time", "status"]
+                    ]
         else:
             sections["API Health Overview"] = {
                 "Status": "No probe data available",
@@ -341,11 +363,13 @@ def _load_table_data(table_name: str):
     """尝试从缓存加载表数据，如果没有则返回空 DataFrame"""
     try:
         from akshare_data.offline.core.data_loader import load_table
+
         return load_table(table_name)
     except Exception:
         pass
 
     import pandas as pd
+
     logger.warning(f"No cached data found for table: {table_name}, using empty dataset")
     return pd.DataFrame()
 
@@ -354,6 +378,7 @@ def _handle_config(args):
     """处理配置命令"""
     if args.action == "generate":
         from akshare_data.offline.registry import RegistryBuilder, RegistryExporter
+
         builder = RegistryBuilder()
         registry = builder.build()
         exporter = RegistryExporter()
@@ -362,9 +387,11 @@ def _handle_config(args):
 
     elif args.action == "validate":
         from akshare_data.offline.registry import RegistryValidator
+
         validator = RegistryValidator()
         import yaml
         from akshare_data.offline.core.paths import paths
+
         try:
             with open(paths.legacy_registry_file, "r") as f:
                 registry = yaml.safe_load(f)
@@ -381,7 +408,12 @@ def _handle_config(args):
             print("Validation passed")
 
     elif args.action == "merge":
-        from akshare_data.offline.registry import RegistryBuilder, RegistryMerger, RegistryExporter
+        from akshare_data.offline.registry import (
+            RegistryBuilder,
+            RegistryMerger,
+            RegistryExporter,
+        )
+
         builder = RegistryBuilder()
         registry = builder.build()
         merger = RegistryMerger()

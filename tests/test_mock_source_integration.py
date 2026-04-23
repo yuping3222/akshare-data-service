@@ -28,6 +28,7 @@ from akshare_data.store.manager import CacheManager, reset_cache_manager
 # Helpers
 # ===================================================================
 
+
 @pytest.fixture
 def mock_source():
     """Create a seeded MockSource for deterministic data."""
@@ -52,6 +53,7 @@ def mock_service(mock_source):
 # ===================================================================
 # Test class
 # ===================================================================
+
 
 @pytest.mark.integration
 class TestMockSourceDataService:
@@ -98,7 +100,8 @@ class TestMockSourceDataService:
         # Second call — should not re-fetch (cache hit).  We can verify by
         # patching the source to raise if called.
         with patch.object(
-            mock_service._custom_source, "get_daily_data",
+            mock_service._custom_source,
+            "get_daily_data",
             side_effect=RuntimeError("should not be called"),
         ):
             df2 = mock_service.get_daily("000001", "2024-06-01", "2024-06-14")
@@ -119,8 +122,10 @@ class TestMockSourceDataService:
     def test_get_minute_returns_data(self, mock_service):
         """get_minute returns data from MockSource."""
         df = mock_service.get_minute(
-            "000001", freq="1min",
-            start_date="2024-01-01", end_date="2024-01-05",
+            "000001",
+            freq="1min",
+            start_date="2024-01-01",
+            end_date="2024-01-05",
         )
         assert isinstance(df, pd.DataFrame)
         # MockSource.get_minute_data delegates to get_daily_data
@@ -181,7 +186,9 @@ class TestMockSourceDataService:
     def test_namespace_daily_via_mock(self, mock_service):
         """service.cn.stock.quote.daily works with MockSource."""
         df = mock_service.cn.stock.quote.daily(
-            "000001", "2024-01-01", "2024-01-10",
+            "000001",
+            "2024-01-01",
+            "2024-01-10",
         )
         assert isinstance(df, pd.DataFrame)
         assert not df.empty
@@ -189,22 +196,28 @@ class TestMockSourceDataService:
     def test_namespace_minute_via_mock(self, mock_service):
         """service.cn.stock.quote.minute works with MockSource."""
         df = mock_service.cn.stock.quote.minute(
-            "000001", freq="1min",
-            start_date="2024-01-01", end_date="2024-01-05",
+            "000001",
+            freq="1min",
+            start_date="2024-01-01",
+            end_date="2024-01-05",
         )
         assert isinstance(df, pd.DataFrame)
 
     def test_namespace_index_via_mock(self, mock_service):
         """service.cn.index.quote.daily works with MockSource."""
         df = mock_service.cn.index.quote.daily(
-            "000300", "2024-01-01", "2024-01-10",
+            "000300",
+            "2024-01-01",
+            "2024-01-10",
         )
         assert isinstance(df, pd.DataFrame)
 
     def test_namespace_etf_via_mock(self, mock_service):
         """service.cn.fund.quote.daily works with MockSource."""
         df = mock_service.cn.fund.quote.daily(
-            "510300", "2024-01-01", "2024-01-10",
+            "510300",
+            "2024-01-01",
+            "2024-01-10",
         )
         assert isinstance(df, pd.DataFrame)
 
@@ -233,7 +246,8 @@ class TestMockSourceDataService:
 
         # Subsequent request for a subset should not re-fetch
         with patch.object(
-            mock_service._custom_source, "get_daily_data",
+            mock_service._custom_source,
+            "get_daily_data",
             side_effect=RuntimeError("should not be called"),
         ):
             result = mock_service.get_daily("000001", "2024-06-01", "2024-06-05")
@@ -244,7 +258,10 @@ class TestMockSourceDataService:
     def test_explicit_source_selection(self, mock_service):
         """Passing source='mock' explicitly works."""
         df = mock_service.get_daily(
-            "000001", "2024-01-01", "2024-01-05", source="mock",
+            "000001",
+            "2024-01-01",
+            "2024-01-05",
+            source="mock",
         )
         assert isinstance(df, pd.DataFrame)
 

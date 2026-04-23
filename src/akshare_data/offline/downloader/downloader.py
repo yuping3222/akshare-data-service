@@ -84,14 +84,20 @@ class BatchDownloader:
 
         all_interfaces = self._registry.get("interfaces", {})
         incremental_interfaces = [
-            name for name, defn in all_interfaces.items()
-            if any(p in (defn.get("signature") or []) for p in ("start_date", "end_date", "date"))
+            name
+            for name, defn in all_interfaces.items()
+            if any(
+                p in (defn.get("signature") or [])
+                for p in ("start_date", "end_date", "date")
+            )
         ][:10]
 
         if not incremental_interfaces:
             incremental_interfaces = list(all_interfaces.keys())[:10]
 
-        tasks = self._task_builder.build_tasks(incremental_interfaces, start, end, self._registry)
+        tasks = self._task_builder.build_tasks(
+            incremental_interfaces, start, end, self._registry
+        )
 
         return self._execute_tasks(tasks, progress_callback)
 
@@ -133,7 +139,9 @@ class BatchDownloader:
                     success_count += 1
                 else:
                     failed_count += 1
-                    failed_stocks.append((result.get("task", "unknown"), result.get("error", "")))
+                    failed_stocks.append(
+                        (result.get("task", "unknown"), result.get("error", ""))
+                    )
                 tracker.update(success=result.get("success", False))
 
         summary = tracker.finish()
@@ -146,6 +154,7 @@ class BatchDownloader:
     def _get_stock_list_static() -> List[str]:
         """获取A股代码列表"""
         import akshare as ak
+
         try:
             df = ak.stock_zh_a_spot_em()
             return df["代码"].tolist()[:100]
@@ -156,6 +165,7 @@ class BatchDownloader:
     def _get_symbol_list_static(category: str) -> List[str]:
         """按类别获取代码列表"""
         import akshare as ak
+
         try:
             if category == "index":
                 df = ak.stock_zh_index_spot_em()

@@ -123,14 +123,14 @@ class TestDockerComposeStructure:
             "docker-compose should define a healthcheck for akshare-data service"
         )
 
-    def test_docker_compose_healthcheck_imports_service(self, compose_content: str) -> None:
+    def test_docker_compose_healthcheck_imports_service(
+        self, compose_content: str
+    ) -> None:
         """Healthcheck imports akshare_data and initializes service."""
         assert "import akshare_data" in compose_content, (
             "Healthcheck should import akshare_data"
         )
-        assert "get_service" in compose_content, (
-            "Healthcheck should call get_service()"
-        )
+        assert "get_service" in compose_content, "Healthcheck should call get_service()"
 
     def test_docker_compose_memory_limits(self, compose_yaml: dict) -> None:
         """docker-compose.yml defines memory limits."""
@@ -166,9 +166,12 @@ class TestDockerImportTest:
         """Docker image builds successfully."""
         result = subprocess.run(
             [
-                "docker", "build",
-                "-t", "akshare-data-service:test",
-                "-f", str(project_root / "Dockerfile"),
+                "docker",
+                "build",
+                "-t",
+                "akshare-data-service:test",
+                "-f",
+                str(project_root / "Dockerfile"),
                 str(project_root),
             ],
             capture_output=True,
@@ -184,9 +187,12 @@ class TestDockerImportTest:
         """akshare_data can be imported in Docker container."""
         subprocess.run(
             [
-                "docker", "build",
-                "-t", "akshare-data-service:test",
-                "-f", str(project_root / "Dockerfile"),
+                "docker",
+                "build",
+                "-t",
+                "akshare-data-service:test",
+                "-f",
+                str(project_root / "Dockerfile"),
                 str(project_root),
             ],
             capture_output=True,
@@ -196,10 +202,13 @@ class TestDockerImportTest:
 
         result = subprocess.run(
             [
-                "docker", "run",
+                "docker",
+                "run",
                 "--rm",
                 "akshare-data-service:test",
-                "python", "-c", "import akshare_data; print('Import OK')",
+                "python",
+                "-c",
+                "import akshare_data; print('Import OK')",
             ],
             capture_output=True,
             text=True,
@@ -215,9 +224,12 @@ class TestDockerImportTest:
         """DataService can be initialized in Docker container."""
         subprocess.run(
             [
-                "docker", "build",
-                "-t", "akshare-data-service:test",
-                "-f", str(project_root / "Dockerfile"),
+                "docker",
+                "build",
+                "-t",
+                "akshare-data-service:test",
+                "-f",
+                str(project_root / "Dockerfile"),
                 str(project_root),
             ],
             capture_output=True,
@@ -227,10 +239,12 @@ class TestDockerImportTest:
 
         result = subprocess.run(
             [
-                "docker", "run",
+                "docker",
+                "run",
                 "--rm",
                 "akshare-data-service:test",
-                "python", "-c",
+                "python",
+                "-c",
                 "from akshare_data import DataService; s = DataService(); print('Service OK:', type(s))",
             ],
             capture_output=True,
@@ -247,9 +261,12 @@ class TestDockerImportTest:
         """Namespace API (cn, macro) is available in container."""
         subprocess.run(
             [
-                "docker", "build",
-                "-t", "akshare-data-service:test",
-                "-f", str(project_root / "Dockerfile"),
+                "docker",
+                "build",
+                "-t",
+                "akshare-data-service:test",
+                "-f",
+                str(project_root / "Dockerfile"),
                 str(project_root),
             ],
             capture_output=True,
@@ -259,10 +276,12 @@ class TestDockerImportTest:
 
         result = subprocess.run(
             [
-                "docker", "run",
+                "docker",
+                "run",
                 "--rm",
                 "akshare-data-service:test",
-                "python", "-c",
+                "python",
+                "-c",
                 (
                     "from akshare_data import DataService; "
                     "s = DataService(); "
@@ -288,20 +307,24 @@ class TestLocalImportSanity:
     def test_import_akshare_data(self) -> None:
         """akshare_data package imports without error."""
         import akshare_data
+
         assert akshare_data is not None
 
     def test_import_data_service(self) -> None:
         """DataService class is importable."""
         from akshare_data import DataService
+
         assert DataService is not None
 
     def test_get_service_module_level(self) -> None:
         """get_service() module-level function works."""
         import akshare_data
+
         svc = akshare_data.get_service()
         assert svc is not None
 
     def test_get_daily_module_level(self) -> None:
         """get_daily() module-level function is available."""
         import akshare_data
+
         assert hasattr(akshare_data, "get_daily")

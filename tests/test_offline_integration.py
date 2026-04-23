@@ -1,4 +1,5 @@
 """Integration tests for offline tools — prober, scanner, scheduler with real data."""
+
 import pytest
 import pandas as pd
 
@@ -37,7 +38,7 @@ class TestAkShareScanner:
     def test_scanner_has_interfaces(self):
         """Test that scanner can discover interfaces."""
         scanner = AkShareScanner()
-        if hasattr(scanner, 'list_interfaces'):
+        if hasattr(scanner, "list_interfaces"):
             interfaces = scanner.list_interfaces()
             assert isinstance(interfaces, list)
             assert len(interfaces) > 0
@@ -104,4 +105,4 @@ class TestFailoverManager:
     def test_failover_has_methods(self):
         mgr = FailoverManager()
         # Just verify the class can be instantiated and has expected interface
-        assert hasattr(mgr, '__class__')
+        assert hasattr(mgr, "__class__")

@@ -1,4 +1,8 @@
-"""数据质量检查模块"""
+"""数据质量检查模块
+
+Legacy quality checker for cache tables.  Scoring is now delegated to
+the rule-based ``RuleBasedScorer`` in ``akshare_data.quality.scoring``.
+"""
 
 from __future__ import annotations
 
@@ -7,7 +11,9 @@ from typing import Any, Dict, List, Optional
 
 import pandas as pd
 
-from akshare_data.offline.analyzer.cache_analysis.completeness import CompletenessChecker
+from akshare_data.offline.analyzer.cache_analysis.completeness import (
+    CompletenessChecker,
+)
 from akshare_data.offline.analyzer.cache_analysis.anomaly import AnomalyDetector
 from akshare_data.store.manager import get_cache_manager
 
@@ -72,7 +78,9 @@ class DataQualityChecker:
             missing_dates_count = 0
 
             if expected_trading_days and date_col:
-                actual_dates = set(pd.to_datetime(df[date_col]).dt.strftime("%Y-%m-%d").tolist())
+                actual_dates = set(
+                    pd.to_datetime(df[date_col]).dt.strftime("%Y-%m-%d").tolist()
+                )
                 expected_set = set(expected_trading_days)
                 missing_dates = [d for d in expected_set if d not in actual_dates]
                 missing_dates_count = len(missing_dates)
@@ -83,7 +91,11 @@ class DataQualityChecker:
             total_records = len(df)
             completeness_ratio = 1.0
             if expected_trading_days:
-                completeness_ratio = 1.0 - (missing_dates_count / len(expected_trading_days)) if expected_trading_days else 1.0
+                completeness_ratio = (
+                    1.0 - (missing_dates_count / len(expected_trading_days))
+                    if expected_trading_days
+                    else 1.0
+                )
 
             result = {
                 "has_data": True,
@@ -122,7 +134,13 @@ class DataQualityChecker:
         anomalies = []
         date_col = self._find_date_column(df)
 
-        pct_col = "pct_chg" if "pct_chg" in df.columns else "change" if "change" in df.columns else None
+        pct_col = (
+            "pct_chg"
+            if "pct_chg" in df.columns
+            else "change"
+            if "change" in df.columns
+            else None
+        )
         if pct_col:
             for idx, row in df.iterrows():
                 try:
@@ -198,7 +216,12 @@ class DataQualityChecker:
             df2 = self.cache_manager.read(table2, where={"symbol": symbol})
 
             if df1 is None and df2 is None:
-                return {"consistent": True, "record_count_1": 0, "record_count_2": 0, "common_dates": 0}
+                return {
+                    "consistent": True,
+                    "record_count_1": 0,
+                    "record_count_2": 0,
+                    "common_dates": 0,
+                }
 
             if df1 is None:
                 df1 = pd.DataFrame()
@@ -275,11 +298,15 @@ class DataQualityChecker:
 
         if completeness.get("missing_dates_count", 0) > 0:
             issues_count += 1
-            critical_issues.append(f"Missing dates: {completeness['missing_dates_count']}")
+            critical_issues.append(
+                f"Missing dates: {completeness['missing_dates_count']}"
+            )
 
         if "missing_fields" in completeness:
             issues_count += 1
-            critical_issues.append(f"Missing fields: {', '.join(completeness['missing_fields'])}")
+            critical_issues.append(
+                f"Missing fields: {', '.join(completeness['missing_fields'])}"
+            )
 
         if anomalies.get("anomaly_count", 0) > 0:
             issues_count += 1
@@ -288,11 +315,7 @@ class DataQualityChecker:
         if issues_count == 0:
             critical_issues.append("No critical issues found")
 
-        overall_score = 62.5
-        if completeness.get("is_complete") and anomalies.get("anomaly_count", 0) == 0:
-            overall_score = 100.0
-        elif completeness.get("completeness_ratio", 0) > 0.8:
-            overall_score = 75.0
+        overall_score = self._compute_rule_based_score(completeness, anomalies)
 
         return {
             "timestamp": timestamp,
@@ -305,9 +328,65 @@ class DataQualityChecker:
             "summary": {
                 "overall_score": overall_score,
                 "issues_count": issues_count,
-                "critical_issues": "; ".join(critical_issues) if critical_issues else "No critical issues found",
+                "critical_issues": "; ".join(critical_issues)
+                if critical_issues
+                else "No critical issues found",
             },
         }
+
+    def _compute_rule_based_score(
+        self,
+        completeness: Dict[str, Any],
+        anomalies: Dict[str, Any],
+    ) -> float:
+        """Compute quality score via RuleBasedScorer instead of hardcoded values.
+
+        Translates legacy check results into RuleResult objects so the
+        scoring formula is always weight-driven.
+        """
+        from akshare_data.quality.engine import GateAction, RuleDef, RuleResult, RuleStatus, Severity
+        from akshare_data.quality.scoring import RuleBasedScorer
+
+        results: List[RuleResult] = []
+
+        completeness_ratio = completeness.get("completeness_ratio", 0.0)
+        is_complete = completeness.get("is_complete", False)
+        missing_dates = completeness.get("missing_dates_count", 0)
+        missing_fields = "missing_fields" in completeness
+
+        results.append(RuleResult(
+            rule_id="legacy_completeness_ratio",
+            status=RuleStatus.PASSED if completeness_ratio >= 0.95 else RuleStatus.FAILED,
+            severity=Severity.ERROR,
+            gate_action=GateAction.BLOCK,
+            message=f"Completeness ratio {completeness_ratio:.2%}",
+            failed_count=missing_dates,
+            total_count=max(1, missing_dates + int(completeness_ratio * 100)),
+        ))
+
+        results.append(RuleResult(
+            rule_id="legacy_fields_complete",
+            status=RuleStatus.PASSED if not missing_fields else RuleStatus.FAILED,
+            severity=Severity.ERROR,
+            gate_action=GateAction.BLOCK,
+            message=f"Missing fields: {completeness.get('missing_fields', [])}" if missing_fields else "All required fields present",
+            failed_count=len(completeness.get("missing_fields", [])),
+            total_count=len(self._TABLE_REQUIRED_FIELDS.get("stock_daily", [])),
+        ))
+
+        anomaly_count = anomalies.get("anomaly_count", 0)
+        results.append(RuleResult(
+            rule_id="legacy_anomaly_check",
+            status=RuleStatus.PASSED if anomaly_count == 0 else RuleStatus.FAILED,
+            severity=Severity.WARNING,
+            gate_action=GateAction.ALERT,
+            message=f"{anomaly_count} anomalies detected",
+            failed_count=anomaly_count,
+            total_count=anomalies.get("total_rows", 0),
+        ))
+
+        scorer = RuleBasedScorer()
+        return scorer.compute_score(results)
 
 
 class QualityChecker:
@@ -346,11 +425,17 @@ class QualityChecker:
                 "completeness": 0.0,
             }
 
-        actual_dates = set(pd.to_datetime(df[date_col]).dt.strftime("%Y-%m-%d").tolist())
+        actual_dates = set(
+            pd.to_datetime(df[date_col]).dt.strftime("%Y-%m-%d").tolist()
+        )
         expected_set = set(expected_days)
         missing_days = [d for d in expected_set if d not in actual_dates]
 
-        completeness = (len(expected_set) - len(missing_days)) / len(expected_set) if expected_set else 1.0
+        completeness = (
+            (len(expected_set) - len(missing_days)) / len(expected_set)
+            if expected_set
+            else 1.0
+        )
 
         return {
             "missing_count": len(missing_days),
@@ -408,7 +493,9 @@ class QualityChecker:
                                 break
                         if date_col:
                             date_str = f" on {row[date_col]}"
-                        anomalies.append(f"High < Low{date_str}: high={row['high']}, low={row['low']}")
+                        anomalies.append(
+                            f"High < Low{date_str}: high={row['high']}, low={row['low']}"
+                        )
                 except (ValueError, TypeError):
                     continue
 

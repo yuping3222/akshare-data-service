@@ -107,7 +107,11 @@ class DomainRateLimiter:
                 intervals[key] = value
 
         default_interval = intervals.get("default", 0.5)
-        return cls(intervals=intervals, domain_map=domain_map, default_interval=default_interval)
+        return cls(
+            intervals=intervals,
+            domain_map=domain_map,
+            default_interval=default_interval,
+        )
 
     def _resolve_rate_key(self, domain: str) -> str:
         """Resolve a hostname to its rate limit key."""

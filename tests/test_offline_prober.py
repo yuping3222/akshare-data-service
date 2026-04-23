@@ -395,9 +395,7 @@ class TestAPIProberRetry:
         with patch("akshare_data.offline.prober.BASE_DIR", str(temp_prober_dirs)):
             with patch("time.sleep"):
                 prober = APIProber()
-                data = prober.call_with_retry(
-                    mock_func, {"symbol": "bad_symbol"}
-                )
+                data = prober.call_with_retry(mock_func, {"symbol": "bad_symbol"})
                 assert len(call_symbols) == len(SYMBOL_FALLBACKS)
 
 

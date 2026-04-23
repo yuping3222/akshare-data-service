@@ -585,7 +585,6 @@ class QuoteExtensionMixin:
         raise NotImplementedError(f"{self.name} 不支持 get_stock_zh_a_premarket_em")
 
 
-
 class CompanyInfoMixin:
     """Mixin for company info methods: announcements, management, index components, and corporate data."""
 

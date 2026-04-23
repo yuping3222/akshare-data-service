@@ -48,7 +48,11 @@ class HealthReportGenerator:
             return ""
 
         total = len(df)
-        success = len(df[df["status"].str.contains("Success", na=False)]) if "status" in df.columns else 0
+        success = (
+            len(df[df["status"].str.contains("Success", na=False)])
+            if "status" in df.columns
+            else 0
+        )
         rate = (success / total * 100) if total > 0 else 0
 
         sections = {
@@ -63,12 +67,17 @@ class HealthReportGenerator:
 
         if "exec_time" in df.columns:
             slowest = df.sort_values("exec_time", ascending=False).head(20)
-            sections["Top 20 Slowest APIs"] = slowest[["func_name", "exec_time", "status"]]
+            sections["Top 20 Slowest APIs"] = slowest[
+                ["func_name", "exec_time", "status"]
+            ]
 
         content = self._renderer.render_markdown(sections)
 
         if output_file is None:
-            output_file = self._output_dir / f"health_report_{datetime.now().strftime('%Y%m%d')}.md"
+            output_file = (
+                self._output_dir
+                / f"health_report_{datetime.now().strftime('%Y%m%d')}.md"
+            )
 
         self._renderer.save(content, output_file)
         logger.info(f"Health report saved to {output_file}")

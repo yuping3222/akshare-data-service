@@ -38,7 +38,9 @@ class Reporter:
             for c, v in r.items():
                 if c == "last_check":
                     try:
-                        row_vals.append(datetime.fromtimestamp(v).strftime("%m-%d %H:%M"))
+                        row_vals.append(
+                            datetime.fromtimestamp(v).strftime("%m-%d %H:%M")
+                        )
                     except Exception:
                         row_vals.append(str(v))
                 elif "Time" in c or c == "exec_time":
@@ -75,7 +77,9 @@ class Reporter:
         lines.append("# Akshare Health Audit Report")
         lines.append("")
         lines.append(f"**Total APIs:** {total}")
-        lines.append(f"**Available APIs:** {available} ({available/total*100:.2f}% if total > 0 else 0%)")
+        lines.append(
+            f"**Available APIs:** {available} ({available / total * 100:.2f}% if total > 0 else 0%)"
+        )
         lines.append("")
 
         slow_apis = sorted(
@@ -92,7 +96,9 @@ class Reporter:
                 exec_time = r.get("exec_time", 0)
                 domain = r.get("domain_group", "unknown")
                 status = r.get("status", "unknown")
-                lines.append(f"- **{func_name}** ({domain}) - {exec_time:.2f}s - {status}")
+                lines.append(
+                    f"- **{func_name}** ({domain}) - {exec_time:.2f}s - {status}"
+                )
             lines.append("")
 
         return "\n".join(lines)
@@ -137,7 +143,9 @@ class Reporter:
                 lines.append("### Categories")
                 lines.append("")
                 for cat, count in categories.items():
-                    cat_name = category_map.get(cat, cat.title() if isinstance(cat, str) else str(cat))
+                    cat_name = category_map.get(
+                        cat, cat.title() if isinstance(cat, str) else str(cat)
+                    )
                     lines.append(f"- **{cat_name}:** {count}")
                 lines.append("")
 
@@ -166,16 +174,22 @@ class Reporter:
         lines.append(f"**Total Rows:** {total_rows:,}")
         lines.append(f"**Total Memory:** {total_memory:.1f} KB")
         if total_memory >= 1024:
-            lines.append(f" ({total_memory/1024:.2f} MB)")
+            lines.append(f" ({total_memory / 1024:.2f} MB)")
         if total_memory >= 1024 * 1024:
-            lines.append(f" ({total_memory/(1024*1024):.2f} GB)")
+            lines.append(f" ({total_memory / (1024 * 1024):.2f} GB)")
         lines.append("")
 
         if "分类" in df.columns:
-            category_stats = df.groupby("分类").agg({
-                "数据行数": "sum",
-                "内存占用_KB": "sum",
-            }).sort_values("内存占用_KB", ascending=False)
+            category_stats = (
+                df.groupby("分类")
+                .agg(
+                    {
+                        "数据行数": "sum",
+                        "内存占用_KB": "sum",
+                    }
+                )
+                .sort_values("内存占用_KB", ascending=False)
+            )
 
             if not category_stats.empty:
                 lines.append("### By Category")
@@ -253,7 +267,9 @@ class Reporter:
         new_content_lines = []
         new_content_lines.append("Interface Health Audit:")
         new_content_lines.append(f"  Audited APIs: {total_apis}")
-        new_content_lines.append(f"  Available APIs: {available_apis} ({success_rate:.1f}%)")
+        new_content_lines.append(
+            f"  Available APIs: {available_apis} ({success_rate:.1f}%)"
+        )
         new_content_lines.append("")
 
         if existing_content:
@@ -269,7 +285,9 @@ class Reporter:
                     new_content_lines.append(line)
         else:
             new_content_lines.append("Overall Statistics:")
-            new_content_lines.append(f"  Average Response Time: {avg_response_time:.2f}s")
+            new_content_lines.append(
+                f"  Average Response Time: {avg_response_time:.2f}s"
+            )
 
         with open(summary_path, "w", encoding="utf-8") as f:
             f.write("\n".join(new_content_lines))

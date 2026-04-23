@@ -30,7 +30,9 @@ class TestIndexDailyDataFlow:
         """cn.index.quote.daily() returns a DataFrame for the requested index."""
         service = DataService(cache_manager=system_cache_manager)
         service.akshare.get_index_daily = MagicMock(return_value=index_source_df.copy())
-        service.lixinger.get_index_daily = MagicMock(return_value=index_source_df.copy())
+        service.lixinger.get_index_daily = MagicMock(
+            return_value=index_source_df.copy()
+        )
 
         df = service.cn.index.quote.daily(
             symbol="sh000300",
@@ -49,7 +51,9 @@ class TestIndexDailyDataFlow:
         """Index DataFrame contains OHLCV plus valuation fields."""
         service = DataService(cache_manager=system_cache_manager)
         service.akshare.get_index_daily = MagicMock(return_value=index_source_df.copy())
-        service.lixinger.get_index_daily = MagicMock(return_value=index_source_df.copy())
+        service.lixinger.get_index_daily = MagicMock(
+            return_value=index_source_df.copy()
+        )
 
         df = service.cn.index.quote.daily(
             symbol="sh000300",
@@ -77,7 +81,9 @@ class TestIndexDailyDataFlow:
         """Source is fetched on first call, not on cache hit."""
         service = DataService(cache_manager=system_cache_manager)
         service.akshare.get_index_daily = MagicMock(return_value=index_source_df.copy())
-        service.lixinger.get_index_daily = MagicMock(return_value=index_source_df.copy())
+        service.lixinger.get_index_daily = MagicMock(
+            return_value=index_source_df.copy()
+        )
 
         df1 = service.cn.index.quote.daily(
             symbol="sh000300",
@@ -106,7 +112,9 @@ class TestIndexDailyDataFlow:
         """get_index() convenience method delegates to cn.index.quote.daily()."""
         service = DataService(cache_manager=system_cache_manager)
         service.akshare.get_index_daily = MagicMock(return_value=index_source_df.copy())
-        service.lixinger.get_index_daily = MagicMock(return_value=index_source_df.copy())
+        service.lixinger.get_index_daily = MagicMock(
+            return_value=index_source_df.copy()
+        )
 
         df = service.get_index(
             index_code="sh000300",

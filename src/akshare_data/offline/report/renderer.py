@@ -26,7 +26,9 @@ class ReportRenderer:
             for c, v in r.items():
                 if c == "last_check":
                     try:
-                        row_vals.append(datetime.fromtimestamp(v).strftime("%m-%d %H:%M"))
+                        row_vals.append(
+                            datetime.fromtimestamp(v).strftime("%m-%d %H:%M")
+                        )
                     except Exception:
                         row_vals.append(str(v))
                 elif "Time" in c or c == "exec_time":

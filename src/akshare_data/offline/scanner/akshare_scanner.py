@@ -52,9 +52,7 @@ class AkShareScanner:
         try:
             sig = inspect.signature(func)
             return [
-                param.name
-                for param in sig.parameters.values()
-                if param.name != "self"
+                param.name for param in sig.parameters.values() if param.name != "self"
             ]
         except (ValueError, TypeError):
             return []

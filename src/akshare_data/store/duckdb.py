@@ -107,7 +107,9 @@ class DuckDBEngine:
             df = conn.execute(sql).fetchdf()
             return df
         except Exception as e:
-            logger.warning(f"Query with strict schema failed: {e}, retrying with union_by_name")
+            logger.warning(
+                f"Query with strict schema failed: {e}, retrying with union_by_name"
+            )
             sql_union = self._build_sql_union_by_name(
                 str([str(p) for p in paths]),
                 where_clause,

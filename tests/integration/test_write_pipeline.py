@@ -31,6 +31,7 @@ from akshare_data.store.strategies import FullCacheStrategy, IncrementalStrategy
 # 1. Schema registration
 # ---------------------------------------------------------------------------
 
+
 class TestSchemaRegistration:
     """Verify that all 64 cache tables are properly registered and queryable."""
 
@@ -38,13 +39,17 @@ class TestSchemaRegistration:
         """Calling init_schemas should populate the global registry."""
         registry = SCHEMA_REGISTRY
         all_tables = registry.list_all()
-        assert len(all_tables) >= 64, f"Expected at least 64 tables, got {len(all_tables)}"
+        assert len(all_tables) >= 64, (
+            f"Expected at least 64 tables, got {len(all_tables)}"
+        )
 
     def test_all_registered_tables_are_queryable(self):
         """Every registered table should be retrievable via get() and get_or_none()."""
         for name in list_tables():
             table = get_table_schema(name)
-            assert table is not None, f"Table '{name}' not queryable via get_table_schema"
+            assert table is not None, (
+                f"Table '{name}' not queryable via get_table_schema"
+            )
             assert table.name == name
             assert table.schema
             assert table.primary_key
@@ -97,6 +102,7 @@ class TestSchemaRegistration:
 # 2. Schema validation — success
 # ---------------------------------------------------------------------------
 
+
 class TestSchemaValidationSuccess:
     """Write data matching a registered schema — should succeed."""
 
@@ -105,17 +111,19 @@ class TestSchemaValidationSuccess:
         schema = get_table_schema("stock_daily")
         assert schema is not None
 
-        df = pd.DataFrame({
-            "symbol": ["sh600000"],
-            "date": [date(2024, 1, 2)],
-            "open": [10.0],
-            "high": [11.0],
-            "low": [9.0],
-            "close": [10.5],
-            "volume": [100000.0],
-            "amount": [1000000.0],
-            "adjust": ["qfq"],
-        })
+        df = pd.DataFrame(
+            {
+                "symbol": ["sh600000"],
+                "date": [date(2024, 1, 2)],
+                "open": [10.0],
+                "high": [11.0],
+                "low": [9.0],
+                "close": [10.5],
+                "volume": [100000.0],
+                "amount": [1000000.0],
+                "adjust": ["qfq"],
+            }
+        )
 
         validator = SchemaValidator("stock_daily", schema.schema)
         result = validator.validate_and_cast(df, primary_key=schema.primary_key)
@@ -130,14 +138,16 @@ class TestSchemaValidationSuccess:
         schema = get_table_schema("securities")
         assert schema is not None
 
-        df = pd.DataFrame({
-            "symbol": ["sh600000"],
-            "name": ["浦发银行"],
-            "type": ["stock"],
-            "list_date": [date(1999, 11, 10)],
-            "delist_date": [None],
-            "exchange": ["SSE"],
-        })
+        df = pd.DataFrame(
+            {
+                "symbol": ["sh600000"],
+                "name": ["浦发银行"],
+                "type": ["stock"],
+                "list_date": [date(1999, 11, 10)],
+                "delist_date": [None],
+                "exchange": ["SSE"],
+            }
+        )
 
         validator = SchemaValidator("securities", schema.schema)
         errors = validator.validate(df)
@@ -148,6 +158,7 @@ class TestSchemaValidationSuccess:
 # 3. Schema validation failure
 # ---------------------------------------------------------------------------
 
+
 class TestSchemaValidationFailure:
     """Write data with wrong columns — should raise SchemaValidationError."""
 
@@ -156,17 +167,19 @@ class TestSchemaValidationFailure:
         schema = get_table_schema("stock_daily")
         assert schema is not None
 
-        df = pd.DataFrame({
-            "symbol": ["sh600000"],
-            # 'date' is missing
-            "open": [10.0],
-            "high": [11.0],
-            "low": [9.0],
-            "close": [10.5],
-            "volume": [100000.0],
-            "amount": [1000000.0],
-            "adjust": ["qfq"],
-        })
+        df = pd.DataFrame(
+            {
+                "symbol": ["sh600000"],
+                # 'date' is missing
+                "open": [10.0],
+                "high": [11.0],
+                "low": [9.0],
+                "close": [10.5],
+                "volume": [100000.0],
+                "amount": [1000000.0],
+                "adjust": ["qfq"],
+            }
+        )
 
         validator = SchemaValidator("stock_daily", schema.schema)
         errors = validator.validate(df)
@@ -178,10 +191,12 @@ class TestSchemaValidationFailure:
         schema = get_table_schema("trade_calendar")
         assert schema is not None
 
-        df = pd.DataFrame({
-            "foo": ["bar"],
-            "baz": [123],
-        })
+        df = pd.DataFrame(
+            {
+                "foo": ["bar"],
+                "baz": [123],
+            }
+        )
 
         validator = SchemaValidator("trade_calendar", schema.schema)
         errors = validator.validate(df)
@@ -203,17 +218,19 @@ class TestSchemaValidationFailure:
     def test_validate_and_cast_raises_on_null_primary_key(self):
         """validate_and_cast should raise when primary key column contains nulls."""
         schema = get_table_schema("stock_daily")
-        df = pd.DataFrame({
-            "symbol": ["sh600000", "sh600001"],
-            "date": [date(2024, 1, 2), pd.NaT],
-            "open": [10.0, 10.0],
-            "high": [11.0, 11.0],
-            "low": [9.0, 9.0],
-            "close": [10.5, 10.5],
-            "volume": [100000.0, 100000.0],
-            "amount": [1000000.0, 1000000.0],
-            "adjust": ["qfq", "qfq"],
-        })
+        df = pd.DataFrame(
+            {
+                "symbol": ["sh600000", "sh600001"],
+                "date": [date(2024, 1, 2), pd.NaT],
+                "open": [10.0, 10.0],
+                "high": [11.0, 11.0],
+                "low": [9.0, 9.0],
+                "close": [10.5, 10.5],
+                "volume": [100000.0, 100000.0],
+                "amount": [1000000.0, 1000000.0],
+                "adjust": ["qfq", "qfq"],
+            }
+        )
 
         validator = SchemaValidator("stock_daily", schema.schema)
         with pytest.raises(SchemaValidationError) as exc_info:
@@ -225,20 +242,28 @@ class TestSchemaValidationFailure:
 # 4. Parquet atomic write
 # ---------------------------------------------------------------------------
 
+
 class TestParquetAtomicWrite:
     """Parquet atomic write: write completes -> file exists; interrupt -> no corrupt file."""
 
     def test_write_completes_file_exists(self, temp_cache_dir):
         """A successful write should produce a valid parquet file."""
         writer = AtomicWriter(temp_cache_dir)
-        df = pd.DataFrame({
-            "date": pd.date_range("2024-01-01", periods=5),
-            "symbol": ["sh600000"] * 5,
-            "close": [10.0, 10.1, 10.2, 10.3, 10.4],
-        })
+        df = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-01", periods=5),
+                "symbol": ["sh600000"] * 5,
+                "close": [10.0, 10.1, 10.2, 10.3, 10.4],
+            }
+        )
 
-        file_path = writer.write("stock_daily", "daily", df,
-                                 partition_by="date", partition_value="2024-01-01")
+        file_path = writer.write(
+            "stock_daily",
+            "daily",
+            df,
+            partition_by="date",
+            partition_value="2024-01-01",
+        )
         assert file_path.exists()
         assert file_path.suffix == ".parquet"
         # Read back to verify it's valid
@@ -248,18 +273,27 @@ class TestParquetAtomicWrite:
     def test_no_corrupt_file_on_interrupt(self, temp_cache_dir):
         """Simulating an interrupt during write should leave no corrupt or .tmp files."""
         writer = AtomicWriter(temp_cache_dir)
-        df = pd.DataFrame({
-            "date": pd.date_range("2024-01-01", periods=5),
-            "symbol": ["sh600000"] * 5,
-            "close": [10.0, 10.1, 10.2, 10.3, 10.4],
-        })
+        df = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-01", periods=5),
+                "symbol": ["sh600000"] * 5,
+                "close": [10.0, 10.1, 10.2, 10.3, 10.4],
+            }
+        )
 
         # Simulate interruption during os.replace by raising OSError
-        with patch("akshare_data.store.parquet.os.replace",
-                   side_effect=OSError("simulated interrupt")):
+        with patch(
+            "akshare_data.store.parquet.os.replace",
+            side_effect=OSError("simulated interrupt"),
+        ):
             with pytest.raises(IOError, match="simulated interrupt"):
-                writer.write("stock_daily", "daily", df,
-                             partition_by="date", partition_value="2024-01-01")
+                writer.write(
+                    "stock_daily",
+                    "daily",
+                    df,
+                    partition_by="date",
+                    partition_value="2024-01-01",
+                )
 
         # No .tmp files should remain
         tmp_files = list(Path(temp_cache_dir).glob("**/*.tmp"))
@@ -285,6 +319,7 @@ class TestParquetAtomicWrite:
 # 5. Parquet partitioning
 # ---------------------------------------------------------------------------
 
+
 class TestParquetPartitioning:
     """Data partitioned by symbol — verify directory structure."""
 
@@ -292,21 +327,35 @@ class TestParquetPartitioning:
         """Writing with partition_by='symbol' should create symbol=value directories."""
         writer = AtomicWriter(temp_cache_dir)
 
-        df_a = pd.DataFrame({
-            "symbol": ["sh600000"] * 3,
-            "date": pd.date_range("2024-01-01", periods=3),
-            "close": [10.0, 10.1, 10.2],
-        })
-        df_b = pd.DataFrame({
-            "symbol": ["sz000001"] * 2,
-            "date": pd.date_range("2024-01-01", periods=2),
-            "close": [5.0, 5.1],
-        })
+        df_a = pd.DataFrame(
+            {
+                "symbol": ["sh600000"] * 3,
+                "date": pd.date_range("2024-01-01", periods=3),
+                "close": [10.0, 10.1, 10.2],
+            }
+        )
+        df_b = pd.DataFrame(
+            {
+                "symbol": ["sz000001"] * 2,
+                "date": pd.date_range("2024-01-01", periods=2),
+                "close": [5.0, 5.1],
+            }
+        )
 
-        path_a = writer.write("stock_daily", "daily", df_a,
-                              partition_by="symbol", partition_value="sh600000")
-        path_b = writer.write("stock_daily", "daily", df_b,
-                              partition_by="symbol", partition_value="sz000001")
+        path_a = writer.write(
+            "stock_daily",
+            "daily",
+            df_a,
+            partition_by="symbol",
+            partition_value="sh600000",
+        )
+        path_b = writer.write(
+            "stock_daily",
+            "daily",
+            df_b,
+            partition_by="symbol",
+            partition_value="sz000001",
+        )
 
         assert "symbol=sh600000" in str(path_a)
         assert "symbol=sz000001" in str(path_b)
@@ -327,13 +376,20 @@ class TestParquetPartitioning:
         pm = PartitionManager(temp_cache_dir)
 
         for symbol in ["sh600000", "sz000001", "sh600036"]:
-            df = pd.DataFrame({
-                "symbol": [symbol],
-                "date": [date(2024, 1, 2)],
-                "close": [10.0],
-            })
-            writer.write("stock_daily", "daily", df,
-                         partition_by="symbol", partition_value=symbol)
+            df = pd.DataFrame(
+                {
+                    "symbol": [symbol],
+                    "date": [date(2024, 1, 2)],
+                    "close": [10.0],
+                }
+            )
+            writer.write(
+                "stock_daily",
+                "daily",
+                df,
+                partition_by="symbol",
+                partition_value=symbol,
+            )
 
         partitions = pm.list_all_partitions("stock_daily", "daily", "symbol")
         assert sorted(partitions) == ["sh600000", "sh600036", "sz000001"]
@@ -352,6 +408,7 @@ class TestParquetPartitioning:
 # 6. Incremental append
 # ---------------------------------------------------------------------------
 
+
 class TestIncrementalAppend:
     """New data appended to existing parquet — merged correctly via IncrementalStrategy."""
 
@@ -359,14 +416,18 @@ class TestIncrementalAppend:
         """IncrementalStrategy.merge should concatenate cached and fresh data."""
         strategy = IncrementalStrategy(date_col="date")
 
-        cached = pd.DataFrame({
-            "date": pd.to_datetime(["2024-01-01", "2024-01-02"]),
-            "close": [10.0, 10.1],
-        })
-        fresh = pd.DataFrame({
-            "date": pd.to_datetime(["2024-01-03", "2024-01-04"]),
-            "close": [10.2, 10.3],
-        })
+        cached = pd.DataFrame(
+            {
+                "date": pd.to_datetime(["2024-01-01", "2024-01-02"]),
+                "close": [10.0, 10.1],
+            }
+        )
+        fresh = pd.DataFrame(
+            {
+                "date": pd.to_datetime(["2024-01-03", "2024-01-04"]),
+                "close": [10.2, 10.3],
+            }
+        )
 
         merged = strategy.merge(cached, fresh)
         assert len(merged) == 4
@@ -375,10 +436,12 @@ class TestIncrementalAppend:
     def test_incremental_merge_no_cache(self, temp_cache_dir):
         """IncrementalStrategy.merge with no cache should return fresh data."""
         strategy = IncrementalStrategy(date_col="date")
-        fresh = pd.DataFrame({
-            "date": pd.to_datetime(["2024-01-01"]),
-            "close": [10.0],
-        })
+        fresh = pd.DataFrame(
+            {
+                "date": pd.to_datetime(["2024-01-01"]),
+                "close": [10.0],
+            }
+        )
         merged = strategy.merge(None, fresh)
         assert len(merged) == 1
 
@@ -386,15 +449,19 @@ class TestIncrementalAppend:
         """IncrementalStrategy.merge should deduplicate on date column, keeping last."""
         strategy = IncrementalStrategy(date_col="date")
 
-        cached = pd.DataFrame({
-            "date": pd.to_datetime(["2024-01-01", "2024-01-02"]),
-            "close": [10.0, 10.1],
-        })
+        cached = pd.DataFrame(
+            {
+                "date": pd.to_datetime(["2024-01-01", "2024-01-02"]),
+                "close": [10.0, 10.1],
+            }
+        )
         # Fresh has an overlapping date with updated value
-        fresh = pd.DataFrame({
-            "date": pd.to_datetime(["2024-01-02", "2024-01-03"]),
-            "close": [10.15, 10.3],
-        })
+        fresh = pd.DataFrame(
+            {
+                "date": pd.to_datetime(["2024-01-02", "2024-01-03"]),
+                "close": [10.15, 10.3],
+            }
+        )
 
         merged = strategy.merge(cached, fresh)
         assert len(merged) == 3  # 2024-01-02 deduplicated
@@ -405,25 +472,46 @@ class TestIncrementalAppend:
         """IncrementalStrategy.should_fetch should return True when date range is incomplete."""
         strategy = IncrementalStrategy(date_col="date")
 
-        cached = pd.DataFrame({
-            "date": pd.to_datetime(["2024-01-05", "2024-01-10"]),
-        })
+        cached = pd.DataFrame(
+            {
+                "date": pd.to_datetime(["2024-01-05", "2024-01-10"]),
+            }
+        )
         # Requesting a wider range than what's cached
-        assert strategy.should_fetch(cached, start_date="2024-01-01", end_date="2024-01-15") is True
+        assert (
+            strategy.should_fetch(
+                cached, start_date="2024-01-01", end_date="2024-01-15"
+            )
+            is True
+        )
 
         # Requesting within cached range
-        assert strategy.should_fetch(cached, start_date="2024-01-06", end_date="2024-01-09") is False
+        assert (
+            strategy.should_fetch(
+                cached, start_date="2024-01-06", end_date="2024-01-09"
+            )
+            is False
+        )
 
     def test_incremental_should_fetch_no_cache(self, temp_cache_dir):
         """IncrementalStrategy.should_fetch should return True when no cache exists."""
         strategy = IncrementalStrategy(date_col="date")
-        assert strategy.should_fetch(None, start_date="2024-01-01", end_date="2024-01-15") is True
-        assert strategy.should_fetch(pd.DataFrame(), start_date="2024-01-01", end_date="2024-01-15") is True
+        assert (
+            strategy.should_fetch(None, start_date="2024-01-01", end_date="2024-01-15")
+            is True
+        )
+        assert (
+            strategy.should_fetch(
+                pd.DataFrame(), start_date="2024-01-01", end_date="2024-01-15"
+            )
+            is True
+        )
 
 
 # ---------------------------------------------------------------------------
 # 7. Full overwrite
 # ---------------------------------------------------------------------------
+
 
 class TestFullOverwrite:
     """Full cache strategy: existing data is replaced — old data gone."""
@@ -432,14 +520,18 @@ class TestFullOverwrite:
         """FullCacheStrategy.merge should return only fresh data, ignoring cache."""
         strategy = FullCacheStrategy()
 
-        cached = pd.DataFrame({
-            "date": pd.to_datetime(["2024-01-01"]),
-            "value": ["old"],
-        })
-        fresh = pd.DataFrame({
-            "date": pd.to_datetime(["2024-01-02"]),
-            "value": ["new"],
-        })
+        cached = pd.DataFrame(
+            {
+                "date": pd.to_datetime(["2024-01-01"]),
+                "value": ["old"],
+            }
+        )
+        fresh = pd.DataFrame(
+            {
+                "date": pd.to_datetime(["2024-01-02"]),
+                "value": ["new"],
+            }
+        )
 
         merged = strategy.merge(cached, fresh)
         assert len(merged) == 1
@@ -459,25 +551,29 @@ class TestFullOverwrite:
         manager = CacheManager(base_dir=temp_cache_dir)
 
         # First write
-        df1 = pd.DataFrame({
-            "symbol": ["sh600000"],
-            "name": ["Old Name"],
-            "type": ["stock"],
-            "list_date": [date(1999, 1, 1)],
-            "delist_date": [None],
-            "exchange": ["SSE"],
-        })
+        df1 = pd.DataFrame(
+            {
+                "symbol": ["sh600000"],
+                "name": ["Old Name"],
+                "type": ["stock"],
+                "list_date": [date(1999, 1, 1)],
+                "delist_date": [None],
+                "exchange": ["SSE"],
+            }
+        )
         manager.write("securities", df1)
 
         # Overwrite with new data
-        df2 = pd.DataFrame({
-            "symbol": ["sh600000"],
-            "name": ["New Name"],
-            "type": ["stock"],
-            "list_date": [date(1999, 1, 1)],
-            "delist_date": [None],
-            "exchange": ["SSE"],
-        })
+        df2 = pd.DataFrame(
+            {
+                "symbol": ["sh600000"],
+                "name": ["New Name"],
+                "type": ["stock"],
+                "list_date": [date(1999, 1, 1)],
+                "delist_date": [None],
+                "exchange": ["SSE"],
+            }
+        )
         manager.write("securities", df2)
 
         # Read back
@@ -492,6 +588,7 @@ class TestFullOverwrite:
 # 8. Storage strategy behaviour difference
 # ---------------------------------------------------------------------------
 
+
 class TestStorageStrategyBehavior:
     """Compare full vs incremental strategy behaviour."""
 
@@ -500,14 +597,18 @@ class TestStorageStrategyBehavior:
         full = FullCacheStrategy()
         incremental = IncrementalStrategy(date_col="date")
 
-        cached = pd.DataFrame({
-            "date": pd.to_datetime(["2024-01-01"]),
-            "value": [1],
-        })
-        fresh = pd.DataFrame({
-            "date": pd.to_datetime(["2024-01-02"]),
-            "value": [2],
-        })
+        cached = pd.DataFrame(
+            {
+                "date": pd.to_datetime(["2024-01-01"]),
+                "value": [1],
+            }
+        )
+        fresh = pd.DataFrame(
+            {
+                "date": pd.to_datetime(["2024-01-02"]),
+                "value": [2],
+            }
+        )
 
         full_result = full.merge(cached, fresh)
         incr_result = incremental.merge(cached, fresh)
@@ -522,16 +623,21 @@ class TestStorageStrategyBehavior:
         full = FullCacheStrategy()
         incremental = IncrementalStrategy(date_col="date")
 
-        cached = pd.DataFrame({
-            "date": pd.to_datetime(["2024-01-01"]),
-        })
+        cached = pd.DataFrame(
+            {
+                "date": pd.to_datetime(["2024-01-01"]),
+            }
+        )
 
         # With cached data, full strategy says "don't fetch"
         assert full.should_fetch(cached) is False
         # But incremental strategy may still say "fetch" if range is incomplete
-        assert incremental.should_fetch(
-            cached, start_date="2024-01-01", end_date="2024-01-10"
-        ) is True
+        assert (
+            incremental.should_fetch(
+                cached, start_date="2024-01-01", end_date="2024-01-10"
+            )
+            is True
+        )
 
     def test_incremental_build_where_with_date_range(self, temp_cache_dir):
         """IncrementalStrategy.build_where should include date range."""
@@ -561,6 +667,7 @@ class TestStorageStrategyBehavior:
 # 9. Validator
 # ---------------------------------------------------------------------------
 
+
 class TestValidator:
     """SchemaValidator: valid data passes, invalid data rejected with clear error."""
 
@@ -569,10 +676,12 @@ class TestValidator:
         schema = get_table_schema("trade_calendar")
         assert schema is not None
 
-        df = pd.DataFrame({
-            "date": pd.to_datetime(["2024-01-01", "2024-01-02"]),
-            "is_trading_day": [False, True],
-        })
+        df = pd.DataFrame(
+            {
+                "date": pd.to_datetime(["2024-01-01", "2024-01-02"]),
+                "is_trading_day": [False, True],
+            }
+        )
 
         validator = SchemaValidator("trade_calendar", schema.schema)
         errors = validator.validate(df)
@@ -583,10 +692,12 @@ class TestValidator:
         schema = get_table_schema("stock_daily")
         assert schema is not None
 
-        df = pd.DataFrame({
-            "wrong_col_a": [1],
-            "wrong_col_b": [2],
-        })
+        df = pd.DataFrame(
+            {
+                "wrong_col_a": [1],
+                "wrong_col_b": [2],
+            }
+        )
 
         validator = SchemaValidator("stock_daily", schema.schema)
         errors = validator.validate(df)
@@ -606,11 +717,13 @@ class TestValidator:
         }
 
         # Input with types that need casting
-        df = pd.DataFrame({
-            "symbol": ["sh600000"],
-            "date": ["2024-01-02"],  # string, not date
-            "close": ["10.5"],        # string, not float
-        })
+        df = pd.DataFrame(
+            {
+                "symbol": ["sh600000"],
+                "date": ["2024-01-02"],  # string, not date
+                "close": ["10.5"],  # string, not float
+            }
+        )
 
         validator = SchemaValidator("test", schema)
         result = validator.validate_and_cast(df)
@@ -629,6 +742,7 @@ class TestValidator:
 # 10. Write pipeline: schema -> validate -> parquet -> verify round-trip
 # ---------------------------------------------------------------------------
 
+
 class TestWritePipelineRoundTrip:
     """End-to-end write pipeline: schema lookup -> validate -> write parquet -> read back."""
 
@@ -638,17 +752,19 @@ class TestWritePipelineRoundTrip:
         CacheManager.reset_instance()
         manager = CacheManager(base_dir=temp_cache_dir)
 
-        df = pd.DataFrame({
-            "symbol": ["sh600000", "sh600000"],
-            "date": pd.to_datetime(["2024-01-02", "2024-01-03"]),
-            "open": [10.0, 10.1],
-            "high": [11.0, 11.1],
-            "low": [9.0, 9.1],
-            "close": [10.5, 10.6],
-            "volume": [100000.0, 110000.0],
-            "amount": [1000000.0, 1100000.0],
-            "adjust": ["qfq", "qfq"],
-        })
+        df = pd.DataFrame(
+            {
+                "symbol": ["sh600000", "sh600000"],
+                "date": pd.to_datetime(["2024-01-02", "2024-01-03"]),
+                "open": [10.0, 10.1],
+                "high": [11.0, 11.1],
+                "low": [9.0, 9.1],
+                "close": [10.5, 10.6],
+                "volume": [100000.0, 110000.0],
+                "amount": [1000000.0, 1100000.0],
+                "adjust": ["qfq", "qfq"],
+            }
+        )
 
         # Write through CacheManager (which handles schema lookup + validation)
         file_path = manager.write("stock_daily", df)
@@ -672,17 +788,19 @@ class TestWritePipelineRoundTrip:
 
         symbols = ["sh600000", "sz000001"]
         for sym in symbols:
-            df = pd.DataFrame({
-                "symbol": [sym] * 3,
-                "date": pd.to_datetime(["2024-01-02", "2024-01-03", "2024-01-04"]),
-                "open": [10.0, 10.1, 10.2],
-                "high": [11.0, 11.1, 11.2],
-                "low": [9.0, 9.1, 9.2],
-                "close": [10.5, 10.6, 10.7],
-                "volume": [100000.0, 100000.0, 100000.0],
-                "amount": [1000000.0, 1000000.0, 1000000.0],
-                "adjust": ["qfq"] * 3,
-            })
+            df = pd.DataFrame(
+                {
+                    "symbol": [sym] * 3,
+                    "date": pd.to_datetime(["2024-01-02", "2024-01-03", "2024-01-04"]),
+                    "open": [10.0, 10.1, 10.2],
+                    "high": [11.0, 11.1, 11.2],
+                    "low": [9.0, 9.1, 9.2],
+                    "close": [10.5, 10.6, 10.7],
+                    "volume": [100000.0, 100000.0, 100000.0],
+                    "amount": [1000000.0, 1000000.0, 1000000.0],
+                    "adjust": ["qfq"] * 3,
+                }
+            )
             manager.write("stock_daily", df, partition_by="symbol", partition_value=sym)
 
         # Verify files exist in partition directories
@@ -699,14 +817,16 @@ class TestWritePipelineRoundTrip:
         CacheManager.reset_instance()
         manager = CacheManager(base_dir=temp_cache_dir)
 
-        df = pd.DataFrame({
-            "symbol": ["sh600000", "sz000001"],
-            "name": ["浦发银行", "平安银行"],
-            "type": ["stock", "stock"],
-            "list_date": pd.to_datetime(["1999-11-10", "1991-04-03"]),
-            "delist_date": [None, None],
-            "exchange": ["SSE", "SZSE"],
-        })
+        df = pd.DataFrame(
+            {
+                "symbol": ["sh600000", "sz000001"],
+                "name": ["浦发银行", "平安银行"],
+                "type": ["stock", "stock"],
+                "list_date": pd.to_datetime(["1999-11-10", "1991-04-03"]),
+                "delist_date": [None, None],
+                "exchange": ["SSE", "SZSE"],
+            }
+        )
 
         file_path = manager.write("securities", df)
         assert file_path
@@ -734,9 +854,11 @@ class TestWritePipelineRoundTrip:
         """Pipeline should raise when data fails schema validation in strict mode."""
         writer = AtomicWriter(temp_cache_dir, strict_schema=True)
 
-        df = pd.DataFrame({
-            "wrong_col": [1],
-        })
+        df = pd.DataFrame(
+            {
+                "wrong_col": [1],
+            }
+        )
 
         with pytest.raises(SchemaValidationError):
             writer.write("stock_daily", "daily", df)
@@ -745,21 +867,28 @@ class TestWritePipelineRoundTrip:
         """Writer should auto-lookup schema from registry when not provided."""
         writer = AtomicWriter(temp_cache_dir)
 
-        df = pd.DataFrame({
-            "symbol": ["sh600000"],
-            "date": [date(2024, 1, 2)],
-            "open": [10.0],
-            "high": [11.0],
-            "low": [9.0],
-            "close": [10.5],
-            "volume": [100000.0],
-            "amount": [1000000.0],
-            "adjust": ["qfq"],
-        })
+        df = pd.DataFrame(
+            {
+                "symbol": ["sh600000"],
+                "date": [date(2024, 1, 2)],
+                "open": [10.0],
+                "high": [11.0],
+                "low": [9.0],
+                "close": [10.5],
+                "volume": [100000.0],
+                "amount": [1000000.0],
+                "adjust": ["qfq"],
+            }
+        )
 
         # No schema or primary_key passed — should be auto-looked up
-        path = writer.write("stock_daily", "daily", df,
-                            partition_by="symbol", partition_value="sh600000")
+        path = writer.write(
+            "stock_daily",
+            "daily",
+            df,
+            partition_by="symbol",
+            partition_value="sh600000",
+        )
         assert path.exists()
 
         # Verify data was cast correctly by reading back

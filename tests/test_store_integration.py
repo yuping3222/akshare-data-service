@@ -1,4 +1,5 @@
 """Integration tests for store layer — DuckDB, Parquet, Aggregator with real data."""
+
 import os
 import tempfile
 import pytest
@@ -22,9 +23,9 @@ class TestDuckDBEngineRealData:
         """Test basic SQL query."""
         # DuckDBEngine.query needs storage_layer and table_name params
         # Just test that the engine can be created and query method exists
-        assert hasattr(db_engine, 'query')
-        assert hasattr(db_engine, 'query_simple')
-        assert hasattr(db_engine, 'query_by_paths')
+        assert hasattr(db_engine, "query")
+        assert hasattr(db_engine, "query_simple")
+        assert hasattr(db_engine, "query_by_paths")
 
 
 class TestPartitionManagerRealData:
@@ -35,11 +36,13 @@ class TestPartitionManagerRealData:
         return PartitionManager(base_dir=str(tmp_path / "parquet"))
 
     def test_write_and_read(self, partition_mgr):
-        df = pd.DataFrame({
-            "symbol": ["000001", "000001"],
-            "date": pd.to_datetime(["2024-01-01", "2024-01-02"]),
-            "close": [10.5, 10.8],
-        })
+        df = pd.DataFrame(
+            {
+                "symbol": ["000001", "000001"],
+                "date": pd.to_datetime(["2024-01-01", "2024-01-02"]),
+                "close": [10.5, 10.8],
+            }
+        )
         writer = AtomicWriter(base_dir=str(partition_mgr.base_dir))
         writer.write("stock_daily", "parquet", df, partition_by="symbol")
         files = list(partition_mgr.base_dir.rglob("*.parquet"))
@@ -60,7 +63,7 @@ class TestAggregatorReal:
 
     def test_aggregator_base_dir(self, aggregator):
         """Test that aggregator has base_dir."""
-        assert hasattr(aggregator, 'base_dir')
+        assert hasattr(aggregator, "base_dir")
 
 
 class TestCacheManager:
@@ -78,8 +81,8 @@ class TestCacheManager:
 
     def test_cache_manager_has_memory_cache(self, cache_manager):
         """Test that cache manager has memory cache."""
-        assert hasattr(cache_manager, 'memory_cache')
+        assert hasattr(cache_manager, "memory_cache")
 
     def test_cache_manager_has_duckdb(self, cache_manager):
         """Test that cache manager has duckdb engine."""
-        assert hasattr(cache_manager, 'engine')
+        assert hasattr(cache_manager, "engine")

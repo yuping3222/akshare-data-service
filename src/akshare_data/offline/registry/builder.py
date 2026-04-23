@@ -30,7 +30,9 @@ def _load_domain_mapping() -> Dict[str, str]:
     """
     domains_file = _CONFIG_DIR / "sources" / "domains.yaml"
     if not domains_file.exists():
-        logger.warning("domains.yaml not found at %s, returning empty mapping", domains_file)
+        logger.warning(
+            "domains.yaml not found at %s, returning empty mapping", domains_file
+        )
         return {}
 
     with open(domains_file, "r", encoding="utf-8") as f:
@@ -77,7 +79,9 @@ class RegistryBuilder:
             interfaces[func_name] = interface
             for domain in interface.get("domains", []):
                 if domain not in domains:
-                    domains[domain] = {"rate_limit_key": interface.get("rate_limit_key", "default")}
+                    domains[domain] = {
+                        "rate_limit_key": interface.get("rate_limit_key", "default")
+                    }
 
         return {
             "version": "2.0",
@@ -93,7 +97,11 @@ class RegistryBuilder:
         func_obj = self._get_func_obj(func_name)
         domains = self.domain_extractor.extract(func_obj) if func_obj else []
         category = self.category_inferrer.infer(func_name)
-        params = self.param_inferrer.infer(func_obj, func_info.get("signature", [])) if func_obj else {}
+        params = (
+            self.param_inferrer.infer(func_obj, func_info.get("signature", []))
+            if func_obj
+            else {}
+        )
         rate_limit_key = self._infer_rate_limit(domains)
 
         return {
@@ -114,6 +122,7 @@ class RegistryBuilder:
     def _get_func_obj(self, func_name: str):
         """获取函数对象"""
         import akshare as ak
+
         return getattr(ak, func_name, None)
 
     def _infer_rate_limit(self, domains: List[str]) -> str:

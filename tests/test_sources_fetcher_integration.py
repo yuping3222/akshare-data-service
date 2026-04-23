@@ -3,6 +3,7 @@
 Tests the core fetch() path, _build_call_kwargs, _normalize_output,
 _transform_param with mocked akshare calls.
 """
+
 import pytest
 import pandas as pd
 
@@ -21,6 +22,7 @@ from akshare_data.core.errors import SourceUnavailableError
 class TestTransformParam:
     def test_yyyymmdd_date_object(self):
         from datetime import date
+
         result = _transform_param(date(2024, 1, 15), "YYYYMMDD")
         assert result == "20240115"
 
@@ -100,6 +102,7 @@ class TestBuildCallKwargs:
     def test_filters_invalid_params(self):
         def dummy(accepts_this, also_this):
             pass
+
         source = {"input_mapping": {}, "param_transforms": {}}
         result = _build_call_kwargs(
             {"accepts_this": 1, "also_this": 2, "not_this": 3},
@@ -151,6 +154,7 @@ class TestFetchMacroData:
     def _make_mock_ak(self, func_map):
         """Build a mock akshare module with the given function->DataFrame mapping."""
         import types
+
         ak = types.SimpleNamespace()
         for func_name, df in func_map.items():
             setattr(ak, func_name, lambda _df=df, **_kw: _df.copy())
@@ -158,10 +162,12 @@ class TestFetchMacroData:
 
     def test_fetch_macro_cpi(self):
         """Verify fetch('macro_cpi') calls macro_china_cpi and applies output mapping."""
-        mock_df = pd.DataFrame({
-            "月份": ["2024-01", "2024-02"],
-            "全国居民消费价格指数(CPI)上年同月=100": [101.5, 100.8],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "月份": ["2024-01", "2024-02"],
+                "全国居民消费价格指数(CPI)上年同月=100": [101.5, 100.8],
+            }
+        )
         ak = self._make_mock_ak({"macro_china_cpi": mock_df})
         result = fetch("macro_cpi", akshare=ak)
         assert isinstance(result, pd.DataFrame)
@@ -172,10 +178,12 @@ class TestFetchMacroData:
 
     def test_fetch_macro_gdp(self):
         """Verify fetch('macro_gdp') calls macro_china_gdp and applies output mapping."""
-        mock_df = pd.DataFrame({
-            "季度": ["2024Q1", "2024Q2"],
-            "国内生产总值绝对额(亿元)": [300000, 320000],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "季度": ["2024Q1", "2024Q2"],
+                "国内生产总值绝对额(亿元)": [300000, 320000],
+            }
+        )
         ak = self._make_mock_ak({"macro_china_gdp": mock_df})
         result = fetch("macro_gdp", akshare=ak)
         assert isinstance(result, pd.DataFrame)
@@ -186,10 +194,12 @@ class TestFetchMacroData:
 
     def test_fetch_macro_ppi(self):
         """Verify fetch('macro_ppi') calls macro_china_ppi."""
-        mock_df = pd.DataFrame({
-            "月份": ["2024-01"],
-            "工业生产者出厂价格指数(PPI)": [98.5],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "月份": ["2024-01"],
+                "工业生产者出厂价格指数(PPI)": [98.5],
+            }
+        )
         ak = self._make_mock_ak({"macro_china_ppi": mock_df})
         result = fetch("macro_ppi", akshare=ak)
         assert isinstance(result, pd.DataFrame)
@@ -198,10 +208,12 @@ class TestFetchMacroData:
 
     def test_fetch_macro_pmi(self):
         """Verify fetch('macro_pmi') calls macro_china_pmi and maps columns."""
-        mock_df = pd.DataFrame({
-            "月份": ["2024-01", "2024-02"],
-            "制造业PMI": [50.8, 50.5],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "月份": ["2024-01", "2024-02"],
+                "制造业PMI": [50.8, 50.5],
+            }
+        )
         ak = self._make_mock_ak({"macro_china_pmi": mock_df})
         result = fetch("macro_pmi", akshare=ak)
         assert isinstance(result, pd.DataFrame)
@@ -217,6 +229,7 @@ class TestFetchStockData:
 
     def _make_mock_ak(self, func_map):
         import types
+
         ak = types.SimpleNamespace()
         for func_name, df in func_map.items():
             setattr(ak, func_name, lambda _df=df, **_kw: _df.copy())
@@ -224,22 +237,35 @@ class TestFetchStockData:
 
     def test_fetch_equity_daily(self):
         """Verify fetch('equity_daily') calls stock_zh_a_hist and applies mappings."""
-        mock_df = pd.DataFrame({
-            "日期": ["2024-01-02", "2024-01-03"],
-            "开盘": [10.5, 10.6],
-            "最高": [11.0, 11.1],
-            "最低": [10.3, 10.4],
-            "收盘": [10.8, 10.9],
-            "成交量": [1000000, 1200000],
-            "成交额": [10800000, 13080000],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "日期": ["2024-01-02", "2024-01-03"],
+                "开盘": [10.5, 10.6],
+                "最高": [11.0, 11.1],
+                "最低": [10.3, 10.4],
+                "收盘": [10.8, 10.9],
+                "成交量": [1000000, 1200000],
+                "成交额": [10800000, 13080000],
+            }
+        )
         ak = self._make_mock_ak({"stock_zh_a_hist": mock_df})
         result = fetch(
-            "equity_daily", akshare=ak,
-            symbol="000001", start_date="2024-01-01", end_date="2024-03-01",
+            "equity_daily",
+            akshare=ak,
+            symbol="000001",
+            start_date="2024-01-01",
+            end_date="2024-03-01",
         )
         assert isinstance(result, pd.DataFrame)
-        assert list(result.columns) == ["date", "open", "high", "low", "close", "volume", "amount"]
+        assert list(result.columns) == [
+            "date",
+            "open",
+            "high",
+            "low",
+            "close",
+            "volume",
+            "amount",
+        ]
         assert result.attrs.get("source") == "akshare_em"
         assert result.attrs.get("interface") == "equity_daily"
         # Verify param transforms: dates should be converted to YYYYMMDD
@@ -248,10 +274,12 @@ class TestFetchStockData:
 
     def test_fetch_index_list(self):
         """Verify fetch('index_list') calls stock_zh_index_spot_em."""
-        mock_df = pd.DataFrame({
-            "代码": ["000001", "000300"],
-            "名称": ["上证指数", "沪深300"],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "代码": ["000001", "000300"],
+                "名称": ["上证指数", "沪深300"],
+            }
+        )
         ak = self._make_mock_ak({"stock_zh_index_spot_em": mock_df})
         result = fetch("index_list", akshare=ak)
         assert isinstance(result, pd.DataFrame)
@@ -263,10 +291,12 @@ class TestFetchStockData:
 
     def test_fetch_etf_list(self):
         """Verify fetch('etf_list') calls fund_etf_spot_em and maps columns."""
-        mock_df = pd.DataFrame({
-            "基金代码": ["510300", "159919"],
-            "基金简称": ["沪深300ETF", "深100ETF"],
-        })
+        mock_df = pd.DataFrame(
+            {
+                "基金代码": ["510300", "159919"],
+                "基金简称": ["沪深300ETF", "深100ETF"],
+            }
+        )
         ak = self._make_mock_ak({"fund_etf_spot_em": mock_df})
         result = fetch("etf_list", akshare=ak)
         assert isinstance(result, pd.DataFrame)
@@ -282,6 +312,7 @@ class TestFetchAliases:
 
     def _make_mock_ak(self, func_map):
         import types
+
         ak = types.SimpleNamespace()
         for func_name, df in func_map.items():
             setattr(ak, func_name, lambda _df=df, **_kw: _df.copy())
@@ -290,17 +321,22 @@ class TestFetchAliases:
     def test_fetch_daily_data_alias(self):
         """Verify fetch_daily_data alias calls fetch('equity_daily')."""
         from akshare_data.sources.akshare.fetcher import fetch_daily_data
-        mock_df = pd.DataFrame({
-            "日期": ["2024-01-02"],
-            "开盘": [10.5],
-            "最高": [11.0],
-            "最低": [10.3],
-            "收盘": [10.8],
-            "成交量": [1000000],
-            "成交额": [10800000],
-        })
+
+        mock_df = pd.DataFrame(
+            {
+                "日期": ["2024-01-02"],
+                "开盘": [10.5],
+                "最高": [11.0],
+                "最低": [10.3],
+                "收盘": [10.8],
+                "成交量": [1000000],
+                "成交额": [10800000],
+            }
+        )
         ak = self._make_mock_ak({"stock_zh_a_hist": mock_df})
-        result = fetch_daily_data(ak, symbol="000001", start_date="20240101", end_date="20240201")
+        result = fetch_daily_data(
+            ak, symbol="000001", start_date="20240101", end_date="20240201"
+        )
         assert isinstance(result, pd.DataFrame)
         assert "date" in result.columns
         assert result.attrs.get("interface") == "equity_daily"
@@ -308,10 +344,13 @@ class TestFetchAliases:
     def test_fetch_cpi_data_alias(self):
         """Verify fetch_cpi_data alias calls fetch('macro_cpi')."""
         from akshare_data.sources.akshare.fetcher import fetch_cpi_data
-        mock_df = pd.DataFrame({
-            "月份": ["2024-01"],
-            "全国居民消费价格指数(CPI)上年同月=100": [101.5],
-        })
+
+        mock_df = pd.DataFrame(
+            {
+                "月份": ["2024-01"],
+                "全国居民消费价格指数(CPI)上年同月=100": [101.5],
+            }
+        )
         ak = self._make_mock_ak({"macro_china_cpi": mock_df})
         result = fetch_cpi_data(ak)
         assert isinstance(result, pd.DataFrame)
@@ -322,6 +361,7 @@ class TestFetchAliases:
     def test_fetch_trading_days_alias(self):
         """Verify fetch_trading_days alias calls fetch('trading_days')."""
         from akshare_data.sources.akshare.fetcher import fetch_trading_days
+
         mock_df = pd.DataFrame({"trade_date": ["2024-01-02", "2024-01-03"]})
         ak = self._make_mock_ak({"tool_trade_date_hist_sina": mock_df})
         result = fetch_trading_days(ak, start_date="2024-01-01", end_date="2024-02-01")
@@ -331,11 +371,14 @@ class TestFetchAliases:
     def test_fetch_lpr_rate_alias(self):
         """Verify fetch_lpr_rate alias calls fetch('macro_lpr')."""
         from akshare_data.sources.akshare.fetcher import fetch_lpr_rate
-        mock_df = pd.DataFrame({
-            "日期": ["2024-01-20"],
-            "1年": [3.45],
-            "5年": [4.20],
-        })
+
+        mock_df = pd.DataFrame(
+            {
+                "日期": ["2024-01-20"],
+                "1年": [3.45],
+                "5年": [4.20],
+            }
+        )
         ak = self._make_mock_ak({"macro_china_lpr": mock_df})
         result = fetch_lpr_rate(ak)
         assert isinstance(result, pd.DataFrame)
@@ -344,10 +387,13 @@ class TestFetchAliases:
     def test_fetch_m2_supply_alias(self):
         """Verify fetch_m2_supply alias calls fetch('macro_m2')."""
         from akshare_data.sources.akshare.fetcher import fetch_m2_supply
-        mock_df = pd.DataFrame({
-            "月份": ["2024-01"],
-            "货币和准货币(广义货币M2)(亿元)": [300000],
-        })
+
+        mock_df = pd.DataFrame(
+            {
+                "月份": ["2024-01"],
+                "货币和准货币(广义货币M2)(亿元)": [300000],
+            }
+        )
         ak = self._make_mock_ak({"macro_china_m2_yearly": mock_df})
         result = fetch_m2_supply(ak)
         assert isinstance(result, pd.DataFrame)
@@ -363,4 +409,9 @@ class TestFetchErrorPaths:
     def test_fetch_with_no_akshare_function(self):
         """Test fetch when akshare function doesn't exist for interface."""
         with pytest.raises((ValueError, SourceUnavailableError)):
-            fetch("equity_daily", symbol="INVALID", start_date="2099-01-01", end_date="2099-01-02")
+            fetch(
+                "equity_daily",
+                symbol="INVALID",
+                start_date="2099-01-01",
+                end_date="2099-01-02",
+            )

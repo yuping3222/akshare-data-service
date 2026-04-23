@@ -107,15 +107,17 @@ class TestDuckDBEngineIntegration:
         Creates a multi-symbol DataFrame, writes it to parquet, then
         queries with a WHERE clause filtering to a single symbol.
         """
-        df = pd.DataFrame({
-            "date": pd.date_range("2024-01-02", "2024-01-15", freq="B"),
-            "symbol": ["sh600000"] * 5 + ["sz000001"] * 5,
-            "open": [10.0] * 5 + [20.0] * 5,
-            "high": [11.0] * 5 + [21.0] * 5,
-            "low": [9.0] * 5 + [19.0] * 5,
-            "close": [10.5] * 5 + [20.5] * 5,
-            "volume": [100_000] * 5 + [200_000] * 5,
-        })
+        df = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-02", "2024-01-15", freq="B"),
+                "symbol": ["sh600000"] * 5 + ["sz000001"] * 5,
+                "open": [10.0] * 5 + [20.0] * 5,
+                "high": [11.0] * 5 + [21.0] * 5,
+                "low": [9.0] * 5 + [19.0] * 5,
+                "close": [10.5] * 5 + [20.5] * 5,
+                "volume": [100_000] * 5 + [200_000] * 5,
+            }
+        )
         parquet_path = Path(temp_cache_dir) / "test_where.parquet"
         df.to_parquet(parquet_path)
 
@@ -158,16 +160,28 @@ class TestDuckDBEngineIntegration:
         Uses the ``aggregate`` method to run SQL aggregations
         against parquet data and verifies the computed values.
         """
-        df = pd.DataFrame({
-            "date": pd.date_range("2024-01-02", "2024-01-15", freq="B"),
-            "symbol": ["sh600000"] * 5 + ["sz000001"] * 5,
-            "open": [10.0, 10.1, 10.2, 10.3, 10.4, 20.0, 20.1, 20.2, 20.3, 20.4],
-            "high": [11.0, 11.1, 11.2, 11.3, 11.4, 21.0, 21.1, 21.2, 21.3, 21.4],
-            "low": [9.0, 9.1, 9.2, 9.3, 9.4, 19.0, 19.1, 19.2, 19.3, 19.4],
-            "close": [10.5, 10.6, 10.7, 10.8, 10.9, 20.5, 20.6, 20.7, 20.8, 20.9],
-            "volume": [100_000, 110_000, 120_000, 130_000, 140_000,
-                       200_000, 210_000, 220_000, 230_000, 240_000],
-        })
+        df = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-02", "2024-01-15", freq="B"),
+                "symbol": ["sh600000"] * 5 + ["sz000001"] * 5,
+                "open": [10.0, 10.1, 10.2, 10.3, 10.4, 20.0, 20.1, 20.2, 20.3, 20.4],
+                "high": [11.0, 11.1, 11.2, 11.3, 11.4, 21.0, 21.1, 21.2, 21.3, 21.4],
+                "low": [9.0, 9.1, 9.2, 9.3, 9.4, 19.0, 19.1, 19.2, 19.3, 19.4],
+                "close": [10.5, 10.6, 10.7, 10.8, 10.9, 20.5, 20.6, 20.7, 20.8, 20.9],
+                "volume": [
+                    100_000,
+                    110_000,
+                    120_000,
+                    130_000,
+                    140_000,
+                    200_000,
+                    210_000,
+                    220_000,
+                    230_000,
+                    240_000,
+                ],
+            }
+        )
 
         # Create table directory structure expected by aggregate()
         table_dir = Path(temp_cache_dir) / "agg_test"
@@ -223,12 +237,14 @@ class TestDuckDBEngineIntegration:
         }
         paths = []
         for symbol, closes in symbols_data.items():
-            df = pd.DataFrame({
-                "date": pd.date_range("2024-01-02", periods=len(closes), freq="B"),
-                "symbol": [symbol] * len(closes),
-                "close": closes,
-                "volume": [100_000] * len(closes),
-            })
+            df = pd.DataFrame(
+                {
+                    "date": pd.date_range("2024-01-02", periods=len(closes), freq="B"),
+                    "symbol": [symbol] * len(closes),
+                    "close": closes,
+                    "volume": [100_000] * len(closes),
+                }
+            )
             p = Path(temp_cache_dir) / f"{symbol}.parquet"
             df.to_parquet(p)
             paths.append(p)
@@ -266,20 +282,24 @@ class TestDuckDBEngineIntegration:
         registers them as DuckDB views, then executes a JOIN query.
         """
         # Table 1: daily prices
-        prices_df = pd.DataFrame({
-            "date": pd.date_range("2024-01-02", periods=5, freq="B"),
-            "symbol": ["sh600000"] * 3 + ["sz000001"] * 2,
-            "close": [10.5, 10.6, 10.7, 20.5, 20.6],
-        })
+        prices_df = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-02", periods=5, freq="B"),
+                "symbol": ["sh600000"] * 3 + ["sz000001"] * 2,
+                "close": [10.5, 10.6, 10.7, 20.5, 20.6],
+            }
+        )
         prices_path = Path(temp_cache_dir) / "prices.parquet"
         prices_df.to_parquet(prices_path)
 
         # Table 2: sector info
-        sector_df = pd.DataFrame({
-            "symbol": ["sh600000", "sz000001", "sz000002"],
-            "sector": ["banking", "tech", "energy"],
-            "market_cap": [1_000_000, 2_000_000, 3_000_000],
-        })
+        sector_df = pd.DataFrame(
+            {
+                "symbol": ["sh600000", "sz000001", "sz000002"],
+                "sector": ["banking", "tech", "energy"],
+                "market_cap": [1_000_000, 2_000_000, 3_000_000],
+            }
+        )
         sector_path = Path(temp_cache_dir) / "sectors.parquet"
         sector_df.to_parquet(sector_path)
 
@@ -361,7 +381,9 @@ class TestDuckDBEngineIntegration:
         )
         elapsed_filter = time.time() - start
         assert len(result_filtered) == 500
-        assert elapsed_filter < 5.0, f"Filtered query took {elapsed_filter:.2f}s, expected < 5s"
+        assert elapsed_filter < 5.0, (
+            f"Filtered query took {elapsed_filter:.2f}s, expected < 5s"
+        )
 
         # Aggregation query
         start = time.time()
@@ -415,13 +437,18 @@ class TestDuckDBEngineIntegration:
         """).fetchdf()
         assert len(info_result) > 0
         assert set(info_result["column_name"]) >= {
-            "date", "symbol", "open", "high", "low", "close", "volume", "amount",
+            "date",
+            "symbol",
+            "open",
+            "high",
+            "low",
+            "close",
+            "volume",
+            "amount",
         }
 
         # Verify row count via system query
-        count_result = conn.execute(
-            "SELECT COUNT(*) AS cnt FROM schema_view"
-        ).fetchdf()
+        count_result = conn.execute("SELECT COUNT(*) AS cnt FROM schema_view").fetchdf()
         assert count_result["cnt"].iloc[0] == len(sample_stock_data)
 
         engine.unregister_table("schema_view")
@@ -484,17 +511,18 @@ class TestDuckDBEngineIntegration:
                 engine = DuckDBEngine(base_dir=temp_cache_dir)
                 barrier.wait()  # synchronize start
                 result = engine.query_by_paths([parquet_path])
-                results.append({
-                    "thread_id": thread_id,
-                    "row_count": len(result),
-                })
+                results.append(
+                    {
+                        "thread_id": thread_id,
+                        "row_count": len(result),
+                    }
+                )
                 engine.close()
             except Exception as e:
                 errors.append({"thread_id": thread_id, "error": str(e)})
 
         threads = [
-            threading.Thread(target=query_task, args=(i,))
-            for i in range(num_threads)
+            threading.Thread(target=query_task, args=(i,)) for i in range(num_threads)
         ]
         for t in threads:
             t.start()
@@ -503,8 +531,7 @@ class TestDuckDBEngineIntegration:
 
         # All threads should have completed
         assert len(results) == num_threads, (
-            f"Expected {num_threads} results, got {len(results)}. "
-            f"Errors: {errors}"
+            f"Expected {num_threads} results, got {len(results)}. Errors: {errors}"
         )
         assert len(errors) == 0, f"Thread errors: {errors}"
 

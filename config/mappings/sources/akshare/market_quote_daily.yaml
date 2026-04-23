@@ -1,0 +1,162 @@
+# Source field mapping: akshare -> market_quote_daily
+#
+# dataset: market_quote_daily
+# source:  akshare (covers akshare_em, akshare_sina, etc.)
+#
+# Each source field must map to exactly one of:
+#   - standard_field: a field from the standard entity schema
+#   - status: "active" | "deprecated" | "pending"
+#   - description: optional note for pending/deprecated fields
+#
+# Field names on the right MUST come from the standard entity definition
+# in config/standards/entities/market_quote_daily.yaml.
+# Do NOT invent new names like date/close/amount.
+#
+# Loaded by:
+#   - standardized/mapping_loader.py
+#   - normalizers (via MappingLoader)
+#   - lineage tracker
+#   - contract tests
+
+mapping_version: 'v1'
+dataset: market_quote_daily
+source: akshare
+normalize_version: v1
+updated_at: '2026-04-22'
+
+# ---------------------------------------------------------------------------
+# Sub-source: akshare_em (Eastmoney / 东方财富)
+# Primary source for A-share daily quotes via stock_zh_a_hist
+# ---------------------------------------------------------------------------
+sub_sources:
+  akshare_em:
+    description: "东方财富源 (stock_zh_a_hist)"
+    fields:
+      日期:
+        standard_field: trade_date
+        status: active
+      开盘:
+        standard_field: open_price
+        status: active
+      最高:
+        standard_field: high_price
+        status: active
+      最低:
+        standard_field: low_price
+        status: active
+      收盘:
+        standard_field: close_price
+        status: active
+      成交量:
+        standard_field: volume
+        status: active
+      成交额:
+        standard_field: turnover_amount
+        status: active
+      振幅:
+        standard_field: null
+        status: pending
+        description: "暂未接入标准实体，保留待扩展"
+      涨跌幅:
+        standard_field: change_pct
+        status: active
+      涨跌额:
+        standard_field: null
+        status: pending
+        description: "暂未接入标准实体，保留待扩展"
+      换手率:
+        standard_field: turnover_rate
+        status: active
+
+  akshare_sina:
+    description: "新浪财经源 (stock_zh_a_daily)"
+    fields:
+      date:
+        standard_field: trade_date
+        status: active
+      day:
+        standard_field: trade_date
+        status: active
+      open:
+        standard_field: open_price
+        status: active
+      high:
+        standard_field: high_price
+        status: active
+      low:
+        standard_field: low_price
+        status: active
+      close:
+        standard_field: close_price
+        status: active
+      volume:
+        standard_field: volume
+        status: active
+      amount:
+        standard_field: turnover_amount
+        status: active
+
+# ---------------------------------------------------------------------------
+# Default fallback — used when sub_source is not specified
+# Merged from all active sub_sources
+# ---------------------------------------------------------------------------
+fields:
+  日期:
+    standard_field: trade_date
+    status: active
+  date:
+    standard_field: trade_date
+    status: active
+  day:
+    standard_field: trade_date
+    status: active
+  开盘:
+    standard_field: open_price
+    status: active
+  open:
+    standard_field: open_price
+    status: active
+  最高:
+    standard_field: high_price
+    status: active
+  high:
+    standard_field: high_price
+    status: active
+  最低:
+    standard_field: low_price
+    status: active
+  low:
+    standard_field: low_price
+    status: active
+  收盘:
+    standard_field: close_price
+    status: active
+  close:
+    standard_field: close_price
+    status: active
+  成交量:
+    standard_field: volume
+    status: active
+  volume:
+    standard_field: volume
+    status: active
+  成交额:
+    standard_field: turnover_amount
+    status: active
+  amount:
+    standard_field: turnover_amount
+    status: active
+  振幅:
+    standard_field: null
+    status: pending
+    description: "暂未接入标准实体"
+  涨跌幅:
+    standard_field: change_pct
+    status: active
+  涨跌额:
+    standard_field: null
+    status: pending
+    description: "暂未接入标准实体"
+  换手率:
+    standard_field: turnover_rate
+    status: active

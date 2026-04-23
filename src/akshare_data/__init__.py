@@ -6,7 +6,9 @@ from akshare_data.offline import (
     BatchDownloader,
     APIProber,
 )
-from akshare_data.offline.analyzer.cache_analysis.completeness import CompletenessChecker as DataQualityChecker
+from akshare_data.offline.analyzer.cache_analysis.completeness import (
+    CompletenessChecker as DataQualityChecker,
+)
 from akshare_data.offline.report.renderer import ReportRenderer as Reporter
 
 __version__ = "0.2.0"
@@ -39,10 +41,14 @@ _EXCLUDE = frozenset(
 
 
 # 预计算已知方法集合，避免 __getattr__ 每次触发 get_service()
-_KNOWN = frozenset(set(__all__) | {
-    name for name in dir(DataService)
-    if not name.startswith("_") and name not in _EXCLUDE
-})
+_KNOWN = frozenset(
+    set(__all__)
+    | {
+        name
+        for name in dir(DataService)
+        if not name.startswith("_") and name not in _EXCLUDE
+    }
+)
 
 
 def __getattr__(name: str):

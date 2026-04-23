@@ -48,8 +48,9 @@ class TestFindMissingRanges:
     def test_multiple_existing_ranges_sorted(self):
         """Test with multiple existing ranges that need sorting."""
         result = find_missing_ranges(
-            "2024-01-01", "2024-01-15",
-            [("2024-01-10", "2024-01-15"), ("2024-01-01", "2024-01-05")]
+            "2024-01-01",
+            "2024-01-15",
+            [("2024-01-10", "2024-01-15"), ("2024-01-01", "2024-01-05")],
         )
         assert result == [("2024-01-06", "2024-01-09")]
 
@@ -70,16 +71,18 @@ class TestFindMissingRanges:
     def test_adjacent_existing_ranges(self):
         """Test with adjacent existing ranges (no gap between them)."""
         result = find_missing_ranges(
-            "2024-01-01", "2024-01-10",
-            [("2024-01-01", "2024-01-03"), ("2024-01-04", "2024-01-06")]
+            "2024-01-01",
+            "2024-01-10",
+            [("2024-01-01", "2024-01-03"), ("2024-01-04", "2024-01-06")],
         )
         assert result == [("2024-01-07", "2024-01-10")]
 
     def test_overlapping_existing_ranges(self):
         """Test with overlapping existing ranges."""
         result = find_missing_ranges(
-            "2024-01-01", "2024-01-10",
-            [("2024-01-01", "2024-01-05"), ("2024-01-03", "2024-01-08")]
+            "2024-01-01",
+            "2024-01-10",
+            [("2024-01-01", "2024-01-05"), ("2024-01-03", "2024-01-08")],
         )
         assert result == [("2024-01-09", "2024-01-10")]
 
@@ -97,14 +100,15 @@ class TestFindMissingRanges:
 
     def test_empty_existing_ranges_with_single_day(self):
         """Test with single day target and empty existing ranges."""
-        result = find_missing_ranges("2024-01-01", "2024-01-01", [("2024-01-01", "2024-01-01")])
+        result = find_missing_ranges(
+            "2024-01-01", "2024-01-01", [("2024-01-01", "2024-01-01")]
+        )
         assert result == []
 
     def test_gap_before_and_after_existing_range(self):
         """Test with gaps both before and after existing range."""
         result = find_missing_ranges(
-            "2024-01-01", "2024-01-31",
-            [("2024-01-10", "2024-01-20")]
+            "2024-01-01", "2024-01-31", [("2024-01-10", "2024-01-20")]
         )
         assert result == [("2024-01-01", "2024-01-09"), ("2024-01-21", "2024-01-31")]
 
@@ -125,16 +129,26 @@ class TestFindMissingRanges:
     def test_unsorted_existing_ranges_get_sorted(self):
         """Test that existing ranges are sorted by start date."""
         result = find_missing_ranges(
-            "2024-01-01", "2024-01-10",
-            [("2024-01-07", "2024-01-10"), ("2024-01-01", "2024-01-03"), ("2024-01-04", "2024-01-06")]
+            "2024-01-01",
+            "2024-01-10",
+            [
+                ("2024-01-07", "2024-01-10"),
+                ("2024-01-01", "2024-01-03"),
+                ("2024-01-04", "2024-01-06"),
+            ],
         )
         assert result == []
 
     def test_multiple_gaps(self):
         """Test with multiple gaps between existing ranges."""
         result = find_missing_ranges(
-            "2024-01-01", "2024-01-31",
-            [("2024-01-05", "2024-01-07"), ("2024-01-15", "2024-01-17"), ("2024-01-25", "2024-01-27")]
+            "2024-01-01",
+            "2024-01-31",
+            [
+                ("2024-01-05", "2024-01-07"),
+                ("2024-01-15", "2024-01-17"),
+                ("2024-01-25", "2024-01-27"),
+            ],
         )
         assert result == [
             ("2024-01-01", "2024-01-04"),

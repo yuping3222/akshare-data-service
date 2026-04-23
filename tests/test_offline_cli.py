@@ -36,7 +36,9 @@ class TestSubParsers:
 
         _add_probe_parser(subparsers)
 
-        subparsers.add_parser.assert_called_once_with("probe", help="Probe interface health")
+        subparsers.add_parser.assert_called_once_with(
+            "probe", help="Probe interface health"
+        )
         assert parser.add_argument.call_count >= 3
 
     def test_add_analyze_parser(self):
@@ -75,7 +77,9 @@ class TestSubParsers:
 
         _add_config_parser(subparsers)
 
-        subparsers.add_parser.assert_called_once_with("config", help="Manage configuration")
+        subparsers.add_parser.assert_called_once_with(
+            "config", help="Manage configuration"
+        )
         assert parser.add_argument.call_count >= 1
 
 
@@ -111,7 +115,10 @@ class TestHandleAnalyze:
         mock_analyzer = MagicMock()
         mock_analyzer.analyze.return_value = {"priorities": {"func1": 1}, "total": 1}
 
-        with patch("akshare_data.offline.analyzer.CallStatsAnalyzer", return_value=mock_analyzer):
+        with patch(
+            "akshare_data.offline.analyzer.CallStatsAnalyzer",
+            return_value=mock_analyzer,
+        ):
             args = MagicMock()
             args.type = "logs"
             args.window = 7
@@ -137,7 +144,10 @@ class TestHandleAnalyze:
         """Test analyze cache with empty table data"""
         from akshare_data.offline.cli.main import _handle_analyze
 
-        with patch("akshare_data.offline.core.data_loader.load_table", return_value=pd.DataFrame()):
+        with patch(
+            "akshare_data.offline.core.data_loader.load_table",
+            return_value=pd.DataFrame(),
+        ):
             args = MagicMock()
             args.type = "cache"
             args.table = "stock_daily"
@@ -159,13 +169,20 @@ class TestHandleAnalyze:
             "is_complete": True,
         }
 
-        test_df = pd.DataFrame({
-            "date": pd.date_range("2024-01-01", periods=10),
-            "symbol": ["sh600000"] * 10,
-        })
+        test_df = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-01", periods=10),
+                "symbol": ["sh600000"] * 10,
+            }
+        )
 
-        with patch("akshare_data.offline.analyzer.cache_analysis.CompletenessChecker", return_value=mock_checker):
-            with patch("akshare_data.offline.core.data_loader.load_table", return_value=test_df):
+        with patch(
+            "akshare_data.offline.analyzer.cache_analysis.CompletenessChecker",
+            return_value=mock_checker,
+        ):
+            with patch(
+                "akshare_data.offline.core.data_loader.load_table", return_value=test_df
+            ):
                 args = MagicMock()
                 args.type = "cache"
                 args.table = "stock_daily"
@@ -181,7 +198,9 @@ class TestHandleAnalyze:
         mock_mapper.generate_report.return_value = "# Report"
         mock_mapper.export_mappings_json.return_value = "/path/to/mappings.json"
 
-        with patch("akshare_data.offline.analyzer.FieldMapper", return_value=mock_mapper):
+        with patch(
+            "akshare_data.offline.analyzer.FieldMapper", return_value=mock_mapper
+        ):
             args = MagicMock()
             args.type = "fields"
             args.category = "equity"
@@ -214,9 +233,16 @@ class TestHandleReport:
         """Test health report with existing probe data"""
         from akshare_data.offline.cli.main import _handle_report
 
-        probe_data = json.dumps([
-            {"func_name": "func1", "status": "Success", "exec_time": 1.0, "data_size": 100}
-        ])
+        probe_data = json.dumps(
+            [
+                {
+                    "func_name": "func1",
+                    "status": "Success",
+                    "exec_time": 1.0,
+                    "data_size": 100,
+                }
+            ]
+        )
 
         mock_paths = MagicMock()
         mock_paths.prober_state_file.exists.return_value = True
@@ -226,7 +252,10 @@ class TestHandleReport:
         mock_generator.generate.return_value = "# Health Report"
 
         with patch("akshare_data.offline.cli.main.paths", mock_paths):
-            with patch("akshare_data.offline.report.HealthReportGenerator", return_value=mock_generator):
+            with patch(
+                "akshare_data.offline.report.HealthReportGenerator",
+                return_value=mock_generator,
+            ):
                 with patch("builtins.open", mock_open(read_data=probe_data)):
                     args = MagicMock()
                     args.type = "health"
@@ -260,17 +289,31 @@ class TestHandleReport:
         mock_generator = MagicMock()
         mock_generator.generate.return_value = "# Quality Report"
 
-        test_df = pd.DataFrame({
-            "date": pd.date_range("2024-01-01", periods=10),
-            "symbol": ["sh600000"] * 10,
-            "open": [10.0] * 10,
-            "close": [10.5] * 10,
-        })
+        test_df = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-01", periods=10),
+                "symbol": ["sh600000"] * 10,
+                "open": [10.0] * 10,
+                "close": [10.5] * 10,
+            }
+        )
 
-        with patch("akshare_data.offline.analyzer.cache_analysis.CompletenessChecker", return_value=mock_checker):
-            with patch("akshare_data.offline.analyzer.cache_analysis.AnomalyDetector", return_value=mock_detector):
-                with patch("akshare_data.offline.report.QualityReportGenerator", return_value=mock_generator):
-                    with patch("akshare_data.offline.cli.main._load_table_data", return_value=test_df):
+        with patch(
+            "akshare_data.offline.analyzer.cache_analysis.CompletenessChecker",
+            return_value=mock_checker,
+        ):
+            with patch(
+                "akshare_data.offline.analyzer.cache_analysis.AnomalyDetector",
+                return_value=mock_detector,
+            ):
+                with patch(
+                    "akshare_data.offline.report.QualityReportGenerator",
+                    return_value=mock_generator,
+                ):
+                    with patch(
+                        "akshare_data.offline.cli.main._load_table_data",
+                        return_value=test_df,
+                    ):
                         args = MagicMock()
                         args.type = "quality"
                         args.table = "stock_daily"
@@ -291,7 +334,10 @@ class TestHandleReport:
         mock_paths.project_root = "/project"
 
         with patch("akshare_data.offline.cli.main.paths", mock_paths):
-            with patch("akshare_data.offline.report.renderer.ReportRenderer", return_value=mock_renderer):
+            with patch(
+                "akshare_data.offline.report.renderer.ReportRenderer",
+                return_value=mock_renderer,
+            ):
                 args = MagicMock()
                 args.type = "dashboard"
 
@@ -301,10 +347,12 @@ class TestHandleReport:
         """Test dashboard report with probe data"""
         from akshare_data.offline.cli.main import _handle_report
 
-        probe_data = json.dumps([
-            {"func_name": "func1", "status": "Success", "exec_time": 1.0},
-            {"func_name": "func2", "status": "Failed", "exec_time": 0.5},
-        ])
+        probe_data = json.dumps(
+            [
+                {"func_name": "func1", "status": "Success", "exec_time": 1.0},
+                {"func_name": "func2", "status": "Failed", "exec_time": 0.5},
+            ]
+        )
 
         mock_renderer = MagicMock()
         mock_renderer.render_markdown.return_value = "# Dashboard"
@@ -316,7 +364,10 @@ class TestHandleReport:
         mock_paths.project_root = "/project"
 
         with patch("akshare_data.offline.cli.main.paths", mock_paths):
-            with patch("akshare_data.offline.report.renderer.ReportRenderer", return_value=mock_renderer):
+            with patch(
+                "akshare_data.offline.report.renderer.ReportRenderer",
+                return_value=mock_renderer,
+            ):
                 with patch("builtins.open", mock_open(read_data=probe_data)):
                     args = MagicMock()
                     args.type = "dashboard"
@@ -333,7 +384,9 @@ class TestLoadTableData:
 
         test_df = pd.DataFrame({"col1": [1, 2, 3]})
 
-        with patch("akshare_data.offline.core.data_loader.load_table", return_value=test_df):
+        with patch(
+            "akshare_data.offline.core.data_loader.load_table", return_value=test_df
+        ):
             result = _load_table_data("stock_daily")
 
             assert not result.empty
@@ -342,7 +395,10 @@ class TestLoadTableData:
         """Test table load with exception returns empty DataFrame"""
         from akshare_data.offline.cli.main import _load_table_data
 
-        with patch("akshare_data.offline.core.data_loader.load_table", side_effect=Exception("Not found")):
+        with patch(
+            "akshare_data.offline.core.data_loader.load_table",
+            side_effect=Exception("Not found"),
+        ):
             result = _load_table_data("nonexistent_table")
 
             assert result.empty
@@ -388,7 +444,14 @@ class TestMain:
 
         with patch("argparse.ArgumentParser", return_value=mock_parser):
             with patch("akshare_data.offline.cli.main.paths", mock_paths):
-                with patch("akshare_data.offline.core.data_loader.get_cache_manager_instance", return_value=mock_cache_manager):
-                    with patch("akshare_data.offline.downloader.BatchDownloader") as mock_bd:
-                        mock_bd.return_value.download_incremental.return_value = {"success": 10}
+                with patch(
+                    "akshare_data.offline.core.data_loader.get_cache_manager_instance",
+                    return_value=mock_cache_manager,
+                ):
+                    with patch(
+                        "akshare_data.offline.downloader.BatchDownloader"
+                    ) as mock_bd:
+                        mock_bd.return_value.download_incremental.return_value = {
+                            "success": 10
+                        }
                         main()

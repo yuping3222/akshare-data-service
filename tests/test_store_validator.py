@@ -325,30 +325,36 @@ class TestNormalizeDateColumns:
 
     def test_normalize_date_columns_specific_columns(self):
         """Test normalize_date_columns with specific columns."""
-        df = pd.DataFrame({
-            "date1": pd.to_datetime(["2024-01-01", "2024-01-02"]),
-            "date2": pd.to_datetime(["2024-01-03", "2024-01-04"]),
-            "other": [1, 2],
-        })
+        df = pd.DataFrame(
+            {
+                "date1": pd.to_datetime(["2024-01-01", "2024-01-02"]),
+                "date2": pd.to_datetime(["2024-01-03", "2024-01-04"]),
+                "other": [1, 2],
+            }
+        )
         result = normalize_date_columns(df, columns=["date1"])
         assert result["date1"].dtype == object
         assert result["other"].dtype == "int64"
 
     def test_normalize_date_columns_all_columns(self):
         """Test normalize_date_columns normalizes all datetime columns."""
-        df = pd.DataFrame({
-            "date1": pd.to_datetime(["2024-01-01", "2024-01-02"]),
-            "date2": pd.to_datetime(["2024-01-03", "2024-01-04"]),
-        })
+        df = pd.DataFrame(
+            {
+                "date1": pd.to_datetime(["2024-01-01", "2024-01-02"]),
+                "date2": pd.to_datetime(["2024-01-03", "2024-01-04"]),
+            }
+        )
         result = normalize_date_columns(df)
         assert result["date1"].dtype == object
         assert result["date2"].dtype == object
 
     def test_normalize_date_columns_none_columns(self):
         """Test normalize_date_columns with None uses all columns."""
-        df = pd.DataFrame({
-            "date1": pd.to_datetime(["2024-01-01", "2024-01-02"]),
-        })
+        df = pd.DataFrame(
+            {
+                "date1": pd.to_datetime(["2024-01-01", "2024-01-02"]),
+            }
+        )
         result = normalize_date_columns(df, columns=None)
         assert result["date1"].dtype == object
 
@@ -364,37 +370,45 @@ class TestDeduplicateByKey:
 
     def test_deduplicate_by_key_removes_duplicates(self):
         """Test deduplicate_by_key removes duplicates."""
-        df = pd.DataFrame({
-            "id": [1, 2, 2, 3],
-            "value": ["a", "b", "c", "d"],
-        })
+        df = pd.DataFrame(
+            {
+                "id": [1, 2, 2, 3],
+                "value": ["a", "b", "c", "d"],
+            }
+        )
         result = deduplicate_by_key(df, ["id"])
         assert len(result) == 3
 
     def test_deduplicate_by_key_keeps_last(self):
         """Test deduplicate_by_key keeps last occurrence."""
-        df = pd.DataFrame({
-            "id": [1, 2, 2, 2],
-            "value": ["a", "b", "c", "d"],
-        })
+        df = pd.DataFrame(
+            {
+                "id": [1, 2, 2, 2],
+                "value": ["a", "b", "c", "d"],
+            }
+        )
         result = deduplicate_by_key(df, ["id"])
         assert result[result["id"] == 2]["value"].iloc[-1] == "d"
 
     def test_deduplicate_by_key_no_duplicates(self):
         """Test deduplicate_by_key with no duplicates."""
-        df = pd.DataFrame({
-            "id": [1, 2, 3],
-            "value": ["a", "b", "c"],
-        })
+        df = pd.DataFrame(
+            {
+                "id": [1, 2, 3],
+                "value": ["a", "b", "c"],
+            }
+        )
         result = deduplicate_by_key(df, ["id"])
         assert len(result) == 3
 
     def test_deduplicate_by_key_multiple_keys(self):
         """Test deduplicate_by_key with multiple keys."""
-        df = pd.DataFrame({
-            "id1": [1, 1, 2, 2],
-            "id2": [1, 1, 2, 2],
-            "value": ["a", "b", "c", "d"],
-        })
+        df = pd.DataFrame(
+            {
+                "id1": [1, 1, 2, 2],
+                "id2": [1, 1, 2, 2],
+                "value": ["a", "b", "c", "d"],
+            }
+        )
         result = deduplicate_by_key(df, ["id1", "id2"])
         assert len(result) == 2

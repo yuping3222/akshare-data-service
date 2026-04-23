@@ -40,6 +40,9 @@ markers = [
     "system: system tests (end-to-end critical paths)",
     "slow: long-running tests (>5s)",
     "network: tests requiring real network access",
+    "contract: contract and protocol tests (schema, field dictionary, gate DSL)",
+    "replay: raw replay and batch reconstruction tests",
+    "served: served layer and publish gate tests",
 ]
 addopts = "-v --tb=short --strict-markers"
 filterwarnings = [

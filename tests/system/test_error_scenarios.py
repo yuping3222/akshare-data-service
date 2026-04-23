@@ -170,7 +170,9 @@ class TestEmptyDataSourceResponse:
         )
         assert isinstance(result, pd.DataFrame)
 
-    def test_partial_data_then_empty_incremenal(self, system_cache_manager: CacheManager) -> None:
+    def test_partial_data_then_empty_incremenal(
+        self, system_cache_manager: CacheManager
+    ) -> None:
         """Incremental fetch with partial data then empty new data works."""
         service = DataService(cache_manager=system_cache_manager)
 
@@ -286,7 +288,9 @@ class TestMemoryCacheEviction:
 class TestInvalidConfigHandling:
     """Behavior when configuration is invalid or missing."""
 
-    def test_service_with_missing_config_dir(self, system_cache_manager: CacheManager) -> None:
+    def test_service_with_missing_config_dir(
+        self, system_cache_manager: CacheManager
+    ) -> None:
         """DataService initializes even when config directory is missing."""
         service = DataService(cache_manager=system_cache_manager)
         assert service is not None

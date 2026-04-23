@@ -187,7 +187,9 @@ class TestAkShareScanner:
             "getmembers",
             return_value=[("test_func", mock_func)],
         ):
-            with patch("akshare_data.offline.scanner.akshare_scanner.logger") as mock_logger:
+            with patch(
+                "akshare_data.offline.scanner.akshare_scanner.logger"
+            ) as mock_logger:
                 scanner.scan_all()
                 mock_logger.info.assert_called()
 
@@ -328,7 +330,9 @@ class TestCategoryInferrer:
         for prefix, expected_category in CATEGORY_RULES.items():
             result = inferrer.infer(prefix)
             if result != expected_category:
-                print(f"MISMATCH: prefix={prefix!r} result={result!r} expected={expected_category!r}")
+                print(
+                    f"MISMATCH: prefix={prefix!r} result={result!r} expected={expected_category!r}"
+                )
 
     def test_infer_lof(self):
         """测试LOF基金"""

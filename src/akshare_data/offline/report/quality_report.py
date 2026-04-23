@@ -54,7 +54,10 @@ class QualityReportGenerator:
         content = self._renderer.render_markdown(sections)
 
         if output_file is None:
-            output_file = self._output_dir / f"quality_report_{datetime.now().strftime('%Y%m%d')}.md"
+            output_file = (
+                self._output_dir
+                / f"quality_report_{datetime.now().strftime('%Y%m%d')}.md"
+            )
 
         self._renderer.save(content, output_file)
         logger.info(f"Quality report saved to {output_file}")

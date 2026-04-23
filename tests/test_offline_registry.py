@@ -37,9 +37,7 @@ class TestLoadRateLimits:
             "default:\n  interval: 0.5\n  description: '默认'\nem_push2his:\n  interval: 1.0\n"
         )
 
-        with patch(
-            "akshare_data.offline.registry.builder.RATE_LIMITS_FILE", rate_file
-        ):
+        with patch("akshare_data.offline.registry.builder.RATE_LIMITS_FILE", rate_file):
             result = _load_rate_limits()
             assert "default" in result
             assert result["default"]["interval"] == 0.5
@@ -93,8 +91,18 @@ class TestRegistryBuilder:
             }
         }
 
-        with patch.object(builder, "_build_interface", return_value={"name": "test_func", "category": "test", "domains": [], "rate_limit_key": "default"}), patch.object(
-            builder, "domain_extractor", MagicMock()
+        with (
+            patch.object(
+                builder,
+                "_build_interface",
+                return_value={
+                    "name": "test_func",
+                    "category": "test",
+                    "domains": [],
+                    "rate_limit_key": "default",
+                },
+            ),
+            patch.object(builder, "domain_extractor", MagicMock()),
         ):
             result = builder.build(scan_results=scan_results)
 
@@ -113,7 +121,10 @@ class TestRegistryBuilder:
         mock_scanner.scan_all.return_value = {}
         builder.scanner = mock_scanner
 
-        with patch("akshare_data.offline.registry.builder._load_rate_limits", return_value={"default": {"interval": 0.5}}):
+        with patch(
+            "akshare_data.offline.registry.builder._load_rate_limits",
+            return_value={"default": {"interval": 0.5}},
+        ):
             result = builder.build()
 
         assert result["version"] == "2.0"
@@ -129,10 +140,22 @@ class TestRegistryBuilder:
 
         def mock_build_interface(name, info):
             if name == "func1":
-                return {"name": name, "category": "cat1", "domains": ["example.com"], "rate_limit_key": "default"}
-            return {"name": name, "category": "cat2", "domains": ["example.com"], "rate_limit_key": "default"}
+                return {
+                    "name": name,
+                    "category": "cat1",
+                    "domains": ["example.com"],
+                    "rate_limit_key": "default",
+                }
+            return {
+                "name": name,
+                "category": "cat2",
+                "domains": ["example.com"],
+                "rate_limit_key": "default",
+            }
 
-        with patch.object(builder, "_build_interface", side_effect=mock_build_interface):
+        with patch.object(
+            builder, "_build_interface", side_effect=mock_build_interface
+        ):
             result = builder.build(scan_results=scan_results)
 
         assert "example.com" in result["domains"]
@@ -179,7 +202,9 @@ class TestRegistryBuilder:
     def test_infer_rate_limit_multiple_domains_first_matches(self):
         """测试多个域名时返回第一个匹配"""
         builder = RegistryBuilder()
-        result = builder._infer_rate_limit(["push2his.eastmoney.com", "push2.eastmoney.com"])
+        result = builder._infer_rate_limit(
+            ["push2his.eastmoney.com", "push2.eastmoney.com"]
+        )
         assert result == "em_push2his"
 
     def test_infer_rate_limit_second_domain_matches(self):
@@ -195,10 +220,17 @@ class TestRegistryBuilder:
         mock_func = MagicMock()
         mock_func.__doc__ = "Test doc"
 
-        with patch.object(builder, "_get_func_obj", return_value=mock_func), patch.object(
-            builder.domain_extractor, "extract", return_value=["example.com"]
-        ), patch.object(builder.category_inferrer, "infer", return_value="test_category"), patch.object(
-            builder.param_inferrer, "infer", return_value={"symbol": "000001"}
+        with (
+            patch.object(builder, "_get_func_obj", return_value=mock_func),
+            patch.object(
+                builder.domain_extractor, "extract", return_value=["example.com"]
+            ),
+            patch.object(
+                builder.category_inferrer, "infer", return_value="test_category"
+            ),
+            patch.object(
+                builder.param_inferrer, "infer", return_value={"symbol": "000001"}
+            ),
         ):
             result = builder._build_interface(
                 "test_func", {"doc": "Test", "signature": ["symbol"]}
@@ -217,10 +249,11 @@ class TestRegistryBuilder:
         """测试无函数对象时构建接口"""
         builder = RegistryBuilder()
 
-        with patch.object(builder, "_get_func_obj", return_value=None), patch.object(
-            builder.domain_extractor, "extract", return_value=[]
-        ), patch.object(builder.category_inferrer, "infer", return_value="unknown"), patch.object(
-            builder.param_inferrer, "infer", return_value={}
+        with (
+            patch.object(builder, "_get_func_obj", return_value=None),
+            patch.object(builder.domain_extractor, "extract", return_value=[]),
+            patch.object(builder.category_inferrer, "infer", return_value="unknown"),
+            patch.object(builder.param_inferrer, "infer", return_value={}),
         ):
             result = builder._build_interface(
                 "test_func", {"doc": "Test", "signature": []}
@@ -263,12 +296,8 @@ class TestRegistryExporter:
                     "probe": {"params": {}, "skip": False, "check_interval": 2592000},
                 },
             },
-            "domains": {
-                "example.com": {"rate_limit_key": "default"}
-            },
-            "rate_limits": {
-                "default": {"interval": 0.5}
-            },
+            "domains": {"example.com": {"rate_limit_key": "default"}},
+            "rate_limits": {"default": {"interval": 0.5}},
         }
 
     def test_export_yaml_default_path(self, sample_registry, tmp_path):
@@ -401,7 +430,9 @@ class TestRegistryMerger:
             result = merger.merge_interfaces(auto_generated_registry)
             assert result == 0
 
-    def test_merge_interfaces_manual_path_not_exists(self, auto_generated_registry, tmp_path):
+    def test_merge_interfaces_manual_path_not_exists(
+        self, auto_generated_registry, tmp_path
+    ):
         """测试手工配置路径不存在"""
         merger = RegistryMerger()
         result = merger.merge_interfaces(
@@ -433,9 +464,14 @@ class TestRegistryMerger:
         assert auto_generated_registry["interfaces"]["func1"]["sources"] == [
             "manual_source"
         ]
-        assert auto_generated_registry["interfaces"]["func1"]["category"] == "custom_category"
+        assert (
+            auto_generated_registry["interfaces"]["func1"]["category"]
+            == "custom_category"
+        )
 
-    def test_merge_interfaces_with_input_output(self, auto_generated_registry, tmp_path):
+    def test_merge_interfaces_with_input_output(
+        self, auto_generated_registry, tmp_path
+    ):
         """测试合并input/output配置"""
         interfaces_dir = tmp_path / "interfaces"
         interfaces_dir.mkdir()
@@ -450,7 +486,9 @@ class TestRegistryMerger:
             yaml.dump(manual_config, f)
 
         merger = RegistryMerger()
-        merger.merge_interfaces(auto_generated_registry, manual_config_path=interfaces_dir)
+        merger.merge_interfaces(
+            auto_generated_registry, manual_config_path=interfaces_dir
+        )
 
         assert auto_generated_registry["interfaces"]["func1"]["input"] == {
             "symbol": "000001"
@@ -459,7 +497,9 @@ class TestRegistryMerger:
             "format": "DataFrame"
         }
 
-    def test_merge_interfaces_override_rate_limit_key(self, auto_generated_registry, tmp_path):
+    def test_merge_interfaces_override_rate_limit_key(
+        self, auto_generated_registry, tmp_path
+    ):
         """测试覆盖rate_limit_key"""
         interfaces_dir = tmp_path / "interfaces"
         interfaces_dir.mkdir()
@@ -469,9 +509,14 @@ class TestRegistryMerger:
             yaml.dump(manual_config, f)
 
         merger = RegistryMerger()
-        merger.merge_interfaces(auto_generated_registry, manual_config_path=interfaces_dir)
+        merger.merge_interfaces(
+            auto_generated_registry, manual_config_path=interfaces_dir
+        )
 
-        assert auto_generated_registry["interfaces"]["func1"]["rate_limit_key"] == "custom_key"
+        assert (
+            auto_generated_registry["interfaces"]["func1"]["rate_limit_key"]
+            == "custom_key"
+        )
 
     def test_merge_interfaces_multiple_files(self, auto_generated_registry, tmp_path):
         """测试合并多个文件"""
@@ -706,7 +751,10 @@ class TestRegistryBuilderEdgeCases:
     def test_build_with_empty_scan_results(self):
         """测试空扫描结果"""
         builder = RegistryBuilder()
-        with patch("akshare_data.offline.registry.builder._load_rate_limits", return_value={"default": {"interval": 0.5}}):
+        with patch(
+            "akshare_data.offline.registry.builder._load_rate_limits",
+            return_value={"default": {"interval": 0.5}},
+        ):
             result = builder.build(scan_results={})
         assert result["interfaces"] == {}
 
@@ -714,10 +762,14 @@ class TestRegistryBuilderEdgeCases:
         """测试函数对象为None"""
         builder = RegistryBuilder()
 
-        with patch.object(builder, "_get_func_obj", return_value=None), patch.object(
-            builder.domain_extractor, "extract", return_value=[]
-        ), patch.object(builder.category_inferrer, "infer", return_value="unknown"):
-            result = builder._build_interface("nonexistent", {"doc": "", "signature": []})
+        with (
+            patch.object(builder, "_get_func_obj", return_value=None),
+            patch.object(builder.domain_extractor, "extract", return_value=[]),
+            patch.object(builder.category_inferrer, "infer", return_value="unknown"),
+        ):
+            result = builder._build_interface(
+                "nonexistent", {"doc": "", "signature": []}
+            )
             assert result["domains"] == []
 
     def test_infer_rate_limit_with_subdomain_match(self):
@@ -729,7 +781,9 @@ class TestRegistryBuilderEdgeCases:
     def test_infer_rate_limit_takes_first_match(self):
         """测试优先使用第一个匹配的域名"""
         builder = RegistryBuilder()
-        result = builder._infer_rate_limit(["hq.sinajs.cn", "vip.stock.finance.sina.com.cn"])
+        result = builder._infer_rate_limit(
+            ["hq.sinajs.cn", "vip.stock.finance.sina.com.cn"]
+        )
         assert result == "sina_hq"
 
 

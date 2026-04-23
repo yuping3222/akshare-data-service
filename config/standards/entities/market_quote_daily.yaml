@@ -1,0 +1,162 @@
+# Entity: market_quote_daily
+#
+# 日线行情标准实体配置
+# 优先级: P0
+#
+# 加载方：
+#   - governance catalog：实体注册
+#   - quality DSL：规则字段引用
+#   - service docgen：输出字段文档
+#   - normalizer：schema 校验与 merge
+
+version: '1.0'
+
+entity: market_quote_daily
+description: 日线行情（股票/ETF/指数通用）
+priority: P0
+storage_layer: daily
+
+# ---------------------------------------------------------------------------
+# 主键与分区
+# ---------------------------------------------------------------------------
+primary_key:
+  - security_id
+  - trade_date
+  - adjust_type
+
+partition_by:
+  - trade_date
+
+# ---------------------------------------------------------------------------
+# 时间字段
+# ---------------------------------------------------------------------------
+time_fields:
+  trade_date:
+    description: 交易日期
+    role: business
+  ingest_time:
+    description: 入库时间
+    role: system
+  publish_time:
+    description: 发布到 Served 的时间
+    role: system
+    nullable: true
+
+# ---------------------------------------------------------------------------
+# 必填字段
+# ---------------------------------------------------------------------------
+required_fields:
+  - security_id
+  - exchange
+  - adjust_type
+  - trade_date
+  - open_price
+  - high_price
+  - low_price
+  - close_price
+  - volume
+  - turnover_amount
+
+# ---------------------------------------------------------------------------
+# 字段定义
+# ---------------------------------------------------------------------------
+fields:
+  security_id:
+    type: string
+    description: 证券唯一标识
+    required: true
+
+  exchange:
+    type: string
+    description: 交易所
+    required: true
+
+  adjust_type:
+    type: string
+    description: 复权类型（如 qfq/hfq/none）
+    required: true
+
+  trade_date:
+    type: date
+    description: 交易日期
+    required: true
+
+  open_price:
+    type: double
+    description: 开盘价
+    unit: CNY
+    required: true
+
+  high_price:
+    type: double
+    description: 最高价
+    unit: CNY
+    required: true
+
+  low_price:
+    type: double
+    description: 最低价
+    unit: CNY
+    required: true
+
+  close_price:
+    type: double
+    description: 收盘价
+    unit: CNY
+    required: true
+
+  volume:
+    type: double
+    description: 成交量
+    unit: share
+    required: true
+
+  turnover_amount:
+    type: double
+    description: 成交额
+    unit: CNY
+    required: true
+
+  change_pct:
+    type: double
+    description: 涨跌幅
+    unit: pct
+    required: false
+
+  turnover_rate:
+    type: double
+    description: 换手率
+    unit: pct
+    required: false
+
+# ---------------------------------------------------------------------------
+# 系统字段（所有 Standardized / Served 数据集统一）
+# ---------------------------------------------------------------------------
+system_fields:
+  batch_id:
+    type: string
+    required: true
+  source_name:
+    type: string
+    required: true
+  interface_name:
+    type: string
+    required: true
+  ingest_time:
+    type: timestamp
+    required: true
+  normalize_version:
+    type: string
+    required: true
+  schema_version:
+    type: string
+    required: true
+  quality_status:
+    type: string
+    required: true
+  publish_time:
+    type: timestamp
+    required: false
+  release_version:
+    type: string
+    required: false

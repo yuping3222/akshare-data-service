@@ -18,6 +18,7 @@ DEFAULT_STABLE_TTL = 30 * 24 * 3600
 @dataclass
 class ProbeResult:
     """单个探测结果"""
+
     func_name: str
     domain_group: str
     status: str
@@ -80,6 +81,7 @@ class CheckpointManager:
     def should_skip(self, func_name: str, ttl: int) -> bool:
         """检查是否应跳过（TTL 内）"""
         import time
+
         result = self._results.get(func_name)
         if not result:
             return False

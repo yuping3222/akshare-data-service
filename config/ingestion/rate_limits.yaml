@@ -1,0 +1,149 @@
+# Ingestion rate limits configuration
+#
+# Supports composite keys at three granularities:
+#   source|interface|domain   (most specific)
+#   source|interface|*
+#   source|*|domain
+#   *|interface|domain
+#   source|*|*
+#   *|interface|*
+#   *|*|domain
+#   default                   (least specific)
+#
+# The rate limiter resolves the most specific matching rule.
+# Wildcard (*) matches any value in that dimension.
+
+# ─── Default fallback ─────────────────────────────────────────────────
+default:
+  interval: 0.5
+  max_concurrent: 3
+  description: "Default rate limit for unmatched keys"
+
+# ─── Source-level overrides ───────────────────────────────────────────
+"lixinger|*|*":
+  interval: 2.0
+  max_concurrent: 2
+  description: "Lixinger OpenAPI global limit"
+
+"akshare|*|em_push2his":
+  interval: 0.5
+  max_concurrent: 3
+  description: "AkShare via EastMoney history API"
+
+"akshare|*|em_push2":
+  interval: 0.5
+  max_concurrent: 3
+  description: "AkShare via EastMoney realtime API"
+
+"akshare|*|em_datacenter":
+  interval: 1.0
+  max_concurrent: 3
+  description: "AkShare via EastMoney datacenter"
+
+"akshare|*|sina_vip":
+  interval: 1.0
+  max_concurrent: 3
+  description: "AkShare via Sina VIP"
+
+"akshare|*|sina_hq":
+  interval: 0.3
+  max_concurrent: 5
+  description: "AkShare via Sina HQ"
+
+"tushare|*|*":
+  interval: 0.2
+  max_concurrent: 3
+  description: "Tushare Pro global limit"
+
+# ─── Domain-level overrides ───────────────────────────────────────────
+"*|*|em_push2his":
+  interval: 0.5
+  max_concurrent: 3
+  description: "EastMoney history domain (push2his.eastmoney.com)"
+
+"*|*|em_push2":
+  interval: 0.5
+  max_concurrent: 3
+  description: "EastMoney realtime domain (push2.eastmoney.com)"
+
+"*|*|em_datacenter":
+  interval: 1.0
+  max_concurrent: 3
+  description: "EastMoney datacenter domain"
+
+"*|*|sina_vip":
+  interval: 1.0
+  max_concurrent: 3
+  description: "Sina VIP domain (vip.stock.finance.sina.com.cn)"
+
+"*|*|sina_hq":
+  interval: 0.3
+  max_concurrent: 5
+  description: "Sina HQ domain (hq.sinajs.cn)"
+
+"*|*|tushare":
+  interval: 0.2
+  max_concurrent: 3
+  description: "Tushare Pro domain"
+
+"*|*|lixinger":
+  interval: 2.0
+  max_concurrent: 2
+  description: "Lixinger OpenAPI domain (open.lixinger.com)"
+
+"*|*|dce":
+  interval: 1.0
+  max_concurrent: 3
+  description: "Dalian Commodity Exchange"
+
+"*|*|czce":
+  interval: 1.0
+  max_concurrent: 3
+  description: "Zhengzhou Commodity Exchange"
+
+"*|*|shfe":
+  interval: 1.0
+  max_concurrent: 3
+  description: "Shanghai Futures Exchange"
+
+"*|*|cffex":
+  interval: 1.0
+  max_concurrent: 3
+  description: "China Financial Futures Exchange"
+
+"*|*|stats":
+  interval: 0.5
+  max_concurrent: 3
+  description: "National Bureau of Statistics"
+
+# ─── Interface-specific overrides ─────────────────────────────────────
+"*|stock_zh_a_hist|*":
+  interval: 0.5
+  max_concurrent: 3
+  description: "A-share history (EastMoney)"
+
+"*|stock_zh_a_spot_em|*":
+  interval: 0.5
+  max_concurrent: 3
+  description: "A-share realtime spot (EastMoney)"
+
+"*|index_zh_a_hist|*":
+  interval: 1.0
+  max_concurrent: 3
+  description: "China index history (Sina)"
+
+"*|macro_china_cpi|*":
+  interval: 1.0
+  max_concurrent: 3
+  description: "China CPI macro data"
+
+# ─── High-value composite overrides ───────────────────────────────────
+"lixinger|equity_daily|lixinger":
+  interval: 2.0
+  max_concurrent: 1
+  description: "Lixinger equity daily - strict single-thread"
+
+"akshare|stock_zh_a_hist|em_push2his":
+  interval: 0.5
+  max_concurrent: 3
+  description: "AkShare A-share history via EastMoney"

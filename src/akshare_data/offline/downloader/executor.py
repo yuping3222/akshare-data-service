@@ -50,6 +50,7 @@ class TaskExecutor:
     def _call_akshare(self, func_name: str, **kwargs) -> Optional[pd.DataFrame]:
         """调用 AkShare 函数"""
         import akshare as ak
+
         func = getattr(ak, func_name, None)
         if func is None:
             raise DownloadError(f"Function {func_name} not found")

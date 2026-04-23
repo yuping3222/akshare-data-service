@@ -3,6 +3,7 @@
 Tushare Pro token has limited permissions for many endpoints.
 Tests that hit permission-denied errors are marked xfail.
 """
+
 import pytest
 import pandas as pd
 
@@ -25,13 +26,17 @@ class TestTushareBasicData:
     def test_get_daily_data(self, adapter):
         if adapter.is_configured():
             try:
-                df = adapter.get_daily_data(symbol="000001", start_date="20240101", end_date="20240201")
+                df = adapter.get_daily_data(
+                    symbol="000001", start_date="20240101", end_date="20240201"
+                )
                 assert isinstance(df, pd.DataFrame)
             except SourceUnavailableError:
                 pytest.skip("Tushare API permission denied or rate limited")
         else:
             with pytest.raises(Exception):
-                adapter.get_daily_data(symbol="000001", start_date="20240101", end_date="20240201")
+                adapter.get_daily_data(
+                    symbol="000001", start_date="20240101", end_date="20240201"
+                )
 
     def test_get_securities_list(self, adapter):
         if adapter.is_configured():
@@ -47,7 +52,9 @@ class TestTushareBasicData:
     def test_get_trading_days(self, adapter):
         if adapter.is_configured():
             try:
-                df = adapter.get_trading_days(start_date="20240101", end_date="20240201")
+                df = adapter.get_trading_days(
+                    start_date="20240101", end_date="20240201"
+                )
                 assert isinstance(df, pd.DataFrame)
             except SourceUnavailableError:
                 pytest.skip("Tushare API permission denied")
@@ -143,7 +150,9 @@ class TestTushareMarginData:
     def test_get_billboard_list(self, adapter):
         if adapter.is_configured():
             try:
-                df = adapter.get_billboard_list(start_date="20240101", end_date="20240110")
+                df = adapter.get_billboard_list(
+                    start_date="20240101", end_date="20240110"
+                )
                 assert isinstance(df, pd.DataFrame)
             except SourceUnavailableError:
                 pytest.skip("Tushare API permission denied")

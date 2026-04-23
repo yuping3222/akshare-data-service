@@ -116,7 +116,9 @@ class CallStatsAnalyzer:
 
         for key, agg in aggregated.items():
             call_count_norm = agg["call_count"] / max_calls if max_calls > 0 else 0
-            miss_rate = agg["miss_count"] / agg["call_count"] if agg["call_count"] > 0 else 0
+            miss_rate = (
+                agg["miss_count"] / agg["call_count"] if agg["call_count"] > 0 else 0
+            )
             recency = self._calc_recency(agg["timestamps"])
 
             score = call_count_norm * 0.4 + miss_rate * 0.3 + recency * 0.3
@@ -126,7 +128,9 @@ class CallStatsAnalyzer:
                 "call_count_norm": call_count_norm,
                 "miss_rate": miss_rate,
                 "recency": recency,
-                "avg_latency": agg["total_latency"] / agg["call_count"] if agg["call_count"] > 0 else 0,
+                "avg_latency": agg["total_latency"] / agg["call_count"]
+                if agg["call_count"] > 0
+                else 0,
             }
 
         return scored
@@ -151,7 +155,9 @@ class CallStatsAnalyzer:
             item["rank"] = i + 1
         return ranked
 
-    def _build_config(self, ranked: List[Dict], entries: List[Dict], window_days: int) -> Dict:
+    def _build_config(
+        self, ranked: List[Dict], entries: List[Dict], window_days: int
+    ) -> Dict:
         """构建最终配置"""
         # First pass: collect all symbols per interface and aggregate stats
         iface_data = {}
@@ -166,11 +172,13 @@ class CallStatsAnalyzer:
                     "max_score": item["score"],
                 }
             data = iface_data[interface]
-            data["symbols"].append({
-                "code": item["symbol"],
-                "calls": item["call_count"],
-                "misses": item["miss_count"],
-            })
+            data["symbols"].append(
+                {
+                    "code": item["symbol"],
+                    "calls": item["call_count"],
+                    "misses": item["miss_count"],
+                }
+            )
             data["total_calls"] += item["call_count"]
             data["total_misses"] += item["miss_count"]
             data["total_latency"] += item["avg_latency"] * item["call_count"]
@@ -179,23 +187,35 @@ class CallStatsAnalyzer:
         # Build interface-level priorities with aggregated stats
         priorities = {}
         for interface, data in iface_data.items():
-            miss_rate = data["total_misses"] / data["total_calls"] if data["total_calls"] > 0 else 0
-            avg_latency = data["total_latency"] / data["total_calls"] if data["total_calls"] > 0 else 0
+            miss_rate = (
+                data["total_misses"] / data["total_calls"]
+                if data["total_calls"] > 0
+                else 0
+            )
+            avg_latency = (
+                data["total_latency"] / data["total_calls"]
+                if data["total_calls"] > 0
+                else 0
+            )
             priorities[interface] = {
                 "score": round(data["max_score"], 2),
                 "call_count_7d": data["total_calls"],
                 "miss_rate_7d": round(miss_rate, 2),
                 "avg_latency_ms": round(avg_latency, 2),
                 "symbols": data["symbols"],
-                "recommendation": self._recommend_strategy({
-                    "miss_rate": miss_rate,
-                    "call_count": data["total_calls"],
-                    "score": data["max_score"],
-                }),
+                "recommendation": self._recommend_strategy(
+                    {
+                        "miss_rate": miss_rate,
+                        "call_count": data["total_calls"],
+                        "score": data["max_score"],
+                    }
+                ),
             }
 
         # Re-rank interfaces by score
-        ranked_ifaces = sorted(priorities.items(), key=lambda x: x[1]["score"], reverse=True)
+        ranked_ifaces = sorted(
+            priorities.items(), key=lambda x: x[1]["score"], reverse=True
+        )
         for rank, (iface, data) in enumerate(ranked_ifaces, 1):
             data["rank"] = rank
 
@@ -209,7 +229,9 @@ class CallStatsAnalyzer:
             "global": {
                 "total_calls_7d": total_calls,
                 "total_misses_7d": total_misses,
-                "overall_miss_rate": round(total_misses / total_calls, 2) if total_calls > 0 else 0,
+                "overall_miss_rate": round(total_misses / total_calls, 2)
+                if total_calls > 0
+                else 0,
             },
         }
 

@@ -1,0 +1,143 @@
+# Ingestion schedule configuration
+#
+# Each schedule entry defines:
+#   - dataset: canonical dataset name
+#   - domain: data domain (cn, us, system, etc.)
+#   - source_name: preferred source adapter
+#   - interface_name: source-specific function / interface
+#   - frequency: daily | weekly | monthly | once | custom
+#   - priority: p0 | p1 | p2 | p3
+#   - partitions: list of partition keys (symbols, etc.)
+#   - partition_mode: symbol | date | all
+#   - trading_calendar: whether to skip non-trading days
+#   - time_of_day: HH:MM for scheduling (informational)
+#   - day_of_week: 0=Mon … 6=Sun (for weekly)
+#   - day_of_month: 1–31 (for monthly)
+#   - params_template: default params merged into each task
+#   - enabled: whether the schedule is active
+
+schedules:
+  # ─── A-share daily quote (core, P0) ────────────────────────────────
+  cn_stock_daily:
+    dataset: market_quote_daily
+    domain: cn
+    source_name: akshare
+    interface_name: stock_zh_a_hist
+    frequency: daily
+    priority: p0
+    partition_mode: symbol
+    partitions:
+      - "000001"
+      - "000002"
+      - "600000"
+      - "600036"
+      - "601318"
+    trading_calendar: true
+    time_of_day: "16:00"
+    params_template:
+      adjust: qfq
+
+  # ─── Index daily (core, P0) ────────────────────────────────────────
+  cn_index_daily:
+    dataset: market_quote_daily
+    domain: cn
+    source_name: akshare
+    interface_name: index_zh_a_hist
+    frequency: daily
+    priority: p0
+    partition_mode: symbol
+    partitions:
+      - "000001"
+      - "399001"
+      - "399006"
+      - "000300"
+      - "000905"
+    trading_calendar: true
+    time_of_day: "16:00"
+
+  # ─── ETF daily (P1) ────────────────────────────────────────────────
+  cn_etf_daily:
+    dataset: market_quote_daily
+    domain: cn
+    source_name: akshare
+    interface_name: fund_etf_hist_em
+    frequency: daily
+    priority: p1
+    partition_mode: symbol
+    partitions:
+      - "510050"
+      - "510300"
+      - "159919"
+    trading_calendar: true
+    time_of_day: "16:00"
+
+  # ─── Financial indicator (weekly, P1) ──────────────────────────────
+  cn_financial_indicator:
+    dataset: financial_indicator
+    domain: cn
+    source_name: akshare
+    interface_name: stock_financial_analysis_indicator
+    frequency: weekly
+    priority: p1
+    day_of_week: 5
+    partition_mode: symbol
+    partitions:
+      - "000001"
+      - "600036"
+      - "601318"
+    trading_calendar: false
+
+  # ─── China macro data (monthly, P1) ────────────────────────────────
+  cn_macro_indicator:
+    dataset: macro_indicator
+    domain: cn
+    source_name: akshare
+    interface_name: macro_china_cpi
+    frequency: monthly
+    priority: p1
+    day_of_month: 10
+    partition_mode: all
+    partitions: []
+    trading_calendar: false
+
+  # ─── Realtime snapshot (daily, P2, all symbols) ────────────────────
+  cn_stock_snapshot:
+    dataset: spot_snapshot
+    domain: cn
+    source_name: akshare
+    interface_name: stock_zh_a_spot_em
+    frequency: daily
+    priority: p2
+    partition_mode: all
+    partitions: []
+    trading_calendar: true
+    time_of_day: "15:05"
+
+  # ─── US stock daily (P2) ───────────────────────────────────────────
+  us_stock_daily:
+    dataset: market_quote_daily
+    domain: us
+    source_name: akshare
+    interface_name: stock_us_hist
+    frequency: daily
+    priority: p2
+    partition_mode: symbol
+    partitions:
+      - "AAPL"
+      - "GOOG"
+      - "MSFT"
+    trading_calendar: false
+    time_of_day: "05:00"
+
+  # ─── Sector flow (daily, P2) ───────────────────────────────────────
+  cn_sector_flow:
+    dataset: sector_flow_snapshot
+    domain: cn
+    source_name: akshare
+    interface_name: stock_sector_fund_flow_rank
+    frequency: daily
+    priority: p2
+    partition_mode: all
+    partitions: []
+    trading_calendar: true
+    time_of_day: "16:30"

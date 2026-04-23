@@ -29,55 +29,63 @@ from akshare_data.api import CNMarketAPI, CNStockQuoteAPI, CNStockFinanceAPI
 # Helpers
 # ===================================================================
 
+
 def _make_daily_df(symbol="sh600000", start="2024-01-02", end="2024-01-15"):
     """Build a daily OHLCV DataFrame over business days in [start, end]."""
     dates = pd.date_range(start, end, freq="B")
     n = len(dates)
-    return pd.DataFrame({
-        "date": dates,
-        "symbol": [symbol] * n,
-        "open": [10.0 + i * 0.1 for i in range(n)],
-        "high": [11.0 + i * 0.1 for i in range(n)],
-        "low": [9.0 + i * 0.1 for i in range(n)],
-        "close": [10.5 + i * 0.1 for i in range(n)],
-        "volume": [100_000 + i * 10_000 for i in range(n)],
-        "amount": [1_000_000.0 + i * 100_000.0 for i in range(n)],
-    })
+    return pd.DataFrame(
+        {
+            "date": dates,
+            "symbol": [symbol] * n,
+            "open": [10.0 + i * 0.1 for i in range(n)],
+            "high": [11.0 + i * 0.1 for i in range(n)],
+            "low": [9.0 + i * 0.1 for i in range(n)],
+            "close": [10.5 + i * 0.1 for i in range(n)],
+            "volume": [100_000 + i * 10_000 for i in range(n)],
+            "amount": [1_000_000.0 + i * 100_000.0 for i in range(n)],
+        }
+    )
 
 
 def _make_minute_df(symbol="sh600000", periods=30):
     """Build a minute-bar DataFrame."""
     times = pd.date_range("2024-01-02 09:30", periods=periods, freq="min")
-    return pd.DataFrame({
-        "datetime": times,
-        "symbol": [symbol] * periods,
-        "open": [10.0 + i * 0.01 for i in range(periods)],
-        "high": [10.05 + i * 0.01 for i in range(periods)],
-        "low": [9.95 + i * 0.01 for i in range(periods)],
-        "close": [10.02 + i * 0.01 for i in range(periods)],
-        "volume": [5_000 + i * 500 for i in range(periods)],
-    })
+    return pd.DataFrame(
+        {
+            "datetime": times,
+            "symbol": [symbol] * periods,
+            "open": [10.0 + i * 0.01 for i in range(periods)],
+            "high": [10.05 + i * 0.01 for i in range(periods)],
+            "low": [9.95 + i * 0.01 for i in range(periods)],
+            "close": [10.02 + i * 0.01 for i in range(periods)],
+            "volume": [5_000 + i * 500 for i in range(periods)],
+        }
+    )
 
 
 def _make_chinese_daily_df(symbol="sh600000", start="2024-01-02", end="2024-01-15"):
     """Build a daily DataFrame with Chinese column names (AkShare style)."""
     dates = pd.date_range(start, end, freq="B")
     n = len(dates)
-    return pd.DataFrame({
-        "日期": dates,
-        "代码": [symbol] * n,
-        "开盘": [10.0 + i * 0.1 for i in range(n)],
-        "最高": [11.0 + i * 0.1 for i in range(n)],
-        "最低": [9.0 + i * 0.1 for i in range(n)],
-        "收盘": [10.5 + i * 0.1 for i in range(n)],
-        "成交量": [100_000 + i * 10_000 for i in range(n)],
-        "成交额": [1_000_000.0 + i * 100_000.0 for i in range(n)],
-    })
+    return pd.DataFrame(
+        {
+            "日期": dates,
+            "代码": [symbol] * n,
+            "开盘": [10.0 + i * 0.1 for i in range(n)],
+            "最高": [11.0 + i * 0.1 for i in range(n)],
+            "最低": [9.0 + i * 0.1 for i in range(n)],
+            "收盘": [10.5 + i * 0.1 for i in range(n)],
+            "成交量": [100_000 + i * 10_000 for i in range(n)],
+            "成交额": [1_000_000.0 + i * 100_000.0 for i in range(n)],
+        }
+    )
 
 
 # ===================================================================
 # Test class
 # ===================================================================
+
 
 @pytest.mark.integration
 class TestDataServiceFullPipeline:
@@ -101,7 +109,9 @@ class TestDataServiceFullPipeline:
     #    fetch -> cache writeback -> return
     # ----------------------------------------------------------------
 
-    def test_get_daily_full_pipeline_cache_miss_then_hit(self, data_service, temp_cache_dir):
+    def test_get_daily_full_pipeline_cache_miss_then_hit(
+        self, data_service, temp_cache_dir
+    ):
         """get_daily() on first call misses cache, fetches from source,
         writes back to cache; second call hits cache without invoking source.
 
@@ -216,15 +226,17 @@ class TestDataServiceFullPipeline:
         pipeline handles them correctly.
         """
         service = data_service
-        lixinger_df = pd.DataFrame({
-            "date": pd.date_range("2024-01-02", "2024-01-10", freq="B"),
-            "symbol": ["sh600000"] * 7,
-            "closePx": [10.5 + i * 0.1 for i in range(7)],
-            "openPx": [10.0 + i * 0.1 for i in range(7)],
-            "highPx": [11.0 + i * 0.1 for i in range(7)],
-            "lowPx": [9.0 + i * 0.1 for i in range(7)],
-            "volume": [100_000] * 7,
-        })
+        lixinger_df = pd.DataFrame(
+            {
+                "date": pd.date_range("2024-01-02", "2024-01-10", freq="B"),
+                "symbol": ["sh600000"] * 7,
+                "closePx": [10.5 + i * 0.1 for i in range(7)],
+                "openPx": [10.0 + i * 0.1 for i in range(7)],
+                "highPx": [11.0 + i * 0.1 for i in range(7)],
+                "lowPx": [9.0 + i * 0.1 for i in range(7)],
+                "volume": [100_000] * 7,
+            }
+        )
 
         with patch.object(
             service.lixinger, "get_daily_data", return_value=lixinger_df.copy()
@@ -373,7 +385,9 @@ class TestDataServiceFullPipeline:
     # 6. Namespace delegation: service.cn -> CN namespace classes
     # ----------------------------------------------------------------
 
-    def test_namespace_delegation_cn_stock_quote_daily(self, data_service, temp_cache_dir):
+    def test_namespace_delegation_cn_stock_quote_daily(
+        self, data_service, temp_cache_dir
+    ):
         """service.cn.stock.quote.daily delegates to CNStockQuoteAPI.daily,
         which calls cached_fetch with the correct table and storage layer.
         """
@@ -393,7 +407,9 @@ class TestDataServiceFullPipeline:
             )
             assert not result.empty
 
-    def test_namespace_delegation_cn_index_quote_daily(self, data_service, temp_cache_dir):
+    def test_namespace_delegation_cn_index_quote_daily(
+        self, data_service, temp_cache_dir
+    ):
         """service.cn.index.quote.daily delegates to CNIndexQuoteAPI.daily
         for index data.
         """
@@ -411,16 +427,16 @@ class TestDataServiceFullPipeline:
             )
             assert not result.empty
 
-    def test_namespace_delegation_cn_etf_quote_daily(self, data_service, temp_cache_dir):
+    def test_namespace_delegation_cn_etf_quote_daily(
+        self, data_service, temp_cache_dir
+    ):
         """service.cn.fund.quote.daily delegates to CNETFQuoteAPI.daily
         for ETF data.
         """
         service = data_service
         etf_df = _make_daily_df(symbol="sh510050")
 
-        with patch.object(
-            service.akshare, "get_etf_daily", return_value=etf_df.copy()
-        ):
+        with patch.object(service.akshare, "get_etf_daily", return_value=etf_df.copy()):
             result = service.cn.fund.quote.daily(
                 symbol="sh510050",
                 start_date="2024-01-02",
@@ -429,16 +445,19 @@ class TestDataServiceFullPipeline:
             )
             assert not result.empty
 
-    def test_namespace_delegation_cn_finance_indicators(self, data_service, temp_cache_dir):
-        """service.cn.stock.finance.indicators delegates to CNStockFinanceAPI.indicators.
-        """
+    def test_namespace_delegation_cn_finance_indicators(
+        self, data_service, temp_cache_dir
+    ):
+        """service.cn.stock.finance.indicators delegates to CNStockFinanceAPI.indicators."""
         service = data_service
-        finance_df = pd.DataFrame({
-            "report_date": ["2024-03-31", "2023-12-31"],
-            "symbol": ["600000", "600000"],
-            "roe": [0.12, 0.11],
-            "pe": [10.5, 11.2],
-        })
+        finance_df = pd.DataFrame(
+            {
+                "report_date": ["2024-03-31", "2023-12-31"],
+                "symbol": ["600000", "600000"],
+                "roe": [0.12, 0.11],
+                "pe": [10.5, 11.2],
+            }
+        )
 
         with patch.object(
             service.akshare, "get_finance_indicator", return_value=finance_df.copy()
@@ -475,7 +494,9 @@ class TestDataServiceFullPipeline:
     #    ErrorCode
     # ----------------------------------------------------------------
 
-    def test_source_error_propagates_with_error_code(self, data_service, temp_cache_dir):
+    def test_source_error_propagates_with_error_code(
+        self, data_service, temp_cache_dir
+    ):
         """When a source raises DataSourceError, the error is caught by the
         router (logged as a warning) and the pipeline returns an empty DataFrame.
         This tests graceful degradation on source failure.
@@ -528,14 +549,21 @@ class TestDataServiceFullPipeline:
         """
         service = data_service
 
-        with patch.object(
-            service.lixinger,
-            "get_daily_data",
-            side_effect=DataSourceError("Lixinger down", error_code=ErrorCode.SOURCE_UNAVAILABLE),
-        ), patch.object(
-            service.akshare,
-            "get_daily_data",
-            side_effect=DataSourceError("AkShare down", error_code=ErrorCode.SOURCE_UNAVAILABLE),
+        with (
+            patch.object(
+                service.lixinger,
+                "get_daily_data",
+                side_effect=DataSourceError(
+                    "Lixinger down", error_code=ErrorCode.SOURCE_UNAVAILABLE
+                ),
+            ),
+            patch.object(
+                service.akshare,
+                "get_daily_data",
+                side_effect=DataSourceError(
+                    "AkShare down", error_code=ErrorCode.SOURCE_UNAVAILABLE
+                ),
+            ),
         ):
             result = service.get_daily(
                 symbol="sh600000",
@@ -557,9 +585,7 @@ class TestDataServiceFullPipeline:
         service = data_service
         empty_df = pd.DataFrame()
 
-        with patch.object(
-            service.akshare, "get_daily_data", return_value=empty_df
-        ):
+        with patch.object(service.akshare, "get_daily_data", return_value=empty_df):
             result = service.get_daily(
                 symbol="sh600000",
                 start_date="2024-01-02",
@@ -574,9 +600,7 @@ class TestDataServiceFullPipeline:
         """
         service = data_service
 
-        with patch.object(
-            service.akshare, "get_daily_data", return_value=None
-        ):
+        with patch.object(service.akshare, "get_daily_data", return_value=None):
             result = service.get_daily(
                 symbol="sh600000",
                 start_date="2024-01-02",

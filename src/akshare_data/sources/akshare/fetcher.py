@@ -100,32 +100,89 @@ def _load_source_registry() -> Dict:
 
 # interface_name -> adapter method 映射
 _INTERFACE_METHOD_MAP: Dict[str, Dict[str, str]] = {
-    "equity_daily": {"TushareAdapter": "get_daily_data", "LixingerAdapter": "get_daily_data"},
-    "equity_minute": {"TushareAdapter": "get_minute_data", "LixingerAdapter": "get_minute_data"},
-    "securities_list": {"TushareAdapter": "get_securities_list", "LixingerAdapter": "get_securities_list"},
-    "security_info": {"TushareAdapter": "get_security_info", "LixingerAdapter": "get_security_info"},
-    "trading_days": {"TushareAdapter": "get_trading_days", "LixingerAdapter": "get_trading_days"},
-    "index_stocks": {"TushareAdapter": "get_index_stocks", "LixingerAdapter": "get_index_stocks"},
-    "index_components": {"TushareAdapter": "get_index_components", "LixingerAdapter": "get_index_components"},
-    "money_flow": {"TushareAdapter": "get_money_flow", "LixingerAdapter": "get_money_flow"},
-    "north_money_flow": {"TushareAdapter": "get_north_money_flow", "LixingerAdapter": "get_north_money_flow"},
-    "industry_stocks": {"TushareAdapter": "get_industry_stocks", "LixingerAdapter": "get_industry_stocks"},
-    "industry_mapping": {"TushareAdapter": "get_industry_mapping", "LixingerAdapter": "get_industry_mapping"},
-    "finance_indicator": {"TushareAdapter": "get_finance_indicator", "LixingerAdapter": "get_finance_indicator"},
-    "call_auction": {"TushareAdapter": "get_call_auction", "LixingerAdapter": "get_call_auction"},
-    "st_stocks": {"TushareAdapter": "get_st_stocks", "LixingerAdapter": "get_st_stocks"},
-    "suspended_stocks": {"TushareAdapter": "get_suspended_stocks", "LixingerAdapter": "get_suspended_stocks"},
-    "equity_realtime": {"TushareAdapter": "get_realtime_data", "LixingerAdapter": "get_realtime_data"},
+    "equity_daily": {
+        "TushareAdapter": "get_daily_data",
+        "LixingerAdapter": "get_daily_data",
+    },
+    "equity_minute": {
+        "TushareAdapter": "get_minute_data",
+        "LixingerAdapter": "get_minute_data",
+    },
+    "securities_list": {
+        "TushareAdapter": "get_securities_list",
+        "LixingerAdapter": "get_securities_list",
+    },
+    "security_info": {
+        "TushareAdapter": "get_security_info",
+        "LixingerAdapter": "get_security_info",
+    },
+    "trading_days": {
+        "TushareAdapter": "get_trading_days",
+        "LixingerAdapter": "get_trading_days",
+    },
+    "index_stocks": {
+        "TushareAdapter": "get_index_stocks",
+        "LixingerAdapter": "get_index_stocks",
+    },
+    "index_components": {
+        "TushareAdapter": "get_index_components",
+        "LixingerAdapter": "get_index_components",
+    },
+    "money_flow": {
+        "TushareAdapter": "get_money_flow",
+        "LixingerAdapter": "get_money_flow",
+    },
+    "north_money_flow": {
+        "TushareAdapter": "get_north_money_flow",
+        "LixingerAdapter": "get_north_money_flow",
+    },
+    "industry_stocks": {
+        "TushareAdapter": "get_industry_stocks",
+        "LixingerAdapter": "get_industry_stocks",
+    },
+    "industry_mapping": {
+        "TushareAdapter": "get_industry_mapping",
+        "LixingerAdapter": "get_industry_mapping",
+    },
+    "finance_indicator": {
+        "TushareAdapter": "get_finance_indicator",
+        "LixingerAdapter": "get_finance_indicator",
+    },
+    "call_auction": {
+        "TushareAdapter": "get_call_auction",
+        "LixingerAdapter": "get_call_auction",
+    },
+    "st_stocks": {
+        "TushareAdapter": "get_st_stocks",
+        "LixingerAdapter": "get_st_stocks",
+    },
+    "suspended_stocks": {
+        "TushareAdapter": "get_suspended_stocks",
+        "LixingerAdapter": "get_suspended_stocks",
+    },
+    "equity_realtime": {
+        "TushareAdapter": "get_realtime_data",
+        "LixingerAdapter": "get_realtime_data",
+    },
     "index_daily": {"TushareAdapter": None, "LixingerAdapter": "get_index_daily"},
     "etf_daily": {"TushareAdapter": None, "LixingerAdapter": "get_etf_daily"},
     "etf_list": {"TushareAdapter": None, "LixingerAdapter": "get_etf_list"},
     "fund_net_value": {"TushareAdapter": None, "LixingerAdapter": "get_fund_net_value"},
-    "fund_manager_info": {"TushareAdapter": None, "LixingerAdapter": "get_fund_manager_info"},
+    "fund_manager_info": {
+        "TushareAdapter": None,
+        "LixingerAdapter": "get_fund_manager_info",
+    },
     "index_list": {"TushareAdapter": None, "LixingerAdapter": "get_index_list"},
-    "financial_report": {"TushareAdapter": "get_financial_report", "LixingerAdapter": None},
+    "financial_report": {
+        "TushareAdapter": "get_financial_report",
+        "LixingerAdapter": None,
+    },
     "dividend": {"TushareAdapter": "get_dividend", "LixingerAdapter": None},
     "top10_holders": {"TushareAdapter": "get_top10_holders", "LixingerAdapter": None},
-    "top10_float_holders": {"TushareAdapter": "get_top10_float_holders", "LixingerAdapter": None},
+    "top10_float_holders": {
+        "TushareAdapter": "get_top10_float_holders",
+        "LixingerAdapter": None,
+    },
     "margin_detail": {"TushareAdapter": "get_margin_detail", "LixingerAdapter": None},
     "macro_cpi": {"TushareAdapter": "get_macro_raw", "LixingerAdapter": None},
     "macro_ppi": {"TushareAdapter": "get_macro_raw", "LixingerAdapter": None},
@@ -205,7 +262,9 @@ def _call_adapter_source(
         )
 
     if not isinstance(result, pd.DataFrame):
-        raise ValueError(f"{type(adapter).__name__}.{method_name} 返回类型不是 DataFrame")
+        raise ValueError(
+            f"{type(adapter).__name__}.{method_name} 返回类型不是 DataFrame"
+        )
 
     return result
 
@@ -242,6 +301,7 @@ def _get_rate_limiter() -> RateLimiter:
 
 
 # ── 工具函数 ──────────────────────────────────────────────────────────
+
 
 def _normalize_symbol(symbol: str) -> str:
     return _jq_code_to_ak(symbol)
@@ -300,6 +360,7 @@ def _to_pandas_type(type_name: str) -> str:
 
 # ── 核心 fetch 函数 ──────────────────────────────────────────────────
 
+
 def fetch(
     interface_name: str,
     akshare=None,
@@ -321,6 +382,7 @@ def fetch(
     """
     if akshare is None:
         import akshare as _ak
+
         akshare = _ak
 
     interfaces = _load_interfaces()
@@ -347,17 +409,17 @@ def fetch(
 
         rate_limiter.wait(rate_key)
         raw_df = ak_func(**kwargs)
-        
+
         if raw_df is None or (isinstance(raw_df, pd.DataFrame) and raw_df.empty):
             raise SourceUnavailableError(
                 f"接口 {interface_name} 返回空数据",
                 error_code=ErrorCode.SOURCE_UNAVAILABLE,
                 source="akshare",
             )
-        
+
         if not isinstance(raw_df, pd.DataFrame):
             raise ValueError(f"akshare.{interface_name} 返回类型不是 DataFrame")
-        
+
         raw_df.attrs["source"] = "akshare"
         raw_df.attrs["interface"] = interface_name
         return raw_df
@@ -370,7 +432,9 @@ def fetch(
             continue
 
         source_name = source.get("name", "")
-        source_type = source.get("type") or source_registry.get(source_name, {}).get("type", "akshare")
+        source_type = source.get("type") or source_registry.get(source_name, {}).get(
+            "type", "akshare"
+        )
 
         # 限速
         rate_limiter.wait(rate_key)
@@ -391,7 +455,9 @@ def fetch(
             call_kwargs = _build_adapter_kwargs(kwargs, source)
 
             try:
-                raw_df = _call_adapter_source(adapter, interface_name, method_name, call_kwargs)
+                raw_df = _call_adapter_source(
+                    adapter, interface_name, method_name, call_kwargs
+                )
             except SourceUnavailableError as e:
                 errors.append(f"{source_name}: {e}")
                 logger.debug("数据源 %s 调用失败: %s", source_name, e)
@@ -561,6 +627,7 @@ def _normalize_output(df: pd.DataFrame, source: Dict) -> pd.DataFrame:
 
 # ── 配置重载（用于测试和热更新） ─────────────────────────────────────
 
+
 def reload_config():
     """重载所有配置（用于测试和热更新）"""
     global _RATE_LIMITER
@@ -571,296 +638,678 @@ def reload_config():
 
 # ── 向后兼容：保留旧函数名作为别名 ──────────────────────────────────
 
-def fetch_daily_data(akshare, symbol, start_date, end_date, adjust="qfq", **kwargs):
-    return fetch("equity_daily", akshare=akshare, symbol=symbol, start_date=start_date, end_date=end_date, adjust=adjust, **kwargs)
 
-def fetch_minute_data(akshare, symbol, freq="1min", start_date=None, end_date=None, **kwargs):
-    return fetch("equity_minute", akshare=akshare, symbol=symbol, period=freq.replace("min", ""), start_date=start_date, end_date=end_date, **kwargs)
+def fetch_daily_data(akshare, symbol, start_date, end_date, adjust="qfq", **kwargs):
+    return fetch(
+        "equity_daily",
+        akshare=akshare,
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        adjust=adjust,
+        **kwargs,
+    )
+
+
+def fetch_minute_data(
+    akshare, symbol, freq="1min", start_date=None, end_date=None, **kwargs
+):
+    return fetch(
+        "equity_minute",
+        akshare=akshare,
+        symbol=symbol,
+        period=freq.replace("min", ""),
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_realtime_data(akshare, symbol, **kwargs):
     return fetch("equity_realtime", akshare=akshare, symbol=symbol, **kwargs)
 
+
 def fetch_index_daily(akshare, symbol, start_date, end_date, **kwargs):
-    return fetch("index_daily", akshare=akshare, symbol=symbol, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "index_daily",
+        akshare=akshare,
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_etf_daily(akshare, symbol, start_date, end_date, **kwargs):
-    return fetch("etf_daily", akshare=akshare, symbol=symbol, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "etf_daily",
+        akshare=akshare,
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_futures_hist_data(akshare, symbol, start_date, end_date, **kwargs):
-    return fetch("futures_daily", akshare=akshare, symbol=symbol, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "futures_daily",
+        akshare=akshare,
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_options_chain(akshare, symbol, exchange=None, **kwargs):
-    return fetch("options_chain", akshare=akshare, symbol=symbol, exchange=exchange, **kwargs)
+    return fetch(
+        "options_chain", akshare=akshare, symbol=symbol, exchange=exchange, **kwargs
+    )
+
 
 def fetch_options_realtime_data(akshare, symbol, exchange=None, **kwargs):
-    return fetch("options_realtime", akshare=akshare, symbol=symbol, exchange=exchange, **kwargs)
+    return fetch(
+        "options_realtime", akshare=akshare, symbol=symbol, exchange=exchange, **kwargs
+    )
+
 
 def fetch_options_expirations(akshare, symbol, exchange=None, **kwargs):
-    return fetch("options_expirations", akshare=akshare, symbol=symbol, exchange=exchange, **kwargs)
+    return fetch(
+        "options_expirations",
+        akshare=akshare,
+        symbol=symbol,
+        exchange=exchange,
+        **kwargs,
+    )
 
-def fetch_options_hist_data(akshare, symbol, start_date, end_date, exchange=None, **kwargs):
-    return fetch("options_hist", akshare=akshare, symbol=symbol, start_date=start_date, end_date=end_date, **kwargs)
+
+def fetch_options_hist_data(
+    akshare, symbol, start_date, end_date, exchange=None, **kwargs
+):
+    return fetch(
+        "options_hist",
+        akshare=akshare,
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_convert_bond_premium(akshare, **kwargs):
     return fetch("convert_bond_premium", akshare=akshare, **kwargs)
 
+
 def fetch_convert_bond_spot(akshare, **kwargs):
     return fetch("convert_bond_spot", akshare=akshare, **kwargs)
 
+
 def fetch_lpr_rate(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("macro_lpr", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "macro_lpr", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs
+    )
+
 
 def fetch_pmi_index(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("macro_pmi", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "macro_pmi", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs
+    )
+
 
 def fetch_cpi_data(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("macro_cpi", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "macro_cpi", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs
+    )
+
 
 def fetch_ppi_data(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("macro_ppi", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "macro_ppi", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs
+    )
+
 
 def fetch_m2_supply(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("macro_m2", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "macro_m2", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs
+    )
+
 
 def fetch_shibor_rate(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("macro_shibor", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "macro_shibor",
+        akshare=akshare,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_social_financing(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("macro_social_financing", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "macro_social_financing",
+        akshare=akshare,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_macro_gdp(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("macro_gdp", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "macro_gdp", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs
+    )
+
 
 def fetch_macro_exchange_rate(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("macro_exchange_rate", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "macro_exchange_rate",
+        akshare=akshare,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
 
-def fetch_finance_indicator(akshare, symbol, fields=None, start_date=None, end_date=None, **kwargs):
-    return fetch("finance_indicator", akshare=akshare, symbol=symbol, start_date=start_date, end_date=end_date, **kwargs)
+
+def fetch_finance_indicator(
+    akshare, symbol, fields=None, start_date=None, end_date=None, **kwargs
+):
+    return fetch(
+        "finance_indicator",
+        akshare=akshare,
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_balance_sheet(akshare, symbol, start_date=None, end_date=None, **kwargs):
-    return fetch("balance_sheet", akshare=akshare, symbol=symbol, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "balance_sheet",
+        akshare=akshare,
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_income_statement(akshare, symbol, start_date=None, end_date=None, **kwargs):
-    return fetch("income_statement", akshare=akshare, symbol=symbol, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "income_statement",
+        akshare=akshare,
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_cash_flow(akshare, symbol, start_date=None, end_date=None, **kwargs):
-    return fetch("cash_flow", akshare=akshare, symbol=symbol, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "cash_flow",
+        akshare=akshare,
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_basic_info(akshare, symbol, **kwargs):
     return fetch("basic_info", akshare=akshare, symbol=symbol, **kwargs)
 
+
 def fetch_money_flow(akshare, symbol, start_date=None, end_date=None, **kwargs):
-    return fetch("money_flow", akshare=akshare, symbol=symbol, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "money_flow",
+        akshare=akshare,
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_north_money_flow(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("north_money_flow", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "north_money_flow",
+        akshare=akshare,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_northbound_holdings(akshare, hold_type="all", date=None, **kwargs):
-    return fetch("northbound_holdings", akshare=akshare, symbol=kwargs.get("symbol", ""), start_date=date, end_date=date, **kwargs)
+    return fetch(
+        "northbound_holdings",
+        akshare=akshare,
+        symbol=kwargs.get("symbol", ""),
+        start_date=date,
+        end_date=date,
+        **kwargs,
+    )
+
 
 def fetch_northbound_top_stocks(akshare, date, direction="all", top_n=10, **kwargs):
     return fetch("northbound_top_stocks", akshare=akshare, date=date, **kwargs)
+
 
 def fetch_dragon_tiger_list(akshare, date=None, **kwargs):
     # Convert single date to date range for stock_lhb_detail_em
     start = date or kwargs.pop("start_date", None)
     end = kwargs.pop("end_date", start)
-    return fetch("dragon_tiger_list", akshare=akshare, start_date=start, end_date=end, **kwargs)
+    return fetch(
+        "dragon_tiger_list", akshare=akshare, start_date=start, end_date=end, **kwargs
+    )
+
 
 def fetch_dragon_tiger_summary(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("dragon_tiger_summary", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "dragon_tiger_summary",
+        akshare=akshare,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_limit_up_pool(akshare, date, **kwargs):
     return fetch("limit_up_pool", akshare=akshare, date=date, **kwargs)
 
+
 def fetch_limit_down_pool(akshare, date, **kwargs):
     return fetch("limit_down_pool", akshare=akshare, date=date, **kwargs)
+
 
 def fetch_block_deal(akshare, date, **kwargs):
     return fetch("block_deal", akshare=akshare, date=date, **kwargs)
 
+
 def fetch_block_deal_summary(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("block_deal", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "block_deal",
+        akshare=akshare,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_margin_data(akshare, date, **kwargs):
-    return fetch("margin_data", akshare=akshare, symbol=kwargs.get("symbol", ""), start_date=date, end_date=date, **kwargs)
+    return fetch(
+        "margin_data",
+        akshare=akshare,
+        symbol=kwargs.get("symbol", ""),
+        start_date=date,
+        end_date=date,
+        **kwargs,
+    )
+
 
 def fetch_margin_summary(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("margin_summary", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "margin_summary",
+        akshare=akshare,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_equity_pledge(akshare, symbol=None, start_date=None, end_date=None, **kwargs):
-    return fetch("equity_pledge", akshare=akshare, symbol=symbol, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "equity_pledge",
+        akshare=akshare,
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_equity_pledge_rank(akshare, date=None, top_n=50, **kwargs):
-    return fetch("equity_pledge_rank", akshare=akshare, date=date, top_n=top_n, **kwargs)
+    return fetch(
+        "equity_pledge_rank", akshare=akshare, date=date, top_n=top_n, **kwargs
+    )
 
-def fetch_restricted_release(akshare, symbol=None, start_date=None, end_date=None, **kwargs):
-    return fetch("restricted_release", akshare=akshare, symbol=symbol, start_date=start_date, end_date=end_date, **kwargs)
 
-def fetch_restricted_release_calendar(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("restricted_release_calendar", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+def fetch_restricted_release(
+    akshare, symbol=None, start_date=None, end_date=None, **kwargs
+):
+    return fetch(
+        "restricted_release",
+        akshare=akshare,
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
+
+def fetch_restricted_release_calendar(
+    akshare, start_date=None, end_date=None, **kwargs
+):
+    return fetch(
+        "restricted_release_calendar",
+        akshare=akshare,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_restricted_release_detail(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("restricted_release_detail", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "restricted_release_detail",
+        akshare=akshare,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_stock_bonus(akshare, symbol, **kwargs):
     return fetch("stock_bonus", akshare=akshare, symbol=symbol, **kwargs)
 
+
 def fetch_dividend_by_date(akshare, date=None, **kwargs):
     return fetch("dividend_by_date", akshare=akshare, date=date, **kwargs)
+
 
 def fetch_rights_issue(akshare, symbol, **kwargs):
     return fetch("rights_issue", akshare=akshare, symbol=symbol, **kwargs)
 
-def fetch_repurchase_data(akshare, symbol=None, start_date=None, end_date=None, **kwargs):
-    return fetch("repurchase_data", akshare=akshare, symbol=symbol, start_date=start_date, end_date=end_date, **kwargs)
+
+def fetch_repurchase_data(
+    akshare, symbol=None, start_date=None, end_date=None, **kwargs
+):
+    return fetch(
+        "repurchase_data",
+        akshare=akshare,
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_esg_rating(akshare, symbol=None, start_date=None, end_date=None, **kwargs):
-    return fetch("esg_rating", akshare=akshare, symbol=symbol, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "esg_rating",
+        akshare=akshare,
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_esg_rank(akshare, date=None, top_n=50, **kwargs):
     return fetch("esg_rank", akshare=akshare, date=date, top_n=top_n, **kwargs)
 
-def fetch_performance_forecast(akshare, symbol=None, start_date=None, end_date=None, **kwargs):
-    return fetch("performance_forecast", akshare=akshare, symbol=symbol, start_date=start_date, end_date=end_date, **kwargs)
+
+def fetch_performance_forecast(
+    akshare, symbol=None, start_date=None, end_date=None, **kwargs
+):
+    return fetch(
+        "performance_forecast",
+        akshare=akshare,
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_analyst_rank(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("analyst_rank", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "analyst_rank",
+        akshare=akshare,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
 
-def fetch_research_report(akshare, symbol=None, start_date=None, end_date=None, **kwargs):
-    return fetch("research_report", akshare=akshare, symbol=symbol, start_date=start_date, end_date=end_date, **kwargs)
+
+def fetch_research_report(
+    akshare, symbol=None, start_date=None, end_date=None, **kwargs
+):
+    return fetch(
+        "research_report",
+        akshare=akshare,
+        symbol=symbol,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_chip_distribution(akshare, symbol, **kwargs):
     return fetch("chip_distribution", akshare=akshare, symbol=symbol, **kwargs)
 
+
 def fetch_management_info(akshare, symbol, **kwargs):
     return fetch("management_info", akshare=akshare, symbol=symbol, **kwargs)
+
 
 def fetch_shareholder_change(akshare, symbol, **kwargs):
     return fetch("shareholder_changes", akshare=akshare, symbol=symbol, **kwargs)
 
+
 def fetch_capital_change(akshare, symbol, **kwargs):
     return fetch("capital_change", akshare=akshare, symbol=symbol, **kwargs)
+
 
 def fetch_earnings_forecast(akshare, symbol, **kwargs):
     return fetch("earnings_forecast", akshare=akshare, symbol=symbol, **kwargs)
 
+
 def fetch_disclosure_news(akshare, symbol, **kwargs):
     return fetch("disclosure_news", akshare=akshare, symbol=symbol, **kwargs)
+
 
 def fetch_call_auction(akshare, symbol, date=None, **kwargs):
     return fetch("call_auction", akshare=akshare, symbol=symbol, date=date, **kwargs)
 
+
 def fetch_securities_list(akshare, security_type="stock", date=None, **kwargs):
-    return fetch("securities_list", akshare=akshare, security_type=security_type, date=date, **kwargs)
+    return fetch(
+        "securities_list",
+        akshare=akshare,
+        security_type=security_type,
+        date=date,
+        **kwargs,
+    )
+
 
 def fetch_security_info(akshare, symbol, **kwargs):
     return fetch("security_info", akshare=akshare, symbol=symbol, **kwargs)
 
+
 def fetch_trading_days(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("trading_days", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "trading_days",
+        akshare=akshare,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_st_stocks(akshare, **kwargs):
     return fetch("st_stocks", akshare=akshare, **kwargs)
 
+
 def fetch_suspended_stocks(akshare, **kwargs):
     return fetch("suspended_stocks", akshare=akshare, **kwargs)
+
 
 def fetch_index_stocks(akshare, index_code, **kwargs):
     return fetch("index_components", akshare=akshare, symbol=index_code, **kwargs)
 
+
 def fetch_index_components(akshare, index_code, include_weights=True, **kwargs):
     return fetch("index_components", akshare=akshare, symbol=index_code, **kwargs)
+
 
 def fetch_index_list(akshare, **kwargs):
     return fetch("index_list", akshare=akshare, **kwargs)
 
+
 def fetch_etf_list(akshare, **kwargs):
     return fetch("etf_list", akshare=akshare, **kwargs)
+
 
 def fetch_lof_list(akshare, **kwargs):
     return fetch("lof_list", akshare=akshare, **kwargs)
 
+
 def fetch_fund_manager_info(akshare, fund_code, **kwargs):
     return fetch("fund_manager_info", akshare=akshare, symbol=fund_code, **kwargs)
 
+
 def fetch_fund_net_value(akshare, fund_code, start_date=None, end_date=None, **kwargs):
-    return fetch("fund_net_value", akshare=akshare, symbol=fund_code, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "fund_net_value",
+        akshare=akshare,
+        symbol=fund_code,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_fof_list(akshare, **kwargs):
     return fetch("fof_list", akshare=akshare, **kwargs)
 
+
 def fetch_fof_nav(akshare, fund_code, start_date=None, end_date=None, **kwargs):
-    return fetch("fof_nav", akshare=akshare, symbol=fund_code, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "fof_nav",
+        akshare=akshare,
+        symbol=fund_code,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_lof_spot(akshare, **kwargs):
     return fetch("lof_spot", akshare=akshare, **kwargs)
 
+
 def fetch_lof_nav(akshare, fund_code, **kwargs):
     return fetch("lof_nav", akshare=akshare, symbol=fund_code, **kwargs)
+
 
 def fetch_fund_open_daily(akshare, **kwargs):
     return fetch("fund_open_daily", akshare=akshare, **kwargs)
 
+
 def fetch_fund_open_nav(akshare, fund_code, start_date=None, end_date=None, **kwargs):
-    return fetch("fund_open_nav", akshare=akshare, symbol=fund_code, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "fund_open_nav",
+        akshare=akshare,
+        symbol=fund_code,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_fund_open_info(akshare, fund_code, **kwargs):
     return fetch("fund_open_info", akshare=akshare, symbol=fund_code, **kwargs)
 
+
 def fetch_sector_fund_flow(akshare, date=None, sector_type="industry", **kwargs):
-    return fetch("sector_fund_flow", akshare=akshare, date=date, sector_type=sector_type, **kwargs)
+    return fetch(
+        "sector_fund_flow",
+        akshare=akshare,
+        date=date,
+        sector_type=sector_type,
+        **kwargs,
+    )
+
 
 def fetch_main_fund_flow_rank(akshare, start_date=None, end_date=None, **kwargs):
-    return fetch("main_fund_flow_rank", akshare=akshare, start_date=start_date, end_date=end_date, **kwargs)
+    return fetch(
+        "main_fund_flow_rank",
+        akshare=akshare,
+        start_date=start_date,
+        end_date=end_date,
+        **kwargs,
+    )
+
 
 def fetch_industry_stocks(akshare, industry_code, level=1, **kwargs):
     return fetch("industry_stocks", akshare=akshare, symbol=industry_code, **kwargs)
 
+
 def fetch_industry_mapping(akshare, symbol, level=1, **kwargs):
     return fetch("industry_mapping", akshare=akshare, symbol=symbol, **kwargs)
+
 
 def fetch_industry_performance(akshare, date=None, **kwargs):
     return fetch("industry_performance", akshare=akshare, date=date, **kwargs)
 
+
 def fetch_concept_list(akshare, **kwargs):
     return fetch("concept_list", akshare=akshare, **kwargs)
+
 
 def fetch_concept_stocks(akshare, concept_code, **kwargs):
     return fetch("concept_stocks", akshare=akshare, symbol=concept_code, **kwargs)
 
+
 def fetch_stock_concepts(akshare, symbol, **kwargs):
     return fetch("stock_concepts", akshare=akshare, symbol=symbol, **kwargs)
+
 
 def fetch_concept_performance(akshare, date=None, **kwargs):
     return fetch("concept_performance", akshare=akshare, date=date, **kwargs)
 
+
 def fetch_stock_industry(akshare, symbol, **kwargs):
     return fetch("stock_industry", akshare=akshare, symbol=symbol, **kwargs)
+
 
 def fetch_hot_rank(akshare, **kwargs):
     return fetch("hot_rank", akshare=akshare, **kwargs)
 
+
 def fetch_sw_industry_list(akshare, **kwargs):
     return fetch("sw_industry_list", akshare=akshare, **kwargs)
+
 
 def fetch_sw_industry_daily(akshare, industry_code, **kwargs):
     return fetch("sw_industry_daily", akshare=akshare, symbol=industry_code, **kwargs)
 
+
 def fetch_convert_bond_list(akshare, **kwargs):
     return fetch("convert_bond_premium", akshare=akshare, **kwargs)
+
 
 def fetch_convert_bond_info(akshare, symbol, **kwargs):
     return fetch("convert_bond_spot", akshare=akshare, **kwargs)
 
+
 def fetch_futures_realtime_data(akshare, symbol, exchange=None, **kwargs):
-    return fetch("futures_realtime", akshare=akshare, symbol=symbol, exchange=exchange, **kwargs)
+    return fetch(
+        "futures_realtime", akshare=akshare, symbol=symbol, exchange=exchange, **kwargs
+    )
+
 
 def fetch_futures_main_contracts(akshare, exchange=None, **kwargs):
     return fetch("futures_main_contracts", akshare=akshare, exchange=exchange, **kwargs)
 
+
 def fetch_news_data(akshare, symbol=None, date=None, **kwargs):
-    return fetch("disclosure_news", akshare=akshare, symbol=symbol or "000001", **kwargs)
+    return fetch(
+        "disclosure_news", akshare=akshare, symbol=symbol or "000001", **kwargs
+    )
 
 
 # ── 计算函数（委托给 core.options） ─────────────────────────────────
@@ -871,7 +1320,9 @@ from akshare_data.core.options import (
 )
 
 
-def calculate_option_greeks(spot, strike, time_to_expiry, rate, sigma, option_type, norm=None, np=None):
+def calculate_option_greeks(
+    spot, strike, time_to_expiry, rate, sigma, option_type, norm=None, np=None
+):
     return _calc_greeks(spot, strike, time_to_expiry, rate, sigma, option_type)
 
 

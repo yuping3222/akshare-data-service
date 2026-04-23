@@ -172,9 +172,7 @@ class TestAggregatorAggregateAll:
         mock_lock.return_value = mock_lock_instance
 
         aggregator = Aggregator(temp_base_dir)
-        with patch.object(
-            aggregator, "needs_aggregation", return_value=[]
-        ):
+        with patch.object(aggregator, "needs_aggregation", return_value=[]):
             result = aggregator.aggregate_all(priority="high")
         assert "low_table" not in result
 
@@ -297,7 +295,9 @@ class TestAggregatorAggregatePartition:
         """Test _aggregate_partition returns False when data DataFrame is empty."""
         mock_get_schema.return_value = mock_table_schema
         aggregator = Aggregator(temp_base_dir)
-        with patch.object(aggregator, "_read_partition_raw", return_value=pd.DataFrame()):
+        with patch.object(
+            aggregator, "_read_partition_raw", return_value=pd.DataFrame()
+        ):
             result = aggregator._aggregate_partition(mock_table_schema, "2024-01")
             assert result is False
 
@@ -372,7 +372,13 @@ class TestAggregatorWriteAggregated:
     ):
         """Test _write_aggregated creates parent directory."""
         mock_get_schema.return_value = mock_table_schema
-        agg_path = temp_base_dir / "aggregated" / "test_table" / "date=2024-01" / "data.parquet"
+        agg_path = (
+            temp_base_dir
+            / "aggregated"
+            / "test_table"
+            / "date=2024-01"
+            / "data.parquet"
+        )
         aggregator = Aggregator(temp_base_dir)
         result = aggregator._write_aggregated(mock_table_schema, "2024-01", sample_df)
         assert result.parent.exists()
@@ -392,7 +398,9 @@ class TestRunAggregation:
     """Tests for run_aggregation function."""
 
     @patch("akshare_data.store.aggregator.Aggregator")
-    def test_run_aggregation_with_tables_list(self, mock_aggregator_class, temp_base_dir):
+    def test_run_aggregation_with_tables_list(
+        self, mock_aggregator_class, temp_base_dir
+    ):
         """Test run_aggregation with specific tables list."""
         mock_aggregator = MagicMock()
         mock_aggregator.aggregate_table.return_value = 2

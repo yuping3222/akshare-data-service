@@ -72,7 +72,9 @@ class TestConcurrentReadAccess:
         # All non-empty results should have data (lengths may vary due to
         # incremental accumulation across concurrent threads)
         lengths = [len(r) for r in non_empty]
-        assert all(l >= 7 for l in lengths), f"Some results have unexpectedly few rows: {lengths}"
+        assert all(l >= 7 for l in lengths), (
+            f"Some results have unexpectedly few rows: {lengths}"
+        )
 
     def test_concurrent_reads_different_symbols(
         self,
@@ -95,9 +97,17 @@ class TestConcurrentReadAccess:
                 }
             )
 
-        symbols = ["600000.XSHG", "600036.XSHG", "000001.XSHE", "601318.XSHG", "000858.XSHE"]
+        symbols = [
+            "600000.XSHG",
+            "600036.XSHG",
+            "000001.XSHE",
+            "601318.XSHG",
+            "000858.XSHE",
+        ]
         for sym in symbols:
-            service.akshare.get_daily_data = MagicMock(side_effect=lambda *a, **kw: make_source(a[0] if a else sym))
+            service.akshare.get_daily_data = MagicMock(
+                side_effect=lambda *a, **kw: make_source(a[0] if a else sym)
+            )
 
         errors: List[Exception] = []
         results: dict = {}
@@ -155,8 +165,12 @@ class TestConcurrentWriteAccess:
                         "amount": [1_000_000.0] * 5,
                     }
                 )
-                service.akshare.get_daily_data = MagicMock(return_value=source_df.copy())
-                service.lixinger.get_daily_data = MagicMock(return_value=source_df.copy())
+                service.akshare.get_daily_data = MagicMock(
+                    return_value=source_df.copy()
+                )
+                service.lixinger.get_daily_data = MagicMock(
+                    return_value=source_df.copy()
+                )
                 return service.cn.stock.quote.daily(
                     symbol=symbol,
                     start_date="2024-01-02",
@@ -167,9 +181,7 @@ class TestConcurrentWriteAccess:
                 errors.append(e)
                 return pd.DataFrame()
 
-        symbols = [
-            "sh600000", "sh600036", "sz000001", "sh601318", "sz000858"
-        ]
+        symbols = ["sh600000", "sh600036", "sz000001", "sh601318", "sz000858"]
 
         with ThreadPoolExecutor(max_workers=5) as executor:
             futures = [executor.submit(write_data, sym) for sym in symbols]
@@ -218,6 +230,7 @@ class TestConcurrentWriteAccess:
         def reader():
             # Small delay to let writer finish
             import time
+
             time.sleep(0.1)
             try:
                 read_result["df"] = service.cn.stock.quote.daily(

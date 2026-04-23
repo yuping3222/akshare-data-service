@@ -431,8 +431,6 @@ class CacheManager:
         return aggregator.get_aggregation_status(table)
 
 
-
-
 def get_cache_manager(
     base_dir: str | None = None,
     config: CacheConfig | None = None,

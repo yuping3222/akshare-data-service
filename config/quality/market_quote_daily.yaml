@@ -1,0 +1,99 @@
+version: '1.0'
+dataset: market_quote_daily
+entity: market_quote_daily
+schema_version: v1
+rules:
+  # Raw layer: technical rules only
+  - rule_id: mq_raw_sys_fields
+    layer: raw
+    type: system_fields_complete
+    severity: error
+    gate_action: block
+    description: Raw 系统字段必须完整
+    params:
+      system_fields:
+        - batch_id
+        - source_name
+        - interface_name
+        - ingest_time
+
+  - rule_id: mq_raw_record_count
+    layer: raw
+    type: record_count_min
+    severity: error
+    gate_action: block
+    description: Raw 最低记录数
+    params:
+      min_count: 1
+
+  - rule_id: mq_raw_request_before_ingest
+    layer: raw
+    type: request_before_ingest
+    severity: warning
+    gate_action: alert
+    description: Raw 请求时间不晚于入库时间
+    params:
+      request_time_field: request_time
+      ingest_time_field: ingest_time
+
+  # Standardized layer: business rules
+  - rule_id: mq_daily_pk_unique
+    layer: standardized
+    type: unique_key
+    severity: error
+    gate_action: block
+    fields: [security_id, trade_date, adjust_type]
+    description: 主键必须唯一
+
+  - rule_id: mq_daily_non_null
+    layer: standardized
+    type: non_null
+    severity: error
+    gate_action: block
+    fields: [security_id, trade_date, adjust_type, open_price, high_price, low_price, close_price, volume, turnover_amount]
+    description: 核心字段不能为空
+
+  - rule_id: mq_daily_close_positive
+    layer: standardized
+    type: range
+    severity: error
+    gate_action: block
+    field: close_price
+    min: 0
+    description: 收盘价必须 >= 0
+
+  - rule_id: mq_daily_high_ge_low
+    layer: standardized
+    type: business_rule
+    severity: error
+    gate_action: block
+    expression: high_price >= low_price
+    description: 最高价 >= 最低价
+
+  - rule_id: mq_daily_turnover_non_negative
+    layer: standardized
+    type: range
+    severity: error
+    gate_action: block
+    field: turnover_amount
+    min: 0
+    description: 成交额必须 >= 0
+
+  - rule_id: mq_daily_volume_non_negative
+    layer: standardized
+    type: range
+    severity: error
+    gate_action: block
+    field: volume
+    min: 0
+    description: 成交量必须 >= 0
+
+  - rule_id: mq_daily_freshness
+    layer: standardized
+    type: freshness
+    severity: warning
+    gate_action: alert
+    field: trade_date
+    description: 数据新鲜度检查
+    params:
+      max_age_days: 3

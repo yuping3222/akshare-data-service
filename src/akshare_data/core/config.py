@@ -86,9 +86,7 @@ class CacheConfig:
     minute_dir: str = "minute"
     snapshot_dir: str = "snapshot"
     meta_dir: str = "meta"
-    source_priority: list[str] = field(
-        default_factory=lambda: ["lixinger", "akshare"]
-    )
+    source_priority: list[str] = field(default_factory=lambda: ["lixinger", "akshare"])
     tushare_token: str = ""
     memory_cache_max_items: int = 5000
     memory_cache_default_ttl_seconds: int = 3600

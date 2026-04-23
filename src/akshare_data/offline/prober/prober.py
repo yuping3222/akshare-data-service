@@ -64,7 +64,9 @@ class APIProber:
                     self.config[func_name] = {
                         "params": probe.get("params", {}),
                         "skip": probe.get("skip", False),
-                        "check_interval": probe.get("check_interval", DEFAULT_STABLE_TTL),
+                        "check_interval": probe.get(
+                            "check_interval", DEFAULT_STABLE_TTL
+                        ),
                     }
             logger.info(f"Loaded probe config: {len(self.config)} entries")
         except Exception as e:
@@ -77,7 +79,9 @@ class APIProber:
             for func_name, cfg in self.config.items():
                 domains.add(func_name.split("_")[0] if "_" in func_name else "default")
             for domain in domains:
-                self.domain_semaphores[domain] = threading.Semaphore(DOMAIN_CONCURRENCY_DEFAULT)
+                self.domain_semaphores[domain] = threading.Semaphore(
+                    DOMAIN_CONCURRENCY_DEFAULT
+                )
 
     def run_check(self) -> Dict[str, ValidationResult]:
         """运行健康检查"""
@@ -96,16 +100,18 @@ class APIProber:
                     result = future.result()
                     if result:
                         self.results[task.func_name] = result
-                        self.checkpoint_mgr.set_result(ProbeResult(
-                            func_name=result.func_name,
-                            domain_group=result.domain_group,
-                            status=result.status,
-                            error_msg=result.error_msg,
-                            exec_time=result.exec_time,
-                            data_size=result.data_size,
-                            last_check=time.time(),
-                            check_count=1,
-                        ))
+                        self.checkpoint_mgr.set_result(
+                            ProbeResult(
+                                func_name=result.func_name,
+                                domain_group=result.domain_group,
+                                status=result.status,
+                                error_msg=result.error_msg,
+                                exec_time=result.exec_time,
+                                data_size=result.data_size,
+                                last_check=time.time(),
+                                check_count=1,
+                            )
+                        )
                 except Exception as e:
                     logger.error(f"Task {task.func_name} failed: {e}")
 
@@ -121,7 +127,9 @@ class APIProber:
             return None
 
         domain = task.func_name.split("_")[0] if "_" in task.func_name else "default"
-        sem = self.domain_semaphores.get(domain, threading.Semaphore(DOMAIN_CONCURRENCY_DEFAULT))
+        sem = self.domain_semaphores.get(
+            domain, threading.Semaphore(DOMAIN_CONCURRENCY_DEFAULT)
+        )
 
         with sem:
             result = self.executor.execute(task)
@@ -143,10 +151,16 @@ class APIProber:
 
         if self.results:
             total = len(self.results)
-            success = sum(1 for r in self.results.values() if r.status.startswith("Success"))
+            success = sum(
+                1 for r in self.results.values() if r.status.startswith("Success")
+            )
         else:
             total = len(checkpoint_results)
-            success = sum(1 for r in checkpoint_results.values() if r.get("status", "").startswith("Success"))
+            success = sum(
+                1
+                for r in checkpoint_results.values()
+                if r.get("status", "").startswith("Success")
+            )
 
         return {
             "total": total,
@@ -165,6 +179,7 @@ class APIProber:
     def parse_params_from_doc(self, func: Callable) -> Dict[str, Any]:
         """从文档字符串解析参数"""
         import re
+
         params = {}
         doc = func.__doc__ or ""
         for match in re.finditer(r"(\w+)=['\"]([^'\"]*)['\"]", doc):
@@ -174,6 +189,7 @@ class APIProber:
     def get_smart_kwargs(self, func: Callable) -> Dict[str, Any]:
         """从配置获取智能参数"""
         from akshare_data.offline.scanner.param_inferrer import SIZE_LIMIT_PARAMS
+
         func_name = func.__name__
         kwargs = {}
 
@@ -184,8 +200,13 @@ class APIProber:
         sig_params = {}
         try:
             import inspect
+
             sig = inspect.signature(func)
-            sig_params = {p.name: p.default for p in sig.parameters.values() if p.default is not inspect.Parameter.empty}
+            sig_params = {
+                p.name: p.default
+                for p in sig.parameters.values()
+                if p.default is not inspect.Parameter.empty
+            }
         except (ValueError, TypeError):
             pass
 
@@ -201,9 +222,11 @@ class APIProber:
     def get_website_group(self, func: Callable) -> str:
         """从源码提取域名"""
         import re
+
         source = ""
         try:
             import inspect
+
             source = inspect.getsource(func)
         except (OSError, TypeError):
             pass
@@ -241,6 +264,7 @@ class APIProber:
             domain, threading.Semaphore(DOMAIN_CONCURRENCY_DEFAULT)
         )
         from akshare_data.offline.prober.task_builder import ProbeTask
+
         task = ProbeTask(
             func_name=func.__name__,
             func=func,
@@ -255,6 +279,7 @@ class APIProber:
     def generate_report(self):
         """生成健康报告"""
         from akshare_data.offline.prober import BASE_DIR
+
         report_path = Path(BASE_DIR) / "reports" / "health_report.md"
         report_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -266,7 +291,9 @@ class APIProber:
         lines.append("| Func | Domain | Status | Time |")
         lines.append("|------|--------|--------|------|")
         for name, result in self.results.items():
-            lines.append(f"| {name} | {result.domain_group} | {result.status} | {result.exec_time:.2f}s |")
+            lines.append(
+                f"| {name} | {result.domain_group} | {result.status} | {result.exec_time:.2f}s |"
+            )
 
         report_path.write_text("\n".join(lines))
 
@@ -283,13 +310,16 @@ class APIProber:
         """保存检查点"""
         self.checkpoint_mgr.save()
 
-    def call_with_retry(self, func: Callable, kwargs: Dict[str, Any]) -> Tuple[Optional[Any], str]:
+    def call_with_retry(
+        self, func: Callable, kwargs: Dict[str, Any]
+    ) -> Tuple[Optional[Any], str]:
         """带重试的调用"""
         return self.executor._call_with_retry(func, kwargs)
 
     def generate_full_config(self):
         """生成完整探测配置"""
         from akshare_data.offline.prober import BASE_DIR
+
         config_path = Path(BASE_DIR) / "config" / "health_config_generated.json"
         config_path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -303,4 +333,5 @@ class APIProber:
             }
 
         import json
+
         config_path.write_text(json.dumps(config, indent=2))

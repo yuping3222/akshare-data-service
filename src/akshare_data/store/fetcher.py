@@ -58,19 +58,13 @@ class CachedFetcher:
         )
 
         if not strategy.should_fetch(cached, **params):
-            logger.debug(
-                "Cache hit for table=%s params=%s", config.table, params
-            )
+            logger.debug("Cache hit for table=%s params=%s", config.table, params)
             return cached
 
         if isinstance(strategy, IncrementalStrategy):
-            return self._execute_incremental(
-                config, strategy, cached, fetch_fn, params
-            )
+            return self._execute_incremental(config, strategy, cached, fetch_fn, params)
 
-        return self._execute_full(
-            config, strategy, cached, fetch_fn, params
-        )
+        return self._execute_full(config, strategy, cached, fetch_fn, params)
 
     def _execute_full(
         self,
@@ -204,4 +198,8 @@ class CachedFetcher:
     @staticmethod
     def _guess_filter_keys(params: dict[str, Any]) -> list[str]:
         skip = {"start_date", "end_date", "date_col", "adjust", "source"}
-        return [k for k in params if k not in skip and isinstance(params[k], (str, int, float))]
+        return [
+            k
+            for k in params
+            if k not in skip and isinstance(params[k], (str, int, float))
+        ]

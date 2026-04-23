@@ -16,7 +16,9 @@ class ConcreteCacheStrategy(CacheStrategy):
     def should_fetch(self, cached: pd.DataFrame | None, **params) -> bool:
         return cached is None
 
-    def merge(self, cached: pd.DataFrame | None, fresh: pd.DataFrame, **params) -> pd.DataFrame:
+    def merge(
+        self, cached: pd.DataFrame | None, fresh: pd.DataFrame, **params
+    ) -> pd.DataFrame:
         if cached is None:
             return fresh
         return pd.concat([cached, fresh]).drop_duplicates()
@@ -133,7 +135,9 @@ class TestCacheStrategyInheritance:
             def should_fetch(self, cached: pd.DataFrame | None, **params) -> bool:
                 return True
 
-            def merge(self, cached: pd.DataFrame | None, fresh: pd.DataFrame, **params) -> pd.DataFrame:
+            def merge(
+                self, cached: pd.DataFrame | None, fresh: pd.DataFrame, **params
+            ) -> pd.DataFrame:
                 return fresh
 
             def build_where(self, **params) -> dict:
@@ -141,7 +145,9 @@ class TestCacheStrategyInheritance:
 
         strategy = CustomStrategy()
         assert strategy.should_fetch(None) is True
-        pd.testing.assert_frame_equal(strategy.merge(None, pd.DataFrame({"a": [1]})), pd.DataFrame({"a": [1]}))
+        pd.testing.assert_frame_equal(
+            strategy.merge(None, pd.DataFrame({"a": [1]})), pd.DataFrame({"a": [1]})
+        )
         assert strategy.build_where() == {"custom": True}
 
 

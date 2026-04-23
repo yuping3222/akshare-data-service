@@ -1,0 +1,113 @@
+# Source field mapping: akshare -> financial_indicator
+#
+# dataset: financial_indicator
+# source:  akshare
+#
+# Each source field must map to exactly one of:
+#   - standard_field: a field from the standard entity schema
+#   - status: "active" | "deprecated" | "pending"
+#   - description: optional note for pending/deprecated fields
+#
+# Field names on the right MUST come from the standard entity definition
+# in config/standards/entities/financial_indicator.yaml.
+#
+# Loaded by:
+#   - standardized/mapping_loader.py
+#   - normalizers (via MappingLoader)
+#   - lineage tracker
+#   - contract tests
+
+mapping_version: 'v1'
+dataset: financial_indicator
+source: akshare
+normalize_version: v1
+updated_at: '2026-04-22'
+
+# ---------------------------------------------------------------------------
+# Sub-source: akshare_em (Eastmoney / 东方财富)
+# Primary source for financial indicators via stock_financial_analysis_indicator
+# ---------------------------------------------------------------------------
+sub_sources:
+  akshare_em:
+    description: "东方财富源 (stock_financial_analysis_indicator)"
+    fields:
+      报告日期:
+        standard_field: report_date
+        status: active
+      基本每股收益:
+        standard_field: null
+        status: pending
+        description: "标准实体暂未包含 basic_eps，待扩展"
+      加权净资产收益率:
+        standard_field: roe_pct
+        status: active
+      销售净利率:
+        standard_field: net_margin_pct
+        status: active
+      销售毛利率:
+        standard_field: gross_margin_pct
+        status: active
+      资产负债率:
+        standard_field: debt_ratio_pct
+        status: active
+      营业总收入:
+        standard_field: revenue
+        status: active
+      净利润:
+        standard_field: net_profit
+        status: active
+
+# ---------------------------------------------------------------------------
+# Default fallback — used when sub_source is not specified
+# ---------------------------------------------------------------------------
+fields:
+  报告日期:
+    standard_field: report_date
+    status: active
+  report_date:
+    standard_field: report_date
+    status: active
+  基本每股收益:
+    standard_field: null
+    status: pending
+    description: "标准实体暂未包含 basic_eps"
+  basic_eps:
+    standard_field: null
+    status: pending
+    description: "标准实体暂未包含 basic_eps"
+  加权净资产收益率:
+    standard_field: roe_pct
+    status: active
+  roe:
+    standard_field: roe_pct
+    status: active
+  销售净利率:
+    standard_field: net_margin_pct
+    status: active
+  net_profit_margin:
+    standard_field: net_margin_pct
+    status: active
+  销售毛利率:
+    standard_field: gross_margin_pct
+    status: active
+  gross_profit_margin:
+    standard_field: gross_margin_pct
+    status: active
+  资产负债率:
+    standard_field: debt_ratio_pct
+    status: active
+  debt_ratio:
+    standard_field: debt_ratio_pct
+    status: active
+  营业总收入:
+    standard_field: revenue
+    status: active
+  total_revenue:
+    standard_field: revenue
+    status: active
+  净利润:
+    standard_field: net_profit
+    status: active
+  net_profit:
+    standard_field: net_profit
+    status: active

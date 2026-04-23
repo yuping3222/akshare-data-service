@@ -1,0 +1,149 @@
+# Source field mapping: akshare -> macro_indicator
+#
+# dataset: macro_indicator
+# source:  akshare
+#
+# Each source field must map to exactly one of:
+#   - standard_field: a field from the standard entity schema
+#   - status: "active" | "deprecated" | "pending"
+#   - description: optional note for pending/deprecated fields
+#
+# Field names on the right MUST come from the standard entity definition
+# in config/standards/entities/macro_indicator.yaml.
+#
+# Note: AkShare provides macro data via separate interfaces (cpi, gdp, pmi, etc.).
+# Each sub_source below corresponds to one AkShare macro interface.
+#
+# Loaded by:
+#   - standardized/mapping_loader.py
+#   - normalizers (via MappingLoader)
+#   - lineage tracker
+#   - contract tests
+
+mapping_version: 'v1'
+dataset: macro_indicator
+source: akshare
+normalize_version: v1
+updated_at: '2026-04-22'
+
+# ---------------------------------------------------------------------------
+# Sub-sources: one per AkShare macro interface
+# ---------------------------------------------------------------------------
+sub_sources:
+  akshare_em_cpi:
+    description: "中国CPI (macro_china_cpi)"
+    indicator_code: macro_china_cpi
+    fields:
+      月份:
+        standard_field: observation_date
+        status: active
+      全国居民消费价格指数(CPI)上年同月=100:
+        standard_field: value
+        status: active
+
+  akshare_em_gdp:
+    description: "中国GDP (macro_china_gdp)"
+    indicator_code: macro_china_gdp
+    fields:
+      季度:
+        standard_field: observation_date
+        status: active
+      国内生产总值绝对额(亿元):
+        standard_field: value
+        status: active
+
+  akshare_em_pmi:
+    description: "中国PMI (macro_china_pmi)"
+    indicator_code: macro_china_pmi
+    fields:
+      月份:
+        standard_field: observation_date
+        status: active
+      制造业PMI:
+        standard_field: value
+        status: active
+
+  akshare_em_lpr:
+    description: "中国LPR (macro_china_lpr)"
+    indicator_code: macro_china_lpr
+    fields:
+      日期:
+        standard_field: observation_date
+        status: active
+      1年:
+        standard_field: null
+        status: pending
+        description: "需拆分为独立指标或多值列"
+      5年:
+        standard_field: null
+        status: pending
+        description: "需拆分为独立指标或多值列"
+
+  akshare_em_ppi:
+    description: "中国PPI (macro_china_ppi)"
+    indicator_code: macro_china_ppi
+    fields:
+      月份:
+        standard_field: observation_date
+        status: active
+      当月:
+        standard_field: value
+        status: active
+
+  akshare_em_m2:
+    description: "中国M2 (macro_china_m2_yearly)"
+    indicator_code: macro_china_m2
+    fields:
+      月份:
+        standard_field: observation_date
+        status: active
+      货币和准货币(广义货币M2)(亿元):
+        standard_field: value
+        status: active
+
+# ---------------------------------------------------------------------------
+# Default fallback — common patterns across macro interfaces
+# ---------------------------------------------------------------------------
+fields:
+  月份:
+    standard_field: observation_date
+    status: active
+  季度:
+    standard_field: observation_date
+    status: active
+  日期:
+    standard_field: observation_date
+    status: active
+  date:
+    standard_field: observation_date
+    status: active
+  全国居民消费价格指数(CPI)上年同月=100:
+    standard_field: value
+    status: active
+  国内生产总值绝对额(亿元):
+    standard_field: value
+    status: active
+  制造业PMI:
+    standard_field: value
+    status: active
+  当月:
+    standard_field: value
+    status: active
+  货币和准货币(广义货币M2)(亿元):
+    standard_field: value
+    status: active
+  cpi:
+    standard_field: value
+    status: active
+  gdp:
+    standard_field: value
+    status: active
+  pmi:
+    standard_field: value
+    status: active
+  ppi:
+    standard_field: value
+    status: active
+  m2:
+    standard_field: value
+    status: active

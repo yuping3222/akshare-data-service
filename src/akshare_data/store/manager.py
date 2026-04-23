@@ -17,6 +17,9 @@ from ..core.schema import get_table_schema
 logger = logging.getLogger(__name__)
 
 
+CACHE_KEY_VERSION = "v2"
+
+
 def _create_cache_config(**kwargs) -> CacheConfig:
     """创建缓存配置（统一使用 core.config.CacheConfig）"""
     return CacheConfig(**kwargs)
@@ -91,7 +94,17 @@ class CacheManager:
         self._cleanup_expired_files(table, table_schema, storage_layer, partition_by)
 
         if not force_refresh:
-            cache_key = self._make_cache_key(table, storage_layer, where, columns)
+            cache_key = self._make_cache_key(
+                table=table,
+                storage_layer=storage_layer,
+                partition_by=partition_by,
+                partition_value=partition_value,
+                where=where,
+                columns=columns,
+                order_by=order_by,
+                limit=limit,
+                force_refresh=force_refresh,
+            )
             cached = self.memory_cache.get(cache_key)
             if cached is not None:
                 logger.debug("Memory cache hit for table=%s key=%s", table, cache_key)
@@ -108,7 +121,17 @@ class CacheManager:
         )
 
         if result is not None and not result.empty:
-            cache_key = self._make_cache_key(table, storage_layer, where, columns)
+            cache_key = self._make_cache_key(
+                table=table,
+                storage_layer=storage_layer,
+                partition_by=partition_by,
+                partition_value=partition_value,
+                where=where,
+                columns=columns,
+                order_by=order_by,
+                limit=limit,
+                force_refresh=force_refresh,
+            )
             self.memory_cache.put(cache_key, result)
             logger.debug("Query hit for table=%s, wrote to memory cache", table)
 
@@ -152,7 +175,26 @@ class CacheManager:
             primary_key=primary_key,
         )
 
-        cache_key = self._make_cache_key(table, storage_layer, None, None)
+        # Writing modifies persisted data; clear potentially stale query-shape keys
+        # at table (or partition) granularity, then only cache the precise "full read"
+        # key for this write request.
+        self._invalidate_memory_keys(
+            table=table,
+            storage_layer=storage_layer,
+            partition_by=partition_by,
+            partition_value=partition_value,
+        )
+        cache_key = self._make_cache_key(
+            table=table,
+            storage_layer=storage_layer,
+            partition_by=partition_by,
+            partition_value=partition_value,
+            where=None,
+            columns=None,
+            order_by=None,
+            limit=None,
+            force_refresh=False,
+        )
         self.memory_cache.put(cache_key, data)
 
         logger.info("Wrote table=%s to %s", table, file_path)
@@ -231,8 +273,11 @@ class CacheManager:
         partition_by: str | None = None,
         partition_value: str | None = None,
     ) -> int:
-        self.memory_cache.invalidate(
-            self._make_cache_key(table, storage_layer, None, None)
+        self._invalidate_memory_keys(
+            table=table,
+            storage_layer=storage_layer,
+            partition_by=partition_by,
+            partition_value=partition_value,
         )
 
         if partition_by and partition_value:
@@ -398,16 +443,67 @@ class CacheManager:
         self,
         table: str,
         storage_layer: str,
+        partition_by: str | None,
+        partition_value: str | None,
         where: dict[str, Any] | None,
         columns: list[str] | None,
+        order_by: list[str] | None = None,
+        limit: int | None = None,
+        force_refresh: bool = False,
     ) -> str:
+        partition_hash = hashlib.md5(
+            json.dumps(
+                {"partition_by": partition_by, "partition_value": partition_value},
+                sort_keys=True,
+                default=str,
+            ).encode()
+        ).hexdigest()[:8]
         where_hash = hashlib.md5(
             json.dumps(where or {}, sort_keys=True, default=str).encode()
         ).hexdigest()[:8]
         columns_hash = hashlib.md5(
             json.dumps(columns or [], sort_keys=True, default=str).encode()
         ).hexdigest()[:8]
-        return f"{table}:{storage_layer}:{where_hash}:{columns_hash}"
+        order_hash = hashlib.md5(
+            json.dumps(order_by or [], sort_keys=True, default=str).encode()
+        ).hexdigest()[:8]
+        limit_hash = hashlib.md5(json.dumps(limit, default=str).encode()).hexdigest()[:8]
+        refresh_flag = "fr1" if force_refresh else "fr0"
+        return (
+            f"{CACHE_KEY_VERSION}:{table}:{storage_layer}:{partition_hash}:"
+            f"{where_hash}:{columns_hash}:{order_hash}:{limit_hash}:{refresh_flag}"
+        )
+
+    def _invalidate_memory_keys(
+        self,
+        table: str,
+        storage_layer: str,
+        partition_by: str | None = None,
+        partition_value: str | None = None,
+    ) -> int:
+        """Invalidate memory keys for a table/storage scope (optionally partition-scoped)."""
+        prefix = f"{CACHE_KEY_VERSION}:{table}:{storage_layer}:"
+        deleted = 0
+        partition_scope = None
+        if partition_by is not None or partition_value is not None:
+            partition_scope = hashlib.md5(
+                json.dumps(
+                    {"partition_by": partition_by, "partition_value": partition_value},
+                    sort_keys=True,
+                    default=str,
+                ).encode()
+            ).hexdigest()[:8]
+
+        keys = list(self.memory_cache._metadata.keys())
+        for key in keys:
+            if not key.startswith(prefix):
+                continue
+            if partition_scope is not None:
+                parts = key.split(":")
+                if len(parts) < 4 or parts[3] != partition_scope:
+                    continue
+            deleted += self.memory_cache.invalidate(key)
+        return deleted
 
     def aggregate(self, table: str, threshold: int | None = None) -> int:
         """Run compaction for a table."""

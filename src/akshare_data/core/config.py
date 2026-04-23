@@ -99,7 +99,7 @@ class CacheConfig:
     duckdb_threads: int = 4
     duckdb_memory_limit: str = "4GB"
     cleanup_retention_hours: int = 24
-    strict_schema: bool = False
+    strict_schema: bool = True
     log_level: str = "INFO"
     log_format: str = "json"
     tables: dict[str, TableConfig] = field(default_factory=dict)

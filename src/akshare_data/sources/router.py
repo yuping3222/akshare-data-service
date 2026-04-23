@@ -14,6 +14,7 @@ def create_router(*args, **kwargs):
     """Backward-compatible alias for ``create_simple_router``."""
     return create_simple_router(*args, **kwargs)
 
+
 __all__ = [
     "DomainRateLimiter",
     "EmptyDataPolicy",

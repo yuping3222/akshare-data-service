@@ -169,7 +169,7 @@ class AtomicWriter:
         base_dir: str | Path,
         compression: str = "snappy",
         row_group_size: int = 100_000,
-        strict_schema: bool = False,
+        strict_schema: bool = True,
     ):
         self.base_dir = Path(base_dir)
         self.compression = compression

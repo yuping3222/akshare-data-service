@@ -33,10 +33,6 @@ _DEFAULT_CONFIG_PATH = (
 )
 
 _FALLBACK_CONFIG_PATH = (
-    Path(__file__).parent.parent.parent.parent / "config" / "rate_limits.yaml"
-)
-
-_FALLBACK_CONFIG_PATH = (
     Path(__file__).parent.parent.parent.parent.parent / "config" / "rate_limits.yaml"
 )
 

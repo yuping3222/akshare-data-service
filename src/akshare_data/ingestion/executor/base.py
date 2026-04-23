@@ -6,20 +6,15 @@
 1. 任务上下文（batch/request/source）可追踪
 2. 执行结果结构化（状态、指标、错误）
 3. 资源生命周期可控（open/close、上下文管理器）
-"""Unified extraction executor contracts.
-
-Task executors in online ingestion, offline downloader, and backfill/replay
-should all conform to this contract so scheduling, audit and metrics can be
-shared.
 """
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
-from typing import Any, Dict, Generic, Optional, TypeVar
+from typing import Any, Dict, Generic, Mapping, MutableMapping, Optional, TypeVar
 
 TaskT = TypeVar("TaskT")
 ResultT = TypeVar("ResultT")
@@ -134,10 +129,6 @@ class Executor(ABC, Generic[TaskT, ResultT]):
     def healthcheck(self) -> bool:
         """执行器健康检查，默认可用。"""
         return True
-from datetime import datetime, timezone
-from typing import Any, Dict, Generic, Mapping, MutableMapping, Optional, TypeVar
-
-
 TaskT = TypeVar("TaskT")
 PayloadT = TypeVar("PayloadT")
 
@@ -153,7 +144,7 @@ class ExecutorContext:
 
 
 @dataclass(frozen=True)
-class ExecutionResult(Generic[PayloadT]):
+class TaskExecutionResult(Generic[PayloadT]):
     """Unified result model for extraction execution."""
 
     success: bool
@@ -191,7 +182,7 @@ class BaseTaskExecutor(ABC, Generic[TaskT, PayloadT]):
         task: TaskT,
         *,
         context: Optional[ExecutorContext] = None,
-    ) -> ExecutionResult[PayloadT]:
+    ) -> TaskExecutionResult[PayloadT]:
         """Run a task and return unified execution result."""
 
     def result(
@@ -205,11 +196,11 @@ class BaseTaskExecutor(ABC, Generic[TaskT, PayloadT]):
         started_at: Optional[datetime] = None,
         finished_at: Optional[datetime] = None,
         metadata: Optional[MutableMapping[str, Any]] = None,
-    ) -> ExecutionResult[PayloadT]:
+    ) -> TaskExecutionResult[PayloadT]:
         """Helper to build normalized results with timestamps."""
         start = started_at or datetime.now(timezone.utc)
         end = finished_at or datetime.now(timezone.utc)
-        return ExecutionResult(
+        return TaskExecutionResult(
             success=success,
             task_name=task_name,
             rows=rows,
@@ -223,6 +214,6 @@ class BaseTaskExecutor(ABC, Generic[TaskT, PayloadT]):
 
 __all__ = [
     "ExecutorContext",
-    "ExecutionResult",
+    "TaskExecutionResult",
     "BaseTaskExecutor",
 ]

@@ -1,4 +1,3 @@
-"""Unified executor contracts for ingestion workflows."""
 """Unified executor contracts for ingestion and offline workflows."""
 
 from __future__ import annotations
@@ -14,7 +13,6 @@ PayloadT = TypeVar("PayloadT")
 
 
 class ExecutionMode(str, Enum):
-    """Execution mode."""
     """Execution mode for unified executors."""
 
     SYNC = "sync"
@@ -46,7 +44,6 @@ class ExecutorContext:
 
 @dataclass(frozen=True)
 class ExecutorStats:
-    """Execution metrics."""
     """Metrics for a unified execution run."""
 
     attempt: int = 1
@@ -57,7 +54,7 @@ class ExecutorStats:
 
 @dataclass(frozen=True)
 class TaskExecutionResult(Generic[PayloadT]):
-    """Legacy task execution result."""
+    """Legacy task execution result for task-style workflows."""
 
     success: bool
     task_name: str
@@ -83,15 +80,6 @@ class TaskExecutionResult(Generic[PayloadT]):
             "finished_at": self.finished_at.isoformat(),
             "metadata": dict(self.metadata),
         }
-class ExecutionResult(Generic[PayloadT]):
-    """Structured execution result used by modern executor APIs."""
-
-    ok: bool
-    payload: Optional[PayloadT] = None
-    error_code: Optional[str] = None
-    error_message: Optional[str] = None
-    stats: ExecutorStats = field(default_factory=ExecutorStats)
-    metadata: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass(frozen=True)
@@ -140,22 +128,36 @@ class ExecutionResult(Generic[PayloadT]):
         cls,
         payload: Optional[PayloadT] = None,
         *,
+        task_name: str = "",
+        rows: int = 0,
+        started_at: Optional[datetime] = None,
+        finished_at: Optional[datetime] = None,
         stats: Optional[ExecutorStats] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: Optional[Mapping[str, Any]] = None,
     ) -> "ExecutionResult[PayloadT]":
-        inferred_rows = 0
-        if payload is not None and hasattr(payload, "__len__"):
+        inferred_rows = rows
+        if inferred_rows <= 0 and payload is not None and hasattr(payload, "__len__"):
             try:
                 inferred_rows = int(len(payload))
             except TypeError:
                 inferred_rows = 0
 
+        start = started_at or datetime.now(timezone.utc)
+        end = finished_at or datetime.now(timezone.utc)
         return cls(
             ok=True,
             payload=payload,
-            stats=stats or ExecutorStats(output_count=rows),
-            stats=stats or ExecutorStats(output_count=inferred_rows),
-            metadata=metadata or {},
+            task_name=task_name,
+            rows=inferred_rows,
+            started_at=start,
+            finished_at=end,
+            stats=stats
+            or ExecutorStats(
+                latency_ms=max(0.0, (end - start).total_seconds() * 1000),
+                input_count=1,
+                output_count=inferred_rows,
+            ),
+            metadata=dict(metadata or {}),
         )
 
     @classmethod
@@ -164,18 +166,32 @@ class ExecutionResult(Generic[PayloadT]):
         *,
         error_code: str,
         error_message: str,
+        task_name: str = "",
+        rows: int = 0,
+        started_at: Optional[datetime] = None,
+        finished_at: Optional[datetime] = None,
         stats: Optional[ExecutorStats] = None,
-        metadata: Optional[Dict[str, Any]] = None,
+        metadata: Optional[Mapping[str, Any]] = None,
     ) -> "ExecutionResult[PayloadT]":
+        start = started_at or datetime.now(timezone.utc)
+        end = finished_at or datetime.now(timezone.utc)
         return cls(
             ok=False,
             error_code=error_code,
             error_message=error_message,
-            stats=stats or ExecutorStats(output_count=rows),
-            metadata=metadata or {},
+            task_name=task_name,
+            rows=rows,
+            started_at=start,
+            finished_at=end,
+            stats=stats
+            or ExecutorStats(
+                latency_ms=max(0.0, (end - start).total_seconds() * 1000),
+                input_count=1,
+                output_count=rows,
+            ),
+            metadata=dict(metadata or {}),
         )
 
-    # Backward-compatible aliases
     success_result = create_success
     failure_result = create_failure
 
@@ -200,45 +216,10 @@ class Executor(ABC, Generic[TaskT, PayloadT]):
 
     @abstractmethod
     def execute(self, task: TaskT, context: ExecutionContext | None = None) -> Any:
-    def execute(
-        self,
-        task: TaskT,
-        context: ExecutionContext | None = None,
-    ) -> Any:
         """Execute one task."""
 
     def healthcheck(self) -> bool:
         return True
-
-
-@dataclass(frozen=True)
-class TaskExecutionResult(Generic[PayloadT]):
-    """Legacy task execution result for task-style workflows."""
-
-    success: bool
-    task_name: str
-    rows: int = 0
-    payload: Optional[PayloadT] = None
-    error: str = ""
-    started_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    finished_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
-    @property
-    def duration_ms(self) -> int:
-        return int((self.finished_at - self.started_at).total_seconds() * 1000)
-
-    def to_dict(self) -> Dict[str, Any]:
-        return {
-            "success": self.success,
-            "task": self.task_name,
-            "rows": self.rows,
-            "error": self.error,
-            "duration_ms": self.duration_ms,
-            "started_at": self.started_at.isoformat(),
-            "finished_at": self.finished_at.isoformat(),
-            "metadata": dict(self.metadata),
-        }
 
 
 class BaseTaskExecutor(ABC, Generic[TaskT, PayloadT]):
@@ -252,8 +233,6 @@ class BaseTaskExecutor(ABC, Generic[TaskT, PayloadT]):
         context: Optional[ExecutorContext] = None,
     ) -> TaskExecutionResult[PayloadT] | ExecutionResult[PayloadT]:
         """Run a task and return normalized result."""
-    ) -> TaskExecutionResult[PayloadT]:
-        """Run a task and return a normalized legacy result."""
 
     def result(
         self,
@@ -298,19 +277,6 @@ class BaseTaskExecutor(ABC, Generic[TaskT, PayloadT]):
                 output_count=rows,
             ),
             metadata=merged_metadata,
-        metadata: Optional[MutableMapping[str, Any]] = None,
-    ) -> TaskExecutionResult[PayloadT]:
-        start = started_at or datetime.now(timezone.utc)
-        end = finished_at or datetime.now(timezone.utc)
-        return TaskExecutionResult(
-            success=success,
-            task_name=task_name,
-            rows=rows,
-            payload=payload,
-            error=error,
-            started_at=start,
-            finished_at=end,
-            metadata=dict(metadata or {}),
         )
 
     def healthcheck(self) -> bool:

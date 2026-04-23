@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """Stats collection module - compatibility shell.
 
 DEPRECATED: Use `akshare_data.common.types` instead.

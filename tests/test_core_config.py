@@ -23,6 +23,7 @@ class TestCacheConfig:
         assert cfg.duckdb_threads == 4
         assert cfg.duckdb_memory_limit == "4GB"
         assert cfg.cleanup_retention_hours == 24
+        assert cfg.strict_schema is True
         assert cfg.log_level == "INFO"
         assert cfg.log_format == "json"
         assert cfg.tables == {}

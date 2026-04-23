@@ -172,9 +172,7 @@ _METHOD_TO_INTERFACE = {
     # 全市场实时行情
     "get_spot_em": "stock_zh_a_spot_em",
     # 概念板块
-    "get_concept_list": "stock_board_concept_name_em",
     "get_concept_components": "stock_board_concept_cons_em",
-    "get_stock_concepts": "stock_board_concept_name_em",  # 需要用其他方式实现
     "get_hk_stocks": "hk_stocks",
     "get_us_stocks": "us_stocks",
     "get_new_stocks": "new_stocks",

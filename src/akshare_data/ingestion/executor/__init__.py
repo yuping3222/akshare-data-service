@@ -12,10 +12,12 @@ from akshare_data.ingestion.executor.base import (
 )
 
 __all__ = [
+    "BaseTaskExecutor",
     "ExecutionContext",
     "ExecutionMode",
     "ExecutionResult",
     "Executor",
+    "ExecutorContext",
     "ExecutorStats",
     "BaseTaskExecutor",
     "ExecutorContext",

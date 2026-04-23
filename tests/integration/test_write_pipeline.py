@@ -25,6 +25,8 @@ from akshare_data.store.manager import CacheManager, reset_cache_manager
 from akshare_data.store.parquet import AtomicWriter, PartitionManager
 from akshare_data.store.strategies import FullCacheStrategy, IncrementalStrategy
 
+pytestmark = pytest.mark.integration
+
 
 # ---------------------------------------------------------------------------
 # 1. Schema registration

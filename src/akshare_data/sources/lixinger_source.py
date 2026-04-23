@@ -658,30 +658,10 @@ class LixingerAdapter(DataSource):
     def get_futures_main_contracts(self) -> pd.DataFrame:
         raise NotImplementedError(f"{self.name} 不支持 get_futures_main_contracts")
 
-    def get_northbound_holdings(
-        self, symbol: str, start_date: str, end_date: str
-    ) -> pd.DataFrame:
-        raise NotImplementedError(f"{self.name} 不支持 get_northbound_holdings")
-
-    def get_northbound_top_stocks(self, date: str, **kwargs) -> pd.DataFrame:
-        raise NotImplementedError(f"{self.name} 不支持 get_northbound_top_stocks")
 
     def get_news_data(self, symbol: str) -> pd.DataFrame:
         raise NotImplementedError(f"{self.name} 不支持 get_news_data")
 
-    def get_dragon_tiger_list(self, date: str, **kwargs) -> pd.DataFrame:
-        raise NotImplementedError(f"{self.name} 不支持 get_dragon_tiger_list")
-
-    def get_dragon_tiger_summary(
-        self, start_date: str, end_date: str, **kwargs
-    ) -> pd.DataFrame:
-        raise NotImplementedError(f"{self.name} 不支持 get_dragon_tiger_summary")
-
-    def get_limit_up_pool(self, date: str) -> pd.DataFrame:
-        raise NotImplementedError(f"{self.name} 不支持 get_limit_up_pool")
-
-    def get_limit_down_pool(self, date: str) -> pd.DataFrame:
-        raise NotImplementedError(f"{self.name} 不支持 get_limit_down_pool")
 
     def get_block_deal(
         self, symbol: str, start_date: str, end_date: str

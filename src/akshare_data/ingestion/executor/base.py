@@ -1,3 +1,4 @@
+"""Unified executor contracts for ingestion workflows."""
 """统一执行器接口。"""
 """统一执行器接口（T2-004）。
 
@@ -19,10 +20,12 @@ from enum import Enum
 from typing import Any, Dict, Generic, Mapping, MutableMapping, Optional, TypeVar
 
 TaskT = TypeVar("TaskT")
+ResultT = TypeVar("ResultT")
 PayloadT = TypeVar("PayloadT")
 
 
 class ExecutionMode(str, Enum):
+    """Execution mode for unified executors."""
     """Execution mode."""
 
     SYNC = "sync"
@@ -32,6 +35,7 @@ class ExecutionMode(str, Enum):
 
 @dataclass(frozen=True)
 class ExecutionContext:
+    """Context for structured unified execution."""
     """统一执行上下文（新接口）。"""
     """Context for structured executor interface."""
 
@@ -56,6 +60,7 @@ class ExecutorContext:
 
 @dataclass(frozen=True)
 class ExecutorStats:
+    """Metrics for a unified execution run."""
     """Execution metrics."""
 
     attempt: int = 1
@@ -65,6 +70,8 @@ class ExecutorStats:
 
 
 @dataclass(frozen=True)
+class ExecutionResult(Generic[ResultT]):
+    """Structured execution result used by modern executor APIs."""
 class ExecutionResult(Generic[PayloadT]):
     """统一执行结果（兼容新旧两套调用语义）。"""
     """Unified result model, compatible with both new/legacy callers."""
@@ -233,7 +240,7 @@ PayloadT = TypeVar("PayloadT")
 
 @dataclass(frozen=True)
 class ExecutorContext:
-    """Execution context shared by all task runs."""
+    """Context for legacy task executors."""
 
     batch_id: str = ""
     run_id: str = ""
@@ -272,6 +279,7 @@ class TaskExecutionResult(Generic[PayloadT]):
 
 
 class BaseTaskExecutor(ABC, Generic[TaskT, PayloadT]):
+    """Base contract for legacy task executors."""
     """Task-style executor abstraction for offline workflows."""
 
     @abstractmethod
@@ -281,6 +289,7 @@ class BaseTaskExecutor(ABC, Generic[TaskT, PayloadT]):
         *,
         context: Optional[ExecutorContext] = None,
     ) -> TaskExecutionResult[PayloadT]:
+        """Run a task and return a normalized legacy result."""
         """Run a task and return unified execution result."""
 
     def result(
@@ -294,6 +303,7 @@ class BaseTaskExecutor(ABC, Generic[TaskT, PayloadT]):
         started_at: Optional[datetime] = None,
         finished_at: Optional[datetime] = None,
         metadata: Optional[MutableMapping[str, Any]] = None,
+    ) -> TaskExecutionResult[PayloadT]:
     ) -> ExecutionResult[PayloadT]:
         start = started_at or datetime.now(timezone.utc)
         end = finished_at or datetime.now(timezone.utc)
@@ -342,6 +352,14 @@ class BaseTaskExecutor(ABC, Generic[TaskT, PayloadT]):
 
 
 __all__ = [
+    "BaseTaskExecutor",
+    "ExecutionContext",
+    "ExecutionMode",
+    "ExecutionResult",
+    "Executor",
+    "ExecutorContext",
+    "ExecutorStats",
+    "TaskExecutionResult",
     "ExecutorContext",
     "TaskExecutionResult",
     "ExecutionContext",

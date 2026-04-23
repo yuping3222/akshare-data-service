@@ -22,10 +22,15 @@ from typing import Any, Dict, Optional
 import pandas as pd
 from akshare_data.core.config_cache import ConfigCache
 from akshare_data.core.errors import SourceUnavailableError, ErrorCode
+from akshare_data.core.options import (
+    black_scholes_price as _bs_price,
+    calculate_option_greeks as _calc_greeks,
+)
 from akshare_data.core.symbols import (
     jq_code_to_ak as _jq_code_to_ak,
     format_stock_symbol,
 )
+from akshare_data.ingestion.router import DomainRateLimiter as _DomainRateLimiter
 
 logger = logging.getLogger(__name__)
 
@@ -269,8 +274,6 @@ def _call_adapter_source(
 
 
 # ── 限速器（委托给 router.DomainRateLimiter） ─────────────────────────
-
-from akshare_data.ingestion.router import DomainRateLimiter as _DomainRateLimiter
 
 
 class RateLimiter:
@@ -1312,11 +1315,6 @@ def fetch_news_data(akshare, symbol=None, date=None, **kwargs):
 
 
 # ── 计算函数（委托给 core.options） ─────────────────────────────────
-
-from akshare_data.core.options import (
-    black_scholes_price as _bs_price,
-    calculate_option_greeks as _calc_greeks,
-)
 
 
 def calculate_option_greeks(

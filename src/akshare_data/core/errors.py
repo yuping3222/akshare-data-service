@@ -1,3 +1,4 @@
+# ruff: noqa: E402
 """Error codes and exception hierarchy - compatibility shell.
 
 DEPRECATED: Use `akshare_data.common.errors` instead.

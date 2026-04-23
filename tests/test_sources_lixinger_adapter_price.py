@@ -4,7 +4,6 @@ These tests attempt to call lixinger adapter methods. Without LIXINGER_TOKEN,
 they will fail with auth errors — we categorize these properly.
 """
 
-import os
 import pytest
 import pandas as pd
 

@@ -1,6 +1,5 @@
 """Tests for akshare_data.standardized.normalizer.market_quote_daily module."""
 
-import pytest
 import pandas as pd
 
 from akshare_data.standardized.normalizer.market_quote_daily import (

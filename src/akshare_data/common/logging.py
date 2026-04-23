@@ -20,12 +20,11 @@ import logging.handlers
 import os
 import sys
 import threading
-import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from logging.handlers import TimedRotatingFileHandler
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 import pandas as pd
 

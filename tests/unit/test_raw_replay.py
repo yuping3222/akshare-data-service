@@ -11,17 +11,14 @@ Verifies that ReplayEngine can:
 
 from __future__ import annotations
 
-import tempfile
 from datetime import date
 from pathlib import Path
-from typing import Any
 
 import pandas as pd
 import pytest
 
 from akshare_data.raw.manifest import MANIFEST_FILENAME, Manifest, save_schema_snapshot
-from akshare_data.raw.reader import RawReader
-from akshare_data.raw.replay import ReplayEngine, ReplayResult, ReplayReport
+from akshare_data.raw.replay import ReplayEngine
 from akshare_data.raw.system_fields import SYSTEM_FIELD_NAMES
 
 

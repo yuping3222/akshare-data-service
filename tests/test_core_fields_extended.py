@@ -10,9 +10,7 @@ Coverage gaps filled:
 - standardize_columns_generic() column renaming behavior
 """
 
-import pytest
 import pandas as pd
-from unittest.mock import patch, MagicMock
 from akshare_data.core.fields import (
     get_name_by_code,
     get_stock_name,
@@ -26,7 +24,6 @@ from akshare_data.core.fields import (
     search_by_name,
     get_option_underlying_patterns,
     standardize_columns_generic,
-    _load_code_name_mapping,
     _code_name_mappings,
 )
 

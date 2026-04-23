@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-import time
 from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional
 
 import akshare as ak
 
-from akshare_data.offline.core.errors import ProbeError
 from akshare_data.offline.prober.checkpoint import DEFAULT_STABLE_TTL
 
 

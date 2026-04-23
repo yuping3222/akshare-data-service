@@ -4,10 +4,7 @@ DuckDBEngine comprehensive tests
 """
 
 import pytest
-import tempfile
-from pathlib import Path
 from datetime import datetime
-from unittest.mock import patch, MagicMock
 
 import pandas as pd
 
@@ -63,7 +60,7 @@ class TestDuckDBEngineConnection:
     def test_close_closes_connection(self, tmp_path):
         """Test close method closes the connection"""
         engine = DuckDBEngine(base_dir=str(tmp_path))
-        conn = engine._get_connection()
+        engine._get_connection()
         engine.close()
         assert not hasattr(engine._local, "conn") or engine._local.conn is None
 
@@ -233,7 +230,6 @@ class TestDuckDBEngineQuery:
 
     def test_query_by_paths_with_mock_data(self, tmp_path):
         """Test query_by_paths with mock parquet files"""
-        import duckdb
 
         parquet_path = tmp_path / "test.parquet"
         df = pd.DataFrame(
@@ -296,7 +292,6 @@ class TestDuckDBEngineTableRegistration:
 
     def test_register_table_creates_view(self, tmp_path):
         """Test register_table creates a DuckDB view"""
-        import duckdb
 
         parquet_path = tmp_path / "test.parquet"
         df = pd.DataFrame(
@@ -314,7 +309,6 @@ class TestDuckDBEngineTableRegistration:
 
     def test_register_table_with_alias(self, tmp_path):
         """Test register_table with custom alias"""
-        import duckdb
 
         parquet_path = tmp_path / "test.parquet"
         df = pd.DataFrame(
@@ -332,7 +326,6 @@ class TestDuckDBEngineTableRegistration:
 
     def test_unregister_table(self, tmp_path):
         """Test unregister_table removes view"""
-        import duckdb
 
         parquet_path = tmp_path / "test.parquet"
         df = pd.DataFrame(

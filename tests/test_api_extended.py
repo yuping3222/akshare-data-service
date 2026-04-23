@@ -7,23 +7,14 @@ cached_fetch edge cases, _execute_source_method error paths,
 and all uncovered DataService public methods.
 """
 
-import pytest
-from datetime import datetime
-from unittest.mock import patch, MagicMock, PropertyMock
+from unittest.mock import patch, MagicMock
 
 import pandas as pd
 
 from akshare_data.api import (
     DataService,
     SourceProxy,
-    CNStockQuoteAPI,
-    CNStockFinanceAPI,
-    CNStockCapitalAPI,
-    CNIndexMetaAPI,
-    CNStockEventAPI,
-    HKStockQuoteAPI,
     HKMarketAPI,
-    USStockQuoteAPI,
     USMarketAPI,
     MacroChinaAPI,
 )
@@ -439,7 +430,7 @@ class TestExecuteSourceMethodErrorPaths:
         mock_router = MagicMock()
         mock_router.execute.return_value = mock_result
         service.router = mock_router
-        proxy = SourceProxy(service, requested_source="akshare")
+        SourceProxy(service, requested_source="akshare")
         with patch.object(service.akshare, "get_daily_data", return_value=make_df()):
             result = service._execute_source_method(
                 "get_daily_data", "akshare", "600000", "2024-01-01", "2024-01-10", "qfq"

@@ -6,7 +6,7 @@ import logging
 import threading
 import time
 from datetime import datetime
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any, Callable, Dict, Optional
 
 from croniter import croniter
 import yaml
@@ -97,7 +97,7 @@ class Scheduler:
         interface = task.get("interface")
         mode = task.get("mode", "incremental")
         days_back = task.get("days_back", 1)
-        symbols = task.get("symbols")
+        task.get("symbols")
 
         if mode == "full":
             self._downloader.download_full(

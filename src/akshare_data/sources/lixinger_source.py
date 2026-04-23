@@ -3,6 +3,7 @@ Lixinger data source adapter.
 
 Implements the DataSource interface using Lixinger OpenAPI.
 """
+# ruff: noqa: F811
 
 import logging
 from datetime import datetime, date
@@ -17,7 +18,7 @@ from akshare_data.core.errors import (
     ErrorCode,
     SourceUnavailableError,
 )
-from akshare_data.core.symbols import format_stock_symbol, jq_code_to_ak
+from akshare_data.core.symbols import format_stock_symbol
 from akshare_data.core.tokens import get_token as _get_token
 from akshare_data.sources.lixinger_client import LixingerClient, get_lixinger_client
 

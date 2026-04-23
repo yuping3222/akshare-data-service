@@ -80,7 +80,7 @@ class TaskExecutor(Executor[ProbeTask, ValidationResult]):
                 last_check=time.time(),
                 check_count=1,
             )
-            return UnifiedExecutionResult.success(
+            return UnifiedExecutionResult.create_success(
                 payload=payload,
                 stats=ExecutorStats(
                     latency_ms=elapsed,
@@ -96,7 +96,7 @@ class TaskExecutor(Executor[ProbeTask, ValidationResult]):
         except RetryExhaustedError as e:
             elapsed = (time.perf_counter() - start_time) * 1000
             err = str(e.__cause__) if e.__cause__ else str(e)
-            return UnifiedExecutionResult.failure(
+            return UnifiedExecutionResult.create_failure(
                 error_code="probe_retry_exhausted",
                 error_message=err,
                 stats=ExecutorStats(latency_ms=elapsed),
@@ -108,7 +108,7 @@ class TaskExecutor(Executor[ProbeTask, ValidationResult]):
             )
         except Exception as e:
             elapsed = (time.perf_counter() - start_time) * 1000
-            return UnifiedExecutionResult.failure(
+            return UnifiedExecutionResult.create_failure(
                 error_code="probe_failed",
                 error_message=str(e),
                 stats=ExecutorStats(latency_ms=elapsed),

@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import logging
 import sys
-from typing import List, Optional
 
 from akshare_data.offline.core.paths import paths
 
@@ -205,7 +204,7 @@ def _handle_analyze(args):
         expected_dates = []
         if date_col and date_col in df.columns:
             import pandas as pd
-            from datetime import datetime, timedelta
+            from datetime import timedelta
 
             dates = pd.to_datetime(df[date_col]).dropna().sort_values()
             if len(dates) > 0:
@@ -262,7 +261,7 @@ def _handle_report(args):
         generator = HealthReportGenerator()
         content = generator.generate(results=probe_results)
         if content:
-            print(f"Health report generated successfully")
+            print("Health report generated successfully")
             print(content)
         else:
             print("Health report is empty (no probe data)")

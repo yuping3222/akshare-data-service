@@ -1,7 +1,6 @@
 """Integration tests for offline tools — prober, scanner, scheduler with real data."""
 
 import pytest
-import pandas as pd
 
 from akshare_data.offline.prober.prober import APIProber
 from akshare_data.offline.scanner.akshare_scanner import AkShareScanner

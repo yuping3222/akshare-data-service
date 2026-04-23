@@ -12,17 +12,15 @@ real implementations.
 """
 
 from datetime import datetime, timedelta
-from types import SimpleNamespace
-from unittest.mock import MagicMock, patch, PropertyMock
+from unittest.mock import patch
 
 import pandas as pd
 import pytest
 
-from akshare_data import DataService
 from akshare_data.core.errors import DataSourceError, SourceUnavailableError, ErrorCode
 from akshare_data.core.symbols import normalize_symbol, jq_code_to_ak, ak_code_to_jq
 from akshare_data.store.manager import CacheManager, reset_cache_manager
-from akshare_data.api import CNMarketAPI, CNStockQuoteAPI, CNStockFinanceAPI
+from akshare_data.api import CNMarketAPI, CNStockQuoteAPI
 
 
 # ===================================================================
@@ -655,7 +653,7 @@ class TestDataServiceFullPipeline:
 
         with patch.object(
             service.akshare, "get_daily_data", return_value=pd.DataFrame()
-        ) as mock_src:
+        ):
             result = service.get_daily(
                 symbol="sh600000",
                 start_date="2024-06-01",

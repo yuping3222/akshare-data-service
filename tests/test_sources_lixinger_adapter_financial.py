@@ -4,7 +4,6 @@ import pytest
 import pandas as pd
 from unittest.mock import MagicMock
 
-from akshare_data.core.errors import SourceUnavailableError
 from akshare_data.sources.lixinger_source import LixingerAdapter
 
 

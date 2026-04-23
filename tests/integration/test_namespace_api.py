@@ -8,7 +8,7 @@ The data source is mocked; all namespace classes and DataService wiring
 are exercised with real implementations.
 """
 
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch, MagicMock
 
 import pandas as pd
 import pytest
@@ -25,7 +25,6 @@ from akshare_data.api import (
     CNStockEventAPI,
     CNIndexMetaAPI,
     SourceProxy,
-    DataService,
 )
 
 

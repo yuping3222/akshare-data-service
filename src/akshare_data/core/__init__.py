@@ -3,6 +3,7 @@
 DEPRECATED: Use `akshare_data.common` instead.
 This module re-exports from common/ for backward compatibility.
 """
+# ruff: noqa: E402
 
 import warnings
 

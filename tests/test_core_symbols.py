@@ -17,7 +17,6 @@ Covers:
 - ts_code_to_jq() function
 """
 
-import pytest
 from akshare_data.core.symbols import (
     format_stock_symbol,
     jq_code_to_ak,

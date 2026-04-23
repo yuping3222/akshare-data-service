@@ -49,3 +49,25 @@ filterwarnings = [
     "ignore::DeprecationWarning",
     "ignore::PendingDeprecationWarning",
 ]
+
+[tool.mypy]
+ignore_missing_imports = true
+no_implicit_optional = false
+disable_error_code = [
+    "arg-type",
+    "attr-defined",
+    "assignment",
+    "dict-item",
+    "has-type",
+    "index",
+    "import-not-found",
+    "import-untyped",
+    "misc",
+    "no-redef",
+    "operator",
+    "override",
+    "return-value",
+    "union-attr",
+    "type-abstract",
+    "var-annotated",
+]

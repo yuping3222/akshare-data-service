@@ -5,7 +5,6 @@ Comprehensive tests for CacheManager and related classes in store/manager.py
 
 import tempfile
 import threading
-from datetime import datetime
 from pathlib import Path
 
 import pandas as pd
@@ -181,6 +180,71 @@ class TestCacheManagerRead:
         result2 = manager.read("test_table", storage_layer="daily")
         pd.testing.assert_frame_equal(result1, result2)
 
+    def test_read_cache_key_isolation_by_query_semantics(self, temp_cache_dir):
+        """Different symbol/limit/order requests should not pollute each other."""
+        manager = CacheManager(base_dir=temp_cache_dir)
+        calls = {"n": 0}
+
+        def _query(*args, **kwargs):
+            calls["n"] += 1
+            symbol = (kwargs.get("where") or {}).get("symbol", "unknown")
+            limit = kwargs.get("limit")
+            order = ",".join(kwargs.get("order_by") or [])
+            return pd.DataFrame(
+                [
+                    {
+                        "symbol": symbol,
+                        "limit_tag": str(limit),
+                        "order_tag": order,
+                        "seq": calls["n"],
+                    }
+                ]
+            )
+
+        manager.engine.query = _query
+
+        a1 = manager.read(
+            "test_table",
+            storage_layer="daily",
+            where={"symbol": "sh600000"},
+            order_by=["date DESC"],
+            limit=10,
+        )
+        a2 = manager.read(
+            "test_table",
+            storage_layer="daily",
+            where={"symbol": "sh600000"},
+            order_by=["date DESC"],
+            limit=10,
+        )
+        b = manager.read(
+            "test_table",
+            storage_layer="daily",
+            where={"symbol": "sz000001"},
+            order_by=["date DESC"],
+            limit=10,
+        )
+        c = manager.read(
+            "test_table",
+            storage_layer="daily",
+            where={"symbol": "sh600000"},
+            order_by=["date ASC"],
+            limit=10,
+        )
+        d = manager.read(
+            "test_table",
+            storage_layer="daily",
+            where={"symbol": "sh600000"},
+            order_by=["date DESC"],
+            limit=5,
+        )
+
+        assert calls["n"] == 4
+        pd.testing.assert_frame_equal(a1, a2)
+        assert b.iloc[0]["symbol"] == "sz000001"
+        assert c.iloc[0]["order_tag"] == "date ASC"
+        assert d.iloc[0]["limit_tag"] == "5"
+
 
 class TestCacheManagerWrite:
     """Tests for CacheManager.write() method."""
@@ -215,7 +279,7 @@ class TestCacheManagerWrite:
         """Test that write updates memory cache."""
         manager = CacheManager(base_dir=temp_cache_dir)
         manager.write("test_table", sample_df, storage_layer="daily")
-        cache_key = manager._make_cache_key("test_table", "daily", None, None)
+        cache_key = manager._make_cache_key("test_table", "daily", None, None, None, None)
         assert manager.memory_cache.get(cache_key) is not None
 
 
@@ -303,7 +367,7 @@ class TestCacheManagerInvalidate:
         """Test invalidate removes data from memory cache."""
         manager = CacheManager(base_dir=temp_cache_dir)
         manager.write("test_table", sample_df, storage_layer="daily")
-        cache_key = manager._make_cache_key("test_table", "daily", None, None)
+        cache_key = manager._make_cache_key("test_table", "daily", None, None, None, None)
         assert manager.memory_cache.get(cache_key) is not None
         manager.invalidate("test_table", storage_layer="daily")
         assert manager.memory_cache.get(cache_key) is None
@@ -334,6 +398,40 @@ class TestCacheManagerInvalidate:
             partition_value="sh600000",
         )
         assert count >= 0
+
+    def test_write_partition_only_invalidates_partition_scope(self, temp_cache_dir):
+        """Writing one partition should keep other partition cache entries."""
+        manager = CacheManager(base_dir=temp_cache_dir)
+        key_sh = manager._make_cache_key(
+            "test_table",
+            "daily",
+            "symbol",
+            "sh600000",
+            None,
+            None,
+        )
+        key_sz = manager._make_cache_key(
+            "test_table",
+            "daily",
+            "symbol",
+            "sz000001",
+            None,
+            None,
+        )
+
+        manager.memory_cache.put(key_sh, pd.DataFrame([{"symbol": "sh600000"}]))
+        manager.memory_cache.put(key_sz, pd.DataFrame([{"symbol": "sz000001"}]))
+
+        manager.write(
+            "test_table",
+            pd.DataFrame([{"symbol": "sh600000", "date": "2024-01-01", "close": 10.0}]),
+            storage_layer="daily",
+            partition_by="symbol",
+            partition_value="sh600000",
+        )
+
+        assert manager.memory_cache.get(key_sh) is not None
+        assert manager.memory_cache.get(key_sz) is not None
 
 
 class TestCacheManagerTableInfo:
@@ -426,37 +524,37 @@ class TestCacheManagerMakeCacheKey:
     def test_cache_key_format(self, temp_cache_dir):
         """Test cache key has expected format."""
         manager = CacheManager(base_dir=temp_cache_dir)
-        key = manager._make_cache_key("table", "daily", None, None)
-        assert key.startswith("table:daily:")
+        key = manager._make_cache_key("table", "daily", None, None, None, None)
+        assert key.startswith("v2:table:daily:")
         parts = key.split(":")
-        assert len(parts) == 4
+        assert len(parts) == 9
 
     def test_cache_key_different_tables(self, temp_cache_dir):
         """Test different tables produce different keys."""
         manager = CacheManager(base_dir=temp_cache_dir)
-        key1 = manager._make_cache_key("table1", "daily", None, None)
-        key2 = manager._make_cache_key("table2", "daily", None, None)
+        key1 = manager._make_cache_key("table1", "daily", None, None, None, None)
+        key2 = manager._make_cache_key("table2", "daily", None, None, None, None)
         assert key1 != key2
 
     def test_cache_key_different_storage_layers(self, temp_cache_dir):
         """Test different storage layers produce different keys."""
         manager = CacheManager(base_dir=temp_cache_dir)
-        key1 = manager._make_cache_key("table", "daily", None, None)
-        key2 = manager._make_cache_key("table", "hourly", None, None)
+        key1 = manager._make_cache_key("table", "daily", None, None, None, None)
+        key2 = manager._make_cache_key("table", "hourly", None, None, None, None)
         assert key1 != key2
 
     def test_cache_key_with_where(self, temp_cache_dir):
         """Test cache key includes where clause."""
         manager = CacheManager(base_dir=temp_cache_dir)
-        key1 = manager._make_cache_key("table", "daily", {"col": "val"}, None)
-        key2 = manager._make_cache_key("table", "daily", {"col": "val2"}, None)
+        key1 = manager._make_cache_key("table", "daily", None, None, {"col": "val"}, None)
+        key2 = manager._make_cache_key("table", "daily", None, None, {"col": "val2"}, None)
         assert key1 != key2
 
     def test_cache_key_with_columns(self, temp_cache_dir):
         """Test cache key includes columns."""
         manager = CacheManager(base_dir=temp_cache_dir)
-        key1 = manager._make_cache_key("table", "daily", None, ["col1"])
-        key2 = manager._make_cache_key("table", "daily", None, ["col2"])
+        key1 = manager._make_cache_key("table", "daily", None, None, None, ["col1"])
+        key2 = manager._make_cache_key("table", "daily", None, None, None, ["col2"])
         assert key1 != key2
 
 

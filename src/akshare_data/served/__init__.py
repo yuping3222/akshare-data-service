@@ -13,11 +13,15 @@ from .manifest import GateDecision, ReleaseManifest, ReleaseStatus
 from .publisher import Publisher, PublishError
 from .reader import Reader
 from .rollback import RollbackError, RollbackManager
+from .versioning import ReleaseVersion, ReleaseVersionError, next_release_version
 
 __all__ = [
     "GateDecision",
     "ReleaseManifest",
     "ReleaseStatus",
+    "ReleaseVersion",
+    "ReleaseVersionError",
+    "next_release_version",
     "Publisher",
     "PublishError",
     "Reader",

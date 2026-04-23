@@ -1,14 +1,21 @@
-"""下载任务执行器"""
+"""下载任务执行器。"""
 
 from __future__ import annotations
 
 import logging
+import time
+from datetime import datetime
 from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
 import pandas as pd
 
 from akshare_data.ingestion.executor.base import (
+    ExecutionContext,
+    ExecutionMode,
+    ExecutionResult as UnifiedExecutionResult,
+    Executor,
+    ExecutorStats,
     BaseTaskExecutor,
     ExecutionResult,
     ExecutorContext,
@@ -24,17 +31,48 @@ logger = logging.getLogger("akshare_data")
 _RETRY_CONFIG = RetryConfig(max_retries=2, delay=1.0, backoff=1.0)
 
 
-class TaskExecutor(BaseTaskExecutor[DownloadTask, pd.DataFrame]):
-    """下载任务执行器.
+class TaskExecutor(Executor[DownloadTask, pd.DataFrame]):
+    """下载任务执行器。"""
 
-    兼容旧接口 ``execute(task) -> dict``，同时实现统一执行器接口
-    ``run(task, context) -> ExecutionResult``。
-    """
+    mode = ExecutionMode.SYNC
 
     def __init__(self, rate_limiter: DomainRateLimiter, cache_manager=None):
         self._rate_limiter = rate_limiter
         self._cache_manager = cache_manager
 
+    def execute(self, task: DownloadTask, context: ExecutionContext | None = None) -> Dict[str, Any]:
+        """执行单个下载任务（兼容旧接口）。"""
+        if context is None:
+            context = ExecutionContext(
+                request_id=f"download-{task.interface}",
+                batch_id=f"batch-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
+                source="akshare",
+                dataset=task.table,
+            )
+
+        result = self.execute_structured(task, context=context)
+        if not result.ok:
+            return {
+                "success": False,
+                "error": result.error_message or result.error_code,
+                "task": task.interface,
+            }
+
+        payload = result.payload if result.payload is not None else pd.DataFrame()
+        return {
+            "success": True,
+            "rows": len(payload),
+            "task": task.interface,
+        }
+
+    def execute_structured(
+        self,
+        task: DownloadTask,
+        *,
+        context: ExecutionContext,
+    ) -> UnifiedExecutionResult[pd.DataFrame]:
+        """执行单个下载任务并返回统一结构结果。"""
+        start = time.perf_counter()
     def run(
         self,
         task: DownloadTask,
@@ -58,6 +96,27 @@ class TaskExecutor(BaseTaskExecutor[DownloadTask, pd.DataFrame]):
             df = self._call_akshare(task.func, **task.kwargs)
         except Exception as e:
             logger.error("Task %s failed: %s", task.interface, e)
+            return UnifiedExecutionResult.failure(
+                error_code="download_failed",
+                error_message=str(e),
+                stats=ExecutorStats(latency_ms=(time.perf_counter() - start) * 1000),
+                metadata={
+                    "task": task.interface,
+                    "request_id": context.request_id,
+                    "batch_id": context.batch_id,
+                },
+            )
+
+        if df is None or df.empty:
+            return UnifiedExecutionResult.failure(
+                error_code="empty_data",
+                error_message="Empty data",
+                stats=ExecutorStats(latency_ms=(time.perf_counter() - start) * 1000),
+                metadata={
+                    "task": task.interface,
+                    "request_id": context.request_id,
+                    "batch_id": context.batch_id,
+                },
             return self.result(
                 success=False,
                 task_name=task.interface,
@@ -80,6 +139,19 @@ class TaskExecutor(BaseTaskExecutor[DownloadTask, pd.DataFrame]):
         if self._cache_manager:
             self._write_to_cache(task, df)
 
+        return UnifiedExecutionResult.success(
+            payload=df,
+            stats=ExecutorStats(
+                latency_ms=(time.perf_counter() - start) * 1000,
+                input_count=1,
+                output_count=len(df),
+            ),
+            metadata={
+                "task": task.interface,
+                "request_id": context.request_id,
+                "batch_id": context.batch_id,
+            },
+        )
         return self.result(
             success=True,
             task_name=task.interface,

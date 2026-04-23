@@ -14,7 +14,6 @@ from __future__ import annotations
 
 import logging
 import os
-import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import List, Optional
@@ -24,6 +23,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from .manifest import GateDecision, ReleaseManifest, SourceBatch
+from .versioning import list_release_versions, next_release_version
 
 logger = logging.getLogger(__name__)
 
@@ -152,17 +152,14 @@ class Publisher:
     # Release version generation
     # ------------------------------------------------------------------
 
-    @staticmethod
-    def _generate_release_version(dataset: str) -> str:
-        """Generate a unique release version.
+    def _generate_release_version(self, dataset: str) -> str:
+        """Generate release version following the T7-002 model.
 
-        Format: rv_<YYYYMMDD>_<seq>
-        The sequence ensures uniqueness within the same day.
+        Format: ``{dataset}-r{YYYYMMDDHHMM}-{seq}``.
         """
-        now = datetime.now(timezone.utc)
-        date_part = now.strftime("%Y%m%d")
-        unique = uuid.uuid4().hex[:6]
-        return f"rv_{date_part}_{unique}"
+        releases_dir = self.served_dir / dataset / "releases"
+        existing = list_release_versions(releases_dir)
+        return next_release_version(dataset, existing_versions=existing)
 
     # ------------------------------------------------------------------
     # Path helpers

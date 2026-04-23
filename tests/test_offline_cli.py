@@ -2,10 +2,7 @@
 
 import pytest
 import json
-import sys
-from pathlib import Path
-from unittest.mock import patch, MagicMock, call, mock_open
-from io import StringIO
+from unittest.mock import patch, MagicMock, mock_open
 
 import pandas as pd
 

@@ -8,7 +8,6 @@ Covers:
 - Exception to_dict() serialization
 """
 
-import pytest
 from akshare_data.core.errors import (
     ErrorCode,
     DataAccessException,

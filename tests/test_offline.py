@@ -6,15 +6,12 @@
 """
 
 import pytest
-import tempfile
-from datetime import datetime, timedelta
 from unittest.mock import patch, MagicMock
 
 import pandas as pd
 
 from akshare_data.offline.downloader import (
     BatchDownloader,
-    DomainRateLimiter,
     validate_ohlcv_data,
     convert_wide_to_long,
 )

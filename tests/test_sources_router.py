@@ -4,7 +4,6 @@
 测试DomainRateLimiter、SourceHealthMonitor、MultiSourceRouter执行逻辑
 """
 
-import pytest
 import time
 from unittest.mock import patch, MagicMock
 

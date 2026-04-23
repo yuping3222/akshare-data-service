@@ -6,14 +6,10 @@
 """
 
 import pytest
-import os
 import json
 import time
-import tempfile
-import shutil
-from datetime import datetime, timedelta
-from unittest.mock import patch, MagicMock, PropertyMock
-from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+from unittest.mock import patch, MagicMock
 from dataclasses import asdict
 
 import pandas as pd
@@ -307,7 +303,7 @@ class TestAPIProberWebsiteGroup:
         def mock_func():
             import requests
 
-            response = requests.get("https://api.example.com/data")
+            requests.get("https://api.example.com/data")
             pass
 
         with patch("akshare_data.offline.prober.BASE_DIR", str(temp_prober_dirs)):
@@ -395,7 +391,7 @@ class TestAPIProberRetry:
         with patch("akshare_data.offline.prober.BASE_DIR", str(temp_prober_dirs)):
             with patch("time.sleep"):
                 prober = APIProber()
-                data = prober.call_with_retry(mock_func, {"symbol": "bad_symbol"})
+                prober.call_with_retry(mock_func, {"symbol": "bad_symbol"})
                 assert len(call_symbols) == len(SYMBOL_FALLBACKS)
 
 
@@ -484,7 +480,7 @@ class TestAPIProberRunSingleTask:
             assert should_skip is True
             assert reason == "Manual Skip"
 
-            initial_count = len(prober.results)
+            len(prober.results)
             # run_single_task doesn't check should_skip internally,
             # so we verify the skip logic separately
             prober.run_single_task(mock_func, "unknown")

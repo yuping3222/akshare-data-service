@@ -479,9 +479,9 @@ class TushareAdapter(DataSource):
         self._ensure_configured()
 
         try:
-            ts_code = self._to_ts_code(symbol)
-            start_str = self._normalize_date(start_date) if start_date else None
-            end_str = self._normalize_date(end_date) if end_date else None
+            self._to_ts_code(symbol)
+            self._normalize_date(start_date) if start_date else None
+            self._normalize_date(end_date) if end_date else None
 
             df = self._pro.moneyflow_hsgt(trade_date=kwargs.get("trade_date"))
 

@@ -6,13 +6,10 @@
 """
 
 import pytest
-import time
-from datetime import datetime, timedelta
 from pathlib import Path
-from unittest.mock import patch, MagicMock, PropertyMock, mock_open
+from unittest.mock import patch, MagicMock, mock_open
 import io
 import logging
-import sys
 
 import pandas as pd
 import yaml
@@ -506,7 +503,7 @@ class TestConfigLoaderLoadDomains:
         """测试加载域名配置"""
         loader = config_loader.ConfigLoader()
 
-        with patch.object(loader, "load_yaml", return_value={"sina": 10}) as mock_load:
+        with patch.object(loader, "load_yaml", return_value={"sina": 10}):
             with patch("akshare_data.offline.core.paths.paths") as mock_paths:
                 mock_paths.domains_file = Path("/test/sources/domains.yaml")
                 result = loader.load_domains()
@@ -522,7 +519,7 @@ class TestConfigLoaderLoadFailover:
 
         with patch.object(
             loader, "load_yaml", return_value={"enabled": True}
-        ) as mock_load:
+        ):
             with patch("akshare_data.offline.core.paths.paths") as mock_paths:
                 mock_paths.failover_file = Path("/test/sources/failover.yaml")
                 result = loader.load_failover()
@@ -538,7 +535,7 @@ class TestConfigLoaderLoadPriority:
 
         with patch.object(
             loader, "load_yaml", return_value={"priority": 1}
-        ) as mock_load:
+        ):
             with patch("akshare_data.offline.core.paths.paths") as mock_paths:
                 mock_paths.priority_file = Path("/test/download/priority.yaml")
                 result = loader.load_priority()
@@ -554,7 +551,7 @@ class TestConfigLoaderLoadSchedule:
 
         with patch.object(
             loader, "load_yaml", return_value={"schedule": "daily"}
-        ) as mock_load:
+        ):
             with patch("akshare_data.offline.core.paths.paths") as mock_paths:
                 mock_paths.schedule_file = Path("/test/download/schedule.yaml")
                 result = loader.load_schedule()
@@ -570,7 +567,7 @@ class TestConfigLoaderLoadProberConfig:
 
         with patch.object(
             loader, "load_yaml", return_value={"timeout": 30}
-        ) as mock_load:
+        ):
             with patch("akshare_data.offline.core.paths.paths") as mock_paths:
                 mock_paths.prober_config_file = Path("/test/prober/config.yaml")
                 result = loader.load_prober_config()
@@ -586,7 +583,7 @@ class TestConfigLoaderLoadProberState:
 
         with patch.object(
             loader, "load_yaml", return_value={"last_probe": "2024-01-01"}
-        ) as mock_load:
+        ):
             with patch("akshare_data.offline.core.paths.paths") as mock_paths:
                 mock_paths.prober_state_file = Path("/test/prober/state.json")
                 result = loader.load_prober_state()

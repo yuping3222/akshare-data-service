@@ -2,6 +2,7 @@
 
 Generates synthetic data for testing and development.
 """
+# ruff: noqa: F811
 
 from __future__ import annotations
 

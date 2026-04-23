@@ -3,6 +3,7 @@
 Delegates to the canonical implementation in
 akshare_data.ingestion.router.DomainRateLimiter.
 """
+# ruff: noqa: E402
 
 from __future__ import annotations
 

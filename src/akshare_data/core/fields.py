@@ -6,7 +6,6 @@
 - 多源字段统一映射 (sina/em/ts/bs)
 """
 
-import os
 import csv
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple

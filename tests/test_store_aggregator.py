@@ -3,8 +3,6 @@
 Comprehensive tests for Aggregator class in store/aggregator.py
 """
 
-import os
-import time
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -372,7 +370,7 @@ class TestAggregatorWriteAggregated:
     ):
         """Test _write_aggregated creates parent directory."""
         mock_get_schema.return_value = mock_table_schema
-        agg_path = (
+        (
             temp_base_dir
             / "aggregated"
             / "test_table"
@@ -443,7 +441,7 @@ class TestRunAggregation:
         mock_aggregator.cleanup.return_value = 0
         mock_aggregator_class.return_value = mock_aggregator
 
-        result = run_aggregation(str(temp_base_dir))
+        run_aggregation(str(temp_base_dir))
         mock_aggregator.aggregate_all.assert_called_with(priority=None)
 
 

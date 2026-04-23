@@ -11,7 +11,7 @@ Design:
 
 import logging
 from datetime import date, datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Union
 
 import pandas as pd
 
@@ -149,9 +149,7 @@ _METHOD_TO_INTERFACE = {
     "get_industry_stocks": "industry_stocks",
     "get_industry_mapping": "industry_mapping",
     "get_industry_performance": "industry_performance",
-    "get_concept_list": "concept_list",
     "get_concept_stocks": "concept_stocks",
-    "get_stock_concepts": "stock_concepts",
     "get_concept_performance": "concept_performance",
     "get_stock_industry": "stock_industry",
     "get_hot_rank": "hot_rank",
@@ -434,9 +432,8 @@ class AkShareAdapter(DataSource):
                 symbol=symbol,
             )
 
-        import numpy as np
 
-        h = float(kwargs.get("h", 0.01))
+        float(kwargs.get("h", 0.01))
         r = float(kwargs.get("r", 0.03))
         S = float(kwargs.get("spot", 0))
         K = float(kwargs.get("strike", 0))
@@ -489,7 +486,6 @@ class AkShareAdapter(DataSource):
                 symbol=symbol,
             )
 
-        import numpy as np
         from akshare_data.core.options import black_scholes_price
 
         spot = float(kwargs.get("spot", 0))

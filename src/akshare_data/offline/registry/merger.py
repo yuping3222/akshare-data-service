@@ -9,7 +9,6 @@ from typing import Any, Dict, Optional
 import yaml
 
 from akshare_data.offline.core.paths import paths
-from akshare_data.offline.core.errors import ConfigError
 
 logger = logging.getLogger("akshare_data")
 

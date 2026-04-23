@@ -6,10 +6,9 @@ The key issue: _read_range calls self.cache.read() first before fetching from ak
 Tests must mock cache.read to return empty DataFrame to ensure the fetch path is taken.
 """
 
-import pytest
 import tempfile
 from datetime import datetime, timedelta
-from unittest.mock import patch, MagicMock, PropertyMock
+from unittest.mock import patch, MagicMock
 
 import pandas as pd
 
@@ -17,7 +16,6 @@ from akshare_data.api import DataService, get_service
 from akshare_data.core.schema import SCHEMA_REGISTRY, get_table_schema
 from akshare_data.store.manager import (
     CacheManager,
-    get_cache_manager,
     reset_cache_manager,
 )
 
@@ -219,7 +217,7 @@ class TestDataServiceGetDaily:
             ),
         ):
             try:
-                df = service.get_daily("sh600000", "2024-01-01", "2024-01-10")
+                service.get_daily("sh600000", "2024-01-01", "2024-01-10")
             except Exception:
                 pass
 
@@ -847,7 +845,7 @@ class TestDataServiceEdgeCases:
             ),
         ):
             try:
-                df = service.get_daily("INVALID", "2024-01-01", "2024-01-10")
+                service.get_daily("INVALID", "2024-01-01", "2024-01-10")
             except Exception:
                 pass
 

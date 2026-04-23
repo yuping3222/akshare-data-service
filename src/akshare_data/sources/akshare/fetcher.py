@@ -10,22 +10,21 @@ Design:
 - 自动应用 input_mapping, param_transforms, output_mapping, column_types
 - 内置限速控制（按 rate_limit_key）
 """
+# ruff: noqa: E402
 
 from __future__ import annotations
 
 import inspect
 import logging
-import time
 from datetime import date, datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Optional
 
 import pandas as pd
 from akshare_data.core.config_cache import ConfigCache
-from akshare_data.core.errors import DataSourceError, SourceUnavailableError, ErrorCode
+from akshare_data.core.errors import SourceUnavailableError, ErrorCode
 from akshare_data.core.symbols import (
     jq_code_to_ak as _jq_code_to_ak,
     format_stock_symbol,
-    ak_code_to_jq,
 )
 
 logger = logging.getLogger(__name__)

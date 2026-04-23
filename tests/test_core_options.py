@@ -7,7 +7,6 @@ Covers:
 - SCIPY_AVAILABLE flag
 """
 
-import math
 import pytest
 from akshare_data.core.options import (
     SCIPY_AVAILABLE,

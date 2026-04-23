@@ -1,7 +1,5 @@
 """Integration tests for store layer — DuckDB, Parquet, Aggregator with real data."""
 
-import os
-import tempfile
 import pytest
 import pandas as pd
 

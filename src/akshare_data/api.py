@@ -11,6 +11,7 @@ Backward compatibility:
 """
 
 import logging
+import threading
 from datetime import datetime
 from typing import Any, Callable, Dict, List, Optional, Union
 from types import SimpleNamespace
@@ -25,6 +26,7 @@ from akshare_data.service.missing_data_policy import MissingAction
 from akshare_data.core.symbols import normalize_symbol
 
 logger = logging.getLogger("akshare_data")
+_service_lock = threading.Lock()
 
 
 # --- Namespace Classes for Categorized API Access (Read-Only Served) ---
@@ -576,36 +578,14 @@ class DataService:
     def _execute_source_method(self, method_name, requested_source, *args, **kwargs):
         """Execute a method on the specified source adapter.
 
-        In read-only mode, this attempts to call the method on available
-        adapters (akshare, lixinger) or via the router if configured.
-        Returns None if no matching source is found.
+        Read-only mode does not execute source methods synchronously.
+        Returns None and emits a warning for backward compatibility.
         """
-        # Try akshare adapter first
-        if self.akshare is not None and hasattr(self.akshare, method_name):
-            return getattr(self.akshare, method_name)(*args, **kwargs)
-
-        # Try lixinger adapter
-        if self.lixinger is not None and hasattr(self.lixinger, method_name):
-            return getattr(self.lixinger, method_name)(*args, **kwargs)
-
-        # Try custom source
-        if self._custom_source is not None and hasattr(
-            self._custom_source, method_name
-        ):
-            return getattr(self._custom_source, method_name)(*args, **kwargs)
-
-        # Try router if available
-        if self.router is not None:
-            try:
-                result = self.router.execute(method_name, *args, **kwargs)
-                if result.success:
-                    return result.data
-            except Exception:
-                pass
-
         logger.warning(
-            f"_execute_source_method: no matching source for '{method_name}' "
-            f"(requested_source={requested_source})"
+            "_execute_source_method is disabled in read-only mode for '%s' "
+            "(requested_source=%s). Use offline downloader/backfill instead.",
+            method_name,
+            requested_source,
         )
         return None
 
@@ -645,10 +625,10 @@ class DataService:
         fetch_fn: Callable[[], pd.DataFrame | None] | None = None,
         **params,
     ) -> pd.DataFrame:
-        """Cache-first fetch: try cache, fall back to fetch_fn on miss.
+        """Read-only fetch from Served/cache only.
 
-        In served mode, tries the Served layer first. If empty and fetch_fn
-        is provided, calls fetch_fn to get data from source.
+        ``fetch_fn`` is ignored in read-only mode and retained only for
+        backward-compatible call signatures.
         """
         where = {}
         for k, v in params.items():
@@ -666,24 +646,11 @@ class DataService:
         if result.data is not None and not result.data.empty:
             return result.data
 
-        # Cache miss: try fetch_fn if provided
         if fetch_fn is not None:
-            try:
-                df = fetch_fn()
-                if df is not None and not df.empty:
-                    # Write to cache for future hits
-                    if partition_value and partition_by:
-                        self.cache.write(
-                            table=table,
-                            data=df,
-                            partition_by=partition_by,
-                            partition_value=partition_value,
-                        )
-                    else:
-                        self.cache.write(table=table, data=df)
-                    return df
-            except Exception as e:
-                logger.debug(f"cached_fetch: fetch_fn failed for table='{table}': {e}")
+            logger.warning(
+                "cached_fetch fetch_fn is ignored in read-only mode for table='%s'",
+                table,
+            )
 
         return result.data if result.data is not None else pd.DataFrame()
 
@@ -1830,5 +1797,7 @@ def get_service() -> DataService:
     """Get global DataService singleton."""
     global _default_service
     if _default_service is None:
-        _default_service = DataService()
+        with _service_lock:
+            if _default_service is None:
+                _default_service = DataService()
     return _default_service

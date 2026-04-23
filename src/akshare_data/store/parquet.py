@@ -40,7 +40,7 @@ class PartitionManager:
                 / table
                 / f"{partition_by}={partition_value}"
             )
-        return self.base_dir / "meta" / table
+        return self.base_dir / storage_layer / table
 
     def aggregated_path(
         self,

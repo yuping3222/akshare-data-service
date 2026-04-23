@@ -12,7 +12,7 @@ from .duckdb import DuckDBEngine
 from .memory import MemoryCache
 from .parquet import AtomicWriter, PartitionManager
 from ..core.config import CacheConfig
-from ..core.schema import SCHEMA_REGISTRY, get_table_schema
+from ..core.schema import get_table_schema
 
 logger = logging.getLogger(__name__)
 
@@ -321,18 +321,25 @@ class CacheManager:
             layer_path = base / storage_layer
             if not layer_path.exists():
                 return []
-            return [d.name for d in layer_path.iterdir() if d.is_dir()]
-        else:
-            tables = set()
-            for d in base.iterdir():
-                if d.is_dir() and d.name not in ("meta", "aggregated", "_locks"):
-                    tables.add(d.name)
-            return sorted(tables)
+            tables = [d.name for d in layer_path.iterdir() if d.is_dir()]
+            if storage_layer == "meta":
+                tables.extend(
+                    p.stem for p in layer_path.glob("*.parquet") if p.is_file()
+                )
+            return sorted(set(tables))
+
+        layers = [d for d in base.iterdir() if d.is_dir() and d.name != "_locks"]
+        tables: set[str] = set()
+        for layer in layers:
+            if layer.name == "aggregated":
+                continue
+            tables.update(self.list_tables(layer.name))
+        return sorted(tables)
 
     def get_stats(self) -> dict:
         tables = {}
-        for table_name in self.list_tables():
-            tables[table_name] = self.table_info(table_name)
+        for table_name in self.list_tables(storage_layer="daily"):
+            tables[table_name] = self.table_info(table_name, storage_layer="daily")
 
         return {
             "memory_cache_size": self.memory_cache.size,

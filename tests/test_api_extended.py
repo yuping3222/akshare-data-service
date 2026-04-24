@@ -73,7 +73,7 @@ class TestHKMarketAPI:
     def test_get_hk_stocks(self):
         service = DataService()
         test_df = make_df({"code": ["00700", "09988"], "name": ["腾讯", "阿里"]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_hk_stocks", return_value=test_df
@@ -101,7 +101,7 @@ class TestUSMarketAPI:
     def test_get_us_stocks(self):
         service = DataService()
         test_df = make_df({"symbol": ["AAPL", "MSFT"], "close": [150.0, 300.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_us_stocks", return_value=test_df
@@ -123,7 +123,7 @@ class TestMacroChinaAPI:
         test_df = make_df(
             {"date": pd.date_range("2024-01-01", periods=5), "rate": [2.0] * 5}
         )
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_shibor_rate", return_value=test_df
@@ -134,7 +134,7 @@ class TestMacroChinaAPI:
     def test_gdp(self):
         service = DataService()
         test_df = make_df({"quarter": ["2024Q1"], "gdp": [250000.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_macro_gdp", return_value=test_df
@@ -147,7 +147,7 @@ class TestMacroChinaAPI:
         test_df = make_df(
             {"date": pd.date_range("2024-01-01", periods=5), "total": [3000000.0] * 5}
         )
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_social_financing", return_value=test_df
@@ -173,7 +173,7 @@ class TestCNStockCapitalAPI:
     def test_northbound_holdings(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "holdings": [1000.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_northbound_holdings", return_value=test_df
@@ -195,7 +195,7 @@ class TestCNStockCapitalAPI:
     def test_block_deal(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "price": [10.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_block_deal", return_value=test_df
@@ -206,7 +206,7 @@ class TestCNStockCapitalAPI:
     def test_block_deal_with_symbol(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "price": [10.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_block_deal", return_value=test_df
@@ -226,7 +226,7 @@ class TestCNStockCapitalAPI:
     def test_dragon_tiger(self):
         service = DataService()
         test_df = make_df({"code": ["600000"], "direction": ["买"]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_dragon_tiger_list", return_value=test_df
@@ -244,7 +244,7 @@ class TestCNStockCapitalAPI:
     def test_margin(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "margin_balance": [1000000.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_margin_data", return_value=test_df
@@ -269,7 +269,7 @@ class TestCNStockCapitalAPI:
                 "north_money": [1000.0] * 5,
             }
         )
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_north_money_flow", return_value=test_df
@@ -284,7 +284,7 @@ class TestCNStockEventAPI:
     def test_dividend(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "dividend": [1.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_dividend_data", return_value=test_df
@@ -302,7 +302,7 @@ class TestCNStockEventAPI:
     def test_restricted_release(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "free_shares": [1000000]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_restricted_release", return_value=test_df
@@ -313,7 +313,7 @@ class TestCNStockEventAPI:
     def test_restricted_release_no_symbol(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "free_shares": [1000000]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_restricted_release", return_value=test_df
@@ -355,7 +355,7 @@ class TestCNIndexMetaAPI:
     def test_components(self):
         service = DataService()
         test_df = make_df({"index_code": ["000300"], "code": ["600000"]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_index_components", return_value=test_df
@@ -548,7 +548,7 @@ class TestDataServiceDataFacade:
     def test_get_northbound_holdings(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "holdings": [1000.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_northbound_holdings", return_value=test_df
@@ -561,7 +561,7 @@ class TestDataServiceDataFacade:
     def test_get_dragon_tiger_list(self):
         service = DataService()
         test_df = make_df({"code": ["600000"], "direction": ["买"]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_dragon_tiger_list", return_value=test_df
@@ -572,7 +572,7 @@ class TestDataServiceDataFacade:
     def test_get_block_deal(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "price": [10.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_block_deal", return_value=test_df
@@ -583,7 +583,7 @@ class TestDataServiceDataFacade:
     def test_get_block_deal_with_params(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "price": [10.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_block_deal", return_value=test_df
@@ -594,7 +594,7 @@ class TestDataServiceDataFacade:
     def test_get_margin_data(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "margin_balance": [1000000.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_margin_data", return_value=test_df
@@ -605,7 +605,7 @@ class TestDataServiceDataFacade:
     def test_get_dividend_data(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "dividend": [1.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_dividend_data", return_value=test_df
@@ -616,7 +616,7 @@ class TestDataServiceDataFacade:
     def test_get_restricted_release(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "free_shares": [1000000]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_restricted_release", return_value=test_df
@@ -656,7 +656,7 @@ class TestDataServiceConceptBoard:
     def test_get_concept_stocks(self):
         service = DataService()
         test_df = make_df({"concept_code": ["BK0001"], "code": ["600000"]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_concept_components", return_value=test_df
@@ -770,7 +770,7 @@ class TestDataServiceExtendedMethods:
         test_df = make_df(
             {"date": pd.date_range("2024-01-01", periods=5), "close": [3000.0] * 5}
         )
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 mock_proxy = MagicMock()
                 mock_proxy.get_sw_index_daily.return_value = test_df
@@ -787,7 +787,7 @@ class TestDataServiceEquityPledge:
     def test_get_equity_pledge(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "pledged_shares": [1e6]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_equity_pledge", return_value=test_df
@@ -798,7 +798,7 @@ class TestDataServiceEquityPledge:
     def test_get_equity_pledge_no_symbol(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "pledged_shares": [1e6]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_equity_pledge", return_value=test_df
@@ -822,7 +822,7 @@ class TestDataServiceGoodwill:
     def test_get_goodwill_data(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "goodwill": [1e8]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_goodwill_data", return_value=test_df
@@ -855,7 +855,7 @@ class TestDataServiceRepurchase:
     def test_get_repurchase_data(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "repurchased_shares": [1e5]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_repurchase_data", return_value=test_df
@@ -872,7 +872,7 @@ class TestDataServiceESG:
     def test_get_esg_rating(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "esg_score": [80.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_esg_rating", return_value=test_df
@@ -947,7 +947,7 @@ class TestDataServiceBonus:
     def test_get_stock_bonus(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "bonus_ratio": [0.1]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_stock_bonus", return_value=test_df
@@ -965,7 +965,7 @@ class TestDataServiceBonus:
     def test_get_rights_issue(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "rights_price": [8.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_rights_issue", return_value=test_df
@@ -989,7 +989,7 @@ class TestDataServiceCompanyInfo:
     def test_get_management_info(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "name": ["张三"]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_management_info", return_value=test_df
@@ -1000,7 +1000,7 @@ class TestDataServiceCompanyInfo:
     def test_get_name_history(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "old_name": ["原名"]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_name_history", return_value=test_df
@@ -1017,7 +1017,7 @@ class TestDataServiceMacroExtended:
         test_df = make_df(
             {"date": pd.date_range("2024-01-01", periods=5), "rate": [2.0] * 5}
         )
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_shibor_rate", return_value=test_df
@@ -1028,7 +1028,7 @@ class TestDataServiceMacroExtended:
     def test_get_macro_gdp(self):
         service = DataService()
         test_df = make_df({"quarter": ["2024Q1"], "gdp": [250000.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_macro_gdp", return_value=test_df
@@ -1041,7 +1041,7 @@ class TestDataServiceMacroExtended:
         test_df = make_df(
             {"date": pd.date_range("2024-01-01", periods=5), "total": [3e6] * 5}
         )
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_social_financing", return_value=test_df
@@ -1054,7 +1054,7 @@ class TestDataServiceMacroExtended:
         test_df = make_df(
             {"date": pd.date_range("2024-01-01", periods=5), "usd_cny": [7.2] * 5}
         )
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_macro_exchange_rate", return_value=test_df
@@ -1069,7 +1069,7 @@ class TestDataServiceFundMethods:
     def test_get_fof_list(self):
         service = DataService()
         test_df = make_df({"fund_code": ["FOF001"], "name": ["FOF基金"]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_fof_list", return_value=test_df
@@ -1089,7 +1089,7 @@ class TestDataServiceFundMethods:
     def test_get_lof_spot(self):
         service = DataService()
         test_df = make_df({"fund_code": ["LOF001"], "name": ["LOF基金"]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_lof_spot", return_value=test_df
@@ -1113,7 +1113,7 @@ class TestDataServiceConvertBond:
     def test_get_convert_bond_premium(self):
         service = DataService()
         test_df = make_df({"bond_code": ["113009"], "premium": [20.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_convert_bond_premium", return_value=test_df
@@ -1144,7 +1144,7 @@ class TestDataServiceConvertBond:
         test_df = make_df(
             {"date": pd.date_range("2024-01-01", periods=5), "close": [120.0] * 5}
         )
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_conversion_bond_daily", return_value=test_df
@@ -1161,7 +1161,7 @@ class TestDataServiceIndustry:
     def test_get_industry_performance(self):
         service = DataService()
         test_df = make_df({"industry": ["银行"], "change_pct": [1.5]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_industry_performance", return_value=test_df
@@ -1172,7 +1172,7 @@ class TestDataServiceIndustry:
     def test_get_concept_performance(self):
         service = DataService()
         test_df = make_df({"concept": ["AI"], "change_pct": [3.0]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_concept_performance", return_value=test_df
@@ -1194,7 +1194,7 @@ class TestDataServiceHotRank:
     def test_get_hot_rank(self):
         service = DataService()
         test_df = make_df({"rank": [1, 2, 3], "symbol": ["600000", "600519", "000001"]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_hot_rank", return_value=test_df
@@ -1218,7 +1218,7 @@ class TestDataServiceOption:
         test_df = make_df(
             {"date": pd.date_range("2024-01-01", periods=5), "close": [0.15] * 5}
         )
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_option_daily", return_value=test_df
@@ -1235,7 +1235,7 @@ class TestDataServiceLOF:
         test_df = make_df(
             {"date": pd.date_range("2024-01-01", periods=5), "close": [1.5] * 5}
         )
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_lof_hist", return_value=test_df
@@ -1252,7 +1252,7 @@ class TestDataServiceFutures:
         test_df = make_df(
             {"date": pd.date_range("2024-01-01", periods=5), "close": [5000.0] * 5}
         )
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_futures_daily", return_value=test_df
@@ -1287,7 +1287,7 @@ class TestDataServiceStockHist:
         test_df = make_df(
             {"date": pd.date_range("2024-01-01", periods=5), "close": [10.5] * 5}
         )
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_daily_data", return_value=test_df
@@ -1305,7 +1305,7 @@ class TestDataServiceStockHist:
                 "close": [10.5] * 5,
             }
         )
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_minute_data", return_value=test_df
@@ -1337,7 +1337,7 @@ class TestDataServiceIndexComponents:
         test_df = make_df(
             {"index_code": ["000300"], "code": ["600000"], "weight": [0.5]}
         )
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_index_components", return_value=test_df
@@ -1357,7 +1357,7 @@ class TestDataServiceIndexComponents:
     def test_get_index_components_no_weights(self):
         service = DataService()
         test_df = make_df({"index_code": ["000300"], "code": ["600000"]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_index_components", return_value=test_df
@@ -1372,7 +1372,7 @@ class TestDataServiceSecuritiesList:
     def test_get_securities_list(self):
         service = DataService()
         test_df = make_df({"code": ["600000"], "name": ["浦发银行"], "type": ["stock"]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_securities_list", return_value=test_df
@@ -1387,7 +1387,7 @@ class TestDataServiceSuspendedST:
     def test_get_suspended_stocks(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "suspend_date": ["2024-01-10"]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_suspended_stocks", return_value=test_df
@@ -1398,7 +1398,7 @@ class TestDataServiceSuspendedST:
     def test_get_st_stocks(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "st_type": ["ST"]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_st_stocks", return_value=test_df
@@ -1412,7 +1412,7 @@ class TestDataServiceIndustryStocks:
 
     def test_get_industry_stocks(self):
         service = DataService()
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.lixinger,
@@ -1471,7 +1471,7 @@ class TestDataServiceCallAuction:
     def test_get_call_auction(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "price": [10.5]})
-        with patch.object(service.cache, "read", return_value=pd.DataFrame()):
+        with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
                 with patch.object(
                     service.akshare, "get_call_auction", return_value=test_df

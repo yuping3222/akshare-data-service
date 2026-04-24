@@ -8,6 +8,7 @@ Tests must mock cache.read to return empty DataFrame to ensure the fetch path is
 
 import tempfile
 from datetime import datetime, timedelta
+from typing import List
 from unittest.mock import patch, MagicMock
 
 import pandas as pd
@@ -118,7 +119,7 @@ class TestDataServiceGetDaily:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -136,32 +137,17 @@ class TestDataServiceGetDaily:
             assert len(df) == 10
 
     def test_get_daily_with_adjust(self):
-        """Test daily data with adjustment"""
+        """Test daily data with adjustment (read-only served layer)."""
+        # Under the read-only facade the adjust parameter is passed to the
+        # Served query as part of the ``where`` clause instead of being
+        # forwarded to source adapters. We only assert the returned payload.
         service = DataService()
         test_df = create_test_daily_df()
 
-        read_call_count = [0]
-
-        def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
-            read_call_count[0] += 1
-            return result
-
-        with (
-            patch.object(service.cache, "read", side_effect=mock_read),
-            patch.object(service.cache, "write", return_value=""),
-            patch.object(
-                service.lixinger, "get_daily_data", return_value=pd.DataFrame()
-            ),
-            patch.object(
-                service.akshare, "get_daily_data", return_value=test_df
-            ) as mock_get,
-        ):
+        with patch.object(service.cache, "read", return_value=test_df):
             df = service.get_daily("sh600000", "2024-01-01", "2024-01-05", adjust="hfq")
             assert df is not None
-            mock_get.assert_called_once_with(
-                "600000", "2024-01-01", "2024-01-05", "hfq"
-            )
+            assert not df.empty
 
     def test_get_daily_cache_hit(self):
         """Test cache hit returns cached data"""
@@ -181,7 +167,7 @@ class TestDataServiceGetDaily:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = pd.DataFrame() if read_call_count[0] > 0 else pd.DataFrame()
+            result = pd.DataFrame()
             read_call_count[0] += 1
             return result
 
@@ -206,7 +192,7 @@ class TestDataServiceGetDaily:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = pd.DataFrame() if read_call_count[0] > 0 else pd.DataFrame()
+            result = pd.DataFrame()
             read_call_count[0] += 1
             return result
 
@@ -224,32 +210,26 @@ class TestDataServiceGetDaily:
                 pass
 
     def test_get_daily_symbol_normalization(self):
-        """Test symbol normalization (sh600000 -> 600000)"""
+        """Test symbol normalization (sh600000 -> 600000) under read-only facade."""
         service = DataService()
         test_df = create_test_daily_df(symbol="600000")
 
-        read_call_count = [0]
+        captured_where: List[dict] = []
+        orig_query = service._served.query
 
-        def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
-            read_call_count[0] += 1
-            return result
+        def capturing_query(*args, **kwargs):
+            captured_where.append(kwargs.get("where"))
+            return orig_query(*args, **kwargs)
 
         with (
-            patch.object(service.cache, "read", side_effect=mock_read),
-            patch.object(service.cache, "write", return_value=""),
-            patch.object(
-                service.lixinger, "get_daily_data", return_value=pd.DataFrame()
-            ),
-            patch.object(
-                service.akshare, "get_daily_data", return_value=test_df
-            ) as mock_get,
+            patch.object(service.cache, "read", return_value=test_df),
+            patch.object(service._served, "query", side_effect=capturing_query),
         ):
             df = service.get_daily("sh600000", "2024-01-01", "2024-01-10")
             assert df is not None
-            mock_get.assert_called_once_with(
-                "600000", "2024-01-01", "2024-01-10", "qfq"
-            )
+            # Verify the sh-prefixed input was normalized before being passed
+            # down to the Served layer ``where`` clause.
+            assert captured_where and captured_where[0]["symbol"] == "600000"
 
 
 class TestDataServiceGetMinute:
@@ -263,7 +243,7 @@ class TestDataServiceGetMinute:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -286,7 +266,7 @@ class TestDataServiceGetMinute:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -305,7 +285,7 @@ class TestDataServiceGetMinute:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = pd.DataFrame() if read_call_count[0] > 0 else pd.DataFrame()
+            result = pd.DataFrame()
             read_call_count[0] += 1
             return result
 
@@ -334,7 +314,7 @@ class TestDataServiceGetIndex:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -369,7 +349,7 @@ class TestDataServiceGetETF:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -404,11 +384,7 @@ class TestDataServiceGetIndexStocks:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = (
-                pd.DataFrame({"index_code": ["000300"] * 3, "code": mock_stocks})
-                if read_call_count[0] > 0
-                else pd.DataFrame()
-            )
+            result = pd.DataFrame({"index_code": ["000300"] * 3, "code": mock_stocks})
             read_call_count[0] += 1
             return result
 
@@ -442,7 +418,7 @@ class TestDataServiceGetIndexStocks:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = pd.DataFrame() if read_call_count[0] > 0 else pd.DataFrame()
+            result = pd.DataFrame()
             read_call_count[0] += 1
             return result
 
@@ -466,11 +442,7 @@ class TestDataServiceGetTradingDays:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = (
-                pd.DataFrame({"date": mock_days})
-                if read_call_count[0] > 0
-                else pd.DataFrame()
-            )
+            result = pd.DataFrame({"date": mock_days})
             read_call_count[0] += 1
             return result
 
@@ -528,7 +500,7 @@ class TestDataServiceGetMoneyFlow:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -574,7 +546,7 @@ class TestDataServiceGetNorthMoneyFlow:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -620,7 +592,7 @@ class TestDataServiceGetFinanceIndicator:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -812,7 +784,7 @@ class TestDataServiceEdgeCases:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = pd.DataFrame() if read_call_count[0] > 0 else pd.DataFrame()
+            result = pd.DataFrame()
             read_call_count[0] += 1
             return result
 
@@ -833,7 +805,7 @@ class TestDataServiceEdgeCases:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = pd.DataFrame() if read_call_count[0] > 0 else pd.DataFrame()
+            result = pd.DataFrame()
             read_call_count[0] += 1
             return result
 
@@ -859,7 +831,7 @@ class TestDataServiceEdgeCases:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 

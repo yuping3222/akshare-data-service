@@ -242,8 +242,12 @@ class TestSetupLoggingPermissionErrors:
     def test_permission_error_on_log_file_creation(self, tmp_path):
         """Should handle permission error on log file creation."""
         log_file = str(tmp_path / "cannot_create.log")
+        # ``setup_logging`` resides in ``akshare_data.common.logging`` and
+        # references ``TimedRotatingFileHandler`` there; ``core.logging`` only
+        # re-exports the symbol for public backward compat. Patch the real
+        # module-local binding so the handler factory actually raises.
         with patch(
-            "akshare_data.core.logging.TimedRotatingFileHandler"
+            "akshare_data.common.logging.TimedRotatingFileHandler"
         ) as mock_handler:
             mock_handler.side_effect = PermissionError("Permission denied")
             with pytest.warns(RuntimeWarning):

@@ -16,6 +16,7 @@ import pytest
 
 from akshare_data import DataService
 from akshare_data.store.manager import CacheManager
+from tests.system.conftest import _seed_cache
 
 
 @pytest.mark.system
@@ -29,8 +30,7 @@ class TestETFDailyDataFlow:
     ) -> None:
         """cn.fund.quote.daily() returns a DataFrame for the requested ETF."""
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_etf_daily = MagicMock(return_value=etf_source_df.copy())
-        service.lixinger.get_etf_daily = MagicMock(return_value=etf_source_df.copy())
+        _seed_cache(system_cache_manager, "etf_daily", etf_source_df)
 
         df = service.cn.fund.quote.daily(
             symbol="sh510300",
@@ -48,8 +48,7 @@ class TestETFDailyDataFlow:
     ) -> None:
         """ETF DataFrame contains expected OHLCV columns."""
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_etf_daily = MagicMock(return_value=etf_source_df.copy())
-        service.lixinger.get_etf_daily = MagicMock(return_value=etf_source_df.copy())
+        _seed_cache(system_cache_manager, "etf_daily", etf_source_df)
 
         df = service.cn.fund.quote.daily(
             symbol="sh510300",
@@ -60,15 +59,14 @@ class TestETFDailyDataFlow:
         expected_cols = {"date", "open", "high", "low", "close", "volume", "amount"}
         assert expected_cols.issubset(set(df.columns))
 
-    def test_etf_daily_source_called_once_on_miss(
+    def test_etf_daily_consistent_on_repeat_query(
         self,
         system_cache_manager: CacheManager,
         etf_source_df: pd.DataFrame,
     ) -> None:
-        """Source is fetched on first call, not on cache hit."""
+        """Repeat queries against pre-seeded Served return the same data."""
+        _seed_cache(system_cache_manager, "etf_daily", etf_source_df)
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_etf_daily = MagicMock(return_value=etf_source_df.copy())
-        service.lixinger.get_etf_daily = MagicMock(return_value=etf_source_df.copy())
 
         df1 = service.cn.fund.quote.daily(
             symbol="sh510300",
@@ -77,7 +75,6 @@ class TestETFDailyDataFlow:
             source="akshare",
         )
         assert not df1.empty
-        first_call_count = service.akshare.get_etf_daily.call_count
 
         df2 = service.cn.fund.quote.daily(
             symbol="sh510300",
@@ -86,7 +83,7 @@ class TestETFDailyDataFlow:
             source="akshare",
         )
         assert not df2.empty
-        assert service.akshare.get_etf_daily.call_count == first_call_count
+        assert len(df1) == len(df2)
 
     def test_etf_daily_convenience_method(
         self,
@@ -95,8 +92,7 @@ class TestETFDailyDataFlow:
     ) -> None:
         """get_etf() convenience method delegates to cn.fund.quote.daily()."""
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_etf_daily = MagicMock(return_value=etf_source_df.copy())
-        service.lixinger.get_etf_daily = MagicMock(return_value=etf_source_df.copy())
+        _seed_cache(system_cache_manager, "etf_daily", etf_source_df)
 
         df = service.get_etf(
             symbol="sh510300",
@@ -113,8 +109,7 @@ class TestETFDailyDataFlow:
     ) -> None:
         """Returned row count matches source data length."""
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_etf_daily = MagicMock(return_value=etf_source_df.copy())
-        service.lixinger.get_etf_daily = MagicMock(return_value=etf_source_df.copy())
+        _seed_cache(system_cache_manager, "etf_daily", etf_source_df)
 
         df = service.cn.fund.quote.daily(
             symbol="sh510300",
@@ -135,19 +130,14 @@ class TestETFMinuteDataFlow:
         etf_minute_source_df: pd.DataFrame,
     ) -> None:
         """cn.stock.quote.minute() for ETF symbol returns minute-level DataFrame."""
+        _seed_cache(system_cache_manager, "stock_minute", etf_minute_source_df)
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_minute_data = MagicMock(
-            return_value=etf_minute_source_df.copy()
-        )
-        service.lixinger.get_minute_data = MagicMock(
-            return_value=etf_minute_source_df.copy()
-        )
 
         df = service.cn.stock.quote.minute(
             symbol="sh510300",
             freq="1min",
-            start_date="2024-01-02",
-            end_date="2024-01-02",
+            start_date="2024-01-02 00:00:00",
+            end_date="2024-01-02 23:59:59",
             source="akshare",
         )
         assert isinstance(df, pd.DataFrame)
@@ -159,19 +149,14 @@ class TestETFMinuteDataFlow:
         etf_minute_source_df: pd.DataFrame,
     ) -> None:
         """Minute ETF DataFrame has datetime, OHLC, volume columns."""
+        _seed_cache(system_cache_manager, "stock_minute", etf_minute_source_df)
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_minute_data = MagicMock(
-            return_value=etf_minute_source_df.copy()
-        )
-        service.lixinger.get_minute_data = MagicMock(
-            return_value=etf_minute_source_df.copy()
-        )
 
         df = service.cn.stock.quote.minute(
             symbol="sh510300",
             freq="1min",
-            start_date="2024-01-02",
-            end_date="2024-01-02",
+            start_date="2024-01-02 00:00:00",
+            end_date="2024-01-02 23:59:59",
             source="akshare",
         )
         assert "datetime" in df.columns
@@ -188,19 +173,14 @@ class TestETFMinuteDataFlow:
         etf_minute_source_df: pd.DataFrame,
     ) -> None:
         """get_minute() convenience method works for ETF symbols."""
+        _seed_cache(system_cache_manager, "stock_minute", etf_minute_source_df)
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_minute_data = MagicMock(
-            return_value=etf_minute_source_df.copy()
-        )
-        service.lixinger.get_minute_data = MagicMock(
-            return_value=etf_minute_source_df.copy()
-        )
 
         df = service.get_minute(
             symbol="sh510300",
             freq="1min",
-            start_date="2024-01-02",
-            end_date="2024-01-02",
+            start_date="2024-01-02 00:00:00",
+            end_date="2024-01-02 23:59:59",
         )
         assert isinstance(df, pd.DataFrame)
         assert not df.empty

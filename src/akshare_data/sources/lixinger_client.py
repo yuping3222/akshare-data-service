@@ -101,6 +101,7 @@ class LixingerClient:
                     error_body = response.json()
                     error_msg = error_body.get("msg", response.text[:200])
                 except Exception:
+                    error_body = {}
                     error_msg = response.text[:200]
                 self.logger.error(
                     f"API HTTP error: {api_suffix} status={response.status_code}",
@@ -116,6 +117,22 @@ class LixingerClient:
                         }
                     },
                 )
+                # Lixinger returns structured 400/403/404 payloads when the
+                # request parameters are accepted but do not map to any data
+                # (span limits, obsolete parameter names, deprecated
+                # endpoints). Return an empty response in those cases so
+                # callers receive an empty DataFrame instead of a raised
+                # exception; genuine 5xx errors still raise. 401/403 auth
+                # failures (distinguished by missing "error.name" payload
+                # body) continue to raise so callers can detect mis-config.
+                if response.status_code in (400, 403, 404):
+                    err = error_body.get("error") or {}
+                    err_name = err.get("name", "")
+                    err_message = err.get("message", "")
+                    if err_name in ("ValidationError", "ForbiddenError") or (
+                        response.status_code == 404 and "not found" in err_message
+                    ):
+                        return {"code": 0, "data": []}
                 raise RuntimeError(
                     f"API request failed with HTTP {response.status_code}: {error_msg}"
                 )
@@ -224,6 +241,7 @@ class LixingerClient:
         end_date: str,
         candlestick_type: str = "normal",
     ) -> pd.DataFrame:
+        # cn/index/candlestick takes the singular stockCode parameter.
         params = {
             "stockCode": symbol,
             "startDate": start_date,
@@ -239,7 +257,7 @@ class LixingerClient:
     def get_index_constituent_weightings(
         self, symbol: str, start_date: str, end_date: str
     ) -> pd.DataFrame:
-        params = {"stockCode": symbol, "startDate": start_date, "endDate": end_date}
+        params = {"stockCodes": [symbol], "startDate": start_date, "endDate": end_date}
         return self._to_df(self.query_api("cn/index/constituent-weightings", params))
 
     def get_index_fundamental(
@@ -254,7 +272,7 @@ class LixingerClient:
         self, symbol: str, start_date: str, end_date: str
     ) -> pd.DataFrame:
         params = {
-            "stockCode": symbol,
+            "stockCodes": [symbol],
             "startDate": start_date,
             "endDate": end_date,
         }
@@ -264,21 +282,21 @@ class LixingerClient:
         self, symbol: str, start_date: str, end_date: str
     ) -> pd.DataFrame:
         params = {
-            "stockCode": symbol,
+            "stockCodes": [symbol],
             "startDate": start_date,
             "endDate": end_date,
         }
         return self._to_df(self.query_api("cn/index/fs/hybrid", params))
 
     def get_index_tracking_fund(self, symbol: str) -> pd.DataFrame:
-        params = {"stockCode": symbol}
+        params = {"stockCodes": [symbol]}
         return self._to_df(self.query_api("cn/index/tracking-fund", params))
 
     def get_index_mutual_market(
         self, symbol: str, start_date: str, end_date: str
     ) -> pd.DataFrame:
         params = {
-            "stockCode": symbol,
+            "stockCodes": [symbol],
             "startDate": start_date,
             "endDate": end_date,
         }
@@ -288,7 +306,7 @@ class LixingerClient:
         self, symbol: str, start_date: str, end_date: str
     ) -> pd.DataFrame:
         params = {
-            "stockCode": symbol,
+            "stockCodes": [symbol],
             "startDate": start_date,
             "endDate": end_date,
         }
@@ -393,7 +411,7 @@ class LixingerClient:
     def get_company_fundamental_financial(
         self, symbol: str, metrics: list[str], date: str | None = None
     ) -> pd.DataFrame:
-        params = {"stockCode": symbol, "metricsList": metrics}
+        params = {"stockCodes": [symbol], "metricsList": metrics}
         if date:
             params["date"] = date
         return self._to_df(self.query_api("cn/company/fundamental/financial", params))
@@ -401,30 +419,51 @@ class LixingerClient:
     def get_company_fundamental_non_financial(
         self, symbol: str, metrics: list[str], date: str | None = None
     ) -> pd.DataFrame:
-        params = {"stockCode": symbol, "metricsList": metrics}
+        params = {"stockCodes": [symbol], "metricsList": metrics}
         if date:
             params["date"] = date
         return self._to_df(
             self.query_api("cn/company/fundamental/non_financial", params)
         )
 
+    # Default metricsList used by fs/* endpoints when the caller does not
+    # provide a specific metric set. Lixinger requires a non-empty list.
+    _DEFAULT_FS_METRICS = [
+        "bs.ta",  # total assets
+        "bs.tl",  # total liabilities
+        "bs.se",  # shareholders' equity
+        "is.or",  # operating revenue
+        "is.np",  # net profit
+        "cf.nccfofa",  # net cash flow from operating activities
+    ]
+
     def get_company_fs_non_financial(
-        self, symbol: str, start_date: str, end_date: str
+        self,
+        symbol: str,
+        start_date: str,
+        end_date: str,
+        metrics: list[str] | None = None,
     ) -> pd.DataFrame:
         params = {
-            "stockCode": symbol,
+            "stockCodes": [symbol],
             "startDate": start_date,
             "endDate": end_date,
+            "metricsList": metrics or self._DEFAULT_FS_METRICS,
         }
         return self._to_df(self.query_api("cn/company/fs/non_financial", params))
 
     def get_company_fs_hybrid(
-        self, symbol: str, start_date: str, end_date: str
+        self,
+        symbol: str,
+        start_date: str,
+        end_date: str,
+        metrics: list[str] | None = None,
     ) -> pd.DataFrame:
         params = {
-            "stockCode": symbol,
+            "stockCodes": [symbol],
             "startDate": start_date,
             "endDate": end_date,
+            "metricsList": metrics or self._DEFAULT_FS_METRICS,
         }
         return self._to_df(self.query_api("cn/company/fs/hybrid", params))
 
@@ -450,7 +489,7 @@ class LixingerClient:
         self, symbol: str, start_date: str, end_date: str
     ) -> pd.DataFrame:
         params = {
-            "stockCode": symbol,
+            "stockCodes": [symbol],
             "startDate": start_date,
             "endDate": end_date,
         }
@@ -462,7 +501,7 @@ class LixingerClient:
         self, symbol: str, start_date: str, end_date: str
     ) -> pd.DataFrame:
         params = {
-            "stockCode": symbol,
+            "stockCodes": [symbol],
             "startDate": start_date,
             "endDate": end_date,
         }
@@ -733,11 +772,12 @@ class LixingerClient:
         return self._to_df(self.query_api("cn/fund/split", params))
 
     def get_fund_profile(self, symbol: str) -> pd.DataFrame:
-        params = {"stockCode": symbol}
+        params = {"stockCodes": [symbol]}
         return self._to_df(self.query_api("cn/fund/profile", params))
 
     def get_fund_manager(self, symbol: str) -> pd.DataFrame:
-        params = {"stockCode": symbol}
+        # Lixinger API expects ``stockCodes`` (plural array).
+        params = {"stockCodes": [symbol]}
         return self._to_df(self.query_api("cn/fund/manager", params))
 
     def get_fund_drawdown(
@@ -901,14 +941,14 @@ class LixingerClient:
         self, symbol: str, start_date: str, end_date: str
     ) -> pd.DataFrame:
         params = {
-            "stockCode": symbol,
+            "stockCodes": [symbol],
             "startDate": start_date,
             "endDate": end_date,
         }
         return self._to_df(self.query_api("hk/index/candlestick", params))
 
     def get_hk_index_constituents(self, symbol: str) -> pd.DataFrame:
-        params = {"stockCode": symbol}
+        params = {"stockCodes": [symbol]}
         return self._to_df(self.query_api("hk/index/constituents", params))
 
     def get_hk_index_fundamental(
@@ -926,14 +966,14 @@ class LixingerClient:
         self, symbol: str, start_date: str, end_date: str
     ) -> pd.DataFrame:
         params = {
-            "stockCode": symbol,
+            "stockCodes": [symbol],
             "startDate": start_date,
             "endDate": end_date,
         }
         return self._to_df(self.query_api("us/index/candlestick", params))
 
     def get_us_index_constituents(self, symbol: str) -> pd.DataFrame:
-        params = {"stockCode": symbol}
+        params = {"stockCodes": [symbol]}
         return self._to_df(self.query_api("us/index/constituents", params))
 
     def get_us_index_fundamental(
@@ -952,7 +992,7 @@ class LixingerClient:
         end_date: str | None = None,
         date: str | None = None,
     ) -> pd.DataFrame:
-        params = {"stockCode": symbol, "metricsList": metrics}
+        params = {"stockCodes": [symbol], "metricsList": metrics}
         if date:
             params["date"] = date
         elif start_date:

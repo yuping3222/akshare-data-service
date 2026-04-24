@@ -16,6 +16,7 @@ import pytest
 
 from akshare_data import DataService
 from akshare_data.store.manager import CacheManager
+from tests.system.conftest import _seed_cache
 
 
 @pytest.mark.system
@@ -41,8 +42,7 @@ class TestConcurrentReadAccess:
                 "amount": [1_000_000.0 + i * 100_000.0 for i in range(14)],
             }
         )
-        service.akshare.get_daily_data = MagicMock(return_value=source_df.copy())
-        service.lixinger.get_daily_data = MagicMock(return_value=source_df.copy())
+        _seed_cache(system_cache_manager, "stock_daily", source_df)
 
         results: List[pd.DataFrame] = []
         errors: List[Exception] = []
@@ -81,7 +81,6 @@ class TestConcurrentReadAccess:
         system_cache_manager: CacheManager,
     ) -> None:
         """Multiple threads reading different symbols simultaneously succeed."""
-        service = DataService(cache_manager=system_cache_manager)
 
         def make_source(symbol: str) -> pd.DataFrame:
             return pd.DataFrame(
@@ -104,10 +103,12 @@ class TestConcurrentReadAccess:
             "601318.XSHG",
             "000858.XSHE",
         ]
+        # Pre-seed Served with every symbol's OHLCV data so concurrent
+        # reads all find rows.
         for sym in symbols:
-            service.akshare.get_daily_data = MagicMock(
-                side_effect=lambda *a, **kw: make_source(a[0] if a else sym)
-            )
+            _seed_cache(system_cache_manager, "stock_daily", make_source(sym))
+
+        service = DataService(cache_manager=system_cache_manager)
 
         errors: List[Exception] = []
         results: dict = {}
@@ -165,12 +166,7 @@ class TestConcurrentWriteAccess:
                         "amount": [1_000_000.0] * 5,
                     }
                 )
-                service.akshare.get_daily_data = MagicMock(
-                    return_value=source_df.copy()
-                )
-                service.lixinger.get_daily_data = MagicMock(
-                    return_value=source_df.copy()
-                )
+                _seed_cache(system_cache_manager, "stock_daily", source_df)
                 return service.cn.stock.quote.daily(
                     symbol=symbol,
                     start_date="2024-01-02",
@@ -210,8 +206,7 @@ class TestConcurrentWriteAccess:
                 "amount": [1_000_000.0] * 5,
             }
         )
-        service.akshare.get_daily_data = MagicMock(return_value=source_df.copy())
-        service.lixinger.get_daily_data = MagicMock(return_value=source_df.copy())
+        _seed_cache(system_cache_manager, "stock_daily", source_df)
 
         write_result: dict = {"df": None, "error": None}
         read_result: dict = {"df": None, "error": None}
@@ -281,8 +276,7 @@ class TestDataServiceSingletonThreadSafety:
                 "amount": [1_000_000.0] * 5,
             }
         )
-        service.akshare.get_daily_data = MagicMock(return_value=source_df.copy())
-        service.lixinger.get_daily_data = MagicMock(return_value=source_df.copy())
+        _seed_cache(system_cache_manager, "stock_daily", source_df)
 
         total_calls = 20
         success_count = 0

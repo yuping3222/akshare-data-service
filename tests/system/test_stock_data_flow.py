@@ -18,6 +18,7 @@ import pytest
 
 from akshare_data import DataService
 from akshare_data.store.manager import CacheManager
+from tests.system.conftest import _seed_cache  # noqa: F401
 
 
 @pytest.mark.system
@@ -67,15 +68,16 @@ class TestStockDailyDataFlow:
             source="akshare",
         )
         assert len(df) == len(stock_source_df)
-        assert "600000.XSHG" in df["symbol"].values or "sh600000" in df["symbol"].values
+        # Under the read-only facade, symbols are stored and returned in the
+        # normalized 6-digit canonical form ("600000") rather than the JQ
+        # format ("600000.XSHG") kept in the raw source fixture.
+        assert "600000" in df["symbol"].values or "600000.XSHG" in df["symbol"].values
 
     def test_cache_miss_then_fetch_then_write_then_return(
         self,
         system_cache_manager: CacheManager,
     ) -> None:
-        """Full flow: cache miss -> fetch from source -> write to cache -> return data."""
-        service = DataService(cache_manager=system_cache_manager)
-
+        """Full flow under the read-only facade: data pre-seeded in Served is returned."""
         source_df = pd.DataFrame(
             {
                 "date": pd.date_range("2024-01-02", "2024-01-10", freq="B"),
@@ -88,12 +90,9 @@ class TestStockDailyDataFlow:
                 "amount": [1_000_000.0] * 7,
             }
         )
+        _seed_cache(system_cache_manager, "stock_daily", source_df)
+        service = DataService(cache_manager=system_cache_manager)
 
-        # Patch the akshare adapter to return our test data
-        service.akshare.get_daily_data = MagicMock(return_value=source_df.copy())
-        service.lixinger.get_daily_data = MagicMock(return_value=source_df.copy())
-
-        # First call should go through the full path (cache miss -> fetch)
         df1 = service.cn.stock.quote.daily(
             symbol="sh600000",
             start_date="2024-01-02",
@@ -103,16 +102,12 @@ class TestStockDailyDataFlow:
         assert isinstance(df1, pd.DataFrame)
         assert not df1.empty
         assert len(df1) == 7
-        # Verify source was called at least once
-        service.akshare.get_daily_data.assert_called()
 
     def test_cache_hit_on_second_call(
         self,
         system_cache_manager: CacheManager,
     ) -> None:
-        """Second call to same query returns cached data without re-fetching."""
-        service = DataService(cache_manager=system_cache_manager)
-
+        """Second call to same query returns the same cached data."""
         source_df = pd.DataFrame(
             {
                 "date": pd.date_range("2024-01-02", "2024-01-10", freq="B"),
@@ -125,11 +120,9 @@ class TestStockDailyDataFlow:
                 "amount": [1_000_000.0] * 7,
             }
         )
+        _seed_cache(system_cache_manager, "stock_daily", source_df)
+        service = DataService(cache_manager=system_cache_manager)
 
-        service.akshare.get_daily_data = MagicMock(return_value=source_df.copy())
-        service.lixinger.get_daily_data = MagicMock(return_value=source_df.copy())
-
-        # First call: should hit source
         df1 = service.cn.stock.quote.daily(
             symbol="sh600000",
             start_date="2024-01-02",
@@ -138,9 +131,6 @@ class TestStockDailyDataFlow:
         )
         assert not df1.empty
 
-        first_call_count = service.akshare.get_daily_data.call_count
-
-        # Second call: should hit cache, not source
         df2 = service.cn.stock.quote.daily(
             symbol="sh600000",
             start_date="2024-01-02",
@@ -148,7 +138,7 @@ class TestStockDailyDataFlow:
             source="akshare",
         )
         assert not df2.empty
-        assert service.akshare.get_daily_data.call_count == first_call_count
+        assert len(df2) == len(df1)
 
     def test_column_schema_validation(
         self,
@@ -182,8 +172,7 @@ class TestStockDailyDataFlow:
         self,
         system_cache_manager: CacheManager,
     ) -> None:
-        """Different symbol formats are normalized before fetching."""
-        service = DataService(cache_manager=system_cache_manager)
+        """Different symbol formats normalize to the same cached row."""
         source_df = pd.DataFrame(
             {
                 "date": pd.date_range("2024-01-02", periods=5, freq="B"),
@@ -196,10 +185,9 @@ class TestStockDailyDataFlow:
                 "amount": [1_000_000.0] * 5,
             }
         )
-        service.akshare.get_daily_data = MagicMock(return_value=source_df.copy())
-        service.lixinger.get_daily_data = MagicMock(return_value=source_df.copy())
+        _seed_cache(system_cache_manager, "stock_daily", source_df)
+        service = DataService(cache_manager=system_cache_manager)
 
-        # Both formats should work
         df1 = service.cn.stock.quote.daily(
             symbol="sh600000",
             start_date="2024-01-02",
@@ -236,28 +224,30 @@ class TestStockMinuteDataFlow:
         self,
         system_cache_manager: CacheManager,
     ) -> None:
-        """cn.stock.quote.minute() returns a DataFrame with minute-level columns."""
-        service = DataService(cache_manager=system_cache_manager)
-
+        """cn.stock.quote.minute() reads pre-seeded Served data."""
+        dt = pd.date_range("2024-01-02 09:30", periods=30, freq="min")
         minute_df = pd.DataFrame(
             {
-                "datetime": pd.date_range("2024-01-02 09:30", periods=30, freq="min"),
+                "datetime": dt,
                 "symbol": ["600000.XSHG"] * 30,
+                "week": ["2024-W01"] * 30,
+                "period": ["1min"] * 30,
                 "open": [10.0 + i * 0.01 for i in range(30)],
                 "high": [10.05 + i * 0.01 for i in range(30)],
                 "low": [9.95 + i * 0.01 for i in range(30)],
                 "close": [10.02 + i * 0.01 for i in range(30)],
                 "volume": [5_000 + i * 500 for i in range(30)],
+                "amount": [50_000.0 + i * 500.0 for i in range(30)],
             }
         )
-        service.akshare.get_minute_data = MagicMock(return_value=minute_df.copy())
-        service.lixinger.get_minute_data = MagicMock(return_value=minute_df.copy())
+        _seed_cache(system_cache_manager, "stock_minute", minute_df, adjust="none")
+        service = DataService(cache_manager=system_cache_manager)
 
         df = service.cn.stock.quote.minute(
             symbol="sh600000",
             freq="1min",
-            start_date="2024-01-02",
-            end_date="2024-01-02",
+            start_date="2024-01-02 00:00:00",
+            end_date="2024-01-02 23:59:59",
             source="akshare",
         )
         assert isinstance(df, pd.DataFrame)
@@ -276,9 +266,7 @@ class TestStockFinancialDataFlow:
         self,
         system_cache_manager: CacheManager,
     ) -> None:
-        """cn.stock.finance.indicators() returns financial indicator data."""
-        service = DataService(cache_manager=system_cache_manager)
-
+        """cn.stock.finance.indicators() returns pre-seeded financial data."""
         fi_df = pd.DataFrame(
             {
                 "report_date": pd.to_datetime(["2023-12-31", "2024-03-31"]),
@@ -288,8 +276,8 @@ class TestStockFinancialDataFlow:
                 "eps": [0.85, 0.92],
             }
         )
-        service.akshare.get_finance_indicator = MagicMock(return_value=fi_df.copy())
-        service.lixinger.get_finance_indicator = MagicMock(return_value=fi_df.copy())
+        _seed_cache(system_cache_manager, "finance_indicator", fi_df, adjust="none")
+        service = DataService(cache_manager=system_cache_manager)
 
         df = service.cn.stock.finance.indicators(
             symbol="sh600000",

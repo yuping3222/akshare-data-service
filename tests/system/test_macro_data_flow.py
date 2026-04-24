@@ -16,6 +16,7 @@ import pytest
 
 from akshare_data import DataService
 from akshare_data.store.manager import CacheManager
+from tests.system.conftest import _seed_cache
 
 
 @pytest.mark.system
@@ -30,8 +31,7 @@ class TestChinaMacroDataFlow:
         """macro.china.pmi() returns a DataFrame with PMI data."""
         service = DataService(cache_manager=system_cache_manager)
         # PMI data comes through shibor_rate or a dedicated method
-        service.akshare.get_macro_gdp = MagicMock(return_value=macro_pmi_df.copy())
-        service.lixinger.get_macro_gdp = MagicMock(return_value=macro_pmi_df.copy())
+        _seed_cache(system_cache_manager, "macro_gdp", macro_pmi_df)
 
         # Use the available macro endpoint (GDP as representative)
         df = service.macro.china.gdp(
@@ -49,8 +49,7 @@ class TestChinaMacroDataFlow:
     ) -> None:
         """macro.china.gdp() returns a DataFrame with GDP data."""
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_macro_gdp = MagicMock(return_value=macro_gdp_df.copy())
-        service.lixinger.get_macro_gdp = MagicMock(return_value=macro_gdp_df.copy())
+        _seed_cache(system_cache_manager, "macro_gdp", macro_gdp_df)
 
         df = service.macro.china.gdp(
             start_date="2023-01-01",
@@ -67,8 +66,7 @@ class TestChinaMacroDataFlow:
     ) -> None:
         """GDP DataFrame contains expected columns."""
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_macro_gdp = MagicMock(return_value=macro_gdp_df.copy())
-        service.lixinger.get_macro_gdp = MagicMock(return_value=macro_gdp_df.copy())
+        _seed_cache(system_cache_manager, "macro_gdp", macro_gdp_df)
 
         df = service.macro.china.gdp(
             start_date="2023-01-01",
@@ -86,8 +84,7 @@ class TestChinaMacroDataFlow:
     ) -> None:
         """Macro CPI data has correct format: date column and numeric values."""
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_shibor_rate = MagicMock(return_value=macro_cpi_df.copy())
-        service.lixinger.get_shibor_rate = MagicMock(return_value=macro_cpi_df.copy())
+        _seed_cache(system_cache_manager, "shibor_rate", macro_cpi_df)
 
         df = service.macro.china.interest_rate(
             start_date="2024-01-01",
@@ -107,8 +104,7 @@ class TestChinaMacroDataFlow:
     ) -> None:
         """Second macro query returns consistent data."""
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_macro_gdp = MagicMock(return_value=macro_gdp_df.copy())
-        service.lixinger.get_macro_gdp = MagicMock(return_value=macro_gdp_df.copy())
+        _seed_cache(system_cache_manager, "macro_gdp", macro_gdp_df)
 
         df1 = service.macro.china.gdp(
             start_date="2023-01-01",
@@ -133,8 +129,7 @@ class TestChinaMacroDataFlow:
     ) -> None:
         """Returned macro data row count matches source length."""
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_macro_gdp = MagicMock(return_value=macro_gdp_df.copy())
-        service.lixinger.get_macro_gdp = MagicMock(return_value=macro_gdp_df.copy())
+        _seed_cache(system_cache_manager, "macro_gdp", macro_gdp_df)
 
         df = service.macro.china.gdp(
             start_date="2023-01-01",
@@ -172,8 +167,7 @@ class TestMacroInterestRateFlow:
                 "rate_1m": [2.2, 2.25, 2.15],
             }
         )
-        service.akshare.get_shibor_rate = MagicMock(return_value=rate_df.copy())
-        service.lixinger.get_shibor_rate = MagicMock(return_value=rate_df.copy())
+        _seed_cache(system_cache_manager, "shibor_rate", rate_df)
 
         df = service.macro.china.interest_rate(
             start_date="2024-01-01",
@@ -197,8 +191,7 @@ class TestMacroInterestRateFlow:
                 "rate_1m": [2.2],
             }
         )
-        service.akshare.get_shibor_rate = MagicMock(return_value=rate_df.copy())
-        service.lixinger.get_shibor_rate = MagicMock(return_value=rate_df.copy())
+        _seed_cache(system_cache_manager, "shibor_rate", rate_df)
 
         df = service.macro.china.interest_rate(
             start_date="2024-01-01",

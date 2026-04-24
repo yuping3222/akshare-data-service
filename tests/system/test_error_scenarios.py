@@ -16,6 +16,7 @@ import pytest
 
 from akshare_data import DataService
 from akshare_data.store.manager import CacheManager, reset_cache_manager
+from tests.system.conftest import _seed_cache
 
 
 @pytest.mark.system
@@ -93,8 +94,7 @@ class TestCorruptedParquetRecovery:
                 "amount": [1_000_000.0] * 5,
             }
         )
-        service.akshare.get_daily_data = MagicMock(return_value=source_df.copy())
-        service.lixinger.get_daily_data = MagicMock(return_value=source_df.copy())
+        _seed_cache(system_cache_manager, "stock_daily", source_df)
 
         # Populate cache
         df1 = service.cn.stock.quote.daily(
@@ -171,10 +171,7 @@ class TestEmptyDataSourceResponse:
     def test_partial_data_then_empty_incremenal(
         self, system_cache_manager: CacheManager
     ) -> None:
-        """Incremental fetch with partial data then empty new data works."""
-        service = DataService(cache_manager=system_cache_manager)
-
-        # First call returns data
+        """Served returns the pre-populated partial range."""
         full_df = pd.DataFrame(
             {
                 "date": pd.date_range("2024-01-02", periods=10, freq="B"),
@@ -187,16 +184,8 @@ class TestEmptyDataSourceResponse:
                 "amount": [1_000_000.0] * 10,
             }
         )
-        call_count = {"count": 0}
-
-        def get_data_with_counter(symbol, start_date, end_date, adjust="qfq"):
-            call_count["count"] += 1
-            if call_count["count"] == 1:
-                return full_df.copy()
-            return pd.DataFrame()
-
-        service.akshare.get_daily_data = MagicMock(side_effect=get_data_with_counter)
-        service.lixinger.get_daily_data = MagicMock(return_value=pd.DataFrame())
+        _seed_cache(system_cache_manager, "stock_daily", full_df)
+        service = DataService(cache_manager=system_cache_manager)
 
         df1 = service.cn.stock.quote.daily(
             symbol="sh600000",

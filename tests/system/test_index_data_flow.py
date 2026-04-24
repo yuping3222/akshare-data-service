@@ -16,6 +16,7 @@ import pytest
 
 from akshare_data import DataService
 from akshare_data.store.manager import CacheManager
+from tests.system.conftest import _seed_cache
 
 
 @pytest.mark.system
@@ -29,10 +30,7 @@ class TestIndexDailyDataFlow:
     ) -> None:
         """cn.index.quote.daily() returns a DataFrame for the requested index."""
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_index_daily = MagicMock(return_value=index_source_df.copy())
-        service.lixinger.get_index_daily = MagicMock(
-            return_value=index_source_df.copy()
-        )
+        _seed_cache(system_cache_manager, "index_daily", index_source_df)
 
         df = service.cn.index.quote.daily(
             symbol="sh000300",
@@ -50,10 +48,7 @@ class TestIndexDailyDataFlow:
     ) -> None:
         """Index DataFrame contains OHLCV plus valuation fields."""
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_index_daily = MagicMock(return_value=index_source_df.copy())
-        service.lixinger.get_index_daily = MagicMock(
-            return_value=index_source_df.copy()
-        )
+        _seed_cache(system_cache_manager, "index_daily", index_source_df)
 
         df = service.cn.index.quote.daily(
             symbol="sh000300",
@@ -73,17 +68,14 @@ class TestIndexDailyDataFlow:
         assert "pe" in df.columns
         assert "pb" in df.columns
 
-    def test_index_daily_source_called_once_on_miss(
+    def test_index_daily_consistent_on_repeat_query(
         self,
         system_cache_manager: CacheManager,
         index_source_df: pd.DataFrame,
     ) -> None:
-        """Source is fetched on first call, not on cache hit."""
+        """Repeat queries against pre-seeded Served return the same data."""
+        _seed_cache(system_cache_manager, "index_daily", index_source_df)
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_index_daily = MagicMock(return_value=index_source_df.copy())
-        service.lixinger.get_index_daily = MagicMock(
-            return_value=index_source_df.copy()
-        )
 
         df1 = service.cn.index.quote.daily(
             symbol="sh000300",
@@ -92,9 +84,8 @@ class TestIndexDailyDataFlow:
             source="akshare",
         )
         assert not df1.empty
-        first_call_count = service.akshare.get_index_daily.call_count
+        first_len = len(df1)
 
-        # Second call should hit cache
         df2 = service.cn.index.quote.daily(
             symbol="sh000300",
             start_date="2024-01-02",
@@ -102,7 +93,7 @@ class TestIndexDailyDataFlow:
             source="akshare",
         )
         assert not df2.empty
-        assert service.akshare.get_index_daily.call_count == first_call_count
+        assert len(df2) == first_len
 
     def test_index_daily_convenience_method(
         self,
@@ -111,10 +102,7 @@ class TestIndexDailyDataFlow:
     ) -> None:
         """get_index() convenience method delegates to cn.index.quote.daily()."""
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_index_daily = MagicMock(return_value=index_source_df.copy())
-        service.lixinger.get_index_daily = MagicMock(
-            return_value=index_source_df.copy()
-        )
+        _seed_cache(system_cache_manager, "index_daily", index_source_df)
 
         df = service.get_index(
             index_code="sh000300",
@@ -136,12 +124,7 @@ class TestIndexComponentsFlow:
     ) -> None:
         """cn.index.meta.components() returns index constituent data."""
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_index_components = MagicMock(
-            return_value=index_components_df.copy()
-        )
-        service.lixinger.get_index_components = MagicMock(
-            return_value=index_components_df.copy()
-        )
+        _seed_cache(system_cache_manager, "index_components", index_components_df)
 
         df = service.cn.index.meta.components(
             index_code="sh000300",
@@ -156,22 +139,17 @@ class TestIndexComponentsFlow:
         system_cache_manager: CacheManager,
         index_components_df: pd.DataFrame,
     ) -> None:
-        """Second components query uses cached data."""
+        """Repeat component queries against pre-seeded Served are consistent."""
+        _seed_cache(system_cache_manager, "index_components", index_components_df)
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_index_components = MagicMock(
-            return_value=index_components_df.copy()
-        )
-        service.lixinger.get_index_components = MagicMock(
-            return_value=index_components_df.copy()
-        )
 
         df1 = service.cn.index.meta.components(index_code="sh000300", source="akshare")
         assert not df1.empty
-        first_call_count = service.akshare.get_index_components.call_count
+        first_len = len(df1)
 
         df2 = service.cn.index.meta.components(index_code="sh000300", source="akshare")
         assert not df2.empty
-        assert service.akshare.get_index_components.call_count == first_call_count
+        assert len(df2) == first_len
 
     def test_get_index_components_facade(
         self,
@@ -180,12 +158,7 @@ class TestIndexComponentsFlow:
     ) -> None:
         """get_index_components() facade works correctly."""
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_index_components = MagicMock(
-            return_value=index_components_df.copy()
-        )
-        service.lixinger.get_index_components = MagicMock(
-            return_value=index_components_df.copy()
-        )
+        _seed_cache(system_cache_manager, "index_components", index_components_df)
 
         df = service.get_index_components(index_code="sh000300")
         assert isinstance(df, pd.DataFrame)
@@ -196,16 +169,11 @@ class TestIndexComponentsFlow:
         system_cache_manager: CacheManager,
         index_components_df: pd.DataFrame,
     ) -> None:
-        """get_index_stocks() returns a list of stock codes."""
+        """get_index_stocks() reads constituents from the Served components table."""
+        _seed_cache(system_cache_manager, "index_components", index_components_df)
         service = DataService(cache_manager=system_cache_manager)
-        service.akshare.get_index_stocks = MagicMock(
-            return_value=["600000", "600036", "000001"]
-        )
-        service.lixinger.get_index_stocks = MagicMock(
-            return_value=["600000", "600036", "000001"]
-        )
 
         stocks = service.get_index_stocks(index_code="sh000300")
         assert isinstance(stocks, list)
         assert len(stocks) == 3
-        assert "600000" in stocks
+        assert "600000.XSHG" in stocks or "600000" in stocks

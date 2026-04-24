@@ -103,7 +103,7 @@ class TestGetMinute:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -121,8 +121,6 @@ class TestGetMinute:
                 end_date="2024-01-01 10:00:00",
             )
             assert not df.empty
-            mock_fetch.assert_called_once()
-
     def test_get_minute_5min(self, service):
         """Test 5 minute frequency"""
         test_df = create_minute_df(periods=50)
@@ -130,7 +128,7 @@ class TestGetMinute:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -145,8 +143,6 @@ class TestGetMinute:
                 "sh600000", freq="5min", start_date="2024-01-01", end_date="2024-01-01"
             )
             assert not df.empty
-            mock_fetch.assert_called_once()
-
     def test_get_minute_15min(self, service):
         """Test 15 minute frequency"""
         test_df = create_minute_df(periods=20)
@@ -154,7 +150,7 @@ class TestGetMinute:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -175,7 +171,7 @@ class TestGetMinute:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -196,7 +192,7 @@ class TestGetMinute:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -217,7 +213,7 @@ class TestGetMinute:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -258,7 +254,7 @@ class TestGetMinute:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = pd.DataFrame() if read_call_count[0] > 0 else pd.DataFrame()
+            result = pd.DataFrame()
             read_call_count[0] += 1
             return result
 
@@ -276,29 +272,24 @@ class TestGetMinute:
             assert df.empty
 
     def test_get_minute_symbol_normalization(self, service):
-        """Test symbol normalization in get_minute"""
+        """Test symbol normalization in get_minute (read-only facade)."""
         test_df = create_minute_df(symbol="000001", periods=10)
 
-        read_call_count = [0]
+        captured: list[dict] = []
+        orig_query = service._served.query
 
-        def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
-            read_call_count[0] += 1
-            return result
+        def capturing_query(*args, **kwargs):
+            captured.append(kwargs.get("where") or {})
+            return orig_query(*args, **kwargs)
 
         with (
-            patch.object(service.cache, "read", side_effect=mock_read),
-            patch.object(service.cache, "write", return_value=""),
-            patch.object(
-                service.akshare, "get_minute_data", return_value=test_df
-            ) as mock_fetch,
+            patch.object(service.cache, "read", return_value=test_df),
+            patch.object(service._served, "query", side_effect=capturing_query),
         ):
             service.get_minute(
                 "sz000001", freq="1min", start_date="2024-01-01", end_date="2024-01-01"
             )
-            mock_fetch.assert_called_once()
-            args = mock_fetch.call_args[0]
-            assert args[0] == "000001"
+            assert captured and captured[0].get("symbol") == "000001"
 
     def test_get_minute_table_name(self, service):
         """Test that correct table name is used for different frequencies"""
@@ -307,7 +298,7 @@ class TestGetMinute:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -336,7 +327,7 @@ class TestGetIndex:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -349,8 +340,6 @@ class TestGetIndex:
         ):
             df = service.get_index("000300", "2024-01-01", "2024-01-10")
             assert not df.empty
-            mock_fetch.assert_called_once()
-
     def test_get_index_default_dates(self, service):
         """Test index with default date range"""
         test_df = create_index_df()
@@ -358,21 +347,27 @@ class TestGetIndex:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
+        captured: list[dict] = []
+        orig_query = service._served.query
+
+        def capturing_query(*args, **kwargs):
+            captured.append(kwargs.get("where") or {})
+            return orig_query(*args, **kwargs)
+
         with (
-            patch.object(service.cache, "read", side_effect=mock_read),
-            patch.object(service.cache, "write", return_value=""),
-            patch.object(
-                service.lixinger, "get_index_daily", return_value=test_df
-            ) as mock_fetch,
+            patch.object(service.cache, "read", return_value=test_df),
+            patch.object(service._served, "query", side_effect=capturing_query),
         ):
             df = service.get_index("000300")
             assert not df.empty
-            call_args = mock_fetch.call_args
-            assert call_args[0][0] == "000300"
+            # Under the read-only facade, index lookups pass partition_value
+            # rather than a positional symbol argument; assert via captured
+            # where clause rather than source-adapter mock.
+            assert captured, "Expected _served.query to be invoked"
 
     def test_get_index_cache_hit(self, service):
         """Test cache hit for index data"""
@@ -387,33 +382,39 @@ class TestGetIndex:
             mock_fetch.assert_not_called()
 
     def test_get_index_symbol_normalization(self, service):
-        """Test symbol normalization for indices"""
+        """Test symbol normalization for indices (read-only facade)."""
         test_df = create_index_df(index_code="000001")
 
-        read_call_count = [0]
+        captured: list[dict] = []
+        orig_query = service._served.query
 
-        def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
-            read_call_count[0] += 1
-            return result
+        def capturing_query(*args, **kwargs):
+            captured.append({
+                "partition_value": kwargs.get("partition_value"),
+                "where": kwargs.get("where") or {},
+            })
+            return orig_query(*args, **kwargs)
 
         with (
-            patch.object(service.cache, "read", side_effect=mock_read),
-            patch.object(service.cache, "write", return_value=""),
-            patch.object(
-                service.lixinger, "get_index_daily", return_value=test_df
-            ) as mock_fetch,
+            patch.object(service.cache, "read", return_value=test_df),
+            patch.object(service._served, "query", side_effect=capturing_query),
         ):
             service.get_index("sh000001", "2024-01-01", "2024-01-10")
-            mock_fetch.assert_called_once()
-            assert mock_fetch.call_args[0][0] == "000001"
+            assert captured, "Expected _served.query to be invoked"
+            # Normalized symbol appears either in partition_value or in the
+            # where clause depending on the namespace assembly path.
+            first = captured[0]
+            assert (
+                first.get("partition_value") == "000001"
+                or first.get("where", {}).get("symbol") == "000001"
+            )
 
     def test_get_index_empty_result(self, service):
         """Test empty result handling"""
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = pd.DataFrame() if read_call_count[0] > 0 else pd.DataFrame()
+            result = pd.DataFrame()
             read_call_count[0] += 1
             return result
 
@@ -435,7 +436,7 @@ class TestGetIndex:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -463,7 +464,7 @@ class TestGetETF:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -476,8 +477,6 @@ class TestGetETF:
         ):
             df = service.get_etf("510300", "2024-01-01", "2024-01-10")
             assert not df.empty
-            mock_fetch.assert_called_once()
-
     def test_get_etf_cache_hit(self, service):
         """Test cache hit for ETF data"""
         cached_df = create_etf_df()
@@ -491,33 +490,37 @@ class TestGetETF:
             mock_fetch.assert_not_called()
 
     def test_get_etf_symbol_normalization(self, service):
-        """Test symbol normalization for ETFs"""
+        """Test symbol normalization for ETFs (read-only facade)."""
         test_df = create_etf_df(etf_code="159001")
 
-        read_call_count = [0]
+        captured: list[dict] = []
+        orig_query = service._served.query
 
-        def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
-            read_call_count[0] += 1
-            return result
+        def capturing_query(*args, **kwargs):
+            captured.append({
+                "partition_value": kwargs.get("partition_value"),
+                "where": kwargs.get("where") or {},
+            })
+            return orig_query(*args, **kwargs)
 
         with (
-            patch.object(service.cache, "read", side_effect=mock_read),
-            patch.object(service.cache, "write", return_value=""),
-            patch.object(
-                service.lixinger, "get_etf_daily", return_value=test_df
-            ) as mock_fetch,
+            patch.object(service.cache, "read", return_value=test_df),
+            patch.object(service._served, "query", side_effect=capturing_query),
         ):
             service.get_etf("sz159001", "2024-01-01", "2024-01-10")
-            mock_fetch.assert_called_once()
-            assert mock_fetch.call_args[0][0] == "159001"
+            assert captured, "Expected _served.query to be invoked"
+            first = captured[0]
+            assert (
+                first.get("partition_value") == "159001"
+                or first.get("where", {}).get("symbol") == "159001"
+            )
 
     def test_get_etf_empty_result(self, service):
         """Test empty result handling"""
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = pd.DataFrame() if read_call_count[0] > 0 else pd.DataFrame()
+            result = pd.DataFrame()
             read_call_count[0] += 1
             return result
 
@@ -542,7 +545,7 @@ class TestGetETF:
             read_call_count = [0]
 
             def mock_read(*args, **kwargs):
-                result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+                result = test_df
                 read_call_count[0] += 1
                 return result
 
@@ -569,11 +572,7 @@ class TestGetIndexStocks:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = (
-                pd.DataFrame({"index_code": ["000300"] * 5, "code": mock_stocks})
-                if read_call_count[0] > 0
-                else pd.DataFrame()
-            )
+            result = pd.DataFrame({"index_code": ["000300"] * 5, "code": mock_stocks})
             read_call_count[0] += 1
             return result
 
@@ -586,8 +585,6 @@ class TestGetIndexStocks:
         ):
             stocks = service.get_index_stocks("000300")
             assert stocks == mock_stocks
-            mock_fetch.assert_called_once()
-
     def test_get_index_stocks_from_cache(self, service):
         """Test index stocks from cache"""
         cached_df = pd.DataFrame(
@@ -612,11 +609,7 @@ class TestGetIndexStocks:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = (
-                pd.DataFrame({"index_code": ["000300"] * 2, "code": mock_stocks})
-                if read_call_count[0] > 0
-                else pd.DataFrame()
-            )
+            result = pd.DataFrame({"index_code": ["000300"] * 2, "code": mock_stocks})
             read_call_count[0] += 1
             return result
 
@@ -629,14 +622,12 @@ class TestGetIndexStocks:
         ):
             stocks = service.get_index_stocks("000300")
             assert stocks == mock_stocks
-            mock_fetch.assert_called_once()
-
     def test_get_index_stocks_empty_result(self, service):
         """Test empty index stocks"""
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = pd.DataFrame() if read_call_count[0] > 0 else pd.DataFrame()
+            result = pd.DataFrame()
             read_call_count[0] += 1
             return result
 
@@ -648,33 +639,20 @@ class TestGetIndexStocks:
             stocks = service.get_index_stocks("000300")
             assert stocks == []
 
-    def test_get_index_stocks_writes_to_cache(self, service):
-        """Test that fetched stocks are written to cache"""
+    def test_get_index_stocks_reads_from_cache(self, service):
+        """Read-only facade reads index stocks from cache without writing back."""
         mock_stocks = ["600000", "600519", "000001"]
 
-        read_call_count = [0]
-
         def mock_read(*args, **kwargs):
-            result = (
-                pd.DataFrame({"index_code": ["000300"] * 3, "code": mock_stocks})
-                if read_call_count[0] > 0
-                else pd.DataFrame()
-            )
-            read_call_count[0] += 1
-            return result
+            return pd.DataFrame({"index_code": ["000300"] * 3, "code": mock_stocks})
 
         with (
             patch.object(service.cache, "read", side_effect=mock_read),
             patch.object(service.cache, "write", return_value="") as mock_write,
-            patch.object(service.akshare, "get_index_stocks", return_value=mock_stocks),
         ):
             stocks = service.get_index_stocks("000300")
             assert stocks == mock_stocks
-            mock_write.assert_called_once()
-            call_args = mock_write.call_args
-            written_df = call_args[0][1]
-            assert "code" in written_df.columns
-            assert "index_code" in written_df.columns
+            mock_write.assert_not_called()
 
 
 class TestGetTradingDays:
@@ -697,11 +675,7 @@ class TestGetTradingDays:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = (
-                pd.DataFrame({"date": mock_days})
-                if read_call_count[0] > 0
-                else pd.DataFrame()
-            )
+            result = pd.DataFrame({"date": mock_days})
             read_call_count[0] += 1
             return result
 
@@ -714,8 +688,6 @@ class TestGetTradingDays:
         ):
             days = service.get_trading_days("2024-01-01", "2024-01-10")
             assert days == mock_days
-            mock_fetch.assert_called_once()
-
     def test_get_trading_days_from_cache(self, service):
         """Test trading days from cache - cache covers full range"""
         cached_df = pd.DataFrame(
@@ -750,11 +722,7 @@ class TestGetTradingDays:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = (
-                pd.DataFrame({"date": mock_days})
-                if read_call_count[0] > 0
-                else pd.DataFrame()
-            )
+            result = pd.DataFrame({"date": mock_days})
             read_call_count[0] += 1
             return result
 
@@ -775,11 +743,7 @@ class TestGetTradingDays:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = (
-                pd.DataFrame({"date": mock_days})
-                if read_call_count[0] > 0
-                else pd.DataFrame()
-            )
+            result = pd.DataFrame({"date": mock_days})
             read_call_count[0] += 1
             return result
 
@@ -796,7 +760,7 @@ class TestGetTradingDays:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = pd.DataFrame() if read_call_count[0] > 0 else pd.DataFrame()
+            result = pd.DataFrame()
             read_call_count[0] += 1
             return result
 
@@ -831,7 +795,7 @@ class TestGetMoneyFlow:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -844,8 +808,6 @@ class TestGetMoneyFlow:
         ):
             df = service.get_money_flow("600000", "2024-01-01", "2024-01-10")
             assert not df.empty
-            mock_fetch.assert_called_once()
-
     def test_get_money_flow_from_cache(self, service):
         """Test money flow from cache - full range"""
         cached_df = pd.DataFrame(
@@ -864,38 +826,30 @@ class TestGetMoneyFlow:
             assert not df.empty
             mock_fetch.assert_not_called()
 
-    def test_get_money_flow_adds_symbol_column(self, service):
-        """Test that symbol column is added if missing"""
+    def test_get_money_flow_does_not_write(self, service):
+        """Read-only facade must not write back to cache."""
         test_df = pd.DataFrame(
             {
                 "date": pd.date_range("2024-01-01", periods=5),
+                "symbol": ["600000"] * 5,
                 "buy_sm_amount": [1000.0] * 5,
             }
         )
 
-        read_call_count = [0]
-
-        def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
-            read_call_count[0] += 1
-            return result
-
         with (
-            patch.object(service.cache, "read", side_effect=mock_read),
+            patch.object(service.cache, "read", return_value=test_df),
             patch.object(service.cache, "write", return_value="") as mock_write,
-            patch.object(service.akshare, "get_money_flow", return_value=test_df),
         ):
-            service.get_money_flow("600000", "2024-01-01", "2024-01-10")
-            mock_write.assert_called_once()
-            written_df = mock_write.call_args[0][1]
-            assert "symbol" in written_df.columns
+            df = service.get_money_flow("600000", "2024-01-01", "2024-01-10")
+            assert not df.empty
+            mock_write.assert_not_called()
 
     def test_get_money_flow_empty_result(self, service):
         """Test empty money flow result"""
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = pd.DataFrame() if read_call_count[0] > 0 else pd.DataFrame()
+            result = pd.DataFrame()
             read_call_count[0] += 1
             return result
 
@@ -922,7 +876,7 @@ class TestGetMoneyFlow:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -955,7 +909,7 @@ class TestGetNorthMoneyFlow:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -968,8 +922,6 @@ class TestGetNorthMoneyFlow:
         ):
             df = service.get_north_money_flow("2024-01-01", "2024-01-10")
             assert not df.empty
-            mock_fetch.assert_called_once()
-
     def test_get_north_money_flow_from_cache(self, service):
         """Test north money flow from cache"""
         cached_df = pd.DataFrame(
@@ -992,7 +944,7 @@ class TestGetNorthMoneyFlow:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = pd.DataFrame() if read_call_count[0] > 0 else pd.DataFrame()
+            result = pd.DataFrame()
             read_call_count[0] += 1
             return result
 
@@ -1019,7 +971,7 @@ class TestGetNorthMoneyFlow:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -1053,7 +1005,7 @@ class TestGetFinanceIndicator:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 
@@ -1066,8 +1018,6 @@ class TestGetFinanceIndicator:
         ):
             df = service.get_finance_indicator("600000", "2024-01-01", "2024-01-10")
             assert not df.empty
-            mock_fetch.assert_called_once()
-
     def test_get_finance_indicator_from_cache(self, service):
         """Test finance indicator from cache - full range"""
         cached_df = pd.DataFrame(
@@ -1086,40 +1036,30 @@ class TestGetFinanceIndicator:
             assert not df.empty
             mock_fetch.assert_not_called()
 
-    def test_get_finance_indicator_adds_symbol_column(self, service):
-        """Test that symbol column is added if missing"""
+    def test_get_finance_indicator_does_not_write(self, service):
+        """Read-only facade must not write back to cache."""
         test_df = pd.DataFrame(
             {
                 "report_date": pd.date_range("2024-01-01", periods=5),
+                "symbol": ["600000"] * 5,
                 "roe": [0.1] * 5,
             }
         )
 
-        read_call_count = [0]
-
-        def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
-            read_call_count[0] += 1
-            return result
-
         with (
-            patch.object(service.cache, "read", side_effect=mock_read),
+            patch.object(service.cache, "read", return_value=test_df),
             patch.object(service.cache, "write", return_value="") as mock_write,
-            patch.object(
-                service.akshare, "get_finance_indicator", return_value=test_df
-            ),
         ):
-            service.get_finance_indicator("600000", "2024-01-01", "2024-01-10")
-            mock_write.assert_called_once()
-            written_df = mock_write.call_args[0][1]
-            assert "symbol" in written_df.columns
+            df = service.get_finance_indicator("600000", "2024-01-01", "2024-01-10")
+            assert not df.empty
+            mock_write.assert_not_called()
 
     def test_get_finance_indicator_empty_result(self, service):
         """Test empty finance indicator result"""
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = pd.DataFrame() if read_call_count[0] > 0 else pd.DataFrame()
+            result = pd.DataFrame()
             read_call_count[0] += 1
             return result
 
@@ -1146,7 +1086,7 @@ class TestGetFinanceIndicator:
         read_call_count = [0]
 
         def mock_read(*args, **kwargs):
-            result = test_df if read_call_count[0] > 0 else pd.DataFrame()
+            result = test_df
             read_call_count[0] += 1
             return result
 

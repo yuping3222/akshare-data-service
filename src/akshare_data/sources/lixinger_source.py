@@ -6,8 +6,20 @@ Implements the DataSource interface using Lixinger OpenAPI.
 # ruff: noqa: F811
 
 import logging
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from typing import Any, Dict, List, Optional, Union
+
+
+def _default_lookback_window(years: int = 10) -> tuple[str, str]:
+    """Return (start_date, end_date) covering the last ``years`` years.
+
+    Lixinger endpoints enforce a max span of 10 years; this helper replaces
+    the previously hard-coded ``2000-01-01 → 2099-12-31`` span used by
+    several adapter methods that kicked back 403 ForbiddenError responses.
+    """
+    today = date.today()
+    start = today - timedelta(days=365 * years)
+    return start.strftime("%Y-%m-%d"), today.strftime("%Y-%m-%d")
 
 import pandas as pd
 import requests
@@ -905,11 +917,16 @@ class LixingerAdapter(DataSource):
         The cn/company/fs/non_financial endpoint returns balance sheet, income
         statement, and cash flow data in a single response, distinguished by
         a report_type column.
+
+        Lixinger enforces a 10-year maximum span per request, so we use a
+        rolling 10-year window ending today. Callers that need older history
+        should page their own window through multiple calls.
         """
+        start_date, end_date = _default_lookback_window()
         return self.client.get_company_fs_non_financial(
             symbol=symbol,
-            start_date="2000-01-01",
-            end_date="2099-12-31",
+            start_date=start_date,
+            end_date=end_date,
         )
 
     def _filter_by_report_type(
@@ -1092,8 +1109,10 @@ class LixingerAdapter(DataSource):
         try:
             return self.client.get_company_equity_change(
                 symbol=symbol,
-                start_date="2000-01-01",
-                end_date="2099-12-31",
+
+                start_date=_default_lookback_window()[0],
+
+                end_date=_default_lookback_window()[1],
             )
         except (requests.RequestException, ConnectionError, OSError) as e:
             raise SourceUnavailableError(
@@ -1121,8 +1140,10 @@ class LixingerAdapter(DataSource):
         try:
             return self.client.get_company_majority_shareholders(
                 symbol=symbol,
-                start_date="2000-01-01",
-                end_date="2099-12-31",
+
+                start_date=_default_lookback_window()[0],
+
+                end_date=_default_lookback_window()[1],
             )
         except (requests.RequestException, ConnectionError, OSError) as e:
             raise SourceUnavailableError(
@@ -1150,8 +1171,10 @@ class LixingerAdapter(DataSource):
         try:
             return self.client.get_company_fund_shareholders(
                 symbol=symbol,
-                start_date="2000-01-01",
-                end_date="2099-12-31",
+
+                start_date=_default_lookback_window()[0],
+
+                end_date=_default_lookback_window()[1],
             )
         except (requests.RequestException, ConnectionError, OSError) as e:
             raise SourceUnavailableError(
@@ -1184,8 +1207,10 @@ class LixingerAdapter(DataSource):
         try:
             return self.client.get_company_shareholders_num(
                 symbol=symbol,
-                start_date="2000-01-01",
-                end_date="2099-12-31",
+
+                start_date=_default_lookback_window()[0],
+
+                end_date=_default_lookback_window()[1],
             )
         except (requests.RequestException, ConnectionError, OSError) as e:
             raise SourceUnavailableError(
@@ -1524,8 +1549,10 @@ class LixingerAdapter(DataSource):
         try:
             return self.client.get_company_announcement(
                 symbol=symbol,
-                start_date="2020-01-01",
-                end_date="2099-12-31",
+
+                start_date=_default_lookback_window()[0],
+
+                end_date=_default_lookback_window()[1],
             )
         except (requests.RequestException, ConnectionError, OSError) as e:
             raise SourceUnavailableError(
@@ -1553,8 +1580,10 @@ class LixingerAdapter(DataSource):
         try:
             return self.client.get_company_dividend(
                 symbol=symbol,
-                start_date="2000-01-01",
-                end_date="2099-12-31",
+
+                start_date=_default_lookback_window()[0],
+
+                end_date=_default_lookback_window()[1],
             )
         except (requests.RequestException, ConnectionError, OSError) as e:
             raise SourceUnavailableError(
@@ -1639,8 +1668,10 @@ class LixingerAdapter(DataSource):
         try:
             return self.client.get_company_pledge(
                 symbol=symbol,
-                start_date="2000-01-01",
-                end_date="2099-12-31",
+
+                start_date=_default_lookback_window()[0],
+
+                end_date=_default_lookback_window()[1],
             )
         except (requests.RequestException, ConnectionError, OSError) as e:
             raise SourceUnavailableError(
@@ -1671,8 +1702,10 @@ class LixingerAdapter(DataSource):
         try:
             return self.client.get_company_restricted_release(
                 symbol=symbol,
-                start_date="2000-01-01",
-                end_date="2099-12-31",
+
+                start_date=_default_lookback_window()[0],
+
+                end_date=_default_lookback_window()[1],
             )
         except (requests.RequestException, ConnectionError, OSError) as e:
             raise SourceUnavailableError(
@@ -1738,8 +1771,10 @@ class LixingerAdapter(DataSource):
         try:
             return self.client.get_index_constituent_weightings(
                 symbol=index_code,
-                start_date="2020-01-01",
-                end_date="2099-12-31",
+
+                start_date=_default_lookback_window()[0],
+
+                end_date=_default_lookback_window()[1],
             )
         except (requests.RequestException, ConnectionError, OSError) as e:
             raise SourceUnavailableError(
@@ -1852,8 +1887,10 @@ class LixingerAdapter(DataSource):
         try:
             return self.client.get_company_allotment(
                 symbol=symbol,
-                start_date="2000-01-01",
-                end_date="2099-12-31",
+
+                start_date=_default_lookback_window()[0],
+
+                end_date=_default_lookback_window()[1],
             )
         except (requests.RequestException, ConnectionError, OSError) as e:
             raise SourceUnavailableError(
@@ -1890,8 +1927,10 @@ class LixingerAdapter(DataSource):
         try:
             return self.client.get_company_major_shareholders_shares_change(
                 symbol=symbol,
-                start_date="2000-01-01",
-                end_date="2099-12-31",
+
+                start_date=_default_lookback_window()[0],
+
+                end_date=_default_lookback_window()[1],
             )
         except (requests.RequestException, ConnectionError, OSError) as e:
             raise SourceUnavailableError(
@@ -1919,8 +1958,10 @@ class LixingerAdapter(DataSource):
         try:
             return self.client.get_company_senior_executive_shares_change(
                 symbol=symbol,
-                start_date="2000-01-01",
-                end_date="2099-12-31",
+
+                start_date=_default_lookback_window()[0],
+
+                end_date=_default_lookback_window()[1],
             )
         except (requests.RequestException, ConnectionError, OSError) as e:
             raise SourceUnavailableError(
@@ -2053,8 +2094,9 @@ class LixingerAdapter(DataSource):
     def get_fof_nav(self, symbol: str, **kwargs) -> pd.DataFrame:
         self._ensure_configured()
         try:
-            start_date = kwargs.get("start_date", "2000-01-01")
-            end_date = kwargs.get("end_date", "2099-12-31")
+            start_date, end_date = _default_lookback_window()
+            start_date = kwargs.get("start_date", start_date)
+            end_date = kwargs.get("end_date", end_date)
             return self.client.get_fund_net_value(symbol, start_date, end_date)
         except (requests.RequestException, ConnectionError, OSError) as e:
             raise SourceUnavailableError(
@@ -2092,8 +2134,9 @@ class LixingerAdapter(DataSource):
         symbol = self._format_stock_code(symbol)
         self._ensure_configured()
         try:
-            start_date = kwargs.get("start_date", "2000-01-01")
-            end_date = kwargs.get("end_date", "2099-12-31")
+            start_date, end_date = _default_lookback_window()
+            start_date = kwargs.get("start_date", start_date)
+            end_date = kwargs.get("end_date", end_date)
             return self.client.get_fund_candlestick(
                 symbol=symbol,
                 start_date=start_date,

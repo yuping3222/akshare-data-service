@@ -365,7 +365,7 @@ class TestLixingerClient:
             params = json.loads(
                 call_args.kwargs.get("data") or call_args[1].get("data")
             )
-            assert params["stockCode"] == "000300"
+            assert params["stockCodes"] == ["000300"]
             assert params["startDate"] == "2024-01-01"
             assert params["endDate"] == "2024-01-31"
 
@@ -449,7 +449,7 @@ class TestLixingerClient:
             params = json.loads(
                 call_args.kwargs.get("data") or call_args[1].get("data")
             )
-            assert params["stockCode"] == "600519"
+            assert params["stockCodes"] == ["600519"]
             assert params["metricsList"] == ["pe_ttm.mcw", "pb.mcw"]
 
         def test_uses_date_parameter_when_provided(self, client_with_token):

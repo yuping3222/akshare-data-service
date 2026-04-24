@@ -231,6 +231,9 @@ class TestBatchDownloaderIncremental:
     def downloader(self):
         """创建测试下载器"""
         mock_cache = MagicMock()
+        # Default has_range to False so the downloader actually exercises the
+        # task-building path; otherwise the MagicMock auto-generated truthy
+        # return value makes the pre-check skip every interface.
         mock_cache.has_range.return_value = False
         dl = BatchDownloader(cache_manager=mock_cache, max_workers=2, batch_size=2)
         yield dl

@@ -72,41 +72,48 @@ class TestCNStockQuoteAPIMinute:
     """Test cn.stock.quote.minute method for various frequencies."""
 
     def test_minute_default_freq(self, mock_service):
+        # The schema registry exposes a single ``stock_minute`` table with a
+        # ``period`` column for frequency; the namespace assembly now queries
+        # it with ``period``/``symbol`` in the where clause.
         api = CNStockQuoteAPI(mock_service)
         mock_service._served.query.return_value = _mock_query_result(pd.DataFrame())
         api.minute(symbol="sh600000")
         call_kwargs = mock_service._served.query.call_args[1]
-        assert call_kwargs["table"] == "stock_minute_1min"
-        assert call_kwargs["partition_by"] == "symbol"
-        assert call_kwargs["partition_value"] == "600000"
+        assert call_kwargs["table"] == "stock_minute"
+        assert call_kwargs["where"]["period"] == "1min"
+        assert call_kwargs["where"]["symbol"] == "600000"
 
     def test_minute_5min_freq(self, mock_service):
         api = CNStockQuoteAPI(mock_service)
         mock_service._served.query.return_value = _mock_query_result(pd.DataFrame())
         api.minute(symbol="600000", freq="5min")
         call_kwargs = mock_service._served.query.call_args[1]
-        assert call_kwargs["table"] == "stock_minute_5min"
+        assert call_kwargs["table"] == "stock_minute"
+        assert call_kwargs["where"]["period"] == "5min"
 
     def test_minute_15min_freq(self, mock_service):
         api = CNStockQuoteAPI(mock_service)
         mock_service._served.query.return_value = _mock_query_result(pd.DataFrame())
         api.minute(symbol="600000", freq="15min")
         call_kwargs = mock_service._served.query.call_args[1]
-        assert call_kwargs["table"] == "stock_minute_15min"
+        assert call_kwargs["table"] == "stock_minute"
+        assert call_kwargs["where"]["period"] == "15min"
 
     def test_minute_30min_freq(self, mock_service):
         api = CNStockQuoteAPI(mock_service)
         mock_service._served.query.return_value = _mock_query_result(pd.DataFrame())
         api.minute(symbol="600000", freq="30min")
         call_kwargs = mock_service._served.query.call_args[1]
-        assert call_kwargs["table"] == "stock_minute_30min"
+        assert call_kwargs["table"] == "stock_minute"
+        assert call_kwargs["where"]["period"] == "30min"
 
     def test_minute_60min_freq(self, mock_service):
         api = CNStockQuoteAPI(mock_service)
         mock_service._served.query.return_value = _mock_query_result(pd.DataFrame())
         api.minute(symbol="600000", freq="60min")
         call_kwargs = mock_service._served.query.call_args[1]
-        assert call_kwargs["table"] == "stock_minute_60min"
+        assert call_kwargs["table"] == "stock_minute"
+        assert call_kwargs["where"]["period"] == "60min"
 
     def test_minute_with_date_range(self, mock_service):
         api = CNStockQuoteAPI(mock_service)
@@ -122,7 +129,7 @@ class TestCNStockQuoteAPIMinute:
         mock_service._served.query.return_value = _mock_query_result(pd.DataFrame())
         api.minute(symbol="sh600000.XSHG")
         call_kwargs = mock_service._served.query.call_args[1]
-        assert call_kwargs["partition_value"] == "600000"
+        assert call_kwargs["where"]["symbol"] == "600000"
 
 
 class TestCNStockQuoteAPIRealtime:

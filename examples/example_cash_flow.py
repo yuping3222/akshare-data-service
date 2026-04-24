@@ -9,9 +9,11 @@
 """
 
 import logging
+import warnings
 from akshare_data import get_service
 from _example_utils import first_non_empty_by_symbol
 
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 logging.getLogger("akshare_data").setLevel(logging.ERROR)
 
 

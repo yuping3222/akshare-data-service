@@ -18,9 +18,12 @@ get_index() 接口示例
 返回字段: symbol, date, open, high, low, close, volume, amount
 """
 
+import warnings
 import pandas as pd
 from datetime import date, datetime, timedelta
 from akshare_data import get_index
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 def _last_trading_day(anchor: date | None = None) -> date:

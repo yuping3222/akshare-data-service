@@ -23,9 +23,12 @@ get_etf(symbol, start_date, end_date) 参数说明:
     - 支持带前缀的代码格式 (如 "sh510300")，系统会自动规范化
 """
 
+import warnings
 from datetime import date, timedelta
 
 from akshare_data import get_etf
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 def _last_trading_day(anchor: date | None = None) -> date:

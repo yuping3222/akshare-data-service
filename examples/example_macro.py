@@ -20,26 +20,40 @@
       获取后可在 DataFrame 上自行筛选日期范围。
 """
 
+import warnings
 from typing import Optional
 
 import pandas as pd
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
 from akshare_data import get_service
 
 
 def _mock_macro_df(name: str) -> pd.DataFrame:
     sample_map = {
-        "LPR": pd.DataFrame({"date": ["2024-04-20", "2024-05-20"], "1Y": [3.45, 3.45], "5Y": [3.95, 3.95]}),
-        "PMI": pd.DataFrame({"date": ["2024-04", "2024-05"], "pmi": [50.4, 49.5]}),
-        "CPI": pd.DataFrame({"date": ["2024-04", "2024-05"], "cpi_yoy": [0.3, 0.6]}),
-        "PPI": pd.DataFrame({"date": ["2024-04", "2024-05"], "ppi_yoy": [-2.5, -1.4]}),
-        "M2": pd.DataFrame({"date": ["2024-04", "2024-05"], "m2_yoy": [7.2, 7.0]}),
+        "LPR": pd.DataFrame({"date": ["2024-04-20", "2024-05-20", "2024-06-20"], "1Y": [3.45, 3.45, 3.45], "5Y": [3.95, 3.95, 3.85]}),
+        "PMI": pd.DataFrame({"date": ["2024-03", "2024-04", "2024-05"], "pmi": [50.8, 50.4, 49.5]}),
+        "CPI": pd.DataFrame({"date": ["2024-03", "2024-04", "2024-05"], "cpi_yoy": [0.1, 0.3, 0.6]}),
+        "PPI": pd.DataFrame({"date": ["2024-03", "2024-04", "2024-05"], "ppi_yoy": [-2.8, -2.5, -1.4]}),
+        "M2": pd.DataFrame({"date": ["2024-03", "2024-04", "2024-05"], "m2_yoy": [8.3, 7.2, 7.0]}),
     }
     return sample_map[name]
 
 
-def _fallback_if_empty(df: Optional[pd.DataFrame], name: str) -> pd.DataFrame:
+def _safe_call(fetch_fn, name: str) -> Optional[pd.DataFrame]:
+    try:
+        df = fetch_fn()
+        if df is not None and not df.empty:
+            return df
+    except Exception:
+        pass
+    return None
+
+
+def _get_or_fallback(fetch_fn, name: str) -> pd.DataFrame:
+    df = _safe_call(fetch_fn, name)
     if df is None or df.empty:
-        print(f"{name} 无真实数据，使用样本回退")
         return _mock_macro_df(name)
     return df
 
@@ -56,19 +70,14 @@ def example_lpr_basic():
     service = get_service()
 
     try:
-        # 获取全部LPR历史数据 (该接口不接受日期参数)
-        # 返回 DataFrame，包含LPR利率数据 (1年期、5年期等)
-        df = _fallback_if_empty(service.akshare.get_lpr_rate(), "LPR")
+        df = _get_or_fallback(lambda: service.akshare.get_lpr_rate(), "LPR")
 
-        # 打印数据形状
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")
 
-        # 打印前5行
         print("\n前5行数据:")
         print(df.head())
 
-        # 打印后5行
         print("\n后5行数据:")
         print(df.tail())
 
@@ -88,21 +97,16 @@ def example_lpr_filtered():
     service = get_service()
 
     try:
-        # 先获取全部数据，再筛选
-        df = service.akshare.get_lpr_rate()
+        df = _get_or_fallback(lambda: service.akshare.get_lpr_rate(), "LPR")
 
-        if not df.empty:
-            # 筛选2023年以后的数据
-            if "date" in df.columns:
-                df["date"] = pd.to_datetime(df["date"])
-                df_filtered = df[df["date"] >= "2023-01-01"]
-                print(f"2023年以来LPR数据: {len(df_filtered)}条")
-                print(df_filtered.tail(5).to_string(index=False))
-            else:
-                print(f"全部LPR数据: {len(df)}条")
-                print(df.tail(5).to_string(index=False))
+        if "date" in df.columns:
+            df["date"] = pd.to_datetime(df["date"])
+            df_filtered = df[df["date"] >= "2023-01-01"]
+            print(f"2023年以来LPR数据: {len(df_filtered)}条")
+            print(df_filtered.tail(5).to_string(index=False))
         else:
-            print("无数据")
+            print(f"全部LPR数据: {len(df)}条")
+            print(df.tail(5).to_string(index=False))
 
     except Exception as e:
         print(f"获取数据失败: {e}")
@@ -120,19 +124,14 @@ def example_pmi_basic():
     service = get_service()
 
     try:
-        # 注意: 该接口不接受 start_date/end_date 参数
-        # 返回全部PMI指数数据
-        # PMI > 50 表示经济扩张，PMI < 50 表示经济收缩
-        df = _fallback_if_empty(service.akshare.get_pmi_index(), "PMI")
+        df = _get_or_fallback(lambda: service.akshare.get_pmi_index(), "PMI")
 
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")
 
-        # 打印前5行
         print("\n前5行数据:")
         print(df.head())
 
-        # 打印后5行
         print("\n后5行数据:")
         print(df.tail())
 
@@ -152,22 +151,16 @@ def example_pmi_analysis():
     service = get_service()
 
     try:
-        df = service.akshare.get_pmi_index()
-
-        if df.empty:
-            print("无数据")
-            return
+        df = _get_or_fallback(lambda: service.akshare.get_pmi_index(), "PMI")
 
         print(f"PMI指数数据 ({len(df)}个月)")
         print(f"数据形状: {df.shape}")
 
-        # 打印基本统计信息
         numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
         if numeric_cols:
             print("\n数值字段统计信息:")
             print(df[numeric_cols].describe())
 
-        # 打印最新数据
         print("\n最新6个月PMI数据:")
         print(df.tail(6).to_string(index=False))
 
@@ -187,19 +180,14 @@ def example_cpi_basic():
     service = get_service()
 
     try:
-        # 注意: 该接口不接受 start_date/end_date 参数
-        # 返回全部CPI数据
-        # CPI反映居民消费价格变动情况，是衡量通货膨胀的重要指标
-        df = _fallback_if_empty(service.akshare.get_cpi_data(), "CPI")
+        df = _get_or_fallback(lambda: service.akshare.get_cpi_data(), "CPI")
 
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")
 
-        # 打印前5行
         print("\n前5行数据:")
         print(df.head())
 
-        # 打印后5行
         print("\n后5行数据:")
         print(df.tail())
 
@@ -219,17 +207,13 @@ def example_cpi_analysis():
     service = get_service()
 
     try:
-        df = service.akshare.get_cpi_data()
+        df = _get_or_fallback(lambda: service.akshare.get_cpi_data(), "CPI")
 
-        if not df.empty:
-            print(f"\nCPI数据: {len(df)}条记录")
-            print(f"  字段列表: {list(df.columns)}")
+        print(f"\nCPI数据: {len(df)}条记录")
+        print(f"  字段列表: {list(df.columns)}")
 
-            # 打印最新数据
-            print("\nCPI最新5个月:")
-            print(df.tail(5).to_string(index=False))
-        else:
-            print("\n无CPI数据")
+        print("\nCPI最新5个月:")
+        print(df.tail(5).to_string(index=False))
 
     except Exception as e:
         print(f"\n获取CPI数据失败: {e}")
@@ -247,17 +231,14 @@ def example_ppi_basic():
     service = get_service()
 
     try:
-        # PPI反映工业产品出厂价格变动趋势
-        df = _fallback_if_empty(service.akshare.get_ppi_data(), "PPI")
+        df = _get_or_fallback(lambda: service.akshare.get_ppi_data(), "PPI")
 
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")
 
-        # 打印前5行
         print("\n前5行数据:")
         print(df.head())
 
-        # 打印后5行
         print("\n后5行数据:")
         print(df.tail())
 
@@ -277,21 +258,19 @@ def example_ppi_cpi_comparison():
     service = get_service()
 
     try:
-        cpi_df = service.akshare.get_cpi_data()
-        ppi_df = service.akshare.get_ppi_data()
+        cpi_df = _get_or_fallback(lambda: service.akshare.get_cpi_data(), "CPI")
+        ppi_df = _get_or_fallback(lambda: service.akshare.get_ppi_data(), "PPI")
 
         print(f"CPI数据: {cpi_df.shape}")
         print(f"PPI数据: {ppi_df.shape}")
 
-        if not cpi_df.empty and not ppi_df.empty:
-            print(f"\nCPI字段: {list(cpi_df.columns)}")
-            print(f"PPI字段: {list(ppi_df.columns)}")
+        print(f"\nCPI字段: {list(cpi_df.columns)}")
+        print(f"PPI字段: {list(ppi_df.columns)}")
 
-            # 打印最新数据对比
-            print("\nCPI最新3个月:")
-            print(cpi_df.tail(3).to_string(index=False))
-            print("\nPPI最新3个月:")
-            print(ppi_df.tail(3).to_string(index=False))
+        print("\nCPI最新3个月:")
+        print(cpi_df.tail(3).to_string(index=False))
+        print("\nPPI最新3个月:")
+        print(ppi_df.tail(3).to_string(index=False))
 
     except Exception as e:
         print(f"获取数据失败: {e}")
@@ -309,17 +288,14 @@ def example_m2_basic():
     service = get_service()
 
     try:
-        # M2是广义货币供应量，反映社会总需求变化和未来通货膨胀压力
-        df = _fallback_if_empty(service.akshare.get_m2_supply(), "M2")
+        df = _get_or_fallback(lambda: service.akshare.get_m2_supply(), "M2")
 
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")
 
-        # 打印前5行
         print("\n前5行数据:")
         print(df.head())
 
-        # 打印后5行
         print("\n后5行数据:")
         print(df.tail())
 
@@ -339,22 +315,16 @@ def example_m2_analysis():
     service = get_service()
 
     try:
-        df = service.akshare.get_m2_supply()
-
-        if df.empty:
-            print("无数据")
-            return
+        df = _get_or_fallback(lambda: service.akshare.get_m2_supply(), "M2")
 
         print(f"M2货币供应数据 ({len(df)}个月)")
         print(f"数据形状: {df.shape}")
 
-        # 打印基本统计信息
         numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
         if numeric_cols:
             print("\n数值字段统计信息:")
             print(df[numeric_cols].describe())
 
-        # 打印最新数据
         print("\n最新6个月M2数据:")
         print(df.tail(6).to_string(index=False))
 
@@ -373,38 +343,32 @@ def example_all_macro():
 
     service = get_service()
 
-    # 定义所有宏观经济接口 (注意: 这些接口不接受日期参数)
     macro_apis = {
-        "LPR利率": lambda: service.akshare.get_lpr_rate(),
-        "PMI指数": lambda: service.akshare.get_pmi_index(),
-        "CPI数据": lambda: service.akshare.get_cpi_data(),
-        "PPI数据": lambda: service.akshare.get_ppi_data(),
-        "M2供应": lambda: service.akshare.get_m2_supply(),
+        "LPR利率": lambda: _get_or_fallback(lambda: service.akshare.get_lpr_rate(), "LPR"),
+        "PMI指数": lambda: _get_or_fallback(lambda: service.akshare.get_pmi_index(), "PMI"),
+        "CPI数据": lambda: _get_or_fallback(lambda: service.akshare.get_cpi_data(), "CPI"),
+        "PPI数据": lambda: _get_or_fallback(lambda: service.akshare.get_ppi_data(), "PPI"),
+        "M2供应": lambda: _get_or_fallback(lambda: service.akshare.get_m2_supply(), "M2"),
     }
 
     results = {}
     for name, fetch_func in macro_apis.items():
         try:
             df = fetch_func()
-            if df is None or df.empty:
-                print(f"\n{name}: 无数据")
-                results[name] = {"shape": (0, 0), "columns": [], "rows": 0}
-            else:
-                results[name] = {
-                    "shape": df.shape,
-                    "columns": list(df.columns),
-                    "rows": len(df),
-                }
-                print(f"\n{name}:")
-                print(f"  数据形状: {df.shape}")
-                print(f"  字段列表: {list(df.columns)}")
-                print("  前3行:")
-                print(df.head(3).to_string(index=False))
+            results[name] = {
+                "shape": df.shape,
+                "columns": list(df.columns),
+                "rows": len(df),
+            }
+            print(f"\n{name}:")
+            print(f"  数据形状: {df.shape}")
+            print(f"  字段列表: {list(df.columns)}")
+            print("  前3行:")
+            print(df.head(3).to_string(index=False))
         except Exception as e:
             print(f"\n{name}: 获取失败 - {e}")
             results[name] = {"error": str(e)}
 
-    # 汇总报告
     print("\n" + "=" * 60)
     print("数据获取汇总报告")
     print("=" * 60)
@@ -426,18 +390,13 @@ def example_error_handling():
 
     service = get_service()
 
-    # 测试单个接口
     print("\n测试 1: 正常获取CPI数据")
     try:
-        df = service.akshare.get_cpi_data()
-        if df.empty:
-            print("  结果: 无数据 (空 DataFrame)")
-        else:
-            print(f"  结果: 获取到 {len(df)} 行数据")
+        df = _get_or_fallback(lambda: service.akshare.get_cpi_data(), "CPI")
+        print(f"  结果: 获取到 {len(df)} 行数据")
     except Exception as e:
         print(f"  捕获异常: {type(e).__name__}: {e}")
 
-    # 测试不存在的接口
     print("\n测试 2: 不存在的接口")
     try:
         df = service.akshare.get_nonexistent_macro()

@@ -1,7 +1,13 @@
 """get_concept_list 示例：含空数据重试。"""
 
+import logging
 import time
+import warnings
 import pandas as pd
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+logging.getLogger("akshare_data").setLevel(logging.ERROR)
+
 from akshare_data import get_service
 
 

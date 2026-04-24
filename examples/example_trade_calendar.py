@@ -6,9 +6,15 @@
 - 默认以今天为 end_date，并向前回看固定天数作为 start_date。
 """
 
+import logging
+import warnings
 from datetime import date, datetime, timedelta
 import time
 import pandas as pd
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+logging.getLogger("akshare_data").setLevel(logging.ERROR)
+
 from akshare_data import get_service
 
 

@@ -38,10 +38,6 @@ def __getattr__(name: str):
         from akshare_data.service.missing_data_policy import MissingDataReport
 
         return MissingDataReport
-    if name == "BackfillRequestRegistry":
-        from akshare_data.service.missing_data_policy import BackfillRequestRegistry
-
-        return BackfillRequestRegistry
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 
@@ -55,7 +51,6 @@ def __dir__():
         "MissingDataPolicy",
         "MissingAction",
         "MissingDataReport",
-        "BackfillRequestRegistry",
     ]
 
 

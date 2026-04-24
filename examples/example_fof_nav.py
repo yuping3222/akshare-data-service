@@ -21,9 +21,14 @@ get_fof_nav() 接口示例
 - 采用 Cache-First 策略
 """
 
+import logging
+import warnings
 from datetime import date, timedelta
 
 import pandas as pd
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+logging.getLogger("akshare_data").setLevel(logging.ERROR)
 
 from akshare_data import get_service
 

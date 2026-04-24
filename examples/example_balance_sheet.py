@@ -16,9 +16,12 @@
 注意: 资产负债表通常按报告期发布（季报、半年报、年报）。
 """
 
+import warnings
 import pandas as pd
 from akshare_data import get_service
 from _example_utils import first_non_empty_by_symbol
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 # ============================================================

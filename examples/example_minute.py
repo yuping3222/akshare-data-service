@@ -17,9 +17,14 @@ get_minute() 接口示例
 返回字段: symbol, datetime, open, high, low, close, volume, amount
 """
 
+import logging
+import warnings
 import pandas as pd
 from datetime import date, timedelta
 from akshare_data import get_minute
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+logging.getLogger("akshare_data").setLevel(logging.ERROR)
 
 
 def _last_trading_day(anchor: date | None = None) -> date:

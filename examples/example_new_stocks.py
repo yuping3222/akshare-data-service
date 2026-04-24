@@ -14,7 +14,12 @@ get_new_stocks() 接口示例
     df = service.get_new_stocks()
 """
 
+import logging
+import warnings
 import pandas as pd
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+logging.getLogger("akshare_data").setLevel(logging.ERROR)
 
 from akshare_data import get_service
 

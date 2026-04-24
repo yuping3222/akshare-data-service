@@ -9,9 +9,12 @@
 导入方式: from akshare_data import get_finance_indicator
 """
 
+import warnings
 from akshare_data import get_service
 
 from _example_utils import call_with_date_range_fallback
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 
 def example_basic_usage():

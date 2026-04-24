@@ -12,7 +12,13 @@ get_trading_days 返回指定日期范围内的所有交易日（字符串列表
     List[str] - 交易日列表，如 ["2024-01-02", "2024-01-03", ...]
 """
 
+import logging
+import warnings
 from datetime import date, timedelta
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+logging.getLogger("akshare_data").setLevel(logging.ERROR)
+
 from akshare_data import get_trading_days
 
 

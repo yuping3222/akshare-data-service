@@ -19,7 +19,12 @@ get_fund_open_daily() 接口示例
 - 采用 Cache-First 策略，后续请求会直接返回缓存数据
 """
 
+import logging
+import warnings
 import pandas as pd
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+logging.getLogger("akshare_data").setLevel(logging.ERROR)
 
 from akshare_data import get_service
 

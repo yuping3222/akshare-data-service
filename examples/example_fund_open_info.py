@@ -20,7 +20,12 @@ get_fund_open_info() 接口示例
 - 数据会缓存到本地，重复查询速度快
 """
 
+import logging
+import warnings
 import pandas as pd
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+logging.getLogger("akshare_data").setLevel(logging.ERROR)
 
 from akshare_data import get_service
 

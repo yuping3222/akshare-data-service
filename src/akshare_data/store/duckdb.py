@@ -430,7 +430,12 @@ class DuckDBEngine:
         return " AND ".join(conditions)
 
     def _looks_like_date(self, value: str) -> bool:
-        return bool(re.match(r"^\d{4}-\d{2}-\d{2}$", value))
+        # Accept either plain YYYY-MM-DD or a full ISO-ish timestamp so
+        # minute/intraday range filters (``"2024-01-02 09:30:00"``) are
+        # rendered as date-comparison SQL rather than an ``IN (...)`` list.
+        return bool(
+            re.match(r"^\d{4}-\d{2}-\d{2}(?:[ T]\d{2}:\d{2}(?::\d{2})?)?$", value)
+        )
 
     def _build_sql(
         self,

@@ -78,6 +78,41 @@ tables:
       volume: float64
       open_interest: float64
 
+  futures_spot:
+    partition_by: date
+    ttl_hours: 0
+    primary_key: [symbol, date]
+    aggregation_enabled: true
+    compaction_threshold: 20
+    priority: P1
+    storage_layer: daily
+    schema:
+      symbol: string
+      date: date
+      price: float64
+      open: float64
+      high: float64
+      low: float64
+      prev_close: float64
+      volume: float64
+      open_interest: float64
+      change: float64
+      pct_change: float64
+
+  futures_main_contracts:
+    partition_by: null
+    ttl_hours: 24
+    primary_key: [symbol]
+    aggregation_enabled: false
+    compaction_threshold: 0
+    priority: P1
+    storage_layer: snapshot
+    schema:
+      symbol: string
+      name: string
+      exchange: string
+      variety: string
+
   conversion_bond_daily:
     partition_by: date
     ttl_hours: 0
@@ -236,6 +271,21 @@ tables:
       ps: float64
       market_cap: float64
       circulating_cap: float64
+
+  index_valuation:
+    partition_by: date
+    ttl_hours: 0
+    primary_key: [index_code, date]
+    aggregation_enabled: true
+    compaction_threshold: 20
+    priority: P1
+    storage_layer: daily
+    schema:
+      index_code: string
+      date: date
+      pe: float64
+      pb: float64
+      dividend_yield: float64
 
   unlock:
     partition_by: announce_date

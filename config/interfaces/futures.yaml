@@ -125,6 +125,24 @@ futures_realtime:
         change: "float"
         pct_change: "float"
 
+futures_spot:
+  name: "futures_spot"
+  category: "futures"
+  description: "期货现货实时行情（服务统一命名）"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_sina"
+      func: "futures_zh_spot"
+      enabled: true
+      input_mapping: {}
+      output_mapping: {}
+
 futures_main_contracts:
   name: "futures_main_contracts"
   category: "futures"

@@ -178,6 +178,12 @@ fields:
     unit: pct
     aliases: [turn]
 
+  amplitude:
+    type: double
+    description: 振幅
+    unit: pct
+    aliases: []
+
   # ---- 估值比率 ----
   pe_ratio_ttm:
     type: double

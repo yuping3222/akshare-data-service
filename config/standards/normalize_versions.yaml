@@ -35,6 +35,13 @@ datasets:
             effective_from: '2026-04-22'
             changed_from: null
             change_reason: "Initial mapping — akshare_em + akshare_sina"
+      akshare_eastmoney:
+        current_version: v1
+        versions:
+          v1:
+            mapping_version: v1
+            current: true
+            effective_from: '2026-04-22'
       lixinger:
         current_version: v1
         versions:

@@ -129,6 +129,12 @@ fields:
     unit: pct
     required: false
 
+  amplitude:
+    type: double
+    description: 振幅
+    unit: pct
+    required: false
+
 # ---------------------------------------------------------------------------
 # 系统字段（所有 Standardized / Served 数据集统一）
 # ---------------------------------------------------------------------------

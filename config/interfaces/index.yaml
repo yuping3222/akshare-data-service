@@ -91,3 +91,23 @@ index_list:
       input_mapping:
         symbol: "symbol"
       output_mapping: {}
+
+index_valuation:
+  name: "index_valuation"
+  category: "index"
+  description: "指数估值数据"
+
+  input:
+    - {name: "index_code", type: "str", required: true, desc: "指数代码，如 H30374"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_csindex"
+      func: "stock_zh_index_value_csindex"
+      enabled: true
+      input_mapping:
+        index_code: "symbol"
+      output_mapping: {}

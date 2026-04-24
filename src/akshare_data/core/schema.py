@@ -229,6 +229,45 @@ FUTURES_DAILY = CacheTable(
     storage_layer="daily",
 )
 
+FUTURES_SPOT = CacheTable(
+    name="futures_spot",
+    partition_by="date",
+    ttl_hours=0,
+    schema={
+        "symbol": "string",
+        "date": "date",
+        "price": "float64",
+        "open": "float64",
+        "high": "float64",
+        "low": "float64",
+        "prev_close": "float64",
+        "volume": "float64",
+        "open_interest": "float64",
+        "change": "float64",
+        "pct_change": "float64",
+    },
+    primary_key=["symbol", "date"],
+    storage_layer="daily",
+    priority="P1",
+)
+
+FUTURES_MAIN_CONTRACTS = CacheTable(
+    name="futures_main_contracts",
+    partition_by=None,
+    ttl_hours=24,
+    schema={
+        "symbol": "string",
+        "name": "string",
+        "exchange": "string",
+        "variety": "string",
+    },
+    primary_key=["symbol"],
+    aggregation_enabled=False,
+    compaction_threshold=0,
+    storage_layer="snapshot",
+    priority="P1",
+)
+
 CONVERSION_BOND_DAILY = CacheTable(
     name="conversion_bond_daily",
     partition_by="date",
@@ -395,6 +434,22 @@ VALUATION = CacheTable(
     primary_key=["symbol", "date"],
     priority="P1",
     storage_layer="daily",
+)
+
+INDEX_VALUATION = CacheTable(
+    name="index_valuation",
+    partition_by="date",
+    ttl_hours=0,
+    schema={
+        "index_code": "string",
+        "date": "date",
+        "pe": "float64",
+        "pb": "float64",
+        "dividend_yield": "float64",
+    },
+    primary_key=["index_code", "date"],
+    storage_layer="daily",
+    priority="P1",
 )
 
 UNLOCK = CacheTable(
@@ -1383,6 +1438,8 @@ _DEFAULT_TABLES = (
     ETF_DAILY,
     INDEX_DAILY,
     FUTURES_DAILY,
+    FUTURES_SPOT,
+    FUTURES_MAIN_CONTRACTS,
     CONVERSION_BOND_DAILY,
     INDEX_COMPONENTS,
     INDEX_WEIGHTS,
@@ -1393,6 +1450,7 @@ _DEFAULT_TABLES = (
     HOLDER,
     DIVIDEND,
     VALUATION,
+    INDEX_VALUATION,
     UNLOCK,
     SPOT_SNAPSHOT,
     SECTOR_FLOW_SNAPSHOT,

@@ -48,12 +48,12 @@ class CNStockQuoteAPI:
         source: Optional[Union[str, List[str]]] = None,
     ) -> pd.DataFrame:
         sym = normalize_symbol(symbol)
-        where = {"date": date} if date else None
+        where = {"symbol": sym}
+        if date:
+            where["date"] = date
         result = self.service._served.query(
             table="call_auction",
             where=where,
-            partition_by="symbol",
-            partition_value=sym,
         )
         return result.data
 

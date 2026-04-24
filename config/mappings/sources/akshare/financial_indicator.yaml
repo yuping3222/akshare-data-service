@@ -31,6 +31,9 @@ sub_sources:
   akshare_em:
     description: "东方财富源 (stock_financial_analysis_indicator)"
     fields:
+      日期:
+        standard_field: report_date
+        status: active
       报告日期:
         standard_field: report_date
         status: active
@@ -61,6 +64,9 @@ sub_sources:
 # Default fallback — used when sub_source is not specified
 # ---------------------------------------------------------------------------
 fields:
+  日期:
+    standard_field: report_date
+    status: active
   报告日期:
     standard_field: report_date
     status: active

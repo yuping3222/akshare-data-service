@@ -675,6 +675,7 @@ finance_indicator:
 
   input:
     - {name: "symbol", type: "str", required: true, desc: "股票代码，如 600519"}
+    - {name: "start_date", type: "date", required: false, desc: "起始日期，用于推导 start_year"}
     - {name: "start_year", type: "str", required: false, default: "2024", desc: "起始年份，如 2024"}
 
   output:
@@ -695,9 +696,11 @@ finance_indicator:
       enabled: true
       input_mapping:
         symbol: "symbol"
-        start_year: "start_year"
+        start_date: "start_year"
+      param_transforms:
+        start_date: "YYYY"
       output_mapping:
-        报告日期: "report_date"
+        日期: "report_date"
         基本每股收益: "basic_eps"
         加权净资产收益率: "roe"
         销售净利率: "net_profit_margin"
@@ -745,7 +748,7 @@ income_statement:
   description: "利润表"
 
   input:
-    - {name: "date", type: "date", required: false, default: "20240331", desc: "报告日期 YYYYMMDD"}
+    - {name: "symbol", type: "str", required: true, desc: "股票代码，如 600519"}
 
   output: []
 
@@ -753,10 +756,12 @@ income_statement:
 
   sources:
     - name: "akshare_em"
-      func: "stock_lrb_em"
+      func: "stock_profit_sheet_by_report_em"
       enabled: true
       input_mapping:
-        date: "date"
+        symbol: "symbol"
+      param_transforms:
+        symbol: "prepend_prefix:SH/SZ"
       output_mapping: {}
 
 cash_flow:
@@ -765,7 +770,7 @@ cash_flow:
   description: "现金流量表"
 
   input:
-    - {name: "date", type: "date", required: false, default: "20240331", desc: "报告日期 YYYYMMDD"}
+    - {name: "symbol", type: "str", required: true, desc: "股票代码，如 600519"}
 
   output: []
 
@@ -773,10 +778,12 @@ cash_flow:
 
   sources:
     - name: "akshare_em"
-      func: "stock_xjll_em"
+      func: "stock_cash_flow_sheet_by_report_em"
       enabled: true
       input_mapping:
-        date: "date"
+        symbol: "symbol"
+      param_transforms:
+        symbol: "prepend_prefix:SH/SZ"
       output_mapping: {}
 
 # ── 个股信息 ─────────────────────────────────────────────
@@ -1301,7 +1308,7 @@ equity_pledge_rank:
 call_auction:
   name: "call_auction"
   category: "equity"
-  description: "集合竞价数据"
+  description: "集合竞价数据（AkShare 暂无稳定对应接口）"
 
   input:
     - {name: "symbol", type: "str", required: true}
@@ -1313,7 +1320,7 @@ call_auction:
   sources:
     - name: "akshare_em"
       func: "stock_bid_ask_em"
-      enabled: true
+      enabled: false
       input_mapping:
         symbol: "symbol"
       output_mapping: {}

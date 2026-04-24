@@ -354,8 +354,7 @@ class DataService(LegacySourceAdapterMixin):
         code = normalize_symbol(index_code)
         result = self._served.query(
             table="index_valuation",
-            partition_by="index_code",
-            partition_value=code,
+            where={"index_code": code},
         )
         return result.data
 
@@ -1016,11 +1015,10 @@ class DataService(LegacySourceAdapterMixin):
         where = {}
         if start_date and end_date:
             where["date"] = (start_date, end_date)
+        where["symbol"] = sym
         result = self._served.query(
             table="conversion_bond_daily",
             where=where or None,
-            partition_by="symbol",
-            partition_value=sym,
         )
         return result.data
 
@@ -1044,8 +1042,7 @@ class DataService(LegacySourceAdapterMixin):
         sym = normalize_symbol(symbol)
         result = self._served.query(
             table="option_daily",
-            partition_by="symbol",
-            partition_value=sym,
+            where={"symbol": sym},
         )
         return result.data
 
@@ -1091,6 +1088,12 @@ class DataService(LegacySourceAdapterMixin):
         self, source: Optional[Union[str, List[str]]] = None
     ) -> pd.DataFrame:
         result = self._served.query(table="futures_spot")
+        return result.data
+
+    def get_futures_main_contracts(
+        self, source: Optional[Union[str, List[str]]] = None
+    ) -> pd.DataFrame:
+        result = self._served.query(table="futures_main_contracts")
         return result.data
 
     def get_spot_em(

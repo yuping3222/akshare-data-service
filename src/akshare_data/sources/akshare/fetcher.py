@@ -318,6 +318,13 @@ def _transform_param(value: Any, transform: str) -> Any:
     if value is None:
         return None
 
+    if transform == "YYYY":
+        if isinstance(value, (datetime, date, pd.Timestamp)):
+            return value.strftime("%Y")
+        if isinstance(value, str):
+            return str(value).replace("/", "-").split("-")[0]
+        return str(value)[:4]
+
     if transform == "YYYYMMDD":
         if isinstance(value, (datetime, date, pd.Timestamp)):
             return value.strftime("%Y%m%d")

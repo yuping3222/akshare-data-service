@@ -47,3 +47,43 @@ convert_bond_spot:
       func: "bond_zh_hs_cov_spot"
       enabled: true
       output_mapping: {}
+
+conversion_bond_daily:
+  name: "conversion_bond_daily"
+  category: "bond"
+  description: "可转债日线行情"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "可转债代码，如 sz123124"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "bond_zh_hs_cov_daily"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+bond_zh_cov_daily:
+  name: "bond_zh_cov_daily"
+  category: "bond"
+  description: "可转债日线行情（兼容别名，实际调用 bond_zh_hs_cov_daily）"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "可转债代码，如 sz123124"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "bond_zh_hs_cov_daily"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}

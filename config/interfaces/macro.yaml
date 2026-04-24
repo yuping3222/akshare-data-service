@@ -24,6 +24,7 @@ macro_cpi:
       column_types:
         date: "date"
 
+  cache_table: macro_data
 macro_gdp:
   name: "macro_gdp"
   category: "macro"
@@ -70,6 +71,7 @@ macro_pmi:
       column_types:
         date: "date"
 
+  cache_table: macro_data
 macro_lpr:
   name: "macro_lpr"
   category: "macro"
@@ -97,6 +99,7 @@ macro_lpr:
         one_year: "float"
         five_year: "float"
 
+  cache_table: macro_data
 macro_ppi:
   name: "macro_ppi"
   category: "macro"
@@ -121,6 +124,7 @@ macro_ppi:
         date: "date"
         ppi: "float"
 
+  cache_table: macro_data
 macro_m2:
   name: "macro_m2"
   category: "macro"
@@ -145,8 +149,9 @@ macro_m2:
         date: "date"
         m2: "float"
 
-macro_shibor:
-  name: "macro_shibor"
+  cache_table: macro_data
+shibor_rate:
+  name: "shibor_rate"
   category: "macro"
   description: "上海银行间同业拆放利率(Shibor)"
 
@@ -190,8 +195,10 @@ macro_shibor:
         9m: "float"
         1y: "float"
 
-macro_social_financing:
-  name: "macro_social_financing"
+  aliases:
+    - macro_shibor
+social_financing:
+  name: "social_financing"
   category: "macro"
   description: "中国社会融资规模数据"
 
@@ -214,6 +221,8 @@ macro_social_financing:
         date: "date"
         total_amount: "float"
 
+  aliases:
+    - macro_social_financing
 macro_exchange_rate:
   name: "macro_exchange_rate"
   category: "macro"

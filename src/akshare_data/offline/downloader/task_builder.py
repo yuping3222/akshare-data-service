@@ -6,6 +6,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
+from akshare_data.core.config_cache import ConfigCache
 from akshare_data.core.schema import get_table_schema
 
 logger = logging.getLogger("akshare_data")
@@ -29,56 +30,64 @@ class TaskBuilder:
     """下载任务构建器"""
 
     DATE_PARAMS = {"start_date", "end_date", "start", "end", "begin", "finish"}
-    # 离线下载接口名 -> 缓存层 legacy 表名
-    # 目的：写入表名与 core/schema.py 保持一致，避免接口名直接落盘导致 Served 层读不到。
-    INTERFACE_TABLE_ALIASES = {
-        "equity_daily": "stock_daily",
-        "equity_minute": "stock_minute",
-        "equity_realtime": "spot_snapshot",
-        "stock_zh_a_spot_em": "spot_snapshot",
-        "north_money_flow": "north_flow",
-        "trading_days": "trade_calendar",
-        "tool_trade_date_hist_sina": "trade_calendar",
-        "securities_list": "securities",
-        "security_info": "company_info",
-        "industry_stocks": "industry_components",
-        "concept_stocks": "concept_components",
-        "insider_trading": "insider_trade",
-        "shareholder_changes": "holding_change",
-        "capital_change": "share_change",
-        "management_info": "company_management",
-        "macro_shibor": "shibor_rate",
-        "macro_social_financing": "social_financing",
-        "macro_cpi": "macro_data",
-        "macro_pmi": "macro_data",
-        "macro_lpr": "macro_data",
-        "macro_ppi": "macro_data",
-        "macro_m2": "macro_data",
-        "fof_list": "fof_fund",
-        "lof_list": "lof_fund",
-        "sector_fund_flow": "sector_flow_snapshot",
-        "repurchase_data": "repurchase",
-        "dividend_data": "dividend",
-        "dividend_by_date": "dividend",
-        "financial_metrics": "valuation",
-        "northbound_top_stocks": "hsgt_hold_snapshot",
-        "balance_sheet": "financial_report",
-        "income_statement": "financial_report",
-        "cash_flow": "financial_report",
-        "finance_indicator": "financial_benefit",
-        "fund_open_info": "fund_portfolio",
-        "margin_data": "margin_detail",
-        "restricted_release": "unlock",
-        "restricted_release_detail": "unlock",
-        "goodwill_data": "goodwill",
-    }
+
+    # Deprecated hard-coded aliases (kept empty for backward compatibility only).
+    # Cache table resolution now reads the `cache_table` field from
+    # config/interfaces/*.yaml, falling back to the interface name itself.
+    # This map is preserved for test doubles that patch it; new mappings MUST
+    # go into YAML as `cache_table: <table>`.
+    INTERFACE_TABLE_ALIASES: Dict[str, str] = {}
 
     @classmethod
     def _resolve_cache_table(cls, interface_name: str) -> str:
+        """Resolve the cache table name for an interface.
+
+        Lookup order:
+        1. The interface's explicit `cache_table` field in YAML.
+        2. The interface's `name` field (canonical key after rename) — used when
+           `interface_name` is an alias of a renamed interface.
+        3. The interface name itself (if it matches a registered schema).
+        4. The legacy INTERFACE_TABLE_ALIASES map (kept empty; reserved for
+           tests that still patch it).
+        """
+        try:
+            interfaces = cls._load_interfaces_safe()
+        except Exception:
+            interfaces = {}
+        iface = interfaces.get(interface_name) if isinstance(interfaces, dict) else None
+        if isinstance(iface, dict):
+            explicit = iface.get("cache_table")
+            if explicit and get_table_schema(explicit) is not None:
+                return explicit
+            canonical = iface.get("name")
+            if (
+                canonical
+                and canonical != interface_name
+                and get_table_schema(canonical) is not None
+            ):
+                return canonical
+
+        if get_table_schema(interface_name) is not None:
+            return interface_name
+
         aliased = cls.INTERFACE_TABLE_ALIASES.get(interface_name)
         if aliased and get_table_schema(aliased) is not None:
             return aliased
         return interface_name
+
+    @staticmethod
+    def _load_interfaces_safe() -> Dict[str, Any]:
+        """Load interface definitions including alias-expanded entries.
+
+        Uses fetcher._load_interfaces() so that declarative `aliases` in
+        config/interfaces/*.yaml are honored and old interface names resolve
+        to the renamed canonical entries.
+        """
+        try:
+            from akshare_data.sources.akshare.fetcher import _load_interfaces
+            return _load_interfaces()
+        except Exception:
+            return ConfigCache.load_interfaces()
 
     def build_tasks(
         self,

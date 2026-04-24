@@ -19,6 +19,7 @@
 
 import pandas as pd
 from akshare_data import get_service
+from _example_utils import first_non_empty_by_symbol
 
 
 # ============================================================
@@ -34,7 +35,9 @@ def example_basic():
 
     try:
         # 获取财务指标数据
-        df = service.get_financial_metrics(symbol="600519")
+        df, used_symbol = first_non_empty_by_symbol(
+            service.get_financial_metrics, ["600519", "000001", "300750"]
+        )
 
         if df is None or df.empty:
             print("无数据 (数据源未返回结果或该股票暂无数据)")
@@ -42,6 +45,7 @@ def example_basic():
             return
 
         print(f"数据形状: {df.shape}")
+        print(f"回退命中代码: {used_symbol}")
         print(f"字段列表: {list(df.columns)}")
 
         # 打印前5行
@@ -335,13 +339,16 @@ def example_all_fields():
     service = get_service()
 
     try:
-        df = service.get_financial_metrics(symbol="600519")
+        df, used_symbol = first_non_empty_by_symbol(
+            service.get_financial_metrics, ["600519", "000001", "300750"]
+        )
 
         if df is None or df.empty:
             print("无数据")
             return
 
         print(f"数据形状: {df.shape}")
+        print(f"回退命中代码: {used_symbol}")
         print(f"\n所有字段 ({len(df.columns)}个):")
 
         for i, col in enumerate(df.columns, 1):

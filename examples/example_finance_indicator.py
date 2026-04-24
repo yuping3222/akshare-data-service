@@ -10,6 +10,9 @@
 """
 
 import pandas as pd
+from akshare_data import get_service
+
+from _example_utils import call_with_date_range_fallback
 
 
 def example_basic_usage():
@@ -18,12 +21,18 @@ def example_basic_usage():
     print("示例1: 获取贵州茅台(600519)的全部财务指标")
     print("=" * 60)
 
-    from akshare_data import get_finance_indicator
-
-    df = get_finance_indicator(symbol="600519")
+    service = get_service()
+    df, used_end = call_with_date_range_fallback(
+        service,
+        service.get_finance_indicator,
+        symbol="600519",
+        max_backtrack=10,
+        window_days=365,
+    )
     if df.empty:
         print("无数据")
         return
+    print(f"使用结束日期回退到: {used_end}")
 
     print(f"数据形状: {df.shape}")
     print(f"列名: {list(df.columns)}")
@@ -37,16 +46,18 @@ def example_with_date_range():
     print("示例2: 获取比亚迪(002594) 2023年的财务指标")
     print("=" * 60)
 
-    from akshare_data import get_finance_indicator
-
-    df = get_finance_indicator(
+    service = get_service()
+    df, used_end = call_with_date_range_fallback(
+        service,
+        service.get_finance_indicator,
         symbol="002594",
-        start_date="2023-01-01",
-        end_date="2023-12-31",
+        max_backtrack=10,
+        window_days=365,
     )
     if df.empty:
         print("无数据")
         return
+    print(f"使用结束日期回退到: {used_end}")
 
     print(f"数据形状: {df.shape}")
     print("\n数据内容:")
@@ -59,16 +70,18 @@ def example_recent_quarters():
     print("示例3: 获取宁德时代(300750)最近两年的财务指标")
     print("=" * 60)
 
-    from akshare_data import get_finance_indicator
-
-    df = get_finance_indicator(
+    service = get_service()
+    df, used_end = call_with_date_range_fallback(
+        service,
+        service.get_finance_indicator,
         symbol="300750",
-        start_date="2024-01-01",
-        end_date="2024-12-31",
+        max_backtrack=10,
+        window_days=730,
     )
     if df.empty:
         print("无数据")
         return
+    print(f"使用结束日期回退到: {used_end}")
 
     print(f"数据形状: {df.shape}")
     print("\n数据内容:")
@@ -81,21 +94,22 @@ def example_multiple_stocks():
     print("示例4: 批量获取多只银行股的财务指标")
     print("=" * 60)
 
-    from akshare_data import get_finance_indicator
-
     symbols = ["600036", "601166", "600000"]
+    service = get_service()
 
     for symbol in symbols:
         print(f"\n--- 获取 {symbol} 的财务指标 ---")
-        df = get_finance_indicator(
+        df, used_end = call_with_date_range_fallback(
+            service,
+            service.get_finance_indicator,
             symbol=symbol,
-            start_date="2024-01-01",
-            end_date="2024-12-31",
+            max_backtrack=10,
+            window_days=365,
         )
         if df.empty:
             print(f"  {symbol}: 无数据")
         else:
-            print(f"  数据形状: {df.shape}")
+            print(f"  数据形状: {df.shape} (回退结束日期: {used_end})")
             print(f"  最新数据:")
             print(df.tail(1).to_string(index=False))
 
@@ -106,16 +120,18 @@ def example_analyze_metrics():
     print("示例5: 分析平安银行(000001)的PE/PB变化趋势")
     print("=" * 60)
 
-    from akshare_data import get_finance_indicator
-
-    df = get_finance_indicator(
+    service = get_service()
+    df, used_end = call_with_date_range_fallback(
+        service,
+        service.get_finance_indicator,
         symbol="000001",
-        start_date="2020-01-01",
-        end_date="2024-12-31",
+        max_backtrack=10,
+        window_days=1825,
     )
     if df.empty:
         print("无数据")
         return
+    print(f"使用结束日期回退到: {used_end}")
 
     print(f"数据形状: {df.shape}")
     print("\n所有数据:")

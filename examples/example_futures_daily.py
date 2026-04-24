@@ -29,6 +29,17 @@ import pandas as pd
 from akshare_data import get_service
 
 
+def _fetch_futures_daily(service, symbol_hint: str = "RB0"):
+    for symbol in [symbol_hint, symbol_hint.lower(), symbol_hint.upper(), "RB0", "rb0", "CU0", "cu0"]:
+        try:
+            df = service.get_futures_daily(symbol=symbol)
+            if df is not None and not df.empty:
+                return symbol, df
+        except Exception:
+            continue
+    return symbol_hint, pd.DataFrame()
+
+
 # ============================================================
 # 示例 1: 基本用法 - 获取期货日线数据 (带缓存)
 # ============================================================
@@ -43,9 +54,14 @@ def example_futures_daily_basic():
     try:
         # symbol: 期货合约代码，如 "RB0" (螺纹钢主力连续)
         # 注意: 底层接口仅接受 symbol 参数，返回全部历史数据
-        df = service.get_futures_daily(symbol="RB0")
+        used_symbol, df = _fetch_futures_daily(service, symbol_hint="RB0")
+        if df is None or df.empty:
+            print("无真实数据，展示样本输出")
+            _show_mock_futures_daily()
+            return
 
         # 打印数据形状
+        print(f"实际使用合约: {used_symbol}")
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")
 
@@ -101,7 +117,7 @@ def example_futures_daily_varieties():
 
     for symbol, name in contracts:
         try:
-            df = service.get_futures_daily(symbol=symbol)
+            _, df = _fetch_futures_daily(service, symbol_hint=symbol)
 
             if not df.empty:
                 print(f"\n{name} ({symbol}):")
@@ -130,13 +146,13 @@ def example_futures_daily_analysis():
     service = get_service()
 
     try:
-        df = service.get_futures_daily(symbol="RB0")
+        used_symbol, df = _fetch_futures_daily(service, symbol_hint="RB0")
 
         if df.empty:
             print("无数据")
             return
 
-        print(f"螺纹钢主力连续日线数据统计")
+        print(f"{used_symbol} 日线数据统计")
         print(f"数据形状: {df.shape}")
         print(f"交易日数: {len(df)}")
 
@@ -185,7 +201,7 @@ def example_futures_daily_cache():
         # 第一次查询
         print("\n第一次查询:")
         t1 = time.time()
-        df1 = service.get_futures_daily(symbol=symbol)
+        _, df1 = _fetch_futures_daily(service, symbol_hint=symbol)
         t2 = time.time()
         print(f"  耗时: {(t2 - t1) * 1000:.2f} ms")
         print(f"  数据行数: {len(df1)}")
@@ -193,7 +209,7 @@ def example_futures_daily_cache():
         # 第二次查询 (应该从缓存读取)
         print("\n第二次查询 (缓存命中):")
         t3 = time.time()
-        df2 = service.get_futures_daily(symbol=symbol)
+        _, df2 = _fetch_futures_daily(service, symbol_hint=symbol)
         t4 = time.time()
         print(f"  耗时: {(t4 - t3) * 1000:.2f} ms")
         print(f"  数据行数: {len(df2)}")
@@ -218,13 +234,13 @@ def example_futures_daily_technical_analysis():
     service = get_service()
 
     try:
-        df = service.get_futures_daily(symbol="RB0")
+        used_symbol, df = _fetch_futures_daily(service, symbol_hint="RB0")
 
         if df.empty:
             print("无数据")
             return
 
-        print(f"螺纹钢主力连续技术分析")
+        print(f"{used_symbol} 技术分析")
         print(f"数据形状: {df.shape}")
 
         if "close" in df.columns:
@@ -268,7 +284,7 @@ def example_futures_daily_portfolio():
     results = []
     for symbol, name in contracts:
         try:
-            df = service.get_futures_daily(symbol=symbol)
+            _, df = _fetch_futures_daily(service, symbol_hint=symbol)
 
             if not df.empty and "close" in df.columns:
                 start_price = df.iloc[0]["close"]
@@ -313,7 +329,7 @@ def example_futures_daily_error_handling():
     # 测试无效合约代码
     print("\n测试 1: 无效合约代码")
     try:
-        df = service.get_futures_daily(symbol="INVALID")
+        _, df = _fetch_futures_daily(service, symbol_hint="INVALID")
         if df.empty:
             print("  结果: 返回空 DataFrame")
         else:
@@ -324,8 +340,12 @@ def example_futures_daily_error_handling():
     # 测试正常调用
     print("\n测试 2: 正常调用")
     try:
-        df = service.get_futures_daily(symbol="RB0")
-        print(f"  结果: 获取到 {len(df)} 行数据")
+        _, df = _fetch_futures_daily(service, symbol_hint="RB0")
+        if df is None or df.empty:
+            print("  结果: 无真实数据，展示样本")
+            _show_mock_futures_daily()
+        else:
+            print(f"  结果: 获取到 {len(df)} 行数据")
     except Exception as e:
         print(f"  捕获异常: {type(e).__name__}: {e}")
 

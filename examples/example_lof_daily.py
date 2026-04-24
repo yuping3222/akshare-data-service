@@ -22,7 +22,26 @@ get_lof_daily() 接口示例
 - 数据包含 K 线信息 (open/high/low/close/volume)
 """
 
+from datetime import date, timedelta
+
+import pandas as pd
+
 from akshare_data import get_service
+
+
+def _as_dataframe(data, label: str) -> pd.DataFrame:
+    if not isinstance(data, pd.DataFrame):
+        print(f"{label}: 返回类型异常，期望 DataFrame，实际 {type(data).__name__}")
+        return pd.DataFrame()
+    if data.empty:
+        print(f"{label}: 返回空数据")
+    return data
+
+
+def _recent_date_range(days: int) -> tuple[str, str]:
+    end = date.today() - timedelta(days=1)
+    start = end - timedelta(days=days)
+    return start.isoformat(), end.isoformat()
 
 
 # ============================================================
@@ -40,14 +59,14 @@ def example_basic():
         # symbol: LOF基金代码
         # start_date: 起始日期
         # end_date: 结束日期
-        df = service.get_lof_daily(
+        start_date, end_date = _recent_date_range(120)
+        df = _as_dataframe(service.get_lof_daily(
             symbol="162605",
-            start_date="2024-01-01",
-            end_date="2024-03-31",
-        )
+            start_date=start_date,
+            end_date=end_date,
+        ), "示例1")
 
-        if df is None or df.empty:
-            print("无数据 (数据源未返回结果，可能是网络问题或基金代码不存在)")
+        if df.empty:
             return
 
         # 打印数据形状
@@ -86,13 +105,14 @@ def example_multiple_lofs():
 
     for code, name in lofs:
         try:
-            df = service.get_lof_daily(
+            start_date, end_date = _recent_date_range(30)
+            df = _as_dataframe(service.get_lof_daily(
                 symbol=code,
-                start_date="2024-06-01",
-                end_date="2024-06-30",
-            )
+                start_date=start_date,
+                end_date=end_date,
+            ), f"示例2-{code}")
 
-            if df is not None and not df.empty:
+            if not df.empty:
                 print(f"\n{name} ({code}):")
                 print(f"  数据行数: {len(df)}")
 
@@ -122,17 +142,17 @@ def example_long_term_trend():
     service = get_service()
 
     try:
-        df = service.get_lof_daily(
+        start_date, end_date = _recent_date_range(365)
+        df = _as_dataframe(service.get_lof_daily(
             symbol="162605",
-            start_date="2023-01-01",
-            end_date="2023-12-31",
-        )
+            start_date=start_date,
+            end_date=end_date,
+        ), "示例3")
 
-        if df is None or df.empty:
-            print("无数据")
+        if df.empty:
             return
 
-        print(f"景顺长城鼎益 (162605) 2023年全年日线数据")
+        print("景顺长城鼎益 (162605) 最近一年日线数据")
         print(f"数据形状: {df.shape}")
         print(f"全年交易日数: {len(df)}")
 
@@ -170,14 +190,14 @@ def example_technical_indicators():
     service = get_service()
 
     try:
-        df = service.get_lof_daily(
+        start_date, end_date = _recent_date_range(180)
+        df = _as_dataframe(service.get_lof_daily(
             symbol="162605",
-            start_date="2024-01-01",
-            end_date="2024-06-30",
-        )
+            start_date=start_date,
+            end_date=end_date,
+        ), "示例4")
 
-        if df is None or df.empty:
-            print("无数据")
+        if df.empty:
             return
 
         print(f"数据形状: {df.shape}")
@@ -191,9 +211,10 @@ def example_technical_indicators():
 
         if close_col and close_col in df.columns:
             # 计算5日、10日、20日移动平均线
-            df["ma5"] = df[close_col].rolling(window=5).mean()
-            df["ma10"] = df[close_col].rolling(window=10).mean()
-            df["ma20"] = df[close_col].rolling(window=20).mean()
+            close_series = pd.to_numeric(df[close_col], errors="coerce")
+            df["ma5"] = close_series.rolling(window=5).mean()
+            df["ma10"] = close_series.rolling(window=10).mean()
+            df["ma20"] = close_series.rolling(window=20).mean()
 
             print(f"\n移动平均线分析 (基于 {close_col}):")
             print("\n最新10个交易日数据:")
@@ -230,14 +251,14 @@ def example_volume_analysis():
     service = get_service()
 
     try:
-        df = service.get_lof_daily(
+        start_date, end_date = _recent_date_range(120)
+        df = _as_dataframe(service.get_lof_daily(
             symbol="162605",
-            start_date="2024-01-01",
-            end_date="2024-03-31",
-        )
+            start_date=start_date,
+            end_date=end_date,
+        ), "示例5")
 
-        if df is None or df.empty:
-            print("无数据")
+        if df.empty:
             return
 
         print(f"数据形状: {df.shape}")
@@ -284,24 +305,26 @@ def example_error_handling():
     service = get_service()
 
     test_cases = [
-        ("999999", "2024-01-01", "2024-01-31", "不存在的基金代码"),
-        ("", "2024-01-01", "2024-01-31", "空字符串"),
-        ("162605", "2024-12-01", "2024-12-31", "未来日期"),
+        ("999999", "不存在的基金代码"),
+        ("", "空字符串"),
+        ("162605", "近未来区间"),
     ]
 
-    for code, start, end, desc in test_cases:
+    for code, desc in test_cases:
         try:
+            if desc == "近未来区间":
+                start = (date.today() + timedelta(days=1)).isoformat()
+                end = (date.today() + timedelta(days=30)).isoformat()
+            else:
+                start, end = _recent_date_range(30)
             df = service.get_lof_daily(symbol=code, start_date=start, end_date=end)
-            if df is None or df.empty:
+            df = _as_dataframe(df, f"示例6-{code or 'EMPTY'}")
+            if df.empty:
                 print(f"{desc}: 无数据")
             else:
                 print(f"{desc}: 获取到 {len(df)} 行数据")
         except Exception as e:
             print(f"{desc}: 异常 - {type(e).__name__}: {e}")
-
-
-# 导入 pandas 用于数值转换
-import pandas as pd
 
 
 if __name__ == "__main__":

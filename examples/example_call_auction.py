@@ -8,9 +8,31 @@
 """
 
 import logging
+from datetime import date, timedelta
+
 logging.getLogger("akshare_data").setLevel(logging.ERROR)
 
 from akshare_data import get_call_auction
+
+
+def _candidate_fallback_dates(count: int = 5) -> list[str]:
+    today = date.today()
+    d = today if today.weekday() < 5 else today - timedelta(days=today.weekday() - 4)
+    out: list[str] = []
+    while len(out) < count:
+        if d.weekday() < 5 and d <= today:
+            out.append(d.strftime("%Y-%m-%d"))
+        d -= timedelta(days=1)
+    return out
+
+
+def _fetch_call_auction_with_fallback(symbol: str, target_date: str | None = None):
+    dates = [target_date] if target_date else _candidate_fallback_dates()
+    for d in dates:
+        df = get_call_auction(symbol=symbol, date=d)
+        if df is not None and not df.empty:
+            return df, d
+    return None, dates
 
 
 def example_basic_usage():
@@ -20,11 +42,13 @@ def example_basic_usage():
     print("=" * 60)
 
     try:
-        df = get_call_auction(symbol="600519")
+        df, used_date = _fetch_call_auction_with_fallback(symbol="600519")
 
         if df is None or df.empty:
             print("无数据（可能是非交易时间或数据不可用）")
+            print(f"候选回退日期: {', '.join(_candidate_fallback_dates())}")
             return
+        print(f"使用日期: {used_date}")
 
         print(f"数据形状: {df.shape}")
         print(f"列名: {list(df.columns)}")
@@ -46,12 +70,13 @@ def example_multiple_symbols():
 
     for sym in symbols:
         try:
-            df = get_call_auction(symbol=sym)
+            df, used_date = _fetch_call_auction_with_fallback(symbol=sym)
             if df is not None and not df.empty:
-                print(f"\n{sym}: {df.shape[0]} 条记录")
+                print(f"\n{sym}: {df.shape[0]} 条记录 (日期: {used_date})")
                 print(df.head(3))
             else:
                 print(f"\n{sym}: 无数据")
+                print(f"候选回退日期: {', '.join(_candidate_fallback_dates())}")
         except Exception as e:
             print(f"\n{sym}: 获取失败 - {e}")
 
@@ -63,12 +88,15 @@ def example_with_date():
     print("=" * 60)
 
     try:
-        df = get_call_auction(symbol="600519", date="20250101")
+        target_date = _candidate_fallback_dates(count=1)[0]
+        df, used_date = _fetch_call_auction_with_fallback(symbol="600519", target_date=target_date)
 
         if df is None or df.empty:
             print("无数据（指定日期可能无交易）")
+            print(f"候选回退日期: {', '.join(_candidate_fallback_dates())}")
             return
 
+        print(f"使用日期: {used_date}")
         print(f"数据形状: {df.shape}")
         print("\n数据预览:")
         print(df.head(10))
@@ -84,12 +112,14 @@ def example_analysis():
     print("=" * 60)
 
     try:
-        df = get_call_auction(symbol="600519")
+        df, used_date = _fetch_call_auction_with_fallback(symbol="600519")
 
         if df is None or df.empty:
             print("无数据")
+            print(f"候选回退日期: {', '.join(_candidate_fallback_dates())}")
             return
 
+        print(f"使用日期: {used_date}")
         print(f"总记录数: {len(df)}")
 
         # 统计成交量/额字段

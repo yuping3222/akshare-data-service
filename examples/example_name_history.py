@@ -14,6 +14,13 @@ get_name_history() 接口示例
 """
 
 from akshare_data import get_service
+from _example_utils import fetch_with_retry, normalize_symbol_input, stable_df
+
+
+def _safe_name_history(service, symbol: str):
+    code = normalize_symbol_input(symbol)
+    df = fetch_with_retry(lambda: service.get_name_history(symbol=code), retries=2)
+    return code, stable_df(df)
 
 
 # ============================================================
@@ -28,7 +35,7 @@ def example_basic():
     service = get_service()
 
     try:
-        df = service.get_name_history(symbol="600519")
+        _, df = _safe_name_history(service, "600519")
         if df is None or df.empty:
             print("无曾用名记录")
             return
@@ -57,7 +64,7 @@ def example_compare_stocks():
 
     for code in stocks:
         try:
-            df = service.get_name_history(symbol=code)
+            code, df = _safe_name_history(service, code)
             if df is None or df.empty:
                 print(f"\n{code}: 无曾用名记录")
             else:
@@ -82,7 +89,7 @@ def example_frequency():
 
     for code in stocks:
         try:
-            df = service.get_name_history(symbol=code)
+            code, df = _safe_name_history(service, code)
             if df is None or df.empty:
                 print(f"{code}: 无变更记录")
             else:
@@ -108,7 +115,7 @@ def example_stocks_with_changes():
     changed = []
     for code in stocks:
         try:
-            df = service.get_name_history(symbol=code)
+            code, df = _safe_name_history(service, code)
             if df is not None and not df.empty:
                 changed.append((code, len(df)))
         except Exception:

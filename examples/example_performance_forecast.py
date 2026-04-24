@@ -16,7 +16,10 @@ get_performance_forecast() 接口示例
     df = service.get_performance_forecast(date="20240331")
 """
 
+import pandas as pd
+
 from akshare_data import get_service
+from _example_utils import call_with_date_range_fallback
 
 
 # ============================================================
@@ -31,15 +34,18 @@ def example_basic():
     service = get_service()
 
     try:
-        # date: 报告期日期，格式 "YYYYMMDD"
-        # 常见报告期: "20240331"(Q1), "20240630"(中报), "20240930"(Q3), "20241231"(年报)
-        df = service.get_performance_forecast(date="20240331")
+        df, used_end = call_with_date_range_fallback(
+            service,
+            service.get_performance_forecast,
+            max_backtrack=10,
+            window_days=365,
+        )
 
         if df is None or df.empty:
             print("\n无数据（接口暂无可用数据源）")
             return
 
-        print(f"数据形状: {df.shape}")
+        print(f"数据形状: {df.shape} (回退结束日期: {used_end})")
         print(f"字段列表: {list(df.columns)}")
 
         if not df.empty:
@@ -63,22 +69,23 @@ def example_all_market():
 
     service = get_service()
 
-    dates = {
-        "20231231": "2023年年报",
-        "20240331": "2024年Q1",
-        "20240630": "2024年中报",
-    }
+    dates = {"最近一年窗口": 365, "最近两年窗口": 730}
 
-    for date, label in dates.items():
+    for label, window_days in dates.items():
         try:
-            df = service.get_performance_forecast(date=date)
+            df, used_end = call_with_date_range_fallback(
+                service,
+                service.get_performance_forecast,
+                max_backtrack=10,
+                window_days=window_days,
+            )
 
             if df is None:
                 print(f"\n{label}: 无数据（接口暂无可用数据源）")
                 continue
 
             if not df.empty:
-                print(f"\n{label}: 共 {len(df)} 条业绩预告")
+                print(f"\n{label}: 共 {len(df)} 条业绩预告 (回退结束日期: {used_end})")
                 print(f"字段列表: {list(df.columns)}")
                 print(df.head(3).to_string(index=False))
             else:
@@ -100,13 +107,18 @@ def example_type_statistics():
     service = get_service()
 
     try:
-        df = service.get_performance_forecast(date="20240331")
+        df, used_end = call_with_date_range_fallback(
+            service,
+            service.get_performance_forecast,
+            max_backtrack=10,
+            window_days=365,
+        )
 
         if df is None or df.empty:
             print("无数据（接口暂无可用数据源）")
             return
 
-        print(f"全市场业绩预告: {len(df)} 条")
+        print(f"全市场业绩预告: {len(df)} 条 (回退结束日期: {used_end})")
 
         # 查找预告类型字段
         type_col = None
@@ -137,7 +149,12 @@ def example_high_growth():
     service = get_service()
 
     try:
-        df = service.get_performance_forecast(date="20240331")
+        df, used_end = call_with_date_range_fallback(
+            service,
+            service.get_performance_forecast,
+            max_backtrack=10,
+            window_days=365,
+        )
 
         if df is None or df.empty:
             print("无数据（接口暂无可用数据源）")
@@ -152,9 +169,11 @@ def example_high_growth():
 
         if change_col:
             # 筛选增长超过100%的
-            df_high = df[df[change_col] > 100]
+            numeric_change = pd.to_numeric(df[change_col], errors="coerce")
+            df_high = df[numeric_change > 100]
             print(f"业绩增长超过100%的股票: {len(df_high)} 只")
             if not df_high.empty:
+                print(f"使用结束日期回退到: {used_end}")
                 print(df_high.head(10).to_string(index=False))
         else:
             print(f"字段列表: {list(df.columns)}")
@@ -177,21 +196,31 @@ def example_error_handling():
 
     try:
         print("\n测试 1: 正常报告期")
-        df = service.get_performance_forecast(date="20240331")
+        df, used_end = call_with_date_range_fallback(
+            service,
+            service.get_performance_forecast,
+            max_backtrack=10,
+            window_days=365,
+        )
         if df is None:
             print(f"  结果: 无数据（接口暂无可用数据源）")
         else:
-            print(f"  结果: {len(df)} 行数据")
+            print(f"  结果: {len(df)} 行数据 (回退结束日期: {used_end})")
     except Exception as e:
         print(f"  捕获异常: {type(e).__name__}: {e}")
 
     try:
         print("\n测试 2: 不同报告期")
-        df = service.get_performance_forecast(date="20231231")
+        df, used_end = call_with_date_range_fallback(
+            service,
+            service.get_performance_forecast,
+            max_backtrack=10,
+            window_days=730,
+        )
         if df is None:
             print(f"  结果: 无数据（接口暂无可用数据源）")
         else:
-            print(f"  结果: {len(df)} 行数据")
+            print(f"  结果: {len(df)} 行数据 (回退结束日期: {used_end})")
     except Exception as e:
         print(f"  捕获异常: {type(e).__name__}: {e}")
 

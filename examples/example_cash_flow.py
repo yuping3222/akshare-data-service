@@ -12,6 +12,7 @@ import logging
 logging.getLogger("akshare_data").setLevel(logging.ERROR)
 
 from akshare_data import get_service
+from _example_utils import first_non_empty_by_symbol
 
 
 def example_basic():
@@ -23,13 +24,16 @@ def example_basic():
     service = get_service()
 
     try:
-        df = service.get_cash_flow(symbol="600519")
+        df, used_symbol = first_non_empty_by_symbol(
+            service.get_cash_flow, ["600519", "000001", "300750"]
+        )
 
         if df is None or df.empty:
             print("无数据 (数据源未返回结果)")
             return
 
         print(f"数据形状: {df.shape}")
+        print(f"回退命中代码: {used_symbol}")
         print(f"字段列表: {list(df.columns)}")
         print("\n前5行数据:")
         print(df.head())
@@ -68,13 +72,16 @@ def example_analysis():
     service = get_service()
 
     try:
-        df = service.get_cash_flow(symbol="600519")
+        df, used_symbol = first_non_empty_by_symbol(
+            service.get_cash_flow, ["600519", "000001", "300750"]
+        )
 
         if df is None or df.empty:
             print("无数据")
             return
 
         print(f"数据形状: {df.shape}")
+        print(f"回退命中代码: {used_symbol}")
         print(f"字段数量: {len(df.columns)}")
 
         # 查找现金流相关字段
@@ -103,7 +110,9 @@ def example_error_handling():
     # 正常调用
     print("\n测试 1: 正常股票代码")
     try:
-        df = service.get_cash_flow(symbol="600519")
+        df, _ = first_non_empty_by_symbol(
+            service.get_cash_flow, ["600519", "000001", "300750"]
+        )
         if df is None or df.empty:
             print("  结果: 返回空数据")
         else:

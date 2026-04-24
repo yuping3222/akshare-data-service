@@ -14,7 +14,25 @@ get_dividend_by_date() 接口示例
     df = service.get_dividend_by_date(date="2024-06-01")
 """
 
+from datetime import date, timedelta
+import pandas as pd
 from akshare_data import get_service
+
+
+def _recent_date(service, lookback_days: int = 30) -> str:
+    """优先使用最近交易日，避免硬编码日期导致空数据。"""
+    end = date.today()
+    start = end - timedelta(days=lookback_days)
+    try:
+        days = service.get_trading_days(
+            start_date=start.strftime("%Y-%m-%d"),
+            end_date=end.strftime("%Y-%m-%d"),
+        )
+        if days:
+            return str(days[-1])[:10]
+    except Exception:
+        pass
+    return (end - timedelta(days=1)).strftime("%Y-%m-%d")
 
 
 # ============================================================
@@ -29,9 +47,9 @@ def example_basic():
     service = get_service()
 
     try:
-        # date: 日期参数，格式 "YYYY-MM-DD"
-        # 获取指定日期的全市场分红数据
-        df = service.get_dividend_by_date(date="2024-06-01")
+        query_date = _recent_date(service)
+        df = service.get_dividend_by_date(date=query_date)
+        print(f"查询日期: {query_date}")
 
         if df is None or (isinstance(df, pd.DataFrame) and df.empty):
             print("\n无数据")
@@ -84,7 +102,9 @@ def example_filter_by_symbol():
     service = get_service()
 
     try:
-        df = service.get_dividend_by_date(date="2024-06-01")
+        query_date = _recent_date(service)
+        df = service.get_dividend_by_date(date=query_date)
+        print(f"查询日期: {query_date}")
 
         if df is None or (isinstance(df, pd.DataFrame) and df.empty):
             print("无数据")
@@ -125,7 +145,9 @@ def example_statistics():
     service = get_service()
 
     try:
-        df = service.get_dividend_by_date(date="2024-06-01")
+        query_date = _recent_date(service)
+        df = service.get_dividend_by_date(date=query_date)
+        print(f"查询日期: {query_date}")
 
         if df is None or (isinstance(df, pd.DataFrame) and df.empty):
             print("无数据")
@@ -167,7 +189,9 @@ def example_error_handling():
     try:
         # 测试正常调用
         print("\n测试 2: 正常调用")
-        df = service.get_dividend_by_date(date="2024-06-01")
+        query_date = _recent_date(service)
+        df = service.get_dividend_by_date(date=query_date)
+        print(f"  使用日期: {query_date}")
         if df is None:
             print(f"  结果: None (数据不可用)")
         else:

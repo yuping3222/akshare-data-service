@@ -16,7 +16,38 @@ get_daily() 接口示例
 返回字段: symbol, date, open, high, low, close, volume, amount, adjust
 """
 
+from datetime import date, timedelta
+
 from akshare_data import get_daily
+
+
+def _last_trading_day(anchor: date | None = None) -> date:
+    """回退到最近工作日（避免周末和未来日）"""
+    d = min(anchor or date.today(), date.today())
+    while d.weekday() >= 5:
+        d -= timedelta(days=1)
+    return d
+
+
+def _date_range(trading_days: int) -> tuple[str, str]:
+    end = _last_trading_day()
+    start = end - timedelta(days=max(trading_days * 2, 7))
+    return start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
+
+
+def _candidate_fallback_dates(count: int = 5) -> list[str]:
+    d = _last_trading_day()
+    out: list[str] = []
+    while len(out) < count:
+        if d.weekday() < 5:
+            out.append(d.strftime("%Y-%m-%d"))
+        d -= timedelta(days=1)
+    return out
+
+
+def _print_empty_hint(symbol: str, start_date: str, end_date: str) -> None:
+    print(f"{symbol} 在 {start_date} ~ {end_date} 无数据。")
+    print(f"候选回退日期: {', '.join(_candidate_fallback_dates())}")
 
 
 # ============================================================
@@ -33,12 +64,11 @@ def example_basic():
         # start_date: 起始日期，格式 "YYYY-MM-DD"
         # end_date: 结束日期，格式 "YYYY-MM-DD"
         # adjust: 复权类型，默认 "qfq" (前复权)
-        df = get_daily(
-            symbol="000001",
-            start_date="2024-01-01",
-            end_date="2024-03-31",
-            adjust="qfq",
-        )
+        start, end = _date_range(60)
+        df = get_daily(symbol="000001", start_date=start, end_date=end, adjust="qfq")
+        if df is None or df.empty:
+            _print_empty_hint("000001", start, end)
+            return
 
         # 打印数据形状
         print(f"数据形状: {df.shape}")
@@ -66,15 +96,14 @@ def example_adjust_types():
     print("=" * 60)
 
     symbol = "600519"  # 贵州茅台
-    start = "2024-01-01"
-    end = "2024-01-31"
+    start, end = _date_range(25)
 
     adjust_types = ["qfq", "hfq", "none"]
 
     for adj in adjust_types:
         try:
-            df = get_daily(symbol, start, end, adjust=adj)
-            if not df.empty:
+            df = get_daily(symbol=symbol, start_date=start, end_date=end, adjust=adj)
+            if df is not None and not df.empty:
                 print(f"\n复权类型: {adj}")
                 print(f"  数据行数: {len(df)}")
                 print(
@@ -82,7 +111,7 @@ def example_adjust_types():
                 )
                 print(f"  前3行收盘价: {df['close'].head(3).tolist()}")
             else:
-                print(f"\n复权类型: {adj} - 无数据")
+                _print_empty_hint(symbol, start, end)
         except Exception as e:
             print(f"\n复权类型: {adj} - 获取失败: {e}")
 
@@ -105,13 +134,14 @@ def example_symbol_formats():
 
     for sym in symbols:
         try:
-            df = get_daily(sym, "2024-06-01", "2024-06-10")
-            if not df.empty:
+            start, end = _date_range(10)
+            df = get_daily(symbol=sym, start_date=start, end_date=end)
+            if df is not None and not df.empty:
                 print(
                     f"代码格式: {sym:15s} -> 标准化后: {df['symbol'].iloc[0]:10s}, 行数: {len(df)}"
                 )
             else:
-                print(f"代码格式: {sym:15s} -> 无数据")
+                _print_empty_hint(sym, start, end)
         except Exception as e:
             print(f"代码格式: {sym:15s} -> 获取失败: {e}")
 
@@ -126,15 +156,11 @@ def example_sz_stock():
     print("=" * 60)
 
     try:
-        df = get_daily(
-            symbol="sz000002",
-            start_date="2024-01-01",
-            end_date="2024-02-29",
-            adjust="qfq",
-        )
+        start, end = _date_range(40)
+        df = get_daily(symbol="sz000002", start_date=start, end_date=end, adjust="qfq")
 
-        if df.empty:
-            print("无数据（数据源不可用或非交易日）")
+        if df is None or df.empty:
+            _print_empty_hint("sz000002", start, end)
             return
 
         print(f"数据形状: {df.shape}")
@@ -155,10 +181,11 @@ def example_analysis():
     print("=" * 60)
 
     try:
-        df = get_daily("600036", "2024-01-01", "2024-06-30", adjust="qfq")
+        start, end = _date_range(130)
+        df = get_daily(symbol="600036", start_date=start, end_date=end, adjust="qfq")
 
-        if df.empty:
-            print("无数据")
+        if df is None or df.empty:
+            _print_empty_hint("600036", start, end)
             return
 
         # Ensure date column is tz-naive for consistent comparisons
@@ -193,15 +220,11 @@ def example_no_adjust():
     print("=" * 60)
 
     try:
-        df = get_daily(
-            symbol="000001",
-            start_date="2023-01-01",
-            end_date="2023-12-31",
-            adjust="none",
-        )
+        start, end = _date_range(250)
+        df = get_daily(symbol="000001", start_date=start, end_date=end, adjust="none")
 
-        if df.empty:
-            print("无数据（数据源不可用或非交易日）")
+        if df is None or df.empty:
+            _print_empty_hint("000001", start, end)
             return
 
         print(f"平安银行 2023年不复权日线数据")

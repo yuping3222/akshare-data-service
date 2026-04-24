@@ -21,6 +21,17 @@ get_index_valuation() 接口示例
 """
 
 from akshare_data import get_service
+def _first_non_empty_index(service, codes):
+    for code in codes:
+        try:
+            df = service.get_index_valuation(index_code=code)
+            if df is not None and not df.empty:
+                return df, code
+        except Exception:
+            continue
+    return None, None
+
+
 
 
 # ============================================================
@@ -36,7 +47,7 @@ def example_basic():
 
     try:
         # index_code: 指数代码
-        df = service.get_index_valuation(index_code="000001")
+        df, used_code = _first_non_empty_index(service, ["000001", "000300", "399001"])
 
         if df is None or df.empty:
             print("无数据")
@@ -46,6 +57,7 @@ def example_basic():
 
         # 打印数据形状
         print(f"数据形状: {df.shape}")
+        print(f"回退命中指数: {used_code}")
         print(f"字段列表: {list(df.columns)}")
 
         # 打印全部数据
@@ -186,11 +198,11 @@ def example_error_handling():
     # 测试 1: 正常获取
     print("\n测试 1: 正常获取")
     try:
-        df = service.get_index_valuation(index_code="000001")
+        df, used_code = _first_non_empty_index(service, ["000001", "000300", "399001"])
         if df is None or df.empty:
             print("  结果: 无数据 (空 DataFrame)")
         else:
-            print(f"  结果: 获取到 {len(df)} 行数据")
+            print(f"  结果: 获取到 {len(df)} 行数据 (回退指数: {used_code})")
     except Exception as e:
         print(f"  捕获异常: {type(e).__name__}: {e}")
 

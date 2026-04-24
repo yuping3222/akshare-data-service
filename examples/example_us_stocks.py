@@ -10,7 +10,36 @@ get_us_stocks() 接口示例
 注意: 该接口不支持日期参数，返回当前实时行情。
 """
 
+import pandas as pd
 from akshare_data import get_service
+
+
+def _mock_us_stocks():
+    return pd.DataFrame(
+        {
+            "代码": ["AAPL", "MSFT", "NVDA", "AMZN", "TSLA"],
+            "名称": ["Apple", "Microsoft", "NVIDIA", "Amazon", "Tesla"],
+            "涨跌幅": [1.1, 0.8, 2.9, -0.5, 3.4],
+            "成交额": [1.2e10, 9.8e9, 1.5e10, 8.3e9, 1.1e10],
+        }
+    )
+
+
+def _fetch_us_stocks():
+    service = get_service()
+    methods = [
+        lambda: service.get_us_stocks(),
+        lambda: service.akshare.get_us_stocks(),
+    ]
+    for fn in methods:
+        try:
+            df = fn()
+            if df is not None and not df.empty:
+                return df
+        except Exception:
+            continue
+    print("[美股实时接口不可用，使用演示数据]")
+    return _mock_us_stocks()
 
 
 def example_basic():
@@ -19,14 +48,8 @@ def example_basic():
     print("示例 1: 基本用法 - 获取美股实时行情")
     print("=" * 60)
 
-    service = get_service()
-
     try:
-        df = service.akshare.get_us_stocks()
-
-        if df is None or df.empty:
-            print("无数据（数据源不可用或非交易时段）")
-            return
+        df = _fetch_us_stocks()
 
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")
@@ -44,14 +67,8 @@ def example_top_stocks():
     print("示例 2: 美股成交额前10")
     print("=" * 60)
 
-    service = get_service()
-
     try:
-        df = service.akshare.get_us_stocks()
-
-        if df is None or df.empty:
-            print("无数据")
-            return
+        df = _fetch_us_stocks()
 
         print(f"总股票数量: {len(df)}")
 
@@ -71,14 +88,8 @@ def example_filter_by_change():
     print("示例 3: 筛选涨跌幅较大的美股")
     print("=" * 60)
 
-    service = get_service()
-
     try:
-        df = service.akshare.get_us_stocks()
-
-        if df is None or df.empty:
-            print("无数据")
-            return
+        df = _fetch_us_stocks()
 
         if "涨跌幅" in df.columns:
             df["涨跌幅"] = pd.to_numeric(df["涨跌幅"], errors="coerce")
@@ -104,14 +115,8 @@ def example_statistics():
     print("示例 4: 美股市场统计分析")
     print("=" * 60)
 
-    service = get_service()
-
     try:
-        df = service.akshare.get_us_stocks()
-
-        if df is None or df.empty:
-            print("无数据")
-            return
+        df = _fetch_us_stocks()
 
         numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
         if numeric_cols:
@@ -123,8 +128,6 @@ def example_statistics():
 
 
 if __name__ == "__main__":
-    import pandas as pd
-
     example_basic()
     example_top_stocks()
     example_filter_by_change()

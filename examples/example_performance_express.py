@@ -17,6 +17,7 @@ get_performance_express() 接口示例
 """
 
 from akshare_data import get_service
+from _example_utils import call_with_date_range_fallback
 
 
 # ============================================================
@@ -34,10 +35,12 @@ def example_basic():
         # symbol: 股票代码
         # start_date: 起始日期，格式 "YYYY-MM-DD"
         # end_date: 结束日期，格式 "YYYY-MM-DD"
-        df = service.get_performance_express(
+        df, used_end = call_with_date_range_fallback(
+            service,
+            service.get_performance_express,
             symbol="000001",
-            start_date="2024-01-01",
-            end_date="2024-12-31",
+            max_backtrack=10,
+            window_days=365,
         )
 
         if df is None or df.empty:
@@ -46,7 +49,7 @@ def example_basic():
             print("      请确保 LIXINGER_TOKEN 环境变量已配置")
             return
 
-        print(f"数据形状: {df.shape}")
+        print(f"数据形状: {df.shape} (回退结束日期: {used_end})")
         print(f"字段列表: {list(df.columns)}")
 
         if not df.empty:
@@ -71,9 +74,11 @@ def example_all_market():
     service = get_service()
 
     try:
-        df = service.get_performance_express(
-            start_date="2024-01-01",
-            end_date="2024-03-31",
+        df, used_end = call_with_date_range_fallback(
+            service,
+            service.get_performance_express,
+            max_backtrack=10,
+            window_days=365,
         )
 
         if df is None:
@@ -81,7 +86,7 @@ def example_all_market():
             return
 
         if not df.empty:
-            print(f"数据形状: {df.shape}")
+            print(f"数据形状: {df.shape} (回退结束日期: {used_end})")
             print(f"字段列表: {list(df.columns)}")
             print("\n前5行数据:")
             print(df.head())
@@ -111,10 +116,12 @@ def example_compare():
 
     for symbol, name in symbols:
         try:
-            df = service.get_performance_express(
+            df, used_end = call_with_date_range_fallback(
+                service,
+                service.get_performance_express,
                 symbol=symbol,
-                start_date="2024-01-01",
-                end_date="2024-12-31",
+                max_backtrack=10,
+                window_days=365,
             )
 
             if df is None:
@@ -122,7 +129,7 @@ def example_compare():
                 continue
 
             if not df.empty:
-                print(f"\n{name} ({symbol}): {len(df)} 条快报")
+                print(f"\n{name} ({symbol}): {len(df)} 条快报 (回退结束日期: {used_end})")
                 print(df.head(3).to_string(index=False))
             else:
                 print(f"\n{name} ({symbol}): 无业绩快报数据")
@@ -143,16 +150,18 @@ def example_analysis():
     service = get_service()
 
     try:
-        df = service.get_performance_express(
-            start_date="2024-01-01",
-            end_date="2024-12-31",
+        df, used_end = call_with_date_range_fallback(
+            service,
+            service.get_performance_express,
+            max_backtrack=10,
+            window_days=365,
         )
 
         if df is None or df.empty:
             print("无数据（接口暂无可用数据源）")
             return
 
-        print(f"全市场业绩快报: {len(df)} 条")
+        print(f"全市场业绩快报: {len(df)} 条 (回退结束日期: {used_end})")
         print(f"字段列表: {list(df.columns)}")
 
         # 数值列统计
@@ -178,29 +187,33 @@ def example_error_handling():
 
     try:
         print("\n测试 1: 无效股票代码")
-        df = service.get_performance_express(
+        df, used_end = call_with_date_range_fallback(
+            service,
+            service.get_performance_express,
             symbol="INVALID",
-            start_date="2024-01-01",
-            end_date="2024-12-31",
+            max_backtrack=10,
+            window_days=365,
         )
         if df is None:
             print(f"  结果: 无数据（接口暂无可用数据源）")
         else:
-            print(f"  结果: {len(df)} 行数据")
+            print(f"  结果: {len(df)} 行数据 (回退结束日期: {used_end})")
     except Exception as e:
         print(f"  捕获异常: {type(e).__name__}: {e}")
 
     try:
         print("\n测试 2: 正常调用")
-        df = service.get_performance_express(
+        df, used_end = call_with_date_range_fallback(
+            service,
+            service.get_performance_express,
             symbol="000001",
-            start_date="2024-01-01",
-            end_date="2024-12-31",
+            max_backtrack=10,
+            window_days=365,
         )
         if df is None:
             print(f"  结果: 无数据（接口暂无可用数据源）")
         else:
-            print(f"  结果: {len(df)} 行数据")
+            print(f"  结果: {len(df)} 行数据 (回退结束日期: {used_end})")
     except Exception as e:
         print(f"  捕获异常: {type(e).__name__}: {e}")
 

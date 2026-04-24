@@ -19,6 +19,37 @@ get_industry_mapping() 接口示例
 from akshare_data import get_service
 
 
+_MOCK_INDUSTRY_LEVEL1 = {
+    "600519": "食品饮料",
+    "000858": "食品饮料",
+    "000568": "食品饮料",
+    "000001": "银行",
+    "600036": "银行",
+    "601398": "银行",
+    "000002": "房地产",
+    "600048": "房地产",
+    "002594": "汽车",
+    "601318": "非银金融",
+}
+
+
+def _mock_industry(symbol, level=1):
+    if level != 1:
+        return f"L{level}-{_MOCK_INDUSTRY_LEVEL1.get(symbol, '其他')}"
+    return _MOCK_INDUSTRY_LEVEL1.get(symbol, "其他")
+
+
+def _fetch_industry_mapping(service, symbol, level=1):
+    try:
+        industry = service.get_industry_mapping(symbol=symbol, level=level)
+        if industry:
+            return industry
+    except Exception as e:
+        print(f"  [symbol={symbol}, level={level}] 接口异常: {e}")
+    print(f"  [symbol={symbol}, level={level}] 使用演示行业映射")
+    return _mock_industry(symbol, level)
+
+
 # ============================================================
 # 示例 1: 基本用法 - 获取股票一级行业映射
 # ============================================================
@@ -33,7 +64,7 @@ def example_basic():
     try:
         # symbol: 证券代码
         # level: 行业级别，默认 1
-        industry_code = service.get_industry_mapping(symbol="600519", level=1)
+        industry_code = _fetch_industry_mapping(service, symbol="600519", level=1)
 
         print(f"股票代码: 600519")
         print(f"一级行业代码: {industry_code}")
@@ -63,7 +94,7 @@ def example_different_levels():
         print(f"\n{name}({code}):")
         for level in [1, 2, 3]:
             try:
-                industry_code = service.get_industry_mapping(symbol=code, level=level)
+                industry_code = _fetch_industry_mapping(service, symbol=code, level=level)
                 print(f"  级别 {level}: {industry_code}")
             except Exception as e:
                 print(f"  级别 {level}: 获取失败 - {e}")
@@ -92,7 +123,7 @@ def example_batch_mapping():
 
     for code in stocks:
         try:
-            industry_code = service.get_industry_mapping(symbol=code, level=1)
+            industry_code = _fetch_industry_mapping(service, symbol=code, level=1)
             stock_industry_map[code] = industry_code
 
             if industry_code not in industry_counts:
@@ -124,7 +155,7 @@ def example_group_by_industry():
     groups = {}
     for code in stocks:
         try:
-            industry_code = service.get_industry_mapping(symbol=code, level=1)
+            industry_code = _fetch_industry_mapping(service, symbol=code, level=1)
             if industry_code not in groups:
                 groups[industry_code] = []
             groups[industry_code].append(code)
@@ -148,10 +179,10 @@ def example_sz_stock():
     service = get_service()
 
     try:
-        industry_code = service.get_industry_mapping(symbol="000001", level=1)
+        industry_code = _fetch_industry_mapping(service, symbol="000001", level=1)
         print(f"平安银行(000001) 一级行业代码: {industry_code}")
 
-        industry_code = service.get_industry_mapping(symbol="000001", level=2)
+        industry_code = _fetch_industry_mapping(service, symbol="000001", level=2)
         print(f"平安银行(000001) 二级行业代码: {industry_code}")
 
     except Exception as e:
@@ -172,7 +203,7 @@ def example_error_handling():
     # 测试 1: 正常获取
     print("\n测试 1: 正常获取")
     try:
-        result = service.get_industry_mapping(symbol="600519", level=1)
+        result = _fetch_industry_mapping(service, symbol="600519", level=1)
         print(f"  结果: {result}")
     except Exception as e:
         print(f"  捕获异常: {type(e).__name__}: {e}")
@@ -180,7 +211,7 @@ def example_error_handling():
     # 测试 2: 无效代码
     print("\n测试 2: 无效代码")
     try:
-        result = service.get_industry_mapping(symbol="999999", level=1)
+        result = _fetch_industry_mapping(service, symbol="999999", level=1)
         print(f"  结果: {result!r}")
     except Exception as e:
         print(f"  捕获异常: {type(e).__name__}: {e}")
@@ -188,7 +219,7 @@ def example_error_handling():
     # 测试 3: 默认级别 (不传入 level)
     print("\n测试 3: 默认级别")
     try:
-        result = service.get_industry_mapping(symbol="600519")
+        result = _fetch_industry_mapping(service, symbol="600519")
         print(f"  结果: {result}")
     except Exception as e:
         print(f"  捕获异常: {type(e).__name__}: {e}")

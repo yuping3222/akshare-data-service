@@ -11,6 +11,22 @@ get_analyst_rank() 接口示例
 """
 
 from akshare_data import get_service
+from _example_utils import fetch_with_retry, stable_df
+
+
+def _safe_analyst_rank(service, start_date: str, end_date: str):
+    windows = [(start_date, end_date), ("2023-01-01", "2023-12-31"), ("2022-01-01", "2022-12-31")]
+    for s, e in windows:
+        try:
+            df = fetch_with_retry(
+                lambda: service.get_analyst_rank(start_date=s, end_date=e),
+                retries=1,
+            )
+            if df is not None and not df.empty:
+                return (s, e), stable_df(df)
+        except Exception:
+            continue
+    return None, stable_df(service.get_analyst_rank(start_date=start_date, end_date=end_date))
 
 
 # ============================================================
@@ -25,13 +41,11 @@ def example_basic():
     service = get_service()
 
     try:
-        df = service.get_analyst_rank(
-            start_date="2024-01-01",
-            end_date="2024-12-31"
-        )
+        hit_range, df = _safe_analyst_rank(service, "2024-01-01", "2024-12-31")
         if df is None or df.empty:
             print("无数据")
             return
+        print(f"命中区间: {hit_range}")
 
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")
@@ -60,11 +74,11 @@ def example_date_ranges():
 
     for start, end in ranges:
         try:
-            df = service.get_analyst_rank(start_date=start, end_date=end)
+            hit_range, df = _safe_analyst_rank(service, start, end)
             if df is None or df.empty:
                 print(f"\n{start} ~ {end}: 无数据")
             else:
-                print(f"\n{start} ~ {end}: {len(df)} 位分析师")
+                print(f"\n{start} ~ {end} (命中 {hit_range}): {len(df)} 位分析师")
                 print(df.head(5))
         except Exception as e:
             print(f"\n{start} ~ {end}: 获取失败 - {e}")
@@ -82,10 +96,7 @@ def example_filter_institution():
     service = get_service()
 
     try:
-        df = service.get_analyst_rank(
-            start_date="2024-01-01",
-            end_date="2024-12-31"
-        )
+        _, df = _safe_analyst_rank(service, "2024-01-01", "2024-12-31")
         if df is None or df.empty:
             print("无数据")
             return
@@ -118,10 +129,7 @@ def example_statistics():
     service = get_service()
 
     try:
-        df = service.get_analyst_rank(
-            start_date="2024-01-01",
-            end_date="2024-12-31"
-        )
+        _, df = _safe_analyst_rank(service, "2024-01-01", "2024-12-31")
         if df is None or df.empty:
             print("无数据")
             return

@@ -11,7 +11,18 @@
   service = get_service()
 """
 
+import pandas as pd
+
 from akshare_data import get_service
+
+
+def _as_dataframe(data, label: str) -> pd.DataFrame:
+    if not isinstance(data, pd.DataFrame):
+        print(f"{label}: 返回类型异常，期望 DataFrame，实际 {type(data).__name__}")
+        return pd.DataFrame()
+    if data.empty:
+        print(f"{label}: 返回空数据")
+    return data
 
 
 # ============================================================
@@ -29,12 +40,11 @@ def example_fund_net_value_basic():
         # symbol: 基金代码 (6位数字)
         # indicator: 指标类型，默认 "单位净值走势"
         # period: 时间区间，默认 "成立来"
-        df = service.get_fund_open_nav(
+        df = _as_dataframe(service.get_fund_open_nav(
             fund_code="110011",
-        )
+        ), "示例1")
 
-        if df is None or df.empty:
-            print("无数据 (数据源未返回结果，可能是网络问题或基金代码不存在)")
+        if df.empty:
             return
 
         print(f"数据形状: {df.shape}")
@@ -73,9 +83,9 @@ def example_fund_net_value_types():
 
     for code, name, fund_type in funds:
         try:
-            df = service.get_fund_open_nav(fund_code=code)
+            df = _as_dataframe(service.get_fund_open_nav(fund_code=code), f"示例2-{code}")
 
-            if df is not None and not df.empty:
+            if not df.empty:
                 print(f"\n{name} ({code}) - {fund_type}")
                 print(f"  数据行数: {len(df)}")
                 # 净值列可能因基金类型而异，尝试获取常见净值列
@@ -85,9 +95,11 @@ def example_fund_net_value_types():
                         nav_col = col
                         break
                 if nav_col:
-                    print(
-                        f"  净值范围: {df[nav_col].min():.4f} ~ {df[nav_col].max():.4f}"
-                    )
+                    nav = pd.to_numeric(df[nav_col], errors="coerce").dropna()
+                    if not nav.empty:
+                        print(f"  净值范围: {nav.min():.4f} ~ {nav.max():.4f}")
+                    else:
+                        print(f"  {nav_col} 无有效数值")
             else:
                 print(f"\n{name} ({code}) - 无数据")
         except Exception as e:
@@ -108,11 +120,11 @@ def example_fund_net_value_long_term():
     try:
         df = service.get_fund_open_nav(fund_code="110011")
 
-        if df is None or df.empty:
-            print("无数据 (数据源未返回结果)")
+        df = _as_dataframe(df, "示例3")
+        if df.empty:
             return
 
-        print(f"易方达蓝筹精选 2023年净值数据")
+        print("易方达蓝筹精选净值数据")
         print(f"数据形状: {df.shape}")
         print(f"全年净值更新天数: {len(df)}")
 
@@ -124,11 +136,13 @@ def example_fund_net_value_long_term():
                 break
 
         if nav_col:
-            print(f"年初净值: {df.iloc[0][nav_col]:.4f}")
-            print(f"年末净值: {df.iloc[-1][nav_col]:.4f}")
-            yearly_return = (
-                (df.iloc[-1][nav_col] - df.iloc[0][nav_col]) / df.iloc[0][nav_col] * 100
-            )
+            nav = pd.to_numeric(df[nav_col], errors="coerce").dropna()
+            if len(nav) < 2:
+                print(f"{nav_col} 有效数据不足")
+                return
+            print(f"区间起点净值: {nav.iloc[0]:.4f}")
+            print(f"区间终点净值: {nav.iloc[-1]:.4f}")
+            yearly_return = ((nav.iloc[-1] - nav.iloc[0]) / nav.iloc[0] * 100)
             print(f"年度收益率: {yearly_return:.2f}%")
 
     except Exception as e:
@@ -148,10 +162,8 @@ def example_fund_manager_basic():
 
     try:
         # get_fund_manager_info 返回所有基金经理列表，不支持按基金代码筛选
-        df = service.akshare.get_fund_manager_info()
-
-        if df is None or df.empty:
-            print("无数据 (数据源未返回结果)")
+        df = _as_dataframe(service.akshare.get_fund_manager_info(), "示例4")
+        if df.empty:
             return
 
         print(f"数据形状: {df.shape}")
@@ -184,10 +196,8 @@ def example_fund_manager_multiple():
 
     try:
         # 先获取全部基金经理数据
-        all_managers = service.akshare.get_fund_manager_info()
-
-        if all_managers is None or all_managers.empty:
-            print("无法获取基金经理数据 (数据源未返回结果)")
+        all_managers = _as_dataframe(service.akshare.get_fund_manager_info(), "示例5")
+        if all_managers.empty:
             return
 
         print(f"共获取到 {len(all_managers)} 条基金经理记录")
@@ -232,10 +242,8 @@ def example_fund_list_etf():
 
     try:
         # 通过 get_etf_list 获取 ETF 列表
-        df = service.akshare.get_etf_list()
-
-        if df is None or df.empty:
-            print("无数据 (数据源未返回结果)")
+        df = _as_dataframe(service.akshare.get_etf_list(), "示例6")
+        if df.empty:
             return
 
         print(f"数据形状: {df.shape}")
@@ -261,10 +269,8 @@ def example_fund_list_lof():
     service = get_service()
 
     try:
-        df = service.akshare.get_lof_list()
-
-        if df is None or df.empty:
-            print("无数据 (数据源未返回结果)")
+        df = _as_dataframe(service.akshare.get_lof_list(), "示例7")
+        if df.empty:
             return
 
         print(f"数据形状: {df.shape}")
@@ -293,16 +299,16 @@ def example_fund_combined_analysis():
     try:
         # 获取净值数据
         print(f"--- 基金 {fund_code} 净值数据 ---")
-        nav_df = service.get_fund_open_nav(fund_code=fund_code)
-        if nav_df is None or nav_df.empty:
+        nav_df = _as_dataframe(service.get_fund_open_nav(fund_code=fund_code), "示例8-净值")
+        if nav_df.empty:
             print("净值数据: 无数据")
         else:
             print(f"净值数据行数: {len(nav_df)}")
 
         # 获取经理信息 (全局列表，然后筛选)
         print(f"\n--- 基金经理信息 (全部) ---")
-        manager_df = service.akshare.get_fund_manager_info()
-        if manager_df is None or manager_df.empty:
+        manager_df = _as_dataframe(service.akshare.get_fund_manager_info(), "示例8-经理")
+        if manager_df.empty:
             print("经理信息: 无数据")
         else:
             print(f"经理信息总记录数: {len(manager_df)}")

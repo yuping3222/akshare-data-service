@@ -18,7 +18,31 @@ get_minute() 接口示例
 """
 
 import pandas as pd
+from datetime import date, timedelta
 from akshare_data import get_minute
+
+
+def _last_trading_day(anchor: date | None = None) -> date:
+    d = min(anchor or date.today(), date.today())
+    while d.weekday() >= 5:
+        d -= timedelta(days=1)
+    return d
+
+
+def _date_range(days: int = 3) -> tuple[str, str]:
+    end = _last_trading_day()
+    start = end - timedelta(days=max(days * 2, 3))
+    return start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
+
+
+def _candidate_fallback_dates(count: int = 5) -> list[str]:
+    d = _last_trading_day()
+    out: list[str] = []
+    while len(out) < count:
+        if d.weekday() < 5:
+            out.append(d.strftime("%Y-%m-%d"))
+        d -= timedelta(days=1)
+    return out
 
 
 def _get_minute(symbol, freq="1min", start_date=None, end_date=None):
@@ -26,6 +50,7 @@ def _get_minute(symbol, freq="1min", start_date=None, end_date=None):
     df = get_minute(symbol, freq=freq, start_date=start_date, end_date=end_date)
     if df is None or df.empty:
         print(f"  [无数据] {symbol} 在指定范围内无分钟数据")
+        print(f"  候选回退日期: {', '.join(_candidate_fallback_dates())}")
         return pd.DataFrame()
     return df
 
@@ -40,12 +65,8 @@ def example_basic():
     print("=" * 60)
 
     try:
-        df = _get_minute(
-            symbol="000001",
-            freq="1min",
-            start_date="2024-06-01",
-            end_date="2024-06-05",
-        )
+        start, end = _date_range(5)
+        df = _get_minute(symbol="000001", freq="1min", start_date=start, end_date=end)
 
         # 打印数据形状
         print(f"数据形状: {df.shape}")
@@ -75,8 +96,7 @@ def example_freq_types():
     print("=" * 60)
 
     symbol = "600519"  # 贵州茅台
-    start = "2024-06-03"
-    end = "2024-06-05"
+    start, end = _date_range(3)
 
     freqs = ["1min", "5min", "15min", "30min", "60min"]
 
@@ -104,15 +124,17 @@ def example_no_dates():
 
     try:
         # 不传 start_date 和 end_date，返回缓存中的全部数据
-        df = get_minute("000001", freq="5min")
+        start, end = _date_range(5)
+        df = get_minute("000001", freq="5min", start_date=start, end_date=end)
 
-        if not df.empty:
+        if df is not None and not df.empty:
             print(f"数据形状: {df.shape}")
             print(f"时间范围: {df['datetime'].min()} ~ {df['datetime'].max()}")
             print(f"\n前5行:")
             print(df.head())
         else:
-            print("缓存中无数据")
+            print("无数据（指定范围内未返回分钟线）")
+            print(f"候选回退日期: {', '.join(_candidate_fallback_dates())}")
 
     except Exception as e:
         print(f"获取数据失败: {e}")
@@ -128,12 +150,8 @@ def example_sz_stock():
     print("=" * 60)
 
     try:
-        df = _get_minute(
-            symbol="sz000002",
-            freq="15min",
-            start_date="2024-06-01",
-            end_date="2024-06-10",
-        )
+        start, end = _date_range(8)
+        df = _get_minute(symbol="sz000002", freq="15min", start_date=start, end_date=end)
 
         if not df.empty:
             print(f"数据形状: {df.shape}")
@@ -156,12 +174,8 @@ def example_analysis():
     print("=" * 60)
 
     try:
-        df = _get_minute(
-            symbol="600036",
-            freq="5min",
-            start_date="2024-06-03",
-            end_date="2024-06-03",
-        )
+        start, end = _date_range(1)
+        df = _get_minute(symbol="600036", freq="5min", start_date=start, end_date=end)
 
         if df.empty:
             print("无数据")
@@ -204,9 +218,8 @@ def example_symbol_formats():
 
     for sym in symbols:
         try:
-            df = _get_minute(
-                sym, freq="30min", start_date="2024-06-03", end_date="2024-06-03"
-            )
+            start, end = _date_range(1)
+            df = _get_minute(sym, freq="30min", start_date=start, end_date=end)
             if not df.empty:
                 print(
                     f"代码格式: {sym:15s} -> 标准化后: {df['symbol'].iloc[0]:10s}, 行数: {len(df)}"

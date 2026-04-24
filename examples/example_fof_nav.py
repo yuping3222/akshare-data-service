@@ -21,7 +21,26 @@ get_fof_nav() 接口示例
 - 采用 Cache-First 策略
 """
 
+from datetime import date, timedelta
+
+import pandas as pd
+
 from akshare_data import get_service
+
+
+def _as_dataframe(data, label: str) -> pd.DataFrame:
+    if not isinstance(data, pd.DataFrame):
+        print(f"{label}: 返回类型异常，期望 DataFrame，实际 {type(data).__name__}")
+        return pd.DataFrame()
+    if data.empty:
+        print(f"{label}: 返回空数据")
+    return data
+
+
+def _recent_date_range(days: int) -> tuple[str, str]:
+    end = date.today() - timedelta(days=1)
+    start = end - timedelta(days=days)
+    return start.isoformat(), end.isoformat()
 
 
 # ============================================================
@@ -39,14 +58,14 @@ def example_basic():
         # fund_code: FOF基金代码
         # start_date: 起始日期
         # end_date: 结束日期
-        df = service.get_fof_nav(
+        start_date, end_date = _recent_date_range(120)
+        df = _as_dataframe(service.get_fof_nav(
             fund_code="005156",
-            start_date="2024-01-01",
-            end_date="2024-03-31",
-        )
+            start_date=start_date,
+            end_date=end_date,
+        ), "示例1")
 
-        if df is None or df.empty:
-            print("无数据 (数据源未返回结果，可能是网络问题或基金代码不存在)")
+        if df.empty:
             return
 
         # 打印数据形状
@@ -84,13 +103,14 @@ def example_multiple_fofs():
 
     for code, name in fof_codes:
         try:
-            df = service.get_fof_nav(
+            start_date, end_date = _recent_date_range(30)
+            df = _as_dataframe(service.get_fof_nav(
                 fund_code=code,
-                start_date="2024-06-01",
-                end_date="2024-06-30",
-            )
+                start_date=start_date,
+                end_date=end_date,
+            ), f"示例2-{code}")
 
-            if df is not None and not df.empty:
+            if not df.empty:
                 print(f"\n{name} ({code}):")
                 print(f"  数据行数: {len(df)}")
 
@@ -101,8 +121,12 @@ def example_multiple_fofs():
                         nav_col = col
                         break
 
-                if nav_col and nav_col in df.columns and df[nav_col].dtype in ["float64", "int64"]:
-                    print(f"  {nav_col}范围: {df[nav_col].min():.4f} ~ {df[nav_col].max():.4f}")
+                if nav_col and nav_col in df.columns:
+                    nav = pd.to_numeric(df[nav_col], errors="coerce").dropna()
+                    if not nav.empty:
+                        print(f"  {nav_col}范围: {nav.min():.4f} ~ {nav.max():.4f}")
+                    else:
+                        print(f"  {nav_col} 无有效数值")
                 else:
                     print(f"  字段: {list(df.columns)}")
             else:
@@ -123,17 +147,17 @@ def example_long_term():
     service = get_service()
 
     try:
-        df = service.get_fof_nav(
+        start_date, end_date = _recent_date_range(365)
+        df = _as_dataframe(service.get_fof_nav(
             fund_code="005156",
-            start_date="2023-01-01",
-            end_date="2023-12-31",
-        )
+            start_date=start_date,
+            end_date=end_date,
+        ), "示例3")
 
-        if df is None or df.empty:
-            print("无数据")
+        if df.empty:
             return
 
-        print(f"FOF基金 2023年全年净值数据")
+        print("FOF基金最近一年净值数据")
         print(f"数据形状: {df.shape}")
         print(f"净值更新次数: {len(df)}")
 
@@ -144,10 +168,14 @@ def example_long_term():
                 nav_col = col
                 break
 
-        if nav_col and nav_col in df.columns and df[nav_col].dtype in ["float64", "int64"]:
-            print(f"\n年初{nav_col}: {df.iloc[0][nav_col]:.4f}")
-            print(f"年末{nav_col}: {df.iloc[-1][nav_col]:.4f}")
-            yearly_return = (df.iloc[-1][nav_col] - df.iloc[0][nav_col]) / df.iloc[0][nav_col] * 100
+        if nav_col and nav_col in df.columns:
+            nav = pd.to_numeric(df[nav_col], errors="coerce").dropna()
+            if len(nav) < 2:
+                print(f"\n{nav_col} 有效数据不足")
+                return
+            print(f"\n区间起点{nav_col}: {nav.iloc[0]:.4f}")
+            print(f"区间终点{nav_col}: {nav.iloc[-1]:.4f}")
+            yearly_return = (nav.iloc[-1] - nav.iloc[0]) / nav.iloc[0] * 100
             print(f"年度收益率: {yearly_return:.2f}%")
         else:
             print(f"\n可用字段: {list(df.columns)}")
@@ -168,14 +196,14 @@ def example_volatility():
     service = get_service()
 
     try:
-        df = service.get_fof_nav(
+        start_date, end_date = _recent_date_range(180)
+        df = _as_dataframe(service.get_fof_nav(
             fund_code="005156",
-            start_date="2024-01-01",
-            end_date="2024-06-30",
-        )
+            start_date=start_date,
+            end_date=end_date,
+        ), "示例4")
 
-        if df is None or df.empty:
-            print("无数据")
+        if df.empty:
             return
 
         print(f"数据形状: {df.shape}")
@@ -187,8 +215,8 @@ def example_volatility():
                 nav_col = col
                 break
 
-        if nav_col and nav_col in df.columns and df[nav_col].dtype in ["float64", "int64"]:
-            df["daily_return"] = df[nav_col].pct_change() * 100
+        if nav_col and nav_col in df.columns:
+            df["daily_return"] = pd.to_numeric(df[nav_col], errors="coerce").pct_change() * 100
 
             print(f"\n日收益率统计:")
             print(f"  平均日收益率: {df['daily_return'].mean():.4f}%")
@@ -221,12 +249,13 @@ def example_error_handling():
 
     for code, desc in test_cases:
         try:
-            df = service.get_fof_nav(
+            start_date, end_date = _recent_date_range(30)
+            df = _as_dataframe(service.get_fof_nav(
                 fund_code=code,
-                start_date="2024-01-01",
-                end_date="2024-01-31",
-            )
-            if df is None or df.empty:
+                start_date=start_date,
+                end_date=end_date,
+            ), f"示例5-{code}")
+            if df.empty:
                 print(f"{desc} ('{code}'): 无数据")
             else:
                 print(f"{desc} ('{code}'): 获取到 {len(df)} 行数据")

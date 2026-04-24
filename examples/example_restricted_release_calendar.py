@@ -16,6 +16,13 @@ get_restricted_release_calendar() 接口示例
 """
 
 from akshare_data import get_service
+from datetime import date, timedelta
+
+
+def _recent_window(days: int = 180):
+    end = date.today()
+    start = end - timedelta(days=days)
+    return start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
 
 
 # ============================================================
@@ -32,10 +39,9 @@ def example_basic():
     try:
         # start_date: 起始日期，格式 "YYYY-MM-DD"
         # end_date: 结束日期，格式 "YYYY-MM-DD"
-        df = service.get_restricted_release_calendar(
-            start_date="2024-01-01",
-            end_date="2024-06-30",
-        )
+        start_date, end_date = _recent_window(180)
+        df = service.get_restricted_release_calendar(start_date=start_date, end_date=end_date)
+        print(f"查询区间: {start_date} ~ {end_date}")
 
         if df is None or df.empty:
             print("\n无数据（接口暂无可用数据源）")
@@ -95,10 +101,11 @@ def example_by_month():
 
     service = get_service()
 
+    end = date.today()
     months = [
-        ("2024-01-01", "2024-01-31", "2024年1月"),
-        ("2024-02-01", "2024-02-29", "2024年2月"),
-        ("2024-03-01", "2024-03-31", "2024年3月"),
+        ((end - timedelta(days=90)).strftime("%Y-%m-%d"), (end - timedelta(days=61)).strftime("%Y-%m-%d"), "最近第3个月"),
+        ((end - timedelta(days=60)).strftime("%Y-%m-%d"), (end - timedelta(days=31)).strftime("%Y-%m-%d"), "最近第2个月"),
+        ((end - timedelta(days=30)).strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"), "最近第1个月"),
     ]
 
     for start, end, label in months:
@@ -132,10 +139,9 @@ def example_peak_analysis():
     service = get_service()
 
     try:
-        df = service.get_restricted_release_calendar(
-            start_date="2024-01-01",
-            end_date="2024-12-31",
-        )
+        start_date, end_date = _recent_window(365)
+        df = service.get_restricted_release_calendar(start_date=start_date, end_date=end_date)
+        print(f"查询区间: {start_date} ~ {end_date}")
 
         if df is None or df.empty:
             print("无数据（接口暂无可用数据源）")
@@ -169,10 +175,9 @@ def example_error_handling():
 
     try:
         print("\n测试 1: 日期范围倒置")
-        df = service.get_restricted_release_calendar(
-            start_date="2024-12-31",
-            end_date="2024-01-01",
-        )
+        today = date.today().strftime("%Y-%m-%d")
+        earlier = (date.today() - timedelta(days=30)).strftime("%Y-%m-%d")
+        df = service.get_restricted_release_calendar(start_date=today, end_date=earlier)
         if df is None:
             print(f"  结果: 无数据（接口暂无可用数据源）")
         else:
@@ -182,10 +187,8 @@ def example_error_handling():
 
     try:
         print("\n测试 2: 正常调用")
-        df = service.get_restricted_release_calendar(
-            start_date="2024-01-01",
-            end_date="2024-06-30",
-        )
+        start_date, end_date = _recent_window(180)
+        df = service.get_restricted_release_calendar(start_date=start_date, end_date=end_date)
         if df is None:
             print(f"  结果: 无数据（接口暂无可用数据源）")
         else:

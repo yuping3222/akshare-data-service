@@ -19,7 +19,18 @@ get_fund_open_daily() 接口示例
 - 采用 Cache-First 策略，后续请求会直接返回缓存数据
 """
 
+import pandas as pd
+
 from akshare_data import get_service
+
+
+def _as_dataframe(data, label: str) -> pd.DataFrame:
+    if not isinstance(data, pd.DataFrame):
+        print(f"{label}: 返回类型异常，期望 DataFrame，实际 {type(data).__name__}")
+        return pd.DataFrame()
+    if data.empty:
+        print(f"{label}: 返回空数据")
+    return data
 
 
 # ============================================================
@@ -35,10 +46,8 @@ def example_basic():
 
     try:
         # 获取全部开放式基金最新净值列表
-        df = service.get_fund_open_daily()
-
-        if df is None or df.empty:
-            print("无数据 (数据源未返回结果，可能是网络问题或非交易日)")
+        df = _as_dataframe(service.get_fund_open_daily(), "示例1")
+        if df.empty:
             return
 
         # 打印数据形状
@@ -70,10 +79,8 @@ def example_filter_by_type():
     service = get_service()
 
     try:
-        df = service.get_fund_open_daily()
-
-        if df is None or df.empty:
-            print("无数据")
+        df = _as_dataframe(service.get_fund_open_daily(), "示例2")
+        if df.empty:
             return
 
         # 尝试按常见字段筛选 (字段名可能因数据源而异)
@@ -113,10 +120,8 @@ def example_find_specific_fund():
     target_code = "110011"
 
     try:
-        df = service.get_fund_open_daily()
-
-        if df is None or df.empty:
-            print("无数据")
+        df = _as_dataframe(service.get_fund_open_daily(), "示例3")
+        if df.empty:
             return
 
         print(f"在 {len(df)} 只基金中查找代码: {target_code}")
@@ -156,31 +161,34 @@ def example_nav_statistics():
     service = get_service()
 
     try:
-        df = service.get_fund_open_daily()
-
-        if df is None or df.empty:
-            print("无数据")
+        df = _as_dataframe(service.get_fund_open_daily(), "示例4")
+        if df.empty:
             return
 
         # 查找净值相关列
         nav_col = None
         for col in df.columns:
             if "净值" in str(col) or "nav" in str(col).lower() or "value" in str(col).lower():
-                if df[col].dtype in ["float64", "int64"]:
+                series = pd.to_numeric(df[col], errors="coerce")
+                if series.notna().any():
                     nav_col = col
                     break
 
         if nav_col:
+            nav = pd.to_numeric(df[nav_col], errors="coerce").dropna()
+            if nav.empty:
+                print(f"{nav_col} 无有效数值")
+                return
             print(f"使用净值列: {nav_col}")
             print(f"\n净值统计:")
-            print(f"  平均值: {df[nav_col].mean():.4f}")
-            print(f"  中位数: {df[nav_col].median():.4f}")
-            print(f"  最大值: {df[nav_col].max():.4f}")
-            print(f"  最小值: {df[nav_col].min():.4f}")
+            print(f"  平均值: {nav.mean():.4f}")
+            print(f"  中位数: {nav.median():.4f}")
+            print(f"  最大值: {nav.max():.4f}")
+            print(f"  最小值: {nav.min():.4f}")
 
             # 净值分布
             print(f"\n净值分布 (分位数):")
-            print(df[nav_col].quantile([0.1, 0.25, 0.5, 0.75, 0.9]).to_string())
+            print(nav.quantile([0.1, 0.25, 0.5, 0.75, 0.9]).to_string())
         else:
             print("当前数据中未发现数值型净值字段")
             print(f"可用字段: {list(df.columns)}")
@@ -204,10 +212,8 @@ def example_multiple_funds_comparison():
     target_codes = ["110011", "000001", "161725"]
 
     try:
-        df = service.get_fund_open_daily()
-
-        if df is None or df.empty:
-            print("无数据")
+        df = _as_dataframe(service.get_fund_open_daily(), "示例5")
+        if df.empty:
             return
 
         print(f"基金代码列表: {target_codes}")

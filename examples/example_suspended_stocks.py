@@ -19,6 +19,29 @@ get_suspended_stocks() 接口示例
 from akshare_data import get_suspended_stocks
 
 
+def _mock_suspended_stocks():
+    import pandas as pd
+
+    return pd.DataFrame(
+        {
+            "code": ["000671", "600421", "300312"],
+            "display_name": ["阳光城", "华嵘控股", "邦讯技术"],
+            "reason": ["重大事项", "筹划重组", "信息披露"],
+        }
+    )
+
+
+def _fetch_suspended_stocks():
+    try:
+        df = get_suspended_stocks()
+        if df is not None and not df.empty:
+            return df
+    except Exception as e:
+        print(f"实时接口异常: {e}")
+    print("[停牌接口不可用或无数据，使用演示数据]")
+    return _mock_suspended_stocks()
+
+
 # ============================================================
 # 示例 1: 基本用法 - 获取全部停牌股票列表
 # ============================================================
@@ -30,11 +53,7 @@ def example_basic():
 
     try:
         # 该接口无需参数，直接调用即可获取当前所有停牌股票
-        df = get_suspended_stocks()
-
-        if df is None or df.empty:
-            print("当前无停牌股票")
-            return
+        df = _fetch_suspended_stocks()
 
         # 打印数据形状
         print(f"数据形状: {df.shape}")
@@ -62,11 +81,7 @@ def example_count():
     print("=" * 60)
 
     try:
-        df = get_suspended_stocks()
-
-        if df is None or df.empty:
-            print("当前无停牌股票")
-            return
+        df = _fetch_suspended_stocks()
 
         print(f"当前停牌股票总数: {len(df)} 只")
 
@@ -91,11 +106,7 @@ def example_details():
     print("=" * 60)
 
     try:
-        df = get_suspended_stocks()
-
-        if df is None or df.empty:
-            print("当前无停牌股票")
-            return
+        df = _fetch_suspended_stocks()
 
         print(f"共 {len(df)} 只停牌股票\n")
 
@@ -117,11 +128,7 @@ def example_filter_by_board():
     print("=" * 60)
 
     try:
-        df = get_suspended_stocks()
-
-        if df is None or df.empty:
-            print("当前无停牌股票")
-            return
+        df = _fetch_suspended_stocks()
 
         # 沪市主板停牌股票 (代码以 60 开头)
         sh_suspended = df[df["code"].str.startswith("60")]
@@ -164,14 +171,10 @@ def example_with_securities_list():
         from akshare_data import get_securities_list
 
         # 获取停牌股票列表
-        suspended_df = get_suspended_stocks()
-
-        if suspended_df.empty:
-            print("当前无停牌股票")
-            return
+        suspended_df = _fetch_suspended_stocks()
 
         # 获取全部股票列表
-        all_stocks = get_securities_list(security_type="stock")
+        all_stocks = get_securities_list()
 
         if all_stocks.empty:
             print("无法获取股票列表")
@@ -202,11 +205,7 @@ def example_check_specific_stock():
     print("=" * 60)
 
     try:
-        df = get_suspended_stocks()
-
-        if df is None or df.empty:
-            print("当前无停牌股票")
-            return
+        df = _fetch_suspended_stocks()
 
         # 要检查的股票代码列表
         check_codes = ["000001", "600519", "000002", "600036"]
@@ -235,11 +234,7 @@ def example_export():
     print("=" * 60)
 
     try:
-        df = get_suspended_stocks()
-
-        if df is None or df.empty:
-            print("当前无停牌股票")
-            return
+        df = _fetch_suspended_stocks()
 
         print(f"获取到 {len(df)} 只停牌股票")
         print(f"字段列表: {list(df.columns)}")

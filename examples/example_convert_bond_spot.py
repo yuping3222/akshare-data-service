@@ -40,6 +40,23 @@ def _mock_spot_data():
     })
 
 
+def _fetch_convert_bond_spot():
+    service = get_service()
+    methods = [
+        lambda: service.get_convert_bond_spot(),
+        lambda: service.akshare.get_convert_bond_spot(),
+    ]
+    for fn in methods:
+        try:
+            df = fn()
+            if df is not None and not df.empty:
+                return df
+        except Exception:
+            continue
+    print("[可转债实时接口不可用，使用演示数据]")
+    return _mock_spot_data()
+
+
 # ============================================================
 # 示例 1: 基本用法 - 获取可转债实时行情
 # ============================================================
@@ -49,16 +66,10 @@ def example_basic():
     print("示例 1: 获取可转债实时行情")
     print("=" * 60)
 
-    service = get_service()
-
     try:
         # 获取可转债实时行情
         # 注意: 该接口返回实时数据，不经过缓存
-        df = service.get_convert_bond_spot()
-
-        if df is None or df.empty:
-            print("[数据源不可用，使用演示数据]")
-            df = _mock_spot_data()
+        df = _fetch_convert_bond_spot()
 
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")
@@ -85,14 +96,8 @@ def example_top_movers():
     print("示例 2: 可转债涨跌幅排行")
     print("=" * 60)
 
-    service = get_service()
-
     try:
-        df = service.get_convert_bond_spot()
-
-        if df is None or df.empty:
-            print("[数据源不可用，使用演示数据]")
-            df = _mock_spot_data()
+        df = _fetch_convert_bond_spot()
 
         # 确保涨跌幅为数值类型
         if "change_percent" in df.columns:
@@ -125,14 +130,8 @@ def example_active_bonds():
     print("示例 3: 筛选活跃可转债")
     print("=" * 60)
 
-    service = get_service()
-
     try:
-        df = service.get_convert_bond_spot()
-
-        if df is None or df.empty:
-            print("[数据源不可用，使用演示数据]")
-            df = _mock_spot_data()
+        df = _fetch_convert_bond_spot()
 
         # 确保成交量为数值类型
         if "volume" in df.columns:
@@ -168,14 +167,8 @@ def example_price_range():
     print("示例 4: 价格区间分析")
     print("=" * 60)
 
-    service = get_service()
-
     try:
-        df = service.get_convert_bond_spot()
-
-        if df is None or df.empty:
-            print("[数据源不可用，使用演示数据]")
-            df = _mock_spot_data()
+        df = _fetch_convert_bond_spot()
 
         if "current_price" in df.columns:
             df["current_price"] = pd.to_numeric(df["current_price"], errors="coerce")
@@ -214,14 +207,8 @@ def example_find_bond():
     print("示例 5: 查找特定可转债行情")
     print("=" * 60)
 
-    service = get_service()
-
     try:
-        df = service.get_convert_bond_spot()
-
-        if df is None or df.empty:
-            print("[数据源不可用，使用演示数据]")
-            df = _mock_spot_data()
+        df = _fetch_convert_bond_spot()
 
         # 示例: 查找牧原转债
         bond_code = "127045"
@@ -276,14 +263,8 @@ def example_comprehensive_filter():
     print("示例 6: 综合筛选 - 活跃且低估的可转债")
     print("=" * 60)
 
-    service = get_service()
-
     try:
-        df = service.get_convert_bond_spot()
-
-        if df is None or df.empty:
-            print("[数据源不可用，使用演示数据]")
-            df = _mock_spot_data()
+        df = _fetch_convert_bond_spot()
 
         # 转换为数值类型
         numeric_cols = ["current_price", "volume", "change_percent", "premium_rate"]

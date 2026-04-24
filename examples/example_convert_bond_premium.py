@@ -24,6 +24,7 @@ get_convert_bond_premium() 接口示例
 
 import pandas as pd
 from akshare_data import get_service
+from _example_utils import fetch_with_retry, normalize_symbol_input, print_df_brief, stable_df
 
 
 def _mock_premium_data():
@@ -54,20 +55,13 @@ def example_basic():
     try:
         # 获取可转债溢价率数据
         # 该接口返回全市场可转债的溢价率信息
-        df = service.get_convert_bond_premium()
+        df = fetch_with_retry(lambda: service.get_convert_bond_premium(), retries=2)
 
         if df.empty:
             print("[数据源不可用，使用演示数据]")
             df = _mock_premium_data()
 
-        print(f"数据形状: {df.shape}")
-        print(f"字段列表: {list(df.columns)}")
-
-        print("\n前10行数据:")
-        print(df.head(10).to_string(index=False))
-
-        print("\n后5行数据:")
-        print(df.tail(5).to_string(index=False))
+        print_df_brief(stable_df(df), rows=10)
 
     except Exception as e:
         print(f"获取数据失败: {e}")
@@ -88,7 +82,7 @@ def example_low_premium():
     service = get_service()
 
     try:
-        df = service.get_convert_bond_premium()
+        df = fetch_with_retry(lambda: service.get_convert_bond_premium(), retries=2)
 
         if df.empty:
             print("[数据源不可用，使用演示数据]")
@@ -134,7 +128,7 @@ def example_premium_statistics():
     service = get_service()
 
     try:
-        df = service.get_convert_bond_premium()
+        df = fetch_with_retry(lambda: service.get_convert_bond_premium(), retries=2)
 
         if df.empty:
             print("[数据源不可用，使用演示数据]")
@@ -175,7 +169,7 @@ def example_double_low_strategy():
     service = get_service()
 
     try:
-        df = service.get_convert_bond_premium()
+        df = fetch_with_retry(lambda: service.get_convert_bond_premium(), retries=2)
 
         if df.empty:
             print("[数据源不可用，使用演示数据]")
@@ -224,14 +218,14 @@ def example_filter_by_stock():
     service = get_service()
 
     try:
-        df = service.get_convert_bond_premium()
+        df = fetch_with_retry(lambda: service.get_convert_bond_premium(), retries=2)
 
         if df.empty:
             print("[数据源不可用，使用演示数据]")
             df = _mock_premium_data()
 
         # 示例: 查找牧原股份的可转债
-        stock_code = "002714"
+        stock_code = normalize_symbol_input("002714")
         stock_name = "牧原股份"
 
         if "stock_code" in df.columns:
@@ -267,17 +261,23 @@ def example_source_comparison():
     try:
         # 尝试从默认源获取
         print("\n从默认源获取数据...")
-        df_default = service.get_convert_bond_premium()
+        df_default = fetch_with_retry(lambda: service.get_convert_bond_premium(), retries=2)
         print(f"  默认源: {len(df_default)} 条记录")
 
         # 尝试从 lixinger 获取
         print("\n从 lixinger 源获取数据...")
-        df_lixinger = service.get_convert_bond_premium(source="lixinger")
+        df_lixinger = fetch_with_retry(
+            lambda: service.get_convert_bond_premium(source="lixinger"),
+            retries=1,
+        )
         print(f"  lixinger: {len(df_lixinger)} 条记录")
 
         # 尝试从 akshare 获取
         print("\n从 akshare 源获取数据...")
-        df_akshare = service.get_convert_bond_premium(source="akshare")
+        df_akshare = fetch_with_retry(
+            lambda: service.get_convert_bond_premium(source="akshare"),
+            retries=1,
+        )
         print(f"  akshare: {len(df_akshare)} 条记录")
 
     except Exception as e:

@@ -19,7 +19,18 @@ get_lof_nav() 接口示例
 - 采用 Cache-First 策略
 """
 
+import pandas as pd
+
 from akshare_data import get_service
+
+
+def _as_dataframe(data, label: str) -> pd.DataFrame:
+    if not isinstance(data, pd.DataFrame):
+        print(f"{label}: 返回类型异常，期望 DataFrame，实际 {type(data).__name__}")
+        return pd.DataFrame()
+    if data.empty:
+        print(f"{label}: 返回空数据")
+    return data
 
 
 # ============================================================
@@ -35,10 +46,9 @@ def example_basic():
 
     try:
         # fund_code: LOF基金代码
-        df = service.get_lof_nav(fund_code="162605")
+        df = _as_dataframe(service.get_lof_nav(fund_code="162605"), "示例1")
 
-        if df is None or df.empty:
-            print("无数据 (数据源未返回结果，可能是网络问题或基金代码不存在)")
+        if df.empty:
             return
 
         # 打印数据形状
@@ -76,9 +86,9 @@ def example_multiple_lofs():
 
     for code, name in lofs:
         try:
-            df = service.get_lof_nav(fund_code=code)
+            df = _as_dataframe(service.get_lof_nav(fund_code=code), f"示例2-{code}")
 
-            if df is not None and not df.empty:
+            if not df.empty:
                 print(f"\n{name} ({code}):")
                 print(f"  数据行数: {len(df)}")
 
@@ -89,8 +99,12 @@ def example_multiple_lofs():
                         nav_col = col
                         break
 
-                if nav_col and nav_col in df.columns and df[nav_col].dtype in ["float64", "int64"]:
-                    print(f"  最新{nav_col}: {df.iloc[-1][nav_col]:.4f}")
+                if nav_col and nav_col in df.columns:
+                    nav = pd.to_numeric(df[nav_col], errors="coerce").dropna()
+                    if not nav.empty:
+                        print(f"  最新{nav_col}: {nav.iloc[-1]:.4f}")
+                    else:
+                        print(f"  {nav_col} 无有效数值")
                 else:
                     print(f"  字段: {list(df.columns)}")
             else:
@@ -111,10 +125,9 @@ def example_nav_trend():
     service = get_service()
 
     try:
-        df = service.get_lof_nav(fund_code="162605")
+        df = _as_dataframe(service.get_lof_nav(fund_code="162605"), "示例3")
 
-        if df is None or df.empty:
-            print("无数据")
+        if df.empty:
             return
 
         print(f"景顺长城鼎益 (162605) 净值数据")
@@ -130,15 +143,19 @@ def example_nav_trend():
             if "日期" in str(col) or "date" in str(col).lower() or "时间" in str(col):
                 date_col = col
 
-        if nav_col and nav_col in df.columns and df[nav_col].dtype in ["float64", "int64"]:
+        if nav_col and nav_col in df.columns:
+            nav = pd.to_numeric(df[nav_col], errors="coerce").dropna()
+            if nav.empty:
+                print(f"{nav_col} 无有效数值")
+                return
             print(f"\n{nav_col}统计:")
-            print(f"  最新: {df.iloc[-1][nav_col]:.4f}")
-            print(f"  最高: {df[nav_col].max():.4f}")
-            print(f"  最低: {df[nav_col].min():.4f}")
-            print(f"  平均: {df[nav_col].mean():.4f}")
+            print(f"  最新: {nav.iloc[-1]:.4f}")
+            print(f"  最高: {nav.max():.4f}")
+            print(f"  最低: {nav.min():.4f}")
+            print(f"  平均: {nav.mean():.4f}")
 
-            if len(df) > 1:
-                total_return = (df.iloc[-1][nav_col] - df.iloc[0][nav_col]) / df.iloc[0][nav_col] * 100
+            if len(nav) > 1:
+                total_return = (nav.iloc[-1] - nav.iloc[0]) / nav.iloc[0] * 100
                 print(f"  区间总收益: {total_return:.2f}%")
         else:
             print(f"可用字段: {list(df.columns)}")
@@ -160,10 +177,9 @@ def example_premium_discount():
 
     try:
         # 获取LOF净值
-        nav_df = service.get_lof_nav(fund_code="162605")
+        nav_df = _as_dataframe(service.get_lof_nav(fund_code="162605"), "示例4")
 
-        if nav_df is None or nav_df.empty:
-            print("净值数据: 无数据")
+        if nav_df.empty:
             return
 
         print("LOF基金同时具有:")
@@ -182,8 +198,11 @@ def example_premium_discount():
                 break
 
         if nav_col and nav_col in nav_df.columns:
-            latest_nav = nav_df.iloc[-1][nav_col]
-            print(f"\n最新净值: {latest_nav}")
+            latest_nav = pd.to_numeric(nav_df[nav_col], errors="coerce").dropna()
+            if latest_nav.empty:
+                print(f"\n{nav_col} 无有效数值")
+                return
+            print(f"\n最新净值: {latest_nav.iloc[-1]:.4f}")
             print("\n可通过 get_lof_spot() 获取场内价格后计算折溢价率:")
             print("  折溢价率 = (场内价格 - 净值) / 净值 * 100%")
 
@@ -210,8 +229,8 @@ def example_error_handling():
 
     for code, desc in test_cases:
         try:
-            df = service.get_lof_nav(fund_code=code)
-            if df is None or df.empty:
+            df = _as_dataframe(service.get_lof_nav(fund_code=code), f"示例5-{code or 'EMPTY'}")
+            if df.empty:
                 print(f"{desc} ('{code}'): 无数据")
             else:
                 print(f"{desc} ('{code}'): 获取到 {len(df)} 行数据")

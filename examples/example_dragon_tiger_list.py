@@ -28,7 +28,7 @@ get_dragon_tiger_list() 接口的使用。
 使用方式:
     from akshare_data import get_service
     service = get_service()
-    df = service.get_dragon_tiger_list("2024-06-28")
+    _, df = _safe_dragon_tiger(service, "2024-06-28")
 
 龙虎榜说明:
 - 龙虎榜是交易所公布的当日异动股票榜单
@@ -42,6 +42,17 @@ get_dragon_tiger_list() 接口的使用。
 
 import pandas as pd
 from akshare_data import get_service
+from _example_utils import fetch_with_date_fallback, stable_df
+
+
+def _safe_dragon_tiger(service, target_date: str):
+    hit_date, df = fetch_with_date_fallback(
+        lambda d: service.get_dragon_tiger_list(date=d),
+        base_date=target_date,
+        fallback_days=7,
+        retries_per_date=1,
+    )
+    return hit_date, stable_df(df)
 
 
 # ============================================================
@@ -57,8 +68,9 @@ def example_basic_dataservice():
 
     try:
         # 使用 DataService.get_dragon_tiger_list() 方法
-        df = service.get_dragon_tiger_list(date="2024-06-28")
+        hit_date, df = _safe_dragon_tiger(service, "2024-06-28")
 
+        print(f"命中日期: {hit_date}")
         print(f"数据形状: {df.shape}")
 
         if df.empty:
@@ -92,24 +104,39 @@ def example_compare_methods():
     # 方式1: 通过 DataService 直接调用
     print("\n方式1: DataService.get_dragon_tiger_list()")
     try:
-        df1 = service.get_dragon_tiger_list(date=date)
+        hit1, df1 = _safe_dragon_tiger(service, date)
         print(f"  结果: {df1.shape}")
+        print(f"  命中日期: {hit1}")
     except Exception as e:
         print(f"  失败: {e}")
 
     # 方式2: 通过 cn.stock.capital.dragon_tiger 调用
     print("\n方式2: service.cn.stock.capital.dragon_tiger()")
     try:
-        df2 = service.cn.stock.capital.dragon_tiger(date=date)
+        hit2, df2 = fetch_with_date_fallback(
+            lambda d: service.cn.stock.capital.dragon_tiger(date=d),
+            base_date=date,
+            fallback_days=7,
+            retries_per_date=1,
+        )
+        df2 = stable_df(df2)
         print(f"  结果: {df2.shape}")
+        print(f"  命中日期: {hit2}")
     except Exception as e:
         print(f"  失败: {e}")
 
     # 方式3: 通过 akshare adapter 调用
     print("\n方式3: service.akshare.get_dragon_tiger_list()")
     try:
-        df3 = service.akshare.get_dragon_tiger_list(date=date)
+        hit3, df3 = fetch_with_date_fallback(
+            lambda d: service.akshare.get_dragon_tiger_list(date=d),
+            base_date=date,
+            fallback_days=7,
+            retries_per_date=1,
+        )
+        df3 = stable_df(df3)
         print(f"  结果: {df3.shape}")
+        print(f"  命中日期: {hit3}")
     except Exception as e:
         print(f"  失败: {e}")
 

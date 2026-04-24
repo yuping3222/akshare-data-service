@@ -19,8 +19,32 @@ get_index() 接口示例
 """
 
 import pandas as pd
-from datetime import datetime
+from datetime import date, datetime, timedelta
 from akshare_data import get_index
+
+
+def _last_trading_day(anchor: date | None = None) -> date:
+    d = min(anchor or date.today(), date.today())
+    while d.weekday() >= 5:
+        d -= timedelta(days=1)
+    return d
+
+
+def _date_range(days: int) -> tuple[str, str]:
+    end = _last_trading_day()
+    start = end - timedelta(days=max(days * 2, 10))
+    return start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
+
+
+def _candidate_fallback_dates(count: int = 5) -> list[str]:
+    d = _last_trading_day()
+    out: list[str] = []
+    while len(out) < count:
+        out.append(d.strftime("%Y-%m-%d"))
+        d -= timedelta(days=1)
+        while d.weekday() >= 5:
+            d -= timedelta(days=1)
+    return out
 
 
 def _get_index(index_code, start_date=None, end_date=None):
@@ -33,6 +57,7 @@ def _get_index(index_code, start_date=None, end_date=None):
     df = get_index(index_code=index_code, start_date=start_date, end_date=end_date)
     if df is None or df.empty:
         print(f"  [无数据] {index_code} 在 {start_date} ~ {end_date} 范围内无数据")
+        print(f"  候选回退日期: {', '.join(_candidate_fallback_dates())}")
         return pd.DataFrame()
     return df
 
@@ -47,7 +72,8 @@ def example_basic():
     print("=" * 60)
 
     try:
-        df = _get_index("000300", "2024-01-01", "2024-03-31")
+        start, end = _date_range(60)
+        df = _get_index("000300", start, end)
 
         # 打印数据形状
         print(f"数据形状: {df.shape}")
@@ -86,8 +112,7 @@ def example_major_indices():
         "000905": "中证500",
     }
 
-    start = "2024-01-01"
-    end = "2024-06-30"
+    start, end = _date_range(120)
 
     print(
         f"{'指数名称':<10} {'指数代码':<10} {'行数':>6} {'期初收盘':>12} {'期末收盘':>12} {'涨跌幅':>10}"
@@ -121,7 +146,8 @@ def example_default_dates():
 
     try:
         # 不传 start_date 和 end_date，默认从 1990-01-01 到当天
-        df = _get_index("000001", "2020-01-01", "2024-12-31")
+        start, end = _date_range(260)
+        df = _get_index("000001", start, end)
 
         if not df.empty:
             print(f"上证指数全部历史数据")
@@ -157,7 +183,8 @@ def example_symbol_formats():
 
     for code in codes:
         try:
-            df = _get_index(code, "2024-06-01", "2024-06-10")
+            start, end = _date_range(10)
+            df = _get_index(code, start, end)
             if not df.empty:
                 print(
                     f"代码格式: {code:15s} -> 标准化后: {df['symbol'].iloc[0]:10s}, 行数: {len(df)}"
@@ -178,7 +205,8 @@ def example_analysis():
     print("=" * 60)
 
     try:
-        df = _get_index("000300", "2024-01-01", "2024-12-31")
+        start, end = _date_range(260)
+        df = _get_index("000300", start, end)
 
         if df.empty:
             print("无数据")
@@ -226,7 +254,8 @@ def example_yearly_return():
     print("=" * 60)
 
     try:
-        df = _get_index("000300", "2020-01-01", "2024-12-31")
+        start, end = _date_range(1300)
+        df = _get_index("000300", start, end)
 
         if df.empty or len(df) < 2:
             print("数据不足")

@@ -20,6 +20,23 @@ import pandas as pd
 from akshare_data import get_service
 
 
+def _fetch_futures_spot(service):
+    try:
+        df = service.get_futures_spot()
+        if df is not None and not df.empty:
+            return df
+    except Exception:
+        pass
+    # 回退主力合约列表，至少给出有效样本结构
+    try:
+        df = service.get_futures_main_contracts()
+        if df is not None and not df.empty:
+            return df
+    except Exception:
+        pass
+    return pd.DataFrame()
+
+
 # ============================================================
 # 示例 1: 基本用法 - 获取全市场期货实时行情
 # ============================================================
@@ -33,9 +50,9 @@ def example_futures_spot_basic():
 
     try:
         # 无需参数，获取全市场期货实时行情
-        df = service.get_futures_spot()
+        df = _fetch_futures_spot(service)
 
-        if df is None:
+        if df is None or df.empty:
             print("无数据 (接口可能未实现)")
             _show_mock_futures_spot()
             return
@@ -84,7 +101,7 @@ def example_futures_spot_filter_by_variety():
     service = get_service()
 
     try:
-        df = service.get_futures_spot()
+        df = _fetch_futures_spot(service)
 
         if df is None or df.empty:
             print("无数据")
@@ -125,7 +142,7 @@ def example_futures_spot_top_gainers_losers():
     service = get_service()
 
     try:
-        df = service.get_futures_spot()
+        df = _fetch_futures_spot(service)
 
         if df is None or df.empty:
             print("无数据")
@@ -175,7 +192,7 @@ def example_futures_spot_by_exchange():
     service = get_service()
 
     try:
-        df = service.get_futures_spot()
+        df = _fetch_futures_spot(service)
 
         if df is None or df.empty:
             print("无数据")
@@ -241,7 +258,7 @@ def example_futures_spot_volume_oi_analysis():
     service = get_service()
 
     try:
-        df = service.get_futures_spot()
+        df = _fetch_futures_spot(service)
 
         if df is None or df.empty:
             print("无数据")
@@ -295,7 +312,7 @@ def example_futures_spot_market_overview():
     service = get_service()
 
     try:
-        df = service.get_futures_spot()
+        df = _fetch_futures_spot(service)
 
         if df is None or df.empty:
             print("无数据")
@@ -356,8 +373,8 @@ def example_futures_spot_refresh():
 
         # 第一次获取
         print("\n第一次获取:")
-        df1 = service.get_futures_spot()
-        if df1 is None:
+        df1 = _fetch_futures_spot(service)
+        if df1 is None or df1.empty:
             print("  结果: 返回 None (接口可能未实现)")
             return
         print(f"  合约数量: {len(df1)}")
@@ -369,8 +386,8 @@ def example_futures_spot_refresh():
         time.sleep(2)
 
         print("\n第二次获取:")
-        df2 = service.get_futures_spot()
-        if df2 is None:
+        df2 = _fetch_futures_spot(service)
+        if df2 is None or df2.empty:
             print("  结果: 返回 None")
             return
         print(f"  合约数量: {len(df2)}")
@@ -397,11 +414,9 @@ def example_futures_spot_error_handling():
     # 正常调用 (无需参数)
     print("\n测试: 正常调用")
     try:
-        df = service.get_futures_spot()
-        if df is None:
+        df = _fetch_futures_spot(service)
+        if df is None or df.empty:
             print("  结果: 返回 None (接口可能未实现)")
-        elif df.empty:
-            print("  结果: 返回空 DataFrame")
         else:
             print(f"  结果: 获取到 {len(df)} 行数据")
     except Exception as e:

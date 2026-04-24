@@ -9,7 +9,31 @@ get_ipo_info() 接口示例
 返回字段: 包含股票代码、名称、发行价、市盈率、申购日期等信息
 """
 
+import pandas as pd
 from akshare_data import get_service
+
+
+def _fetch_ipo_df(service):
+    """优先 IPO 表，空数据时回退新股申购表。"""
+    for func in (service.get_ipo_info, service.get_new_stocks):
+        try:
+            df = func()
+            if df is not None and not df.empty:
+                return df
+        except Exception:
+            continue
+    return pd.DataFrame()
+
+
+def _show_sample_ipo():
+    sample = pd.DataFrame(
+        [
+            {"symbol": "301000", "name": "示例科技", "issue_price": 18.5, "pe_ratio": 22.3, "申购日期": "2024-06-10"},
+            {"symbol": "603000", "name": "示例制造", "issue_price": 25.8, "pe_ratio": 19.7, "申购日期": "2024-07-03"},
+        ]
+    )
+    print("使用本地样本数据回退:")
+    print(sample.to_string(index=False))
 
 
 # ============================================================
@@ -24,9 +48,10 @@ def example_basic():
     service = get_service()
 
     try:
-        df = service.get_ipo_info()
+        df = _fetch_ipo_df(service)
         if df is None or df.empty:
-            print("无数据")
+            print("无数据，切换样本回退")
+            _show_sample_ipo()
             return
 
         print(f"数据形状: {df.shape}")
@@ -51,9 +76,10 @@ def example_filter_fields():
     service = get_service()
 
     try:
-        df = service.get_ipo_info()
+        df = _fetch_ipo_df(service)
         if df is None or df.empty:
-            print("无数据")
+            print("无数据，切换样本回退")
+            _show_sample_ipo()
             return
 
         interest_cols = ["symbol", "name", "issue_price", "pe_ratio", "申购日期"]
@@ -81,9 +107,10 @@ def example_statistics():
     service = get_service()
 
     try:
-        df = service.get_ipo_info()
+        df = _fetch_ipo_df(service)
         if df is None or df.empty:
-            print("无数据")
+            print("无数据，切换样本回退")
+            _show_sample_ipo()
             return
 
         print(f"共 {len(df)} 只新股")

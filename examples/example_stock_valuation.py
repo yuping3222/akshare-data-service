@@ -17,6 +17,7 @@ get_stock_valuation() 接口示例
 """
 
 from akshare_data import get_service
+from _example_utils import first_non_empty_by_symbol
 
 
 # ============================================================
@@ -32,7 +33,9 @@ def example_basic():
 
     try:
         # symbol: 证券代码，支持多种格式
-        df = service.get_stock_valuation(symbol="600519")
+        df, used_symbol = first_non_empty_by_symbol(
+            service.get_stock_valuation, ["600519", "000001", "600036"]
+        )
 
         if df is None or df.empty:
             print("无数据 (数据源未返回结果)")
@@ -42,6 +45,7 @@ def example_basic():
 
         # 打印数据形状
         print(f"数据形状: {df.shape}")
+        print(f"回退命中代码: {used_symbol}")
         print(f"字段列表: {list(df.columns)}")
 
         # 打印全部数据 (通常只有最新一行)
@@ -165,7 +169,9 @@ def example_error_handling():
     # 测试 1: 正常获取
     print("\n测试 1: 正常获取")
     try:
-        df = service.get_stock_valuation(symbol="600519")
+        df, _ = first_non_empty_by_symbol(
+            service.get_stock_valuation, ["600519", "000001", "600036"]
+        )
         if df is None or df.empty:
             print("  结果: 无数据 (空 DataFrame)")
         else:

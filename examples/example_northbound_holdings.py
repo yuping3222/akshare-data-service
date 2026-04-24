@@ -36,8 +36,30 @@
 - 该接口依赖 akshare 数据源，可通过 source 参数指定
 """
 
+import re
+import time
+from typing import Callable, Optional
+
 import pandas as pd
 from akshare_data import get_service
+
+
+def _normalize_symbol(symbol: str) -> str:
+    m = re.search(r"(\d{6})", symbol)
+    return m.group(1) if m else symbol.strip()
+
+
+def _fetch_with_retry(fetcher: Callable[[], pd.DataFrame], desc: str) -> Optional[pd.DataFrame]:
+    for i in range(3):
+        try:
+            df = fetcher()
+            if df is not None and not df.empty:
+                return df
+            print(f"{desc}: 第 {i + 1}/3 次返回空结果")
+        except Exception as e:  # noqa: BLE001
+            print(f"{desc}: 第 {i + 1}/3 次失败 -> {e}")
+        time.sleep(1)
+    return None
 
 
 # ============================================================
@@ -53,13 +75,16 @@ def example_basic():
 
     try:
         # 获取贵州茅台2024年第一季度的北向持股数据
-        df = service.get_northbound_holdings(
-            symbol="600519",
+        df = _fetch_with_retry(
+            lambda: service.get_northbound_holdings(
+            symbol=_normalize_symbol("600519"),
             start_date="2024-01-01",
             end_date="2024-03-31",
+            ),
+            "get_northbound_holdings(600519)",
         )
 
-        if df.empty:
+        if df is None:
             print("无数据（数据源不可用或非交易日）")
             return
 
@@ -99,13 +124,16 @@ def example_multiple_stocks():
 
     for code, name in stocks:
         try:
-            df = service.get_northbound_holdings(
-                symbol=code,
+            df = _fetch_with_retry(
+                lambda s=code: service.get_northbound_holdings(
+                symbol=_normalize_symbol(s),
                 start_date="2024-06-01",
                 end_date="2024-06-30",
+                ),
+                f"get_northbound_holdings({code})",
             )
 
-            if not df.empty:
+            if df is not None:
                 # 获取最后一天的数据
                 latest = df.iloc[-1].to_dict()
                 latest["name"] = name
@@ -138,13 +166,16 @@ def example_trend_analysis():
     service = get_service()
 
     try:
-        df = service.get_northbound_holdings(
-            symbol="600519",
+        df = _fetch_with_retry(
+            lambda: service.get_northbound_holdings(
+            symbol=_normalize_symbol("600519"),
             start_date="2024-01-01",
             end_date="2024-06-30",
+            ),
+            "trend get_northbound_holdings",
         )
 
-        if df.empty:
+        if df is None:
             print("无数据")
             return
 
@@ -197,13 +228,16 @@ def example_symbol_formats():
 
     for sym in symbols:
         try:
-            df = service.get_northbound_holdings(
-                symbol=sym,
+            df = _fetch_with_retry(
+                lambda x=sym: service.get_northbound_holdings(
+                symbol=_normalize_symbol(x),
                 start_date="2024-06-01",
                 end_date="2024-06-10",
+                ),
+                f"symbol_format {sym}",
             )
 
-            if df.empty:
+            if df is None:
                 print(f"代码格式 {sym:20s}: 无数据")
             else:
                 print(f"代码格式 {sym:20s}: 获取到 {len(df)} 条数据")
@@ -225,13 +259,16 @@ def example_sz_stocks():
 
     try:
         # 获取平安银行的北向持股数据
-        df = service.get_northbound_holdings(
-            symbol="sz000001",
+        df = _fetch_with_retry(
+            lambda: service.get_northbound_holdings(
+            symbol=_normalize_symbol("sz000001"),
             start_date="2024-05-01",
             end_date="2024-05-31",
+            ),
+            "sz stock northbound",
         )
 
-        if df.empty:
+        if df is None:
             print("无数据")
             return
 
@@ -266,13 +303,16 @@ def example_namespace_call():
 
     try:
         # 通过 cn.stock.capital.northbound_holdings 调用
-        df = service.cn.stock.capital.northbound_holdings(
-            symbol="600036",
+        df = _fetch_with_retry(
+            lambda: service.cn.stock.capital.northbound_holdings(
+            symbol=_normalize_symbol("600036"),
             start_date="2024-04-01",
             end_date="2024-04-30",
+            ),
+            "namespace northbound",
         )
 
-        if df.empty:
+        if df is None:
             print("无数据")
             return
 
@@ -296,13 +336,16 @@ def example_filter_and_export():
     service = get_service()
 
     try:
-        df = service.get_northbound_holdings(
-            symbol="600519",
+        df = _fetch_with_retry(
+            lambda: service.get_northbound_holdings(
+            symbol=_normalize_symbol("600519"),
             start_date="2024-01-01",
             end_date="2024-03-31",
+            ),
+            "filter/export northbound",
         )
 
-        if df.empty:
+        if df is None:
             print("无数据")
             return
 
@@ -343,7 +386,7 @@ def example_error_handling():
     print("\n测试1: 无效日期格式")
     try:
         df = service.get_northbound_holdings(
-            symbol="600519",
+            symbol=_normalize_symbol("600519"),
             start_date="invalid",
             end_date="2024-06-30",
         )
@@ -355,7 +398,7 @@ def example_error_handling():
     print("\n测试2: 无效股票代码")
     try:
         df = service.get_northbound_holdings(
-            symbol="invalid_code",
+            symbol=_normalize_symbol("invalid_code"),
             start_date="2024-01-01",
             end_date="2024-01-31",
         )
@@ -370,7 +413,7 @@ def example_error_handling():
     print("\n测试3: 日期范围无效（结束早于开始）")
     try:
         df = service.get_northbound_holdings(
-            symbol="600519",
+            symbol=_normalize_symbol("600519"),
             start_date="2024-12-31",
             end_date="2024-01-01",
         )

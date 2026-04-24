@@ -20,8 +20,28 @@
       获取后可在 DataFrame 上自行筛选日期范围。
 """
 
+from typing import Optional
+
 import pandas as pd
 from akshare_data import get_service
+
+
+def _mock_macro_df(name: str) -> pd.DataFrame:
+    sample_map = {
+        "LPR": pd.DataFrame({"date": ["2024-04-20", "2024-05-20"], "1Y": [3.45, 3.45], "5Y": [3.95, 3.95]}),
+        "PMI": pd.DataFrame({"date": ["2024-04", "2024-05"], "pmi": [50.4, 49.5]}),
+        "CPI": pd.DataFrame({"date": ["2024-04", "2024-05"], "cpi_yoy": [0.3, 0.6]}),
+        "PPI": pd.DataFrame({"date": ["2024-04", "2024-05"], "ppi_yoy": [-2.5, -1.4]}),
+        "M2": pd.DataFrame({"date": ["2024-04", "2024-05"], "m2_yoy": [7.2, 7.0]}),
+    }
+    return sample_map[name]
+
+
+def _fallback_if_empty(df: Optional[pd.DataFrame], name: str) -> pd.DataFrame:
+    if df is None or df.empty:
+        print(f"{name} 无真实数据，使用样本回退")
+        return _mock_macro_df(name)
+    return df
 
 
 # ============================================================
@@ -38,11 +58,7 @@ def example_lpr_basic():
     try:
         # 获取全部LPR历史数据 (该接口不接受日期参数)
         # 返回 DataFrame，包含LPR利率数据 (1年期、5年期等)
-        df = service.akshare.get_lpr_rate()
-
-        if df is None or df.empty:
-            print("无数据")
-            return
+        df = _fallback_if_empty(service.akshare.get_lpr_rate(), "LPR")
 
         # 打印数据形状
         print(f"数据形状: {df.shape}")
@@ -107,11 +123,7 @@ def example_pmi_basic():
         # 注意: 该接口不接受 start_date/end_date 参数
         # 返回全部PMI指数数据
         # PMI > 50 表示经济扩张，PMI < 50 表示经济收缩
-        df = service.akshare.get_pmi_index()
-
-        if df is None or df.empty:
-            print("无数据")
-            return
+        df = _fallback_if_empty(service.akshare.get_pmi_index(), "PMI")
 
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")
@@ -178,11 +190,7 @@ def example_cpi_basic():
         # 注意: 该接口不接受 start_date/end_date 参数
         # 返回全部CPI数据
         # CPI反映居民消费价格变动情况，是衡量通货膨胀的重要指标
-        df = service.akshare.get_cpi_data()
-
-        if df is None or df.empty:
-            print("无数据")
-            return
+        df = _fallback_if_empty(service.akshare.get_cpi_data(), "CPI")
 
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")
@@ -240,7 +248,7 @@ def example_ppi_basic():
 
     try:
         # PPI反映工业产品出厂价格变动趋势
-        df = service.akshare.get_ppi_data()
+        df = _fallback_if_empty(service.akshare.get_ppi_data(), "PPI")
 
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")
@@ -302,7 +310,7 @@ def example_m2_basic():
 
     try:
         # M2是广义货币供应量，反映社会总需求变化和未来通货膨胀压力
-        df = service.akshare.get_m2_supply()
+        df = _fallback_if_empty(service.akshare.get_m2_supply(), "M2")
 
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")

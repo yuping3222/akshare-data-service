@@ -18,6 +18,7 @@
 
 import pandas as pd
 from akshare_data import get_service
+from _example_utils import first_non_empty_by_symbol
 
 
 # ============================================================
@@ -33,13 +34,16 @@ def example_basic():
 
     try:
         # 获取资产负债表数据
-        df = service.get_balance_sheet(symbol="600519")
+        df, used_symbol = first_non_empty_by_symbol(
+            service.get_balance_sheet, ["600519", "000001", "300750"]
+        )
 
         if df is None or df.empty:
             print("无数据 (数据源未返回结果或该股票暂无财报)")
             return
 
         print(f"数据形状: {df.shape}")
+        print(f"回退命中代码: {used_symbol}")
         print(f"字段列表: {list(df.columns)}")
 
         # 打印前5行
@@ -114,13 +118,16 @@ def example_asset_structure():
     service = get_service()
 
     try:
-        df = service.get_balance_sheet(symbol="600519")
+        df, used_symbol = first_non_empty_by_symbol(
+            service.get_balance_sheet, ["600519", "000001", "300750"]
+        )
 
         if df is None or df.empty:
             print("无数据")
             return
 
         print(f"数据形状: {df.shape}")
+        print(f"回退命中代码: {used_symbol}")
 
         # 查找可能的资产字段
         asset_cols = [col for col in df.columns if any(

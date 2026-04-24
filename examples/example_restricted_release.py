@@ -19,6 +19,13 @@ get_restricted_release() 接口示例
 """
 
 from akshare_data import get_service
+from datetime import date, timedelta
+
+
+def _recent_window(days: int = 180):
+    end = date.today()
+    start = end - timedelta(days=days)
+    return start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
 
 
 # ============================================================
@@ -35,10 +42,9 @@ def example_basic():
     try:
         # start_date: 起始日期，格式 "YYYY-MM-DD" 或 "YYYYMMDD"
         # end_date: 结束日期，格式 "YYYY-MM-DD" 或 "YYYYMMDD"
-        df = service.get_restricted_release(
-            start_date="2024-01-01",
-            end_date="2024-03-31",
-        )
+        start_date, end_date = _recent_window(90)
+        df = service.get_restricted_release(start_date=start_date, end_date=end_date)
+        print(f"查询区间: {start_date} ~ {end_date}")
 
         if df is None or df.empty:
             print("\n无数据")
@@ -66,10 +72,9 @@ def example_all_market():
     service = get_service()
 
     try:
-        df = service.get_restricted_release(
-            start_date="2024-01-01",
-            end_date="2024-03-31",
-        )
+        start_date, end_date = _recent_window(90)
+        df = service.get_restricted_release(start_date=start_date, end_date=end_date)
+        print(f"查询区间: {start_date} ~ {end_date}")
 
         if df is None or df.empty:
             print("无数据")
@@ -95,10 +100,11 @@ def example_compare_periods():
 
     service = get_service()
 
+    end = date.today()
     ranges = [
-        ("2024-01-01", "2024-03-31", "2024年Q1"),
-        ("2024-04-01", "2024-06-30", "2024年Q2"),
-        ("2024-07-01", "2024-09-30", "2024年Q3"),
+        ((end - timedelta(days=270)).strftime("%Y-%m-%d"), (end - timedelta(days=181)).strftime("%Y-%m-%d"), "较早90天"),
+        ((end - timedelta(days=180)).strftime("%Y-%m-%d"), (end - timedelta(days=91)).strftime("%Y-%m-%d"), "中间90天"),
+        ((end - timedelta(days=90)).strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"), "最近90天"),
     ]
 
     for start, end, label in ranges:
@@ -129,10 +135,11 @@ def example_date_range():
 
     service = get_service()
 
+    end = date.today()
     date_ranges = [
-        ("2024-01-01", "2024-03-31"),
-        ("2024-04-01", "2024-06-30"),
-        ("2024-07-01", "2024-09-30"),
+        ((end - timedelta(days=180)).strftime("%Y-%m-%d"), (end - timedelta(days=121)).strftime("%Y-%m-%d")),
+        ((end - timedelta(days=120)).strftime("%Y-%m-%d"), (end - timedelta(days=61)).strftime("%Y-%m-%d")),
+        ((end - timedelta(days=60)).strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")),
     ]
 
     for start, end in date_ranges:
@@ -164,10 +171,9 @@ def example_analysis():
     service = get_service()
 
     try:
-        df = service.get_restricted_release(
-            start_date="2024-01-01",
-            end_date="2024-12-31",
-        )
+        start_date, end_date = _recent_window(365)
+        df = service.get_restricted_release(start_date=start_date, end_date=end_date)
+        print(f"查询区间: {start_date} ~ {end_date}")
 
         if df is None or df.empty:
             print("无数据")

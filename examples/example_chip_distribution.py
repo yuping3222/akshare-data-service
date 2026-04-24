@@ -9,7 +9,28 @@ get_chip_distribution() 接口示例
 返回字段: 包含价格区间、筹码数量、持仓成本等
 """
 
+from datetime import date, timedelta
+
 from akshare_data import get_service
+
+
+def _candidate_fallback_dates(count: int = 5) -> list[str]:
+    """返回最近若干个可用回退日期（仅工作日，不含未来）"""
+    today = date.today()
+    cursor = today if today.weekday() < 5 else today - timedelta(days=today.weekday() - 4)
+    candidates: list[str] = []
+    while len(candidates) < count:
+        if cursor.weekday() < 5 and cursor <= today:
+            candidates.append(cursor.strftime("%Y-%m-%d"))
+        cursor -= timedelta(days=1)
+    return candidates
+
+
+def _print_empty_hint(symbol: str) -> None:
+    dates = ", ".join(_candidate_fallback_dates())
+    print(f"{symbol}: 无数据。")
+    print("  说明: get_chip_distribution 当前示例按股票维度查询，不直接接收 date 参数。")
+    print(f"  建议: 稍后重试，或先检查最近交易日缓存是否已回补。候选回退日期: {dates}")
 
 
 # ============================================================
@@ -26,7 +47,7 @@ def example_basic():
     try:
         df = service.get_chip_distribution(symbol="600519")
         if df is None or df.empty:
-            print("无数据")
+            _print_empty_hint("600519")
             return
 
         print(f"数据形状: {df.shape}")
@@ -56,6 +77,7 @@ def example_compare_stocks():
             df = service.get_chip_distribution(symbol=code)
             if df is None or df.empty:
                 print(f"\n{code}: 无数据")
+                print(f"  候选回退日期: {', '.join(_candidate_fallback_dates())}")
             else:
                 print(f"\n{code}: {len(df)} 条记录")
                 print(df.head(5))
@@ -77,7 +99,7 @@ def example_concentration():
     try:
         df = service.get_chip_distribution(symbol="600519")
         if df is None or df.empty:
-            print("无数据")
+            _print_empty_hint("600519")
             return
 
         print(f"字段列表: {list(df.columns)}")
@@ -105,7 +127,7 @@ def example_price_range():
     try:
         df = service.get_chip_distribution(symbol="600519")
         if df is None or df.empty:
-            print("无数据")
+            _print_empty_hint("600519")
             return
 
         print(f"数据形状: {df.shape}")

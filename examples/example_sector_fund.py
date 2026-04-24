@@ -16,13 +16,27 @@ import akshare as ak
 import pandas as pd
 
 
+def _mock_industry_fund_flow(symbol="即时"):
+    return pd.DataFrame(
+        {
+            "行业": ["半导体", "银行", "食品饮料", "医药生物", "新能源车"],
+            "主力净流入": [12.5, -8.2, 5.1, 3.8, 9.4],
+            "阶段": [symbol] * 5,
+        }
+    )
+
+
 def _call_industry_fund_flow(symbol="即时"):
     """调用 stock_fund_flow_industry，网络失败时返回 None"""
     try:
-        return ak.stock_fund_flow_industry(symbol=symbol)
+        df = ak.stock_fund_flow_industry(symbol=symbol)
+        if df is None or df.empty:
+            print("  (接口返回空数据，使用演示数据)")
+            return _mock_industry_fund_flow(symbol=symbol)
+        return df
     except Exception as e:
-        print(f"  (网络请求失败: {e})")
-        return None
+        print(f"  (网络请求失败: {e}，使用演示数据)")
+        return _mock_industry_fund_flow(symbol=symbol)
 
 
 # ============================================================

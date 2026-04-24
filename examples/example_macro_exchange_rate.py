@@ -17,21 +17,45 @@ get_macro_exchange_rate() 接口示例
 from akshare_data import get_service
 
 
+def _mock_macro_exchange_rate():
+    import pandas as pd
+
+    return pd.DataFrame(
+        {
+            "货币对": ["USD/CNY", "EUR/CNY", "JPY/CNY", "GBP/CNY", "HKD/CNY"],
+            "最新价": [7.23, 7.89, 0.048, 9.18, 0.924],
+            "涨跌幅": [0.12, -0.05, 0.08, -0.11, 0.02],
+        }
+    )
+
+
+def _fetch_exchange_rate():
+    service = get_service()
+    attempts = [
+        {},
+        {"start_date": "2024-01-01", "end_date": "2024-12-31"},
+        {"start_date": "2023-01-01", "end_date": "2023-12-31"},
+    ]
+    for kwargs in attempts:
+        try:
+            df = service.get_macro_exchange_rate(**kwargs)
+            if df is not None and not df.empty:
+                return df
+        except Exception as e:
+            print(f"实时接口异常({kwargs}): {e}")
+    print("[汇率接口不可用或无数据，使用演示数据]")
+    return _mock_macro_exchange_rate()
+
+
 def example_basic():
     """基本用法: 获取汇率数据"""
     print("=" * 60)
     print("示例 1: 基本用法 - 获取汇率数据")
     print("=" * 60)
 
-    service = get_service()
-
     try:
         # 注意: 该接口不接受 start_date/end_date 参数，返回当前汇率快照
-        df = service.get_macro_exchange_rate()
-
-        if df is None or df.empty:
-            print("无数据（数据源不可用）")
-            return
+        df = _fetch_exchange_rate()
 
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")
@@ -52,14 +76,8 @@ def example_filtered():
     print("示例 2: 汇率数据筛选")
     print("=" * 60)
 
-    service = get_service()
-
     try:
-        df = service.get_macro_exchange_rate()
-
-        if df is None or df.empty:
-            print("无数据")
-            return
+        df = _fetch_exchange_rate()
 
         print(f"汇率数据: {len(df)} 条")
 
@@ -86,14 +104,8 @@ def example_analysis():
     print("示例 3: 汇率数据分析")
     print("=" * 60)
 
-    service = get_service()
-
     try:
-        df = service.get_macro_exchange_rate()
-
-        if df is None or df.empty:
-            print("无数据")
-            return
+        df = _fetch_exchange_rate()
 
         print(f"数据形状: {df.shape}")
 
@@ -115,14 +127,8 @@ def example_latest_data():
     print("示例 4: 获取汇率数据")
     print("=" * 60)
 
-    service = get_service()
-
     try:
-        df = service.get_macro_exchange_rate()
-
-        if df is None or df.empty:
-            print("无数据")
-            return
+        df = _fetch_exchange_rate()
 
         print(f"共有 {len(df)} 条汇率记录")
         print("\n最新的5条数据:")

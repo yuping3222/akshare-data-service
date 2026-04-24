@@ -24,6 +24,12 @@
 """
 
 import pandas as pd
+from _example_utils import (
+    fetch_with_retry,
+    normalize_symbol_input,
+    print_df_brief,
+    stable_df,
+)
 
 
 def calculate_conversion_value(
@@ -56,7 +62,7 @@ def example_convert_bond_list():
 
     service = get_service()
     try:
-        df = service.get_conversion_bond_list()
+        df = fetch_with_retry(lambda: service.get_conversion_bond_list(), retries=2)
     except Exception as e:
         print(f"获取数据失败: {e}")
         return
@@ -65,10 +71,7 @@ def example_convert_bond_list():
         print("无数据")
         return
 
-    print(f"数据形状: {df.shape}")
-    print(f"字段列表: {list(df.columns)}")
-    print("\n前10行数据:")
-    print(df.head(10).to_string(index=False))
+    print_df_brief(stable_df(df), rows=10)
 
 
 # ============================================================
@@ -84,10 +87,13 @@ def example_convert_bond_daily():
 
     service = get_service()
     try:
-        df = service.get_conversion_bond_daily(
-            symbol="127045",
-            start_date="2024-01-01",
-            end_date="2024-03-31",
+        df = fetch_with_retry(
+            lambda: service.get_conversion_bond_daily(
+                symbol=normalize_symbol_input("127045"),
+                start_date="2024-01-01",
+                end_date="2024-03-31",
+            ),
+            retries=2,
         )
     except Exception as e:
         print(f"获取数据失败: {e}")
@@ -97,10 +103,7 @@ def example_convert_bond_daily():
         print("无数据")
         return
 
-    print(f"数据形状: {df.shape}")
-    print(f"字段列表: {list(df.columns)}")
-    print("\n数据内容:")
-    print(df.to_string(index=False))
+    print_df_brief(stable_df(df), rows=10)
 
 
 # ============================================================
@@ -116,10 +119,13 @@ def example_convert_bond_daily_with_prefix():
 
     service = get_service()
     try:
-        df = service.get_conversion_bond_daily(
-            symbol="sh110059",
-            start_date="2024-01-01",
-            end_date="2024-01-31",
+        df = fetch_with_retry(
+            lambda: service.get_conversion_bond_daily(
+                symbol=normalize_symbol_input("sh110059"),
+                start_date="2024-01-01",
+                end_date="2024-01-31",
+            ),
+            retries=2,
         )
     except Exception as e:
         print(f"获取数据失败: {e}")
@@ -129,10 +135,7 @@ def example_convert_bond_daily_with_prefix():
         print("无数据")
         return
 
-    print(f"数据形状: {df.shape}")
-    print(f"字段列表: {list(df.columns)}")
-    print("\n数据内容:")
-    print(df.to_string(index=False))
+    print_df_brief(stable_df(df), rows=10)
 
 
 # ============================================================
@@ -176,7 +179,7 @@ def example_convert_bond_analysis():
 
     service = get_service()
     try:
-        df = service.get_conversion_bond_list()
+        df = fetch_with_retry(lambda: service.get_conversion_bond_list(), retries=2)
     except Exception as e:
         print(f"获取数据失败: {e}")
         return
@@ -221,10 +224,14 @@ def example_batch_convert_bond_daily():
     service = get_service()
     for code in bond_codes:
         try:
-            df = service.get_conversion_bond_daily(
-                symbol=code,
-                start_date="2024-01-01",
-                end_date="2024-01-31",
+            norm_code = normalize_symbol_input(code)
+            df = fetch_with_retry(
+                lambda: service.get_conversion_bond_daily(
+                    symbol=norm_code,
+                    start_date="2024-01-01",
+                    end_date="2024-01-31",
+                ),
+                retries=2,
             )
         except Exception as e:
             print(f"\n可转债 {code}: 获取失败 - {e}")

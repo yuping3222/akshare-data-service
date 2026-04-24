@@ -14,7 +14,18 @@ get_new_stocks() 接口示例
     df = service.get_new_stocks()
 """
 
+import pandas as pd
+
 from akshare_data import get_service
+
+
+def _as_dataframe(data, label: str) -> pd.DataFrame:
+    if not isinstance(data, pd.DataFrame):
+        print(f"{label}: 返回类型异常，期望 DataFrame，实际 {type(data).__name__}")
+        return pd.DataFrame()
+    if data.empty:
+        print(f"{label}: 返回空数据")
+    return data
 
 
 # ============================================================
@@ -29,21 +40,17 @@ def example_basic():
     service = get_service()
 
     try:
-        df = service.get_new_stocks()
-        if df is None:
-            print("（无数据 - 所有数据源均不可用）")
+        df = _as_dataframe(service.get_new_stocks(), "示例1")
+        if df.empty:
             return
 
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")
 
-        if not df.empty:
-            print("\n前5行数据:")
-            print(df.head())
-            print("\n后5行数据:")
-            print(df.tail())
-        else:
-            print("\n无数据")
+        print("\n前5行数据:")
+        print(df.head())
+        print("\n后5行数据:")
+        print(df.tail())
 
     except Exception as e:
         print(f"获取数据失败: {e}")
@@ -61,10 +68,8 @@ def example_overview():
     service = get_service()
 
     try:
-        df = service.get_new_stocks()
-
-        if df is None or df.empty:
-            print("无数据")
+        df = _as_dataframe(service.get_new_stocks(), "示例2")
+        if df.empty:
             return
 
         print(f"新股数据总数: {len(df)}")
@@ -92,10 +97,8 @@ def example_recent():
     service = get_service()
 
     try:
-        df = service.get_new_stocks()
-
-        if df is None or df.empty:
-            print("无数据")
+        df = _as_dataframe(service.get_new_stocks(), "示例3")
+        if df.empty:
             return
 
         # 查找日期相关字段
@@ -130,10 +133,8 @@ def example_price_analysis():
     service = get_service()
 
     try:
-        df = service.get_new_stocks()
-
-        if df is None or df.empty:
-            print("无数据")
+        df = _as_dataframe(service.get_new_stocks(), "示例4")
+        if df.empty:
             return
 
         # 查找价格相关字段
@@ -144,6 +145,7 @@ def example_price_analysis():
                 break
 
         if price_col:
+            df[price_col] = pd.to_numeric(df[price_col], errors="coerce")
             print(f"发行价格统计 ({price_col}):")
             print(df[price_col].describe())
 
@@ -172,9 +174,9 @@ def example_error_handling():
 
     try:
         print("\n测试 1: 正常调用")
-        df = service.get_new_stocks()
-        if df is None:
-            print("  结果: 无数据 - 所有数据源均不可用")
+        df = _as_dataframe(service.get_new_stocks(), "示例5-测试1")
+        if df.empty:
+            print("  结果: 无数据")
         else:
             print(f"  结果: {len(df)} 行数据")
     except Exception as e:
@@ -182,9 +184,9 @@ def example_error_handling():
 
     try:
         print("\n测试 2: 再次调用（验证缓存）")
-        df = service.get_new_stocks()
-        if df is None:
-            print("  结果: 无数据 - 所有数据源均不可用")
+        df = _as_dataframe(service.get_new_stocks(), "示例5-测试2")
+        if df.empty:
+            print("  结果: 无数据")
         else:
             print(f"  结果: {len(df)} 行数据")
     except Exception as e:

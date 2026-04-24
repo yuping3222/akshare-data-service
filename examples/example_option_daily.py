@@ -21,6 +21,33 @@ import pandas as pd
 from akshare_data import get_service
 
 
+def _candidate_option_symbols(service):
+    symbols = ["10000001", "10000002", "10000003"]
+    try:
+        option_list = service.get_option_list()
+        if option_list is not None and not option_list.empty:
+            for col in ["symbol", "合约代码", "code", "期权代码"]:
+                if col in option_list.columns:
+                    symbols = [str(v) for v in option_list[col].dropna().head(5).tolist()] + symbols
+                    break
+    except Exception:
+        pass
+    # 去重保序
+    return list(dict.fromkeys(symbols))
+
+
+def _fetch_option_daily(service, symbol_hint: str = "10000001"):
+    attempts = [symbol_hint] + _candidate_option_symbols(service)
+    for symbol in attempts:
+        try:
+            df = service.get_option_daily(symbol=str(symbol))
+            if df is not None and not df.empty:
+                return str(symbol), df
+        except Exception:
+            continue
+    return symbol_hint, pd.DataFrame()
+
+
 # ============================================================
 # 示例 1: 基本用法 - 获取单个期权合约日线数据
 # ============================================================
@@ -35,8 +62,14 @@ def example_option_daily_basic():
     try:
         # symbol: 期权合约代码
         # 注意: 期权代码需要先通过 get_option_list() 获取
-        df = service.get_option_daily(symbol="10000001")
+        used_symbol, df = _fetch_option_daily(service, symbol_hint="10000001")
 
+        if df is None or df.empty:
+            print("未获取到真实数据，打印样本回退")
+            _show_mock_option_daily()
+            return
+
+        print(f"实际使用合约: {used_symbol}")
         # 打印数据形状
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")
@@ -90,7 +123,7 @@ def example_option_daily_multiple():
 
     for symbol in symbols:
         try:
-            df = service.get_option_daily(symbol=symbol)
+            _, df = _fetch_option_daily(service, symbol_hint=symbol)
             if not df.empty:
                 print(f"\n期权合约 {symbol}:")
                 print(f"  数据行数: {len(df)}")
@@ -169,13 +202,13 @@ def example_option_daily_analysis():
     service = get_service()
 
     try:
-        df = service.get_option_daily(symbol="10000001")
+        used_symbol, df = _fetch_option_daily(service, symbol_hint="10000001")
 
         if df.empty:
             print("无数据")
             return
 
-        print(f"期权合约 10000001 日线数据统计")
+        print(f"期权合约 {used_symbol} 日线数据统计")
         print(f"数据形状: {df.shape}")
 
         # 基本统计
@@ -263,7 +296,7 @@ def example_option_daily_error_handling():
     # 测试无效合约代码
     print("\n测试 1: 无效合约代码")
     try:
-        df = service.get_option_daily(symbol="INVALID")
+        _, df = _fetch_option_daily(service, symbol_hint="INVALID")
         if df.empty:
             print("  结果: 返回空 DataFrame")
         else:
@@ -274,8 +307,12 @@ def example_option_daily_error_handling():
     # 测试正常调用
     print("\n测试 2: 正常调用")
     try:
-        df = service.get_option_daily(symbol="10000001")
-        print(f"  结果: 获取到 {len(df)} 行数据")
+        _, df = _fetch_option_daily(service, symbol_hint="10000001")
+        if df is None or df.empty:
+            print("  结果: 无真实数据，展示样本")
+            _show_mock_option_daily()
+        else:
+            print(f"  结果: 获取到 {len(df)} 行数据")
     except Exception as e:
         print(f"  捕获异常: {type(e).__name__}: {e}")
 

@@ -16,6 +16,13 @@ get_restricted_release_detail() 接口示例
 """
 
 from akshare_data import get_service
+from datetime import date, timedelta
+
+
+def _recent_window(days: int = 180):
+    end = date.today()
+    start = end - timedelta(days=days)
+    return start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
 
 
 # ============================================================
@@ -30,10 +37,9 @@ def example_basic():
     service = get_service()
 
     try:
-        df = service.get_restricted_release_detail(
-            start_date="2024-01-01",
-            end_date="2024-03-31",
-        )
+        start_date, end_date = _recent_window(90)
+        df = service.get_restricted_release_detail(start_date=start_date, end_date=end_date)
+        print(f"查询区间: {start_date} ~ {end_date}")
 
         if df is None or df.empty:
             print("\n无数据（接口暂无可用数据源）")
@@ -97,9 +103,10 @@ def example_quarterly():
 
     service = get_service()
 
+    end = date.today()
     quarters = [
-        ("2024-01-01", "2024-03-31", "2024年Q1"),
-        ("2024-04-01", "2024-06-30", "2024年Q2"),
+        ((end - timedelta(days=180)).strftime("%Y-%m-%d"), (end - timedelta(days=91)).strftime("%Y-%m-%d"), "较早90天"),
+        ((end - timedelta(days=90)).strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"), "最近90天"),
     ]
 
     for start, end, label in quarters:
@@ -133,10 +140,9 @@ def example_field_analysis():
     service = get_service()
 
     try:
-        df = service.get_restricted_release_detail(
-            start_date="2024-01-01",
-            end_date="2024-06-30",
-        )
+        start_date, end_date = _recent_window(180)
+        df = service.get_restricted_release_detail(start_date=start_date, end_date=end_date)
+        print(f"查询区间: {start_date} ~ {end_date}")
 
         if df is None or df.empty:
             print("无数据（接口暂无可用数据源）")
@@ -168,10 +174,8 @@ def example_error_handling():
 
     try:
         print("\n测试 1: 无效日期格式")
-        df = service.get_restricted_release_detail(
-            start_date="invalid",
-            end_date="2024-12-31",
-        )
+        end_date = date.today().strftime("%Y-%m-%d")
+        df = service.get_restricted_release_detail(start_date="invalid", end_date=end_date)
         if df is None:
             print(f"  结果: 无数据（接口暂无可用数据源）")
         else:
@@ -181,10 +185,8 @@ def example_error_handling():
 
     try:
         print("\n测试 2: 正常调用")
-        df = service.get_restricted_release_detail(
-            start_date="2024-01-01",
-            end_date="2024-03-31",
-        )
+        start_date, end_date = _recent_window(90)
+        df = service.get_restricted_release_detail(start_date=start_date, end_date=end_date)
         if df is None:
             print(f"  结果: 无数据（接口暂无可用数据源）")
         else:

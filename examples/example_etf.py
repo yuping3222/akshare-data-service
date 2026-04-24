@@ -23,13 +23,40 @@ get_etf(symbol, start_date, end_date) 参数说明:
     - 支持带前缀的代码格式 (如 "sh510300")，系统会自动规范化
 """
 
+from datetime import date, timedelta
+
 from akshare_data import get_etf
+
+
+def _last_trading_day(anchor: date | None = None) -> date:
+    d = min(anchor or date.today(), date.today())
+    while d.weekday() >= 5:
+        d -= timedelta(days=1)
+    return d
+
+
+def _date_range(days: int) -> tuple[str, str]:
+    end = _last_trading_day()
+    start = end - timedelta(days=max(days * 2, 10))
+    return start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
+
+
+def _candidate_fallback_dates(count: int = 5) -> list[str]:
+    d = _last_trading_day()
+    out: list[str] = []
+    while len(out) < count:
+        out.append(d.strftime("%Y-%m-%d"))
+        d -= timedelta(days=1)
+        while d.weekday() >= 5:
+            d -= timedelta(days=1)
+    return out
 
 
 def _print_empty_or_data(label, df):
     """Helper: print a clear message if data is empty, otherwise print it."""
-    if df.empty:
+    if df is None or df.empty:
         print(f"  {label}: 无数据 (数据源未返回结果，可能是网络问题或尚未缓存)")
+        print(f"  候选回退日期: {', '.join(_candidate_fallback_dates())}")
         return False
     return True
 
@@ -42,7 +69,8 @@ def example_basic_etf():
 
     try:
         # 获取 2024年1月 到 2024年3月 的数据
-        df = get_etf("510300", "2024-01-01", "2024-03-31")
+        start, end = _date_range(60)
+        df = get_etf("510300", start, end)
 
         if not _print_empty_or_data("沪深300ETF(510300)", df):
             return
@@ -84,7 +112,8 @@ def example_multiple_etfs():
     for symbol, name in etfs.items():
         try:
             print(f"\n--- {name} ({symbol}) ---")
-            df = get_etf(symbol, "2024-06-01", "2024-06-30")
+            start, end = _date_range(22)
+            df = get_etf(symbol, start, end)
 
             if df.empty:
                 print("  无数据 (数据源未返回结果)")
@@ -111,7 +140,8 @@ def example_with_prefix():
 
     try:
         # 系统会自动将 "sh510300" 规范化为 "510300"
-        df = get_etf("sh510300", "2024-09-01", "2024-09-30")
+        start, end = _date_range(22)
+        df = get_etf("sh510300", start, end)
 
         if not _print_empty_or_data("sh510300", df):
             return
@@ -132,7 +162,8 @@ def example_data_analysis():
 
     try:
         # 获取较长时间跨度的数据用于分析
-        df = get_etf("510300", "2024-01-01", "2024-12-31")
+        start, end = _date_range(260)
+        df = get_etf("510300", start, end)
 
         if df.empty:
             print("无数据 (数据源未返回结果)")
@@ -182,7 +213,8 @@ def example_short_period():
 
     try:
         # 获取单只ETF的短期数据
-        df = get_etf("510050", "2024-11-01", "2024-11-30")
+        start, end = _date_range(22)
+        df = get_etf("510050", start, end)
 
         if not _print_empty_or_data("上证50ETF(510050)", df):
             return

@@ -19,6 +19,12 @@ import logging
 logging.getLogger("akshare_data").setLevel(logging.ERROR)
 
 from akshare_data import get_security_info
+from _example_utils import fetch_with_retry, normalize_symbol_input
+
+
+def _safe_security_info(symbol: str):
+    code = normalize_symbol_input(symbol)
+    return code, fetch_with_retry(lambda: get_security_info(code), retries=2)
 
 
 def example_basic_usage():
@@ -30,7 +36,7 @@ def example_basic_usage():
     try:
         # symbol: 证券代码，支持多种格式 (如 "000001", "000001.sz", "600519")
         symbol = "000001"  # 平安银行
-        info = get_security_info(symbol)
+        symbol, info = _safe_security_info(symbol)
 
         if not info:
             print(f"证券代码: {symbol}")
@@ -76,7 +82,7 @@ def example_multiple_stocks():
 
     try:
         for symbol in stocks:
-            info = get_security_info(symbol)
+            symbol, info = _safe_security_info(symbol)
             if info:
                 print(
                     f"{symbol}: {info.get('display_name')} | 类型: {info.get('type')} | 行业: {info.get('industry')}"
@@ -109,7 +115,7 @@ def example_different_types():
 
     try:
         for symbol, desc in securities.items():
-            info = get_security_info(symbol)
+            symbol, info = _safe_security_info(symbol)
             print(f"{desc} ({symbol}):")
             if info:
                 for key, value in info.items():
@@ -138,13 +144,13 @@ def example_with_cache():
     try:
         # 第一次调用: 从数据源获取并写入缓存
         print("第一次调用 (从数据源获取):")
-        info1 = get_security_info(symbol)
+        symbol, info1 = _safe_security_info(symbol)
         print(f"  结果: {info1}")
         print()
 
         # 第二次调用: 直接从缓存读取，速度更快
         print("第二次调用 (从缓存读取):")
-        info2 = get_security_info(symbol)
+        symbol, info2 = _safe_security_info(symbol)
         print(f"  结果: {info2}")
 
     except Exception as e:
@@ -169,7 +175,7 @@ def example_error_handling():
 
     for symbol in invalid_symbols:
         try:
-            info = get_security_info(symbol)
+            symbol, info = _safe_security_info(symbol)
             if info:
                 print(f"{symbol}: {info}")
             else:

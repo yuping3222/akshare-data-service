@@ -1,13 +1,11 @@
-"""
-股权冻结接口示例 (get_equity_freeze)
+"""get_equity_freeze() 示例：空数据重试 + 可读输出。"""
 
-注意: 该接口当前未在 akshare 数据源的接口配置中定义。
-      调用此接口可能导致错误或返回空数据。
+from __future__ import annotations
 
-如需要股权冻结相关数据，建议:
-1. 使用 lixinger 数据源（需配置 LIXINGER_TOKEN）
-2. 或等待 akshare 数据源添加对应接口配置
-"""
+import time
+from typing import Callable
+
+import pandas as pd
 
 from akshare_data import get_service
 
@@ -15,168 +13,51 @@ from akshare_data import get_service
 # ============================================================
 # 示例 1: 基本用法 - 获取单只股票的股权冻结
 # ============================================================
-def example_basic():
-    """基本用法: 获取贵州茅台的股权冻结"""
-    print("=" * 60)
-    print("示例 1: 基本用法 - 获取贵州茅台(600519)股权冻结")
-    print("=" * 60)
-    print("注意: 此接口当前未在 akshare 配置中定义，可能无法返回数据。")
-    print()
-
-    service = get_service()
-
-    try:
-        # symbol: 证券代码
-        df = service.get_equity_freeze(symbol="600519")
-
-        if df is None or df.empty:
-            print("无数据（接口未配置或数据源不可用）")
-            return
-
-        # 打印数据形状
-        print(f"数据形状: {df.shape}")
-        print(f"字段列表: {list(df.columns)}")
-
-        # 打印前5行
-        print("\n前5行数据:")
-        print(df.head())
-
-        # 打印后5行
-        print("\n后5行数据:")
-        print(df.tail())
-
-    except Exception as e:
-        print(f"获取数据失败: {e}")
-        print("提示: 该接口当前未在 akshare 数据源中配置")
+def _fetch_with_retry(fetcher: Callable[[], pd.DataFrame], desc: str, retries: int = 3) -> pd.DataFrame:
+    last_df: pd.DataFrame | None = None
+    for i in range(retries):
+        try:
+            df = fetcher()
+            last_df = df
+            if df is not None and not df.empty:
+                return df
+            print(f"{desc}: 返回空数据 (第 {i + 1}/{retries} 次)")
+        except Exception as exc:
+            print(f"{desc}: 调用异常 (第 {i + 1}/{retries} 次): {exc}")
+        if i < retries - 1:
+            time.sleep(1)
+    return last_df
 
 
 # ============================================================
 # 示例 2: 获取深市股票的股权冻结
 # ============================================================
-def example_sz_stock():
-    """获取深市股票的股权冻结"""
-    print("\n" + "=" * 60)
-    print("示例 2: 获取平安银行(000001)股权冻结")
-    print("=" * 60)
-    print("注意: 此接口当前未在 akshare 配置中定义。")
-    print()
-
-    service = get_service()
-
-    try:
-        df = service.get_equity_freeze(symbol="000001")
-
-        if df is None or df.empty:
-            print("无数据（接口未配置或数据源不可用）")
-            return
-
-        print(f"数据形状: {df.shape}")
-        print(f"字段列表: {list(df.columns)}")
-
-        print("\n最新5条记录:")
-        print(df.tail(5))
-
-    except Exception as e:
-        print(f"获取数据失败: {e}")
-        print("提示: 该接口当前未在 akshare 数据源中配置")
+def _print_df(df: pd.DataFrame, title: str, rows: int = 8) -> None:
+    if df is None:
+        print(f"{title}: None")
+        return
+    print(f"{title}: shape={df.shape}, columns={list(df.columns)}")
+    if df.empty:
+        print("  空数据")
+        return
+    print(df.head(rows).to_string(index=False))
 
 
 # ============================================================
 # 示例 3: 批量获取多只股票
 # ============================================================
-def example_multiple_stocks():
-    """批量获取多只股票的股权冻结"""
-    print("\n" + "=" * 60)
-    print("示例 3: 批量获取多只股票股权冻结")
+def example_basic() -> None:
     print("=" * 60)
-
-    service = get_service()
-
-    symbols = ["600519", "000001", "601318"]
-
-    for symbol in symbols:
-        try:
-            df = service.get_equity_freeze(symbol=symbol)
-            if df is None or df.empty:
-                print(f"\n{symbol}: 无数据")
-            else:
-                print(f"\n{symbol}: 共 {len(df)} 条记录")
-                print(f"  字段: {list(df.columns)}")
-        except Exception as e:
-            print(f"\n{symbol}: 获取失败 - {e}")
-
-
-# ============================================================
-# 示例 4: 数据分析 - 冻结情况统计
-# ============================================================
-def example_analysis():
-    """演示获取数据后进行股权冻结分析"""
-    print("\n" + "=" * 60)
-    print("示例 4: 数据分析 - 股权冻结情况统计")
+    print("股权冻结示例（若数据源未配置，脚本会重试后友好退出）")
     print("=" * 60)
-
     service = get_service()
-
-    try:
-        df = service.get_equity_freeze(symbol="600519")
-
-        if df is None or df.empty:
-            print("无数据")
+    for symbol in ["600519", "000001", "300750"]:
+        df = _fetch_with_retry(lambda: service.get_equity_freeze(symbol=symbol), f"symbol={symbol}")
+        if df is not None and not df.empty:
+            _print_df(df, f"成功: symbol={symbol}")
             return
-
-        print(f"贵州茅台股权冻结数据 ({len(df)}条)")
-        print(f"数据形状: {df.shape}")
-
-        # 打印基本统计信息
-        numeric_cols = df.select_dtypes(include=["number"]).columns.tolist()
-        if numeric_cols:
-            print(f"\n数值字段统计信息:")
-            print(df[numeric_cols].describe())
-
-        print("\n完整数据:")
-        print(df.to_string(index=False))
-
-    except Exception as e:
-        print(f"获取数据失败: {e}")
-
-
-# ============================================================
-# 示例 5: 错误处理演示
-# ============================================================
-def example_error_handling():
-    """演示错误处理 - 无效代码等情况"""
-    print("\n" + "=" * 60)
-    print("示例 5: 错误处理演示")
-    print("=" * 60)
-
-    service = get_service()
-
-    # 测试无效代码
-    print("\n测试 1: 无效股票代码")
-    try:
-        df = service.get_equity_freeze(symbol="999999")
-        if df is None or df.empty:
-            print("  结果: 无数据")
-        else:
-            print(f"  结果: 获取到 {len(df)} 行数据")
-    except Exception as e:
-        print(f"  捕获异常: {type(e).__name__}: {e}")
-
-    # 测试不存在的代码
-    print("\n测试 2: 不存在的股票代码")
-    try:
-        df = service.get_equity_freeze(symbol="INVALID")
-        if df is None or df.empty:
-            print("  结果: 无数据")
-        else:
-            print(f"  结果: 获取到 {len(df)} 行数据")
-    except Exception as e:
-        print(f"  捕获异常: {type(e).__name__}: {e}")
+    _print_df(df, "最终结果")
 
 
 if __name__ == "__main__":
     example_basic()
-    example_sz_stock()
-    example_multiple_stocks()
-    example_analysis()
-    example_error_handling()

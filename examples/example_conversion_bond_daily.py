@@ -25,6 +25,12 @@ get_conversion_bond_daily() 接口示例
 
 import pandas as pd
 from akshare_data import get_service
+from _example_utils import (
+    fetch_with_retry,
+    normalize_symbol_input,
+    print_df_brief,
+    stable_df,
+)
 
 
 def _mock_daily_data(symbol="127045"):
@@ -61,25 +67,18 @@ def example_basic():
     try:
         # 获取牧原转债的日线数据
         # 注意: 该接口仅接受 symbol 参数，返回全部历史数据
-        symbol = "127045"
+        symbol = normalize_symbol_input("127045")
 
         print(f"\n查询参数:")
         print(f"  代码: {symbol}")
 
-        df = service.get_conversion_bond_daily(symbol=symbol)
+        df = fetch_with_retry(lambda: service.get_conversion_bond_daily(symbol=symbol), retries=2)
 
         if df is None or df.empty:
             print("\n[数据源不可用，使用演示数据]")
             df = _mock_daily_data(symbol)
 
-        print(f"\n数据形状: {df.shape}")
-        print(f"字段列表: {list(df.columns)}")
-
-        print("\n前5行数据:")
-        print(df.head(5).to_string(index=False))
-
-        print("\n后5行数据:")
-        print(df.tail(5).to_string(index=False))
+        print_df_brief(stable_df(df), rows=5)
 
     except Exception as e:
         print(f"\n获取数据失败: {e}")
@@ -108,7 +107,10 @@ def example_symbol_formats():
     for symbol, desc in symbols:
         try:
             print(f"\n测试代码格式: {symbol} ({desc})")
-            df = service.get_conversion_bond_daily(symbol=symbol)
+            df = fetch_with_retry(
+                lambda: service.get_conversion_bond_daily(symbol=normalize_symbol_input(symbol)),
+                retries=2,
+            )
 
             if df.empty:
                 print(f"  结果: 无数据")
@@ -133,7 +135,10 @@ def example_technical_analysis():
     service = get_service()
 
     try:
-        df = service.get_conversion_bond_daily(symbol="127045")
+        df = fetch_with_retry(
+            lambda: service.get_conversion_bond_daily(symbol=normalize_symbol_input("127045")),
+            retries=2,
+        )
 
         if df.empty:
             print("[数据源不可用，使用演示数据]")
@@ -194,7 +199,10 @@ def example_compare_bonds():
     results = []
     for symbol, name in symbols:
         try:
-            df = service.get_conversion_bond_daily(symbol=symbol)
+            df = fetch_with_retry(
+                lambda: service.get_conversion_bond_daily(symbol=normalize_symbol_input(symbol)),
+                retries=2,
+            )
 
             if df.empty:
                 print(f"  {symbol} ({name}): 无数据")
@@ -246,7 +254,10 @@ def example_volume_analysis():
     service = get_service()
 
     try:
-        df = service.get_conversion_bond_daily(symbol="127045")
+        df = fetch_with_retry(
+            lambda: service.get_conversion_bond_daily(symbol=normalize_symbol_input("127045")),
+            retries=2,
+        )
 
         if df.empty:
             print("[数据源不可用，使用演示数据]")
@@ -294,7 +305,10 @@ def example_error_handling():
     # 测试无效代码
     print("\n测试 1: 无效可转债代码")
     try:
-        df = service.get_conversion_bond_daily(symbol="INVALID")
+        df = fetch_with_retry(
+            lambda: service.get_conversion_bond_daily(symbol=normalize_symbol_input("INVALID")),
+            retries=1,
+        )
         if df.empty:
             print("  结果: 返回空 DataFrame")
         else:
@@ -305,7 +319,10 @@ def example_error_handling():
     # 测试正常调用
     print("\n测试 2: 正常调用")
     try:
-        df = service.get_conversion_bond_daily(symbol="127045")
+        df = fetch_with_retry(
+            lambda: service.get_conversion_bond_daily(symbol=normalize_symbol_input("127045")),
+            retries=2,
+        )
         print(f"  结果: 获取到 {len(df)} 条记录")
     except Exception as e:
         print(f"  捕获异常: {type(e).__name__}: {e}")

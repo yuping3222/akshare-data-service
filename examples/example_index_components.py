@@ -26,6 +26,7 @@ get_index_components() 接口示例
 """
 
 from akshare_data import get_service
+from _example_utils import fetch_with_retry, normalize_symbol_input, stable_df
 
 
 def _safe_df(df):
@@ -33,6 +34,15 @@ def _safe_df(df):
     if df is None or df.empty:
         return None
     return df
+
+
+def _safe_index_components(service, index_code: str, include_weights: bool = True):
+    code = normalize_symbol_input(index_code)
+    df = fetch_with_retry(
+        lambda: service.get_index_components(index_code=code, include_weights=include_weights),
+        retries=2,
+    )
+    return _safe_df(stable_df(df))
 
 
 # ============================================================
@@ -47,11 +57,7 @@ def example_basic():
     service = get_service()
 
     try:
-        df = service.get_index_components(
-            index_code="000300",
-            include_weights=True,
-        )
-        df = _safe_df(df)
+        df = _safe_index_components(service, "000300", include_weights=True)
         if df is None:
             print("无数据")
             return
@@ -81,11 +87,7 @@ def example_without_weights():
     service = get_service()
 
     try:
-        df = service.get_index_components(
-            index_code="000300",
-            include_weights=False,
-        )
-        df = _safe_df(df)
+        df = _safe_index_components(service, "000300", include_weights=False)
         if df is None:
             print("无数据")
             return
@@ -119,8 +121,7 @@ def example_compare_indices():
 
     for code, name in indices.items():
         try:
-            df = service.get_index_components(index_code=code, include_weights=True)
-            df = _safe_df(df)
+            df = _safe_index_components(service, code, include_weights=True)
             if df is None:
                 print(f"{name}({code}): 无数据")
             else:
@@ -145,11 +146,7 @@ def example_weight_analysis():
     service = get_service()
 
     try:
-        df = service.get_index_components(
-            index_code="000016",
-            include_weights=True,
-        )
-        df = _safe_df(df)
+        df = _safe_index_components(service, "000016", include_weights=True)
         if df is None or "weight" not in df.columns:
             print("无权重数据")
             return
@@ -194,11 +191,7 @@ def example_sz_index():
     service = get_service()
 
     try:
-        df = service.get_index_components(
-            index_code="399001",
-            include_weights=True,
-        )
-        df = _safe_df(df)
+        df = _safe_index_components(service, "399001", include_weights=True)
         if df is None:
             print("无数据")
             return
@@ -225,11 +218,7 @@ def example_extract_codes():
     service = get_service()
 
     try:
-        df = service.get_index_components(
-            index_code="000300",
-            include_weights=False,
-        )
-        df = _safe_df(df)
+        df = _safe_index_components(service, "000300", include_weights=False)
         if df is None:
             print("无数据")
             return
@@ -263,8 +252,7 @@ def example_error_handling():
     # 测试 1: 正常获取
     print("\n测试 1: 正常获取")
     try:
-        df = service.get_index_components(index_code="000300")
-        df = _safe_df(df)
+        df = _safe_index_components(service, "000300")
         if df is None:
             print("  结果: 无数据")
         else:
@@ -275,8 +263,7 @@ def example_error_handling():
     # 测试 2: 无效指数代码
     print("\n测试 2: 无效指数代码")
     try:
-        df = service.get_index_components(index_code="999999")
-        df = _safe_df(df)
+        df = _safe_index_components(service, "999999")
         if df is None:
             print("  结果: 无数据")
         else:
@@ -287,8 +274,7 @@ def example_error_handling():
     # 测试 3: 不含权重
     print("\n测试 3: 不含权重")
     try:
-        df = service.get_index_components(index_code="000300", include_weights=False)
-        df = _safe_df(df)
+        df = _safe_index_components(service, "000300", include_weights=False)
         if df is None:
             print("  结果: 无数据")
         else:

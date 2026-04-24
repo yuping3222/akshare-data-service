@@ -17,6 +17,17 @@
 """
 
 from akshare_data import get_service
+from _example_utils import fetch_with_date_fallback, print_df_brief, stable_df
+
+
+def _get_dragon_tiger_by_date(service, target_date: str):
+    hit_date, df = fetch_with_date_fallback(
+        lambda d: service.akshare.get_dragon_tiger_list(date=d),
+        base_date=target_date,
+        fallback_days=7,
+        retries_per_date=1,
+    )
+    return hit_date, stable_df(df)
 
 
 def example_basic_dragon_tiger_list():
@@ -31,14 +42,15 @@ def example_basic_dragon_tiger_list():
         # 获取2024年6月28日的龙虎榜数据
         # 底层 AkShare 函数 stock_lhb_detail_em 需要 start_date/end_date 范围
         # date 参数会自动转换为相同起止日期
-        df = service.akshare.get_dragon_tiger_list(date="2024-06-28")
+        hit_date, df = _get_dragon_tiger_by_date(service, "2024-06-28")
 
         # 打印数据基本信息
-        print(f"数据形状: {df.shape}")
+        if hit_date:
+            print(f"命中日期: {hit_date}")
+        print_df_brief(df, rows=5)
         if not df.empty:
-            print(f"列名: {df.columns.tolist()}")
-            print(f"\n前5行数据:")
-            print(df.head())
+            print("\n前5行数据（稳定排序后）:")
+            print(df.head().to_string(index=False))
         else:
             print("该日期无龙虎榜数据（可能是非交易日或数据源无数据）")
     except Exception as e:
@@ -55,11 +67,12 @@ def example_dragon_tiger_list_recent():
 
     try:
         # 获取2024年6月27日的龙虎榜数据
-        df = service.akshare.get_dragon_tiger_list(date="2024-06-27")
+        hit_date, df = _get_dragon_tiger_by_date(service, "2024-06-27")
 
         if df.empty:
             print("该日期无龙虎榜数据（可能是非交易日）")
         else:
+            print(f"命中日期: {hit_date}")
             print(f"共 {df.shape[0]} 条龙虎榜记录")
             print(f"\n数据列:")
             for col in df.columns:
@@ -151,11 +164,11 @@ def example_dragon_tiger_multiple_dates():
 
     for date in dates:
         try:
-            df = service.akshare.get_dragon_tiger_list(date=date)
+            hit_date, df = _get_dragon_tiger_by_date(service, date)
             if df.empty:
                 print(f"{date}: 无龙虎榜数据")
             else:
-                print(f"{date}: {df.shape[0]} 条记录")
+                print(f"{date} -> {hit_date}: {df.shape[0]} 条记录")
         except Exception as e:
             print(f"{date}: 获取失败 - {e}")
 

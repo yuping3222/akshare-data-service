@@ -20,6 +20,23 @@
 """
 
 from akshare_data import get_service
+import time
+from typing import Callable, Optional
+
+import pandas as pd
+
+
+def _fetch_with_retry(fetcher: Callable[[], pd.DataFrame], desc: str) -> Optional[pd.DataFrame]:
+    for i in range(3):
+        try:
+            df = fetcher()
+            if df is not None and not df.empty:
+                return df
+            print(f"{desc}: 第 {i + 1}/3 次返回空结果")
+        except Exception as e:  # noqa: BLE001
+            print(f"{desc}: 第 {i + 1}/3 次失败 -> {e}")
+        time.sleep(1)
+    return None
 
 
 def example_basic_limit_up():
@@ -33,17 +50,19 @@ def example_basic_limit_up():
     try:
         # 注意：涨停池/跌停池接口只支持近期交易日数据
         # 使用最近的交易日日期（格式 YYYY-MM-DD）
-        df = service.akshare.get_limit_up_pool(date="2026-04-17")
+        df = _fetch_with_retry(
+            lambda: service.akshare.get_limit_up_pool(date="2026-04-17"),
+            "get_limit_up_pool(2026-04-17)",
+        )
 
-        # 打印数据基本信息
-        print(f"数据形状: {df.shape}")
-        if not df.empty:
+        if df is not None:
+            print(f"数据形状: {df.shape}")
             print(f"涨停股票数量: {len(df)}")
             print(f"列名: {df.columns.tolist()}")
             print(f"\n前5行数据:")
             print(df.head())
         else:
-            print("该日期无涨停数据")
+            print("该日期无涨停数据（重试后仍为空）")
     except Exception as e:
         print(f"获取涨停池数据失败: {e}")
 
@@ -58,16 +77,19 @@ def example_basic_limit_down():
 
     try:
         # 注意：跌停池仅支持最近 30 个交易日数据
-        df = service.akshare.get_limit_down_pool(date="2026-04-17")
+        df = _fetch_with_retry(
+            lambda: service.akshare.get_limit_down_pool(date="2026-04-17"),
+            "get_limit_down_pool(2026-04-17)",
+        )
 
-        print(f"数据形状: {df.shape}")
-        if not df.empty:
+        if df is not None:
+            print(f"数据形状: {df.shape}")
             print(f"跌停股票数量: {len(df)}")
             print(f"列名: {df.columns.tolist()}")
             print(f"\n前5行数据:")
             print(df.head())
         else:
-            print("该日期无跌停数据")
+            print("该日期无跌停数据（重试后仍为空）")
     except Exception as e:
         print(f"获取跌停池数据失败: {e}")
 
@@ -94,9 +116,15 @@ def example_compare_limit_up_down():
 
     for date in dates:
         try:
-            up_df = service.akshare.get_limit_up_pool(date=date)
-            down_df = service.akshare.get_limit_down_pool(date=date)
-            print(f"{date:<12} {len(up_df):>8} {len(down_df):>8}")
+            up_df = _fetch_with_retry(
+                lambda d=date: service.akshare.get_limit_up_pool(date=d),
+                f"get_limit_up_pool({date})",
+            )
+            down_df = _fetch_with_retry(
+                lambda d=date: service.akshare.get_limit_down_pool(date=d),
+                f"get_limit_down_pool({date})",
+            )
+            print(f"{date:<12} {len(up_df) if up_df is not None else 0:>8} {len(down_df) if down_df is not None else 0:>8}")
         except Exception as e:
             print(f"{date:<12} {'获取失败':>8}")
 
@@ -111,9 +139,12 @@ def example_limit_up_analysis():
 
     try:
         # 获取某日的涨停池数据（使用近期日期）
-        df = service.akshare.get_limit_up_pool(date="2026-04-17")
+        df = _fetch_with_retry(
+            lambda: service.akshare.get_limit_up_pool(date="2026-04-17"),
+            "get_limit_up_pool(analysis)",
+        )
 
-        if df.empty:
+        if df is None:
             print("该日期无涨停数据")
         else:
             print(f"共 {len(df)} 只股票涨停")
@@ -155,9 +186,12 @@ def example_limit_down_analysis():
 
     try:
         # 获取某日的跌停池数据（使用近期日期，跌停池仅支持近30个交易日）
-        df = service.akshare.get_limit_down_pool(date="2026-04-17")
+        df = _fetch_with_retry(
+            lambda: service.akshare.get_limit_down_pool(date="2026-04-17"),
+            "get_limit_down_pool(analysis)",
+        )
 
-        if df.empty:
+        if df is None:
             print("该日期无跌停数据（市场情绪较好）")
         else:
             print(f"共 {len(df)} 只股票跌停")
@@ -180,8 +214,11 @@ def example_limit_up_down_error_handling():
 
     # 测试非交易日（使用最近的非交易日）
     try:
-        df = service.akshare.get_limit_up_pool(date="2026-02-10")  # 春节假期
-        if df.empty:
+        df = _fetch_with_retry(
+            lambda: service.akshare.get_limit_up_pool(date="2026-02-10"),
+            "get_limit_up_pool(non_trading)",
+        )
+        if df is None:
             print("非交易日涨停池返回空DataFrame")
         else:
             print(f"获取到 {len(df)} 条涨停数据")
@@ -190,8 +227,11 @@ def example_limit_up_down_error_handling():
 
     # 测试跌停池非交易日
     try:
-        df = service.akshare.get_limit_down_pool(date="2026-02-10")
-        if df.empty:
+        df = _fetch_with_retry(
+            lambda: service.akshare.get_limit_down_pool(date="2026-02-10"),
+            "get_limit_down_pool(non_trading)",
+        )
+        if df is None:
             print("非交易日跌停池返回空DataFrame")
         else:
             print(f"获取到 {len(df)} 条跌停数据")
@@ -200,8 +240,11 @@ def example_limit_up_down_error_handling():
 
     # 测试无效日期格式
     try:
-        df = service.akshare.get_limit_up_pool(date="invalid")
-        print(f"获取到 {len(df)} 条数据")
+        df = _fetch_with_retry(
+            lambda: service.akshare.get_limit_up_pool(date="invalid"),
+            "get_limit_up_pool(invalid)",
+        )
+        print(f"获取到 {len(df) if df is not None else 0} 条数据")
     except Exception as e:
         print(f"捕获到异常: {type(e).__name__}: {e}")
 
@@ -228,11 +271,17 @@ def example_market_sentiment():
 
     for date in dates:
         try:
-            up_df = service.akshare.get_limit_up_pool(date=date)
-            down_df = service.akshare.get_limit_down_pool(date=date)
+            up_df = _fetch_with_retry(
+                lambda d=date: service.akshare.get_limit_up_pool(date=d),
+                f"get_limit_up_pool({date})",
+            )
+            down_df = _fetch_with_retry(
+                lambda d=date: service.akshare.get_limit_down_pool(date=d),
+                f"get_limit_down_pool({date})",
+            )
 
-            up_count = len(up_df)
-            down_count = len(down_df)
+            up_count = len(up_df) if up_df is not None else 0
+            down_count = len(down_df) if down_df is not None else 0
 
             if down_count > 0:
                 ratio = up_count / down_count

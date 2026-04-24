@@ -19,7 +19,18 @@ get_lof_spot() 接口示例
 - 实时数据不走缓存，每次调用都会获取最新数据
 """
 
+import pandas as pd
+
 from akshare_data import get_service
+
+
+def _as_dataframe(data, label: str) -> pd.DataFrame:
+    if not isinstance(data, pd.DataFrame):
+        print(f"{label}: 返回类型异常，期望 DataFrame，实际 {type(data).__name__}")
+        return pd.DataFrame()
+    if data.empty:
+        print(f"{label}: 返回空数据")
+    return data
 
 
 # ============================================================
@@ -35,10 +46,9 @@ def example_basic():
 
     try:
         # 获取全部LOF基金实时行情
-        df = service.get_lof_spot()
+        df = _as_dataframe(service.get_lof_spot(), "示例1")
 
-        if df is None or df.empty:
-            print("无数据 (数据源未返回结果，可能是非交易时间)")
+        if df.empty:
             return
 
         # 打印数据形状
@@ -70,10 +80,9 @@ def example_price_change():
     service = get_service()
 
     try:
-        df = service.get_lof_spot()
+        df = _as_dataframe(service.get_lof_spot(), "示例2")
 
-        if df is None or df.empty:
-            print("无数据")
+        if df.empty:
             return
 
         print(f"LOF基金总数: {len(df)}")
@@ -126,10 +135,9 @@ def example_find_lof():
     target_codes = ["162605", "163402", "161005"]
 
     try:
-        df = service.get_lof_spot()
+        df = _as_dataframe(service.get_lof_spot(), "示例3")
 
-        if df is None or df.empty:
-            print("无数据")
+        if df.empty:
             return
 
         print(f"LOF基金总数: {len(df)}")
@@ -168,10 +176,9 @@ def example_volume_analysis():
     service = get_service()
 
     try:
-        df = service.get_lof_spot()
+        df = _as_dataframe(service.get_lof_spot(), "示例4")
 
-        if df is None or df.empty:
-            print("无数据")
+        if df.empty:
             return
 
         print(f"LOF基金总数: {len(df)}")
@@ -215,10 +222,9 @@ def example_price_distribution():
     service = get_service()
 
     try:
-        df = service.get_lof_spot()
+        df = _as_dataframe(service.get_lof_spot(), "示例5")
 
-        if df is None or df.empty:
-            print("无数据")
+        if df.empty:
             return
 
         # 查找价格列
@@ -249,11 +255,6 @@ def example_price_distribution():
 
     except Exception as e:
         print(f"分析失败: {e}")
-
-
-# 导入 pandas 用于示例 2-5
-import pandas as pd
-
 
 if __name__ == "__main__":
     example_basic()

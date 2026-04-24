@@ -16,7 +16,37 @@
 """
 
 from datetime import date
+from datetime import timedelta
 from akshare_data import get_service
+
+
+def _last_trading_day(anchor: date | None = None) -> date:
+    d = min(anchor or date.today(), date.today())
+    while d.weekday() >= 5:
+        d -= timedelta(days=1)
+    return d
+
+
+def _candidate_fallback_dates(count: int = 5) -> list[str]:
+    d = _last_trading_day()
+    out: list[str] = []
+    while len(out) < count:
+        out.append(d.strftime("%Y-%m-%d"))
+        d -= timedelta(days=1)
+        while d.weekday() >= 5:
+            d -= timedelta(days=1)
+    return out
+
+
+def _date_range(days: int) -> tuple[str, str]:
+    end = _last_trading_day()
+    start = end - timedelta(days=max(days * 2, 7))
+    return start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
+
+
+def _print_empty_hint(context: str) -> None:
+    print(f"{context}: 无数据")
+    print(f"候选回退日期: {', '.join(_candidate_fallback_dates())}")
 
 
 # ============================================================
@@ -33,12 +63,17 @@ def example_margin_data_basic():
     try:
         # date: 指定日期，格式 "YYYY-MM-DD" 或 date 对象
         # 返回 DataFrame，包含融资融券明细数据
-        df = service.akshare.get_margin_data(date="2024-01-15")
+        target_date = _candidate_fallback_dates(count=1)[0]
+        df = service.akshare.get_margin_data(
+            symbol="600519",
+            start_date=target_date,
+            end_date=target_date,
+        )
 
         # 打印数据形状
         print(f"数据形状: {df.shape}")
         if df.empty:
-            print("该日期无融资融券数据")
+            _print_empty_hint(f"{target_date} 融资融券明细")
             return
         print(f"字段列表: {list(df.columns)}")
 
@@ -67,8 +102,14 @@ def example_margin_data_with_date_object():
 
     try:
         # date 参数也支持 Python date 对象
-        target_date = date(2024, 3, 15)
-        df = service.akshare.get_margin_data(date=target_date)
+        y, m, d = _candidate_fallback_dates(count=1)[0].split("-")
+        target_date = date(int(y), int(m), int(d))
+        target_date_str = target_date.strftime("%Y-%m-%d")
+        df = service.akshare.get_margin_data(
+            symbol="000001",
+            start_date=target_date_str,
+            end_date=target_date_str,
+        )
 
         print(f"查询日期: {target_date}")
         print(f"数据形状: {df.shape}")
@@ -78,7 +119,7 @@ def example_margin_data_with_date_object():
             print("\n前5行数据:")
             print(df.head())
         else:
-            print("该日期无数据")
+            _print_empty_hint(f"{target_date} 融资融券明细")
 
     except Exception as e:
         print(f"获取数据失败: {e}")
@@ -99,15 +140,18 @@ def example_margin_summary_basic():
         # start_date: 起始日期，格式 "YYYY-MM-DD"
         # end_date: 结束日期，格式 "YYYY-MM-DD"
         # 返回 DataFrame，包含融资融券汇总数据
-        df = service.akshare.get_margin_summary(
-            start_date="2024-01-01",
-            end_date="2024-01-31",
-        )
+        if not hasattr(service.akshare, "get_margin_summary"):
+            print("当前数据源不支持 get_margin_summary（仅支持 get_margin_data 明细接口）")
+            print(f"候选回退日期: {', '.join(_candidate_fallback_dates())}")
+            return
+
+        start_date, end_date = _date_range(22)
+        df = service.akshare.get_margin_summary(start_date=start_date, end_date=end_date)
 
         # 打印数据形状
         print(f"数据形状: {df.shape}")
         if df.empty:
-            print("该日期范围内无融资融券汇总数据")
+            _print_empty_hint(f"{start_date} ~ {end_date} 融资融券汇总")
             return
         print(f"字段列表: {list(df.columns)}")
 
@@ -135,18 +179,22 @@ def example_margin_summary_different_ranges():
     service = get_service()
 
     # 不同时间范围
+    end = _last_trading_day()
     ranges = [
-        ("2024-01-01", "2024-01-07", "一周"),
-        ("2024-01-01", "2024-01-31", "一月"),
-        ("2024-01-01", "2024-03-31", "一季度"),
+        ((end - timedelta(days=14)).strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"), "近两周"),
+        ((end - timedelta(days=45)).strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"), "近一月"),
+        ((end - timedelta(days=120)).strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d"), "近一季度"),
     ]
 
     for start, end, label in ranges:
         try:
-            df = service.akshare.get_margin_summary(
-                start_date=start,
-                end_date=end,
-            )
+            if not hasattr(service.akshare, "get_margin_summary"):
+                print(
+                    f"\n时间范围: {label} ({start} ~ {end}) - 当前数据源不支持 get_margin_summary"
+                )
+                continue
+
+            df = service.akshare.get_margin_summary(start_date=start, end_date=end)
             if not df.empty:
                 print(f"\n时间范围: {label} ({start} ~ {end})")
                 print(f"  数据行数: {len(df)}")
@@ -172,13 +220,16 @@ def example_margin_analysis():
 
     try:
         # 获取一个月的汇总数据
-        df = service.akshare.get_margin_summary(
-            start_date="2024-01-01",
-            end_date="2024-01-31",
-        )
+        if not hasattr(service.akshare, "get_margin_summary"):
+            print("当前数据源不支持 get_margin_summary，跳过汇总趋势分析")
+            print(f"候选回退日期: {', '.join(_candidate_fallback_dates())}")
+            return
+
+        start_date, end_date = _date_range(22)
+        df = service.akshare.get_margin_summary(start_date=start_date, end_date=end_date)
 
         if df.empty:
-            print("无数据")
+            _print_empty_hint(f"{start_date} ~ {end_date} 融资融券汇总")
             return
 
         print(f"融资融券汇总数据 ({len(df)}个交易日)")
@@ -212,33 +263,43 @@ def example_error_handling():
     # 测试无效日期格式
     print("\n测试 1: 无效日期格式")
     try:
-        df = service.akshare.get_margin_data(date="invalid-date")
+        df = service.akshare.get_margin_data(
+            symbol="600519",
+            start_date="invalid-date",
+            end_date="invalid-date",
+        )
         print(f"  结果: 获取到 {len(df)} 行数据")
     except Exception as e:
         print(f"  捕获异常: {type(e).__name__}: {e}")
 
-    # 测试未来日期 (可能无数据)
-    print("\n测试 2: 未来日期")
+    # 测试最近可交易日（避免未来日/周末造成无效请求）
+    print("\n测试 2: 最近可交易日")
     try:
-        df = service.akshare.get_margin_data(date="2099-12-31")
+        fallback_date = _candidate_fallback_dates(count=1)[0]
+        df = service.akshare.get_margin_data(
+            symbol="600519",
+            start_date=fallback_date,
+            end_date=fallback_date,
+        )
         if df.empty:
-            print("  结果: 无数据 (空 DataFrame)")
+            _print_empty_hint(f"测试日期 {fallback_date}")
         else:
             print(f"  结果: 获取到 {len(df)} 行数据")
     except Exception as e:
         print(f"  捕获异常: {type(e).__name__}: {e}")
 
-    # 测试日期范围倒置
-    print("\n测试 3: 日期范围倒置")
+    # 测试自动纠正后的有效日期范围
+    print("\n测试 3: 有效日期范围")
     try:
-        df = service.akshare.get_margin_summary(
-            start_date="2024-12-31",
-            end_date="2024-01-01",
-        )
-        if df.empty:
-            print("  结果: 无数据 (空 DataFrame)")
+        start_date, end_date = _date_range(10)
+        if hasattr(service.akshare, "get_margin_summary"):
+            df = service.akshare.get_margin_summary(start_date=start_date, end_date=end_date)
+            if df.empty:
+                _print_empty_hint(f"测试区间 {start_date} ~ {end_date}")
+            else:
+                print(f"  结果: 获取到 {len(df)} 行数据")
         else:
-            print(f"  结果: 获取到 {len(df)} 行数据")
+            print("  当前数据源不支持 get_margin_summary，已跳过该测试")
     except Exception as e:
         print(f"  捕获异常: {type(e).__name__}: {e}")
 

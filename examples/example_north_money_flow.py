@@ -20,6 +20,24 @@ akshare.stock_hsgt_fund_flow_summary_em 返回北向资金流向汇总。
 
 import akshare as ak
 import pandas as pd
+from datetime import date, timedelta
+
+
+def _candidate_fallback_dates(count: int = 5) -> list[str]:
+    today = date.today()
+    d = today if today.weekday() < 5 else today - timedelta(days=today.weekday() - 4)
+    out: list[str] = []
+    while len(out) < count:
+        if d.weekday() < 5 and d <= today:
+            out.append(d.strftime("%Y-%m-%d"))
+        d -= timedelta(days=1)
+    return out
+
+
+def _print_empty_hint() -> None:
+    print("无数据 (网络不可用或接口返回为空)")
+    print("  说明: stock_hsgt_fund_flow_summary_em 不接受日期参数，仅返回最新可用汇总。")
+    print(f"  候选回退日期: {', '.join(_candidate_fallback_dates())}")
 
 
 def _get_north_flow_summary():
@@ -39,7 +57,7 @@ def example_basic_usage():
 
     df = _get_north_flow_summary()
     if df is None or df.empty:
-        print("无数据 (网络不可用或接口返回为空)")
+        _print_empty_hint()
         return
 
     print(f"数据形状: {df.shape}")
@@ -56,13 +74,19 @@ def example_analyze_net_flow():
 
     df = _get_north_flow_summary()
     if df is None or df.empty:
-        print("无数据 (网络不可用或接口返回为空)")
+        _print_empty_hint()
         return
 
     # 尝试找到净流入相关列
     net_flow_col = None
     for col in df.columns:
-        if "当日资金流入" in str(col) or "当日资金流" in str(col) or "当日净" in str(col):
+        if (
+            "当日资金流入" in str(col)
+            or "当日资金流" in str(col)
+            or "当日净" in str(col)
+            or "资金净流入" in str(col)
+            or "净流入" in str(col)
+        ):
             net_flow_col = col
             break
 

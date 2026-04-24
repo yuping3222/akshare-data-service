@@ -19,7 +19,18 @@ get_fof_list() 接口示例
 - 采用 Cache-First 策略
 """
 
+import pandas as pd
+
 from akshare_data import get_service
+
+
+def _as_dataframe(data, label: str) -> pd.DataFrame:
+    if not isinstance(data, pd.DataFrame):
+        print(f"{label}: 返回类型异常，期望 DataFrame，实际 {type(data).__name__}")
+        return pd.DataFrame()
+    if data.empty:
+        print(f"{label}: 返回空数据")
+    return data
 
 
 # ============================================================
@@ -35,10 +46,8 @@ def example_basic():
 
     try:
         # 获取全部FOF基金列表
-        df = service.get_fof_list()
-
-        if df is None or df.empty:
-            print("无数据 (数据源未返回结果，可能是网络问题)")
+        df = _as_dataframe(service.get_fof_list(), "示例1")
+        if df.empty:
             return
 
         # 打印数据形状
@@ -70,10 +79,8 @@ def example_fof_type_analysis():
     service = get_service()
 
     try:
-        df = service.get_fof_list()
-
-        if df is None or df.empty:
-            print("无数据")
+        df = _as_dataframe(service.get_fof_list(), "示例2")
+        if df.empty:
             return
 
         print(f"FOF基金总数: {len(df)}")
@@ -122,10 +129,8 @@ def example_filter_fof():
     target_keywords = ["养老", "配置", "稳健"]
 
     try:
-        df = service.get_fof_list()
-
-        if df is None or df.empty:
-            print("无数据")
+        df = _as_dataframe(service.get_fof_list(), "示例3")
+        if df.empty:
             return
 
         print(f"FOF基金总数: {len(df)}")
@@ -163,10 +168,8 @@ def example_fof_statistics():
     service = get_service()
 
     try:
-        df = service.get_fof_list()
-
-        if df is None or df.empty:
-            print("无数据")
+        df = _as_dataframe(service.get_fof_list(), "示例4")
+        if df.empty:
             return
 
         print(f"FOF基金总数: {len(df)}")
@@ -201,10 +204,8 @@ def example_top_fofs():
     service = get_service()
 
     try:
-        df = service.get_fof_list()
-
-        if df is None or df.empty:
-            print("无数据")
+        df = _as_dataframe(service.get_fof_list(), "示例5")
+        if df.empty:
             return
 
         print(f"FOF基金总数: {len(df)}")

@@ -12,18 +12,26 @@ get_trading_days 返回指定日期范围内的所有交易日（字符串列表
     List[str] - 交易日列表，如 ["2024-01-02", "2024-01-03", ...]
 """
 
+from datetime import date, timedelta
 from akshare_data import get_trading_days
+
+
+def _recent_window(days: int = 365):
+    end = date.today()
+    start = end - timedelta(days=days)
+    return start.strftime("%Y-%m-%d"), end.strftime("%Y-%m-%d")
 
 
 def example_basic_usage():
     """基础用法：获取最近的交易日列表"""
     print("=" * 60)
-    print("示例1: 获取2024年1月的交易日")
+    print("示例1: 获取最近30天的交易日")
     print("=" * 60)
 
     try:
-        # 获取2024年1月的所有交易日
-        days = get_trading_days(start_date="2024-01-01", end_date="2024-01-31")
+        start_date, end_date = _recent_window(30)
+        days = get_trading_days(start_date=start_date, end_date=end_date)
+        print(f"查询区间: {start_date} ~ {end_date}")
         print(f"交易日数量: {len(days)}")
         if days:
             print(f"前5个交易日: {days[:5]}")
@@ -57,13 +65,14 @@ def example_no_parameters():
 def example_single_date_range():
     """指定单个日期范围"""
     print("\n" + "=" * 60)
-    print("示例3: 获取2024年第一季度的交易日")
+    print("示例3: 获取最近90天的交易日")
     print("=" * 60)
 
     try:
-        # 获取2024年Q1（1-3月）的交易日
-        days = get_trading_days(start_date="2024-01-01", end_date="2024-03-31")
-        print(f"2024年Q1交易日数量: {len(days)}")
+        start_date, end_date = _recent_window(90)
+        days = get_trading_days(start_date=start_date, end_date=end_date)
+        print(f"查询区间: {start_date} ~ {end_date}")
+        print(f"交易日数量: {len(days)}")
         if days:
             print(f"第一个交易日: {days[0]}")
             print(f"最后一个交易日: {days[-1]}")
@@ -76,13 +85,15 @@ def example_single_date_range():
 def example_specific_month():
     """获取特定月份的交易日"""
     print("\n" + "=" * 60)
-    print("示例4: 获取2024年6月的交易日")
+    print("示例4: 获取最近自然月的交易日")
     print("=" * 60)
 
     try:
-        # 获取2024年6月的交易日
-        days = get_trading_days(start_date="2024-06-01", end_date="2024-06-30")
-        print(f"2024年6月交易日数量: {len(days)}")
+        # 使用近 45 天窗口，尽量覆盖最近一个自然月
+        start_date, end_date = _recent_window(45)
+        days = get_trading_days(start_date=start_date, end_date=end_date)
+        print(f"查询区间: {start_date} ~ {end_date}")
+        print(f"交易日数量: {len(days)}")
         if days:
             print(f"交易日列表: {days}")
         else:
@@ -98,8 +109,8 @@ def example_check_if_trading_day():
     print("=" * 60)
 
     try:
-        # 获取某个月的交易日
-        days = get_trading_days(start_date="2024-02-01", end_date="2024-02-29")
+        start_date, end_date = _recent_window(60)
+        days = get_trading_days(start_date=start_date, end_date=end_date)
 
         if not days:
             print("（无交易日数据，无法判断）")
@@ -115,8 +126,13 @@ def example_check_if_trading_day():
             else:
                 str_days.append(str(d))
 
-        # 判断几个日期是否为交易日
-        test_dates = ["2024-02-01", "2024-02-04", "2024-02-10", "2024-02-29"]
+        # 判断几个日期是否为交易日：最近交易日、最近周末、窗口起点
+        test_dates = [
+            str_days[-1],
+            (date.today() - timedelta(days=1)).strftime("%Y-%m-%d"),
+            (date.today() - timedelta(days=2)).strftime("%Y-%m-%d"),
+            start_date,
+        ]
         for date in test_dates:
             is_trading = date in str_days
             print(f"{date} {'是' if is_trading else '不是'}交易日")
@@ -131,13 +147,13 @@ def example_count_trading_days():
     print("=" * 60)
 
     try:
-        # 统计2024年上半年的交易日
-        days = get_trading_days(start_date="2024-01-01", end_date="2024-06-30")
-        print(f"2024年上半年交易日数量: {len(days)}")
+        start_180, end_180 = _recent_window(180)
+        days = get_trading_days(start_date=start_180, end_date=end_180)
+        print(f"最近180天交易日数量: {len(days)}")
 
-        # 统计2024年全年的交易日
-        days_full = get_trading_days(start_date="2024-01-01", end_date="2024-12-31")
-        print(f"2024年全年交易日数量: {len(days_full)}")
+        start_365, end_365 = _recent_window(365)
+        days_full = get_trading_days(start_date=start_365, end_date=end_365)
+        print(f"最近365天交易日数量: {len(days_full)}")
     except Exception as e:
         print(f"获取交易日失败: {e}")
 

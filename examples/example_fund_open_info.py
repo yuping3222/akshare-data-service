@@ -20,7 +20,18 @@ get_fund_open_info() 接口示例
 - 数据会缓存到本地，重复查询速度快
 """
 
+import pandas as pd
+
 from akshare_data import get_service
+
+
+def _as_dataframe(data, label: str) -> pd.DataFrame:
+    if not isinstance(data, pd.DataFrame):
+        print(f"{label}: 返回类型异常，期望 DataFrame，实际 {type(data).__name__}")
+        return pd.DataFrame()
+    if data.empty:
+        print(f"{label}: 返回空数据")
+    return data
 
 
 # ============================================================
@@ -36,10 +47,8 @@ def example_basic():
 
     try:
         # fund_code: 基金代码 (6位数字)
-        df = service.get_fund_open_info(fund_code="110011")
-
-        if df is None or df.empty:
-            print("无数据 (数据源未返回结果，可能是网络问题或基金代码不存在)")
+        df = _as_dataframe(service.get_fund_open_info(fund_code="110011"), "示例1")
+        if df.empty:
             return
 
         print(f"数据形状: {df.shape}")
@@ -71,9 +80,8 @@ def example_compare_funds():
 
     for code, name in funds:
         try:
-            df = service.get_fund_open_info(fund_code=code)
-
-            if df is not None and not df.empty:
+            df = _as_dataframe(service.get_fund_open_info(fund_code=code), f"示例2-{code}")
+            if not df.empty:
                 print(f"\n{name} ({code}): {len(df)} 行数据")
                 print(df.head(3).to_string(index=False))
             else:
@@ -93,13 +101,9 @@ def example_fund_age():
 
     service = get_service()
 
-    from datetime import datetime
-
     try:
-        df = service.get_fund_open_info(fund_code="110011")
-
-        if df is None or df.empty:
-            print("无数据")
+        df = _as_dataframe(service.get_fund_open_info(fund_code="110011"), "示例3")
+        if df.empty:
             return
 
         print(f"数据形状: {df.shape}")
@@ -142,9 +146,8 @@ def example_batch_info():
 
     for code in funds:
         try:
-            df = service.get_fund_open_info(fund_code=code)
-
-            if df is not None and not df.empty:
+            df = _as_dataframe(service.get_fund_open_info(fund_code=code), f"示例4-{code}")
+            if not df.empty:
                 record = {"基金代码": code, "行数": len(df), "字段": ", ".join(list(df.columns)[:5])}
                 results.append(record)
             else:
@@ -179,8 +182,8 @@ def example_error_handling():
 
     for code, desc in test_cases:
         try:
-            df = service.get_fund_open_info(fund_code=code)
-            if df is None or df.empty:
+            df = _as_dataframe(service.get_fund_open_info(fund_code=code), f"示例5-{code or 'EMPTY'}")
+            if df.empty:
                 print(f"{desc} ('{code}'): 返回空 DataFrame")
             else:
                 print(f"{desc} ('{code}'): 获取到 {len(df)} 行数据")

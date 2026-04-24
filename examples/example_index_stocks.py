@@ -26,11 +26,13 @@ get_index_components(index_code, include_weights) 参数说明:
 
 import pandas as pd
 from akshare_data import get_index_stocks, get_index_components
+from _example_utils import fetch_with_retry, normalize_symbol_input, stable_df
 
 
 def _get_index_stocks(index_code):
     """Get index stocks with graceful empty-data handling."""
-    stocks = get_index_stocks(index_code)
+    code = normalize_symbol_input(index_code)
+    stocks = fetch_with_retry(lambda: get_index_stocks(code), retries=2)
     if not stocks:
         print(f"  [无数据] {index_code} 的成分股列表为空")
         return []
@@ -39,7 +41,12 @@ def _get_index_stocks(index_code):
 
 def _get_index_components(index_code, include_weights=True):
     """Get index components with graceful empty-data handling."""
-    df = get_index_components(index_code, include_weights=include_weights)
+    code = normalize_symbol_input(index_code)
+    df = fetch_with_retry(
+        lambda: get_index_components(code, include_weights=include_weights),
+        retries=2,
+    )
+    df = stable_df(df)
     if df is None or df.empty or "code" not in df.columns:
         print(f"  [无数据] {index_code} 的成分股详情为空")
         return pd.DataFrame()

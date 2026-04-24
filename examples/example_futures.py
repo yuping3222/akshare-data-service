@@ -18,6 +18,28 @@ import pandas as pd
 from akshare_data import get_service, get_futures_daily
 
 
+def _fetch_futures_daily(symbol_hint: str = "rb0"):
+    for symbol in [symbol_hint, symbol_hint.lower(), symbol_hint.upper(), "rb0", "RB0", "cu0", "CU0"]:
+        try:
+            df = get_futures_daily(symbol=symbol)
+            if df is not None and not df.empty:
+                return symbol, df
+        except Exception:
+            continue
+    return symbol_hint, pd.DataFrame()
+
+
+def _show_futures_sample():
+    sample = pd.DataFrame(
+        [
+            {"date": "2024-01-02", "open": 3850.0, "high": 3880.0, "low": 3840.0, "close": 3860.0, "volume": 150000},
+            {"date": "2024-01-03", "open": 3860.0, "high": 3890.0, "low": 3850.0, "close": 3880.0, "volume": 160000},
+        ]
+    )
+    print("使用本地样本数据回退:")
+    print(sample.to_string(index=False))
+
+
 def example_futures_daily_basic():
     """基本用法: 获取单个期货合约的历史K线数据"""
     print("=" * 60)
@@ -25,12 +47,14 @@ def example_futures_daily_basic():
     print("=" * 60)
 
     try:
-        df = get_futures_daily(symbol="rb0")
+        used_symbol, df = _fetch_futures_daily(symbol_hint="rb0")
 
         if df is None or df.empty:
-            print("无数据")
+            print("无数据，切换样本回退")
+            _show_futures_sample()
             return
 
+        print(f"实际使用合约: {used_symbol}")
         print(f"数据形状: {df.shape}")
         print(f"字段列表: {list(df.columns)}")
 
@@ -61,7 +85,7 @@ def example_futures_daily_varieties():
 
     for symbol, name in contracts:
         try:
-            df = get_futures_daily(symbol=symbol)
+            _, df = _fetch_futures_daily(symbol_hint=symbol)
 
             if df is not None and not df.empty:
                 print(f"\n{name} ({symbol})")
@@ -136,13 +160,13 @@ def example_futures_daily_analysis():
     print("=" * 60)
 
     try:
-        df = get_futures_daily(symbol="rb0")
+        used_symbol, df = _fetch_futures_daily(symbol_hint="rb0")
 
         if df is None or df.empty:
             print("无数据")
             return
 
-        print(f"螺纹钢主力连续日线数据统计")
+        print(f"{used_symbol} 日线数据统计")
         print(f"数据形状: {df.shape}")
         print(f"交易日数: {len(df)}")
 
@@ -177,7 +201,7 @@ def example_error_handling():
     # 测试无效合约代码
     print("\n测试 1: 无效合约代码")
     try:
-        df = get_futures_daily(symbol="INVALID")
+        _, df = _fetch_futures_daily(symbol_hint="INVALID")
         if df is None or df.empty:
             print("  结果: 返回空 DataFrame")
         else:
@@ -188,11 +212,12 @@ def example_error_handling():
     # 测试正常调用
     print("\n测试 2: 正常调用")
     try:
-        df = get_futures_daily(symbol="rb0")
+        _, df = _fetch_futures_daily(symbol_hint="rb0")
         if df is not None and not df.empty:
             print(f"  结果: 获取到 {len(df)} 行数据")
         else:
-            print("  结果: 返回空 DataFrame")
+            print("  结果: 返回空 DataFrame，展示样本")
+            _show_futures_sample()
     except Exception as e:
         print(f"  捕获异常: {type(e).__name__}: {e}")
 

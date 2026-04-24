@@ -21,7 +21,30 @@ get_fund_open_nav() 接口示例
 - 采用 Cache-First 策略，支持增量更新
 """
 
+from datetime import date, timedelta
+
+import pandas as pd
+
 from akshare_data import get_service
+
+
+def _as_dataframe(data, label: str) -> pd.DataFrame:
+    if not isinstance(data, pd.DataFrame):
+        print(f"{label}: 返回类型异常，期望 DataFrame，实际 {type(data).__name__}")
+        return pd.DataFrame()
+    if data.empty:
+        print(f"{label}: 返回空数据")
+    return data
+
+
+def _to_numeric_series(df: pd.DataFrame, col: str) -> pd.Series:
+    return pd.to_numeric(df[col], errors="coerce")
+
+
+def _recent_date_range(days: int = 180) -> tuple[str, str]:
+    end = date.today() - timedelta(days=1)
+    start = end - timedelta(days=days)
+    return start.isoformat(), end.isoformat()
 
 
 # ============================================================
@@ -39,14 +62,17 @@ def example_basic():
         # fund_code: 基金代码
         # start_date: 起始日期
         # end_date: 结束日期
-        df = service.get_fund_open_nav(
+        start_date, end_date = _recent_date_range(days=120)
+        df = _as_dataframe(
+            service.get_fund_open_nav(
             fund_code="110011",
-            start_date="2024-01-01",
-            end_date="2024-03-31",
+            start_date=start_date,
+            end_date=end_date,
+            ),
+            "示例1",
         )
 
-        if df is None or df.empty:
-            print("无数据 (数据源未返回结果，可能是网络问题或基金代码不存在)")
+        if df.empty:
             return
 
         # 打印数据形状
@@ -84,13 +110,17 @@ def example_multiple_funds():
 
     for code, name in funds:
         try:
-            df = service.get_fund_open_nav(
+            start_date, end_date = _recent_date_range(days=30)
+            df = _as_dataframe(
+                service.get_fund_open_nav(
                 fund_code=code,
-                start_date="2024-06-01",
-                end_date="2024-06-30",
+                start_date=start_date,
+                end_date=end_date,
+                ),
+                f"示例2-{code}",
             )
 
-            if df is not None and not df.empty:
+            if not df.empty:
                 print(f"\n{name} ({code}):")
                 print(f"  数据行数: {len(df)}")
 
@@ -101,8 +131,12 @@ def example_multiple_funds():
                         nav_col = col
                         break
 
-                if nav_col and df[nav_col].dtype in ["float64", "int64"]:
-                    print(f"  {nav_col}范围: {df[nav_col].min():.4f} ~ {df[nav_col].max():.4f}")
+                if nav_col:
+                    nav_series = _to_numeric_series(df, nav_col).dropna()
+                    if not nav_series.empty:
+                        print(f"  {nav_col}范围: {nav_series.min():.4f} ~ {nav_series.max():.4f}")
+                    else:
+                        print(f"  {nav_col} 列无法转换为有效数值")
                 else:
                     print(f"  字段: {list(df.columns)}")
             else:
@@ -123,17 +157,20 @@ def example_long_term_trend():
     service = get_service()
 
     try:
-        df = service.get_fund_open_nav(
+        start_date, end_date = _recent_date_range(days=365)
+        df = _as_dataframe(
+            service.get_fund_open_nav(
             fund_code="110011",
-            start_date="2023-01-01",
-            end_date="2023-12-31",
+            start_date=start_date,
+            end_date=end_date,
+            ),
+            "示例3",
         )
 
-        if df is None or df.empty:
-            print("无数据")
+        if df.empty:
             return
 
-        print(f"易方达蓝筹精选 2023年全年净值数据")
+        print(f"易方达蓝筹精选 最近一年净值数据")
         print(f"数据形状: {df.shape}")
         print(f"全年净值更新天数: {len(df)}")
 
@@ -144,10 +181,14 @@ def example_long_term_trend():
                 nav_col = col
                 break
 
-        if nav_col and nav_col in df.columns and df[nav_col].dtype in ["float64", "int64"]:
-            print(f"\n年初{nav_col}: {df.iloc[0][nav_col]:.4f}")
-            print(f"年末{nav_col}: {df.iloc[-1][nav_col]:.4f}")
-            yearly_return = (df.iloc[-1][nav_col] - df.iloc[0][nav_col]) / df.iloc[0][nav_col] * 100
+        if nav_col and nav_col in df.columns:
+            nav_series = _to_numeric_series(df, nav_col).dropna()
+            if len(nav_series) < 2:
+                print(f"\n{nav_col} 有效数值不足，无法计算区间收益")
+                return
+            print(f"\n区间起点{nav_col}: {nav_series.iloc[0]:.4f}")
+            print(f"区间终点{nav_col}: {nav_series.iloc[-1]:.4f}")
+            yearly_return = (nav_series.iloc[-1] - nav_series.iloc[0]) / nav_series.iloc[0] * 100
             print(f"年度收益率: {yearly_return:.2f}%")
         else:
             print(f"\n可用字段: {list(df.columns)}")
@@ -168,14 +209,17 @@ def example_volatility_analysis():
     service = get_service()
 
     try:
-        df = service.get_fund_open_nav(
+        start_date, end_date = _recent_date_range(days=180)
+        df = _as_dataframe(
+            service.get_fund_open_nav(
             fund_code="110011",
-            start_date="2024-01-01",
-            end_date="2024-06-30",
+            start_date=start_date,
+            end_date=end_date,
+            ),
+            "示例4",
         )
 
-        if df is None or df.empty:
-            print("无数据")
+        if df.empty:
             return
 
         print(f"数据形状: {df.shape}")
@@ -187,8 +231,9 @@ def example_volatility_analysis():
                 nav_col = col
                 break
 
-        if nav_col and nav_col in df.columns and df[nav_col].dtype in ["float64", "int64"]:
-            df["daily_return"] = df[nav_col].pct_change() * 100
+        if nav_col and nav_col in df.columns:
+            nav_series = _to_numeric_series(df, nav_col)
+            df["daily_return"] = nav_series.pct_change() * 100
 
             print(f"\n日收益率统计:")
             print(f"  平均日收益率: {df['daily_return'].mean():.4f}%")
@@ -218,12 +263,16 @@ def example_error_handling():
 
     for code in invalid_codes:
         try:
-            df = service.get_fund_open_nav(
+            start_date, end_date = _recent_date_range(days=30)
+            df = _as_dataframe(
+                service.get_fund_open_nav(
                 fund_code=code,
-                start_date="2024-01-01",
-                end_date="2024-01-31",
+                start_date=start_date,
+                end_date=end_date,
+                ),
+                f"示例5-{code}",
             )
-            if df is None or df.empty:
+            if df.empty:
                 print(f"基金代码 '{code}': 无数据 (空 DataFrame)")
             else:
                 print(f"基金代码 '{code}': 获取到 {len(df)} 行数据")

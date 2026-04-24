@@ -22,6 +22,24 @@ akshare.stock_individual_fund_flow 返回指定股票近期的资金流向明细
 
 import akshare as ak
 import pandas as pd
+from datetime import date, timedelta
+
+
+def _candidate_fallback_dates(count: int = 5) -> list[str]:
+    today = date.today()
+    d = today if today.weekday() < 5 else today - timedelta(days=today.weekday() - 4)
+    out: list[str] = []
+    while len(out) < count:
+        if d.weekday() < 5 and d <= today:
+            out.append(d.strftime("%Y-%m-%d"))
+        d -= timedelta(days=1)
+    return out
+
+
+def _print_empty_hint(symbol: str) -> None:
+    print(f"{symbol}: 无数据 (网络不可用或接口返回为空)")
+    print("  说明: stock_individual_fund_flow 不接受日期范围参数，只返回近期可用数据。")
+    print(f"  候选回退日期: {', '.join(_candidate_fallback_dates())}")
 
 
 def _get_money_flow(symbol, market=None):
@@ -51,7 +69,7 @@ def example_basic_usage():
 
     df = _get_money_flow("000001", market="sz")
     if df is None or df.empty:
-        print("无数据 (网络不可用或接口返回为空)")
+        _print_empty_hint("000001")
         return
 
     print(f"数据形状: {df.shape}")
@@ -68,7 +86,7 @@ def example_latest_data():
 
     df = _get_money_flow("600519", market="sh")
     if df is None or df.empty:
-        print("无数据 (网络不可用或接口返回为空)")
+        _print_empty_hint("600519")
         return
 
     print(f"数据形状: {df.shape}")
@@ -100,6 +118,7 @@ def example_different_symbols():
             print(f"股票 {symbol} ({market}): {df.shape[0]} 条记录")
         else:
             print(f"股票 {symbol} ({market}): 无数据")
+            print(f"  候选回退日期: {', '.join(_candidate_fallback_dates())}")
 
 
 def example_analyze_net_inflow():
@@ -110,7 +129,7 @@ def example_analyze_net_inflow():
 
     df = _get_money_flow("300750", market="sz")
     if df is None or df.empty:
-        print("无数据 (网络不可用或接口返回为空)")
+        _print_empty_hint("300750")
         return
 
     # 计算主力净流入的统计信息
@@ -145,7 +164,7 @@ def example_compare_flow_sizes():
 
     df = _get_money_flow("002594", market="sz")
     if df is None or df.empty:
-        print("无数据 (网络不可用或接口返回为空)")
+        _print_empty_hint("002594")
         return
 
     # 计算各类资金净流入的总和

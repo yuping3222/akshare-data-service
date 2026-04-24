@@ -14,6 +14,7 @@ from __future__ import annotations
 import logging
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -342,13 +343,83 @@ class LineageTracker:
 
         Returns:
             Number of mappings loaded.
-
-        Raises:
-            NotImplementedError: Until task 15 is implemented.
         """
-        raise NotImplementedError(
-            "load_mapping_config is reserved for task 15 (mapping configuration)"
+        config_file = Path(config_path)
+        if not config_file.exists():
+            raise FileNotFoundError(f"Mapping config not found: {config_path}")
+
+        try:
+            import yaml  # type: ignore[import-not-found]
+        except ImportError as exc:  # pragma: no cover - defensive guard
+            raise RuntimeError(
+                "PyYAML is required to load mapping config. Install dependency `pyyaml`."
+            ) from exc
+
+        raw = config_file.read_text(encoding="utf-8")
+        parsed = yaml.safe_load(raw) or {}
+
+        if not isinstance(parsed, dict):
+            raise ValueError("Mapping config root must be a mapping/dict")
+
+        dataset = str(parsed.get("dataset", "")).strip()
+        if not dataset:
+            raise ValueError("Mapping config missing required field: dataset")
+
+        batch_id = str(parsed.get("batch_id", "")).strip()
+        schema_version = str(parsed.get("schema_version", "")).strip()
+        normalize_version = str(parsed.get("normalize_version", "")).strip()
+        release_version_raw = parsed.get("release_version")
+        release_version = (
+            str(release_version_raw).strip()
+            if release_version_raw is not None and str(release_version_raw).strip()
+            else None
         )
+
+        mappings = parsed.get("mappings")
+        if not isinstance(mappings, list):
+            raise ValueError("Mapping config field `mappings` must be a list")
+
+        normalized_mappings = [
+            self._normalize_mapping_item(item=item, index=idx)
+            for idx, item in enumerate(mappings, start=1)
+        ]
+
+        self.record_batch(
+            dataset=dataset,
+            mappings=normalized_mappings,
+            batch_id=batch_id,
+            schema_version=schema_version,
+            normalize_version=normalize_version,
+            release_version=release_version,
+        )
+        logger.info(
+            "Loaded %s lineage mappings from %s for dataset=%s batch_id=%s",
+            len(normalized_mappings),
+            config_path,
+            dataset,
+            batch_id or "<none>",
+        )
+        return len(normalized_mappings)
+
+    @staticmethod
+    def _normalize_mapping_item(item: Any, index: int) -> dict[str, str]:
+        """Validate and normalize one mapping entry from YAML config."""
+        if not isinstance(item, dict):
+            raise ValueError(f"Mapping #{index} must be a dict")
+        standard_field = str(item.get("standard_field", "")).strip()
+        source_field = str(item.get("source_field", "")).strip()
+        if not standard_field or not source_field:
+            raise ValueError(
+                f"Mapping #{index} requires `standard_field` and `source_field`"
+            )
+        return {
+            "standard_field": standard_field,
+            "source_name": str(item.get("source_name", "unknown")).strip()
+            or "unknown",
+            "source_field": source_field,
+            "interface_name": str(item.get("interface_name", "")).strip(),
+            "transform": str(item.get("transform", "direct")).strip() or "direct",
+        }
 
     def build_release_manifest(
         self,
@@ -373,10 +444,80 @@ class LineageTracker:
 
         Returns:
             Manifest dictionary.
-
-        Raises:
-            NotImplementedError: Until task 07 is implemented.
         """
-        raise NotImplementedError(
-            "build_release_manifest is reserved for task 07 (release manifest)"
+        dataset_records = self.get_dataset_lineage(dataset)
+        matched_batch_records = [
+            rec for rec in dataset_records if rec.batch_id == batch_id
+        ]
+        if not matched_batch_records:
+            raise ValueError(
+                f"No lineage records found for dataset={dataset} batch_id={batch_id}"
+            )
+        known_release_versions = sorted(
+            {rec.release_version for rec in matched_batch_records if rec.release_version}
         )
+        if (
+            known_release_versions
+            and release_version
+            and release_version not in known_release_versions
+        ):
+            raise ValueError(
+                "Requested release_version does not match lineage records for "
+                f"dataset={dataset} batch_id={batch_id}: expected one of "
+                f"{known_release_versions}, got {release_version}"
+            )
+
+        schema_versions = sorted(
+            {rec.schema_version for rec in matched_batch_records if rec.schema_version}
+        )
+        normalize_versions = sorted(
+            {
+                rec.normalize_version
+                for rec in matched_batch_records
+                if rec.normalize_version
+            }
+        )
+        source_names = sorted({rec.source_name for rec in matched_batch_records})
+        interface_names = sorted(
+            {rec.interface_name for rec in matched_batch_records if rec.interface_name}
+        )
+        transforms = sorted({rec.transform for rec in matched_batch_records})
+
+        fields: dict[str, list[dict[str, Any]]] = {}
+        for rec in matched_batch_records:
+            fields.setdefault(rec.standard_field, []).append(
+                {
+                    "source_name": rec.source_name,
+                    "source_field": rec.source_field,
+                    "interface_name": rec.interface_name,
+                    "transform": rec.transform,
+                    "schema_version": rec.schema_version,
+                    "normalize_version": rec.normalize_version,
+                    "recorded_at": rec.created_at.isoformat(),
+                }
+            )
+
+        for field_mappings in fields.values():
+            field_mappings.sort(
+                key=lambda item: (
+                    str(item["source_name"]),
+                    str(item["interface_name"]),
+                    str(item["source_field"]),
+                )
+            )
+
+        return {
+            "dataset": dataset,
+            "release_version": release_version,
+            "batch_id": batch_id,
+            "field_count": len(fields),
+            "mapping_count": len(matched_batch_records),
+            "schema_versions": schema_versions,
+            "normalize_versions": normalize_versions,
+            "known_release_versions": known_release_versions,
+            "sources": source_names,
+            "interfaces": interface_names,
+            "transforms": transforms,
+            "fields": fields,
+            "generated_at": datetime.now(timezone.utc).isoformat(),
+        }

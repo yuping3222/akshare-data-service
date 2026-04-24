@@ -70,7 +70,13 @@ index_components:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        日期: date
+        指数代码: index_code
+        指数名称: index_name
+        成分券代码: symbol
+        成分券名称: name
+        交易所: exchange
 
 index_list:
   name: "index_list"
@@ -90,7 +96,20 @@ index_list:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        代码: symbol
+        名称: name
+        最新价: close
+        涨跌幅: change_pct
+        涨跌额: change
+        成交量: volume
+        成交额: amount
+        振幅: amplitude
+        最高: high
+        最低: low
+        今开: open
+        昨收: prev_close
+        量比: volume_ratio
 
 index_valuation:
   name: "index_valuation"
@@ -110,7 +129,14 @@ index_valuation:
       enabled: true
       input_mapping:
         index_code: "symbol"
-      output_mapping: {}
+      output_mapping:
+        日期: date
+        指数代码: index_code
+        指数中文简称: index_name
+        市盈率1: pe
+        市盈率2: pe_2
+        股息率1: dividend_yield
+        股息率2: dividend_yield_2
 
 index_weights:
   name: "index_weights"
@@ -133,7 +159,11 @@ index_weights:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        日期: update_date
+        指数代码: index_code
+        成分券代码: stock_code
+        成分券名称: name
 
 index_weights_history:
   name: "index_weights_history"
@@ -155,4 +185,8 @@ index_weights_history:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        日期: date
+        指数代码: index_code
+        成分券代码: symbol
+        成分券名称: name

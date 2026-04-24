@@ -635,11 +635,9 @@ margin_data:
         margin_buy: "float"
         margin_repay: "float"
         short_remain: "float"
+        short_balance: "float"
         short_sell: "float"
         short_repay: "float"
-        symbol: "str"
-        margin_balance: "float"
-        short_balance: "float"
 
 margin_summary:
   name: "margin_summary"
@@ -954,7 +952,17 @@ balance_sheet:
         symbol: "symbol"
       param_transforms:
         symbol: "prepend_prefix:SH/SZ"
-      output_mapping: {}
+      output_mapping:
+        SECURITY_CODE: symbol
+        SECURITY_NAME_ABBR: name
+        REPORT_DATE: report_date
+        REPORT_TYPE: report_type
+        NOTICE_DATE: announce_date
+        UPDATE_DATE: update_date
+        CURRENCY: currency
+        TOTAL_ASSETS: total_assets
+        TOTAL_LIABILITIES: total_liabilities
+        TOTAL_EQUITY: total_equity
 
 income_statement:
   name: "income_statement"
@@ -976,7 +984,23 @@ income_statement:
         symbol: "symbol"
       param_transforms:
         symbol: "prepend_prefix:SH/SZ"
-      output_mapping: {}
+      output_mapping:
+        SECURITY_CODE: symbol
+        SECURITY_NAME_ABBR: name
+        REPORT_DATE: report_date
+        REPORT_TYPE: report_type
+        NOTICE_DATE: announce_date
+        UPDATE_DATE: update_date
+        CURRENCY: currency
+        TOTAL_OPERATE_INCOME: total_revenue
+        OPERATE_INCOME: revenue
+        OPERATE_PROFIT: operating_profit
+        TOTAL_PROFIT: total_profit
+        INCOME_TAX: income_tax
+        NETPROFIT: net_profit
+        PARENT_NETPROFIT: parent_net_profit
+        BASIC_EPS: basic_eps
+        DILUTED_EPS: diluted_eps
 
 cash_flow:
   name: "cash_flow"
@@ -998,7 +1022,20 @@ cash_flow:
         symbol: "symbol"
       param_transforms:
         symbol: "prepend_prefix:SH/SZ"
-      output_mapping: {}
+      output_mapping:
+        SECURITY_CODE: symbol
+        SECURITY_NAME_ABBR: name
+        REPORT_DATE: report_date
+        REPORT_TYPE: report_type
+        NOTICE_DATE: announce_date
+        UPDATE_DATE: update_date
+        CURRENCY: currency
+        NETCASH_OPERATE: netcash_operate
+        NETCASH_INVEST: netcash_invest
+        NETCASH_FINANCE: netcash_finance
+        BEGIN_CCE: begin_cce
+        END_CCE: end_cce
+        CCE_ADD: cce_change
 
 # ── 个股信息 ─────────────────────────────────────────────
 
@@ -1022,7 +1059,9 @@ basic_info:
         symbol: "symbol"
       param_transforms:
         symbol: "prepend_prefix:SH/SZ"
-      output_mapping: {}
+      output_mapping:
+        item: item
+        value: value
 
 # ── 资金流向 ─────────────────────────────────────────────
 
@@ -1150,7 +1189,12 @@ northbound_top_stocks:
       input_mapping:
         symbol: "symbol"
         indicator: "indicator"
-      output_mapping: {}
+      output_mapping:
+        序号: rank
+        代码: symbol
+        名称: name
+        最新价: close
+        涨跌幅: change_pct
 
 # ── 股权质押/冻结 ────────────────────────────────────────
 
@@ -1176,7 +1220,7 @@ equity_pledge:
       func: "stock_ggcg_em"
       enabled: true
       input_mapping:
-        symbol: "symbol"
+        symbol: symbol
       output_mapping:
         质押日期: "pledge_date"
         股东名称: "shareholder_name"
@@ -1192,6 +1236,8 @@ equity_pledge:
 
 # ── 股东/筹码 ───────────────────────────────────────────
 
+      param_defaults:
+        symbol: 全部
 chip_distribution:
   name: "chip_distribution"
   category: "equity"
@@ -1205,13 +1251,23 @@ chip_distribution:
   rate_limit_key: "default"
 
   sources:
-    - name: "akshare_em"
-      func: "stock_circulate_stock_holder"
+    - name: akshare_em
+      func: stock_cyq_em
       enabled: true
       input_mapping:
-        symbol: "symbol"
-      output_mapping: {}
-
+        symbol: symbol
+        adjust: adjust
+      param_transforms: {}
+      output_mapping:
+        日期: date
+        获利比例: ratio
+        平均成本: price
+        90成本-低: cost_p90_low
+        90成本-高: cost_p90_high
+        90集中度: concentration_p90
+        70成本-低: cost_p70_low
+        70成本-高: cost_p70_high
+        70集中度: concentration_p70
 holder:
   name: "holder"
   category: "equity"
@@ -1267,7 +1323,14 @@ shareholder_changes:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        公告日期: announce_date
+        变动股东: holder_name
+        变动数量: change_count
+        交易均价: avg_price
+        剩余股份总数: remaining_shares
+        变动期间: change_period
+        变动途径: change_type
 
 # ── ESG ─────────────────────────────────────────────────
 
@@ -1286,7 +1349,14 @@ esg_rating:
     - name: "akshare_sina"
       func: "stock_esg_msci_sina"
       enabled: true
-      output_mapping: {}
+      output_mapping:
+        股票代码: symbol
+        ESG评分: esg_score
+        环境总评: e_score
+        社会责任总评: s_score
+        治理总评: g_score
+        评级日期: rating_date
+        交易市场: market
 
 esg_rank:
   name: "esg_rank"
@@ -1303,7 +1373,10 @@ esg_rank:
     - name: "akshare_sina"
       func: "stock_esg_rate_sina"
       enabled: true
-      output_mapping: {}
+      output_mapping:
+        股票代码: symbol
+        ESG评分: esg_score
+        评级日期: rating_date
 
 # ── 业绩预测/快报 ────────────────────────────────────────
 
@@ -1355,7 +1428,14 @@ analyst_rank:
       enabled: true
       input_mapping:
         year: "year"
-      output_mapping: {}
+      output_mapping:
+        序号: rank
+        分析师名称: analyst_name
+        分析师单位: broker_name
+        年度指数: score
+        成分股个数: stock_count
+        更新日期: date
+        年度: year
 
 research_report:
   name: "research_report"
@@ -1375,7 +1455,15 @@ research_report:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        股票代码: symbol
+        股票简称: name
+        报告名称: title
+        东财评级: rating
+        机构: broker
+        行业: industry
+        日期: report_date
+        报告PDF链接: report_url
 
 # ── 分红/业绩 ───────────────────────────────────────────
 
@@ -1511,7 +1599,11 @@ earnings_forecast:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        序号: rank
+        代码: symbol
+        名称: name
+        研报数: report_count
 
 rights_issue:
   name: "rights_issue"
@@ -1568,7 +1660,21 @@ management_info:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        证券代码: symbol
+        证券简称: name
+        截止日期: report_date
+        公告日期: announce_date
+        高管姓名: insider_name
+        董监高姓名: director_name
+        董监高职务: title
+        期初持股数量: shares_begin
+        期末持股数量: shares_end
+        变动数量: change_count
+        变动比例: change_ratio
+        成交均价: avg_price
+        期末市值: market_value
+        持股变动原因: change_reason
 
 capital_change:
   name: "capital_change"
@@ -1588,7 +1694,12 @@ capital_change:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        时间: datetime
+        代码: symbol
+        名称: name
+        板块: sector
+        相关信息: remark
 
 # ── 新闻/公告 ───────────────────────────────────────────
 
@@ -1610,7 +1721,13 @@ disclosure_news:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        关键词: keyword
+        新闻标题: title
+        新闻内容: content
+        发布时间: publish_time
+        文章来源: source
+        新闻链接: url
 
 # ── 限售股解禁 ──────────────────────────────────────────
 
@@ -1669,7 +1786,19 @@ restricted_release_calendar:
       input_mapping:
         start_date: "start_date"
         end_date: "end_date"
-      output_mapping: {}
+      output_mapping:
+        序号: rank
+        股票代码: symbol
+        股票简称: name
+        解禁时间: release_date
+        限售股类型: release_type
+        解禁数量: release_shares
+        实际解禁数量: actual_release_shares
+        实际解禁市值: release_value
+        占解禁前流通市值比例: release_ratio
+        解禁前一交易日收盘价: prev_close
+        解禁前20日涨跌幅: pre20d_change_pct
+        解禁后20日涨跌幅: post20d_change_pct
 
 restricted_release_detail:
   name: "restricted_release_detail"
@@ -1734,10 +1863,17 @@ equity_pledge_rank:
     - name: "akshare_em"
       func: "stock_ggcg_em"
       enabled: true
-      input_mapping:
-        symbol: "symbol"
-      output_mapping: {}
+      input_mapping: {}
+      output_mapping:
+        股票代码: symbol
+        股票简称: name
+        变动日期: pledge_date
+        变动股东: shareholder_name
+        变动数量: pledge_shares
+        变动比例: pledge_ratio
 
+      param_defaults:
+        symbol: 股东增持
 call_auction:
   name: "call_auction"
   category: "equity"
@@ -1756,7 +1892,9 @@ call_auction:
       enabled: false
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        item: item
+        value: value
 
 # ── 板块/概念 ───────────────────────────────────────────
 
@@ -1802,7 +1940,23 @@ concept_stocks:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        序号: rank
+        代码: symbol
+        名称: name
+        最新价: close
+        涨跌幅: change_pct
+        涨跌额: change
+        成交量: volume
+        成交额: amount
+        振幅: amplitude
+        最高: high
+        最低: low
+        今开: open
+        昨收: prev_close
+        换手率: turnover_rate
+        市盈率-动态: pe_ttm
+        市净率: pb
 
 stock_concepts:
   name: "stock_concepts"
@@ -1819,10 +1973,16 @@ stock_concepts:
   sources:
     - name: "akshare_em"
       func: "stock_board_concept_cons_em"
-      enabled: true
+      enabled: false  # stock_board_concept_cons_em 只接受概念名，非股票代码。禁用待替换
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        序号: rank
+        代码: symbol
+        名称: name
+        最新价: close
+        涨跌幅: change_pct
+        涨跌额: change
 
 concept_performance:
   name: "concept_performance"
@@ -1848,7 +2008,18 @@ concept_performance:
         period: "period"
         start_date: "start_date"
         end_date: "end_date"
-      output_mapping: {}
+      output_mapping:
+        日期: date
+        开盘: open
+        收盘: close
+        最高: high
+        最低: low
+        涨跌幅: change_pct
+        涨跌额: change
+        成交量: volume
+        成交额: amount
+        振幅: amplitude
+        换手率: turnover_rate
 
 stock_industry:
   name: "stock_industry"
@@ -1868,7 +2039,14 @@ stock_industry:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        序号: rank
+        代码: symbol
+        名称: name
+        最新价: close
+        涨跌幅: change_pct
+        市盈率-动态: pe_ttm
+        市净率: pb
 
 industry_performance:
   name: "industry_performance"
@@ -1894,7 +2072,18 @@ industry_performance:
         start_date: "start_date"
         end_date: "end_date"
         period: "period"
-      output_mapping: {}
+      output_mapping:
+        日期: date
+        开盘: open
+        收盘: close
+        最高: high
+        最低: low
+        涨跌幅: change_pct
+        涨跌额: change
+        成交量: volume
+        成交额: amount
+        振幅: amplitude
+        换手率: turnover_rate
 
 sw_industry_list:
   name: "sw_industry_list"
@@ -1911,7 +2100,19 @@ sw_industry_list:
     - name: "akshare_em"
       func: "stock_board_industry_name_em"
       enabled: true
-      output_mapping: {}
+      output_mapping:
+        排名: rank
+        板块名称: industry_name
+        板块代码: industry_code
+        最新价: close
+        涨跌额: change
+        涨跌幅: change_pct
+        总市值: market_cap
+        换手率: turnover_rate
+        上涨家数: up_count
+        下跌家数: down_count
+        领涨股票: top_stock_name
+        领涨股票-涨跌幅: top_stock_change_pct
 
 sw_industry_daily:
   name: "sw_industry_daily"
@@ -1937,7 +2138,16 @@ sw_industry_daily:
         start_date: "start_date"
         end_date: "end_date"
         period: "period"
-      output_mapping: {}
+      output_mapping:
+        日期: date
+        开盘: open
+        收盘: close
+        最高: high
+        最低: low
+        涨跌幅: change_pct
+        涨跌额: change
+        成交量: volume
+        成交额: amount
 
 # ── 热点排行 ────────────────────────────────────────────
 
@@ -1994,7 +2204,18 @@ main_fund_flow_rank:
       enabled: true
       input_mapping:
         indicator: "indicator"
-      output_mapping: {}
+      output_mapping:
+        序号: rank
+        代码: symbol
+        名称: name
+        最新价: close
+        今日涨跌幅: change_pct
+        今日主力净流入-净额: main_net_inflow
+        今日主力净流入-净占比: main_net_inflow_ratio
+        今日超大单净流入-净额: super_large_net_inflow
+        今日大单净流入-净额: large_net_inflow
+        今日中单净流入-净额: medium_net_inflow
+        今日小单净流入-净额: small_net_inflow
 
 sector_fund_flow:
   name: "sector_fund_flow"
@@ -2046,7 +2267,8 @@ trading_days:
     - name: "akshare_sina"
       func: "tool_trade_date_hist_sina"
       enabled: true
-      output_mapping: {}
+      output_mapping:
+        trade_date: date
 
 # ── 港股 / 美股 / 新股 ────────────────────────────────
 
@@ -2198,8 +2420,29 @@ new_stocks:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        股票代码: symbol
+        股票简称: name
+        申购代码: subscribe_code
+        交易所: exchange
+        板块: board
+        发行总数: issue_total
+        网上发行: online_issue
+        顶格申购需配市值: required_market_cap
+        申购上限: subscribe_limit
+        发行价格: issue_price
+        最新价: close
+        首日收盘价: first_day_close
+        申购日期: subscribe_date
+        中签号公布日: lottery_announce_date
+        中签缴款日期: payment_date
+        上市日期: list_date
+        发行市盈率: pe_issue
+        行业市盈率: pe_industry
+        中签率: lottery_rate
 
+      param_defaults:
+        symbol: 全部股票
 ipo_info:
   name: "ipo_info"
   category: "equity"
@@ -2218,8 +2461,18 @@ ipo_info:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        股票代码: symbol
+        股票简称: name
+        申购代码: subscribe_code
+        发行价格: issue_price
+        申购日期: subscribe_date
+        上市日期: list_date
+        发行市盈率: pe_issue
+        中签率: lottery_rate
 
+      param_defaults:
+        symbol: 新股
 ipo_benefit:
   name: "ipo_benefit"
   category: "equity"
@@ -2235,7 +2488,16 @@ ipo_benefit:
     - name: "akshare_ths"
       func: "stock_ipo_benefit_ths"
       enabled: true
-      output_mapping: {}
+      output_mapping:
+        序号: rank
+        股票代码: symbol
+        股票简称: name
+        涨跌幅: change_pct
+        最新价: close
+        收益: benefit
+        关联新股代码: ipo_symbol
+        关联新股名称: ipo_name
+        上市日期: list_date
 
 stock_zh_a_spot_em:
   name: "stock_zh_a_spot_em"
@@ -2357,10 +2619,16 @@ equity_freeze:
     - name: "akshare_em"
       func: "stock_ggcg_em"
       enabled: true
-      input_mapping:
-        symbol: "symbol"
-      output_mapping: {}
+      input_mapping: {}
+      output_mapping:
+        股票代码: symbol
+        股票简称: name
+        变动日期: freeze_date
+        变动股东: shareholder_name
+        变动数量: freeze_shares
 
+      param_defaults:
+        symbol: 股东减持
 financial_metrics:
   name: "financial_metrics"
   category: "equity"
@@ -2381,27 +2649,21 @@ financial_metrics:
   rate_limit_key: "em_datacenter"
 
   sources:
-    - name: "akshare_em"
-      func: "stock_financial_analysis_indicator"
+    - name: akshare_em
+      func: stock_value_em
       enabled: true
       input_mapping:
-        symbol: "symbol"
+        symbol: symbol
+      param_transforms:
+        symbol: strip
       output_mapping:
-        日期: "date"
-        市盈率: "pe"
-        市净率: "pb"
-        市销率: "ps"
-        总市值: "market_cap"
-        流通市值: "circulating_cap"
-      column_types:
-        symbol: "str"
-        date: "date"
-        pe: "float"
-        pb: "float"
-        ps: "float"
-        market_cap: "float"
-        circulating_cap: "float"
-
+        数据日期: date
+        当日收盘价: close
+        总市值: market_cap
+        流通市值: circulating_cap
+        PE(TTM): pe
+        市净率: pb
+        市销率: ps
 goodwill_data:
   name: "goodwill_data"
   category: "equity"
@@ -2452,8 +2714,13 @@ goodwill_impairment:
   sources:
     - name: "akshare_em"
       func: "stock_ycfp_em"
-      enabled: true
-      output_mapping: {}
+      enabled: false
+      output_mapping:
+        股票代码: symbol
+        报告期: report_date
+        商誉: goodwill_balance
+        商誉减值: goodwill_impairment
+        净资产: net_assets
 
 goodwill_by_industry:
   name: "goodwill_by_industry"
@@ -2469,8 +2736,13 @@ goodwill_by_industry:
   sources:
     - name: "akshare_em"
       func: "stock_ycfp_em"
-      enabled: true
-      output_mapping: {}
+      enabled: false
+      output_mapping:
+        股票代码: symbol
+        报告期: report_date
+        商誉: goodwill_balance
+        商誉减值: goodwill_impairment
+        净资产: net_assets
 
 insider_trading:
   name: "insider_trading"
@@ -2492,28 +2764,47 @@ insider_trading:
   rate_limit_key: "default"
 
   sources:
-    - name: "akshare_ths"
-      func: "stock_shareholder_change_ths"
+    - name: akshare_sse
+      func: stock_share_hold_change_sse
       enabled: true
       input_mapping:
-        symbol: "symbol"
+        symbol: symbol
+      param_transforms:
+        symbol: strip
       output_mapping:
-        交易日期: "transaction_date"
-        姓名: "name"
-        职务: "title"
-        交易股份: "transaction_shares"
-        交易价格: "transaction_price"
-        交易金额: "transaction_value"
-        关系: "relationship"
-      column_types:
-        transaction_date: "date"
-        name: "str"
-        title: "str"
-        transaction_shares: "float"
-        transaction_price: "float"
-        transaction_value: "float"
-        relationship: "str"
-
+        公司代码: symbol
+        公司名称: name
+        姓名: insider_name
+        职务: title
+        股票种类: stock_type
+        本次变动前持股数: shares_before
+        变动数: transaction_shares
+        本次变动平均价格: transaction_price
+        变动后持股数: shares_after
+        变动原因: change_reason
+        变动日期: transaction_date
+        填报日期: report_date
+    - name: akshare_szse
+      func: stock_share_hold_change_szse
+      enabled: true
+      input_mapping:
+        symbol: symbol
+      param_transforms:
+        symbol: strip
+      output_mapping:
+        证券代码: symbol
+        证券简称: name
+        公告日期: report_date
+        高管姓名: insider_name
+        变动日期: transaction_date
+        持股人: holder
+        职务: title
+        变动原因: change_reason
+        股份变动数量: transaction_shares
+        成交均价: transaction_price
+        变动后持有股份数量: shares_after
+        董监高姓名: director_name
+        与董监高关系: relationship
 name_history:
   name: "name_history"
   category: "equity"
@@ -2562,7 +2853,22 @@ performance_express:
       enabled: true
       input_mapping:
         date: "date"
-      output_mapping: {}
+      output_mapping:
+        股票代码: symbol
+        股票简称: name
+        每股收益: eps
+        营业收入-营业收入: revenue
+        营业收入-同比增长: revenue_yoy
+        营业收入-季度环比增长: revenue_qoq
+        净利润-净利润: net_profit
+        净利润-同比增长: net_profit_yoy
+        净利润-季度环比增长: net_profit_qoq
+        每股净资产: bps
+        净资产收益率: roe
+        每股经营现金流量: ocf_ps
+        销售毛利率: gross_margin
+        所处行业: industry
+        最新公告日期: announce_date
 
 tool_trade_date_hist_sina:
   name: "tool_trade_date_hist_sina"

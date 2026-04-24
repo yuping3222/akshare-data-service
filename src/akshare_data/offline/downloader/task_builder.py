@@ -6,6 +6,8 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
+from akshare_data.core.schema import get_table_schema
+
 logger = logging.getLogger("akshare_data")
 
 
@@ -27,6 +29,38 @@ class TaskBuilder:
     """下载任务构建器"""
 
     DATE_PARAMS = {"start_date", "end_date", "start", "end", "begin", "finish"}
+    # 离线下载接口名 -> 缓存层 legacy 表名
+    # 目的：写入表名与 core/schema.py 保持一致，避免接口名直接落盘导致 Served 层读不到。
+    INTERFACE_TABLE_ALIASES = {
+        "equity_daily": "stock_daily",
+        "equity_minute": "stock_minute",
+        "equity_realtime": "spot_snapshot",
+        "stock_zh_a_spot_em": "spot_snapshot",
+        "north_money_flow": "north_flow",
+        "trading_days": "trade_calendar",
+        "tool_trade_date_hist_sina": "trade_calendar",
+        "securities_list": "securities",
+        "security_info": "company_info",
+        "industry_stocks": "industry_components",
+        "concept_stocks": "concept_components",
+        "insider_trading": "insider_trade",
+        "shareholder_changes": "holding_change",
+        "capital_change": "share_change",
+        "management_info": "company_management",
+        "macro_shibor": "shibor_rate",
+        "macro_social_financing": "social_financing",
+        "fof_list": "fof_fund",
+        "lof_list": "lof_fund",
+        "sector_fund_flow": "sector_flow_snapshot",
+        "repurchase_data": "repurchase",
+    }
+
+    @classmethod
+    def _resolve_cache_table(cls, interface_name: str) -> str:
+        aliased = cls.INTERFACE_TABLE_ALIASES.get(interface_name)
+        if aliased and get_table_schema(aliased) is not None:
+            return aliased
+        return interface_name
 
     def build_tasks(
         self,
@@ -60,7 +94,7 @@ class TaskBuilder:
                     continue
             if not func_name:
                 func_name = interface
-            table = f"{interface}"
+            table = self._resolve_cache_table(interface)
             rate_limit_key = iface_def.get("rate_limit_key", "default")
             signature = iface_def.get("signature", []) or []
 

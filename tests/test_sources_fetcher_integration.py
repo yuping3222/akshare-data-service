@@ -61,6 +61,14 @@ class TestTransformParam:
     def test_no_transform_returns_same(self):
         assert _transform_param("hello", "unknown") == "hello"
 
+    def test_prepend_prefix_handles_prefixed_symbol(self):
+        assert _transform_param("sh000001", "prepend_prefix:sh/sz") == "sh000001"
+        assert _transform_param("sz000001", "prepend_prefix:sh/sz") == "sz000001"
+
+    def test_prepend_prefix_adds_prefix_for_raw_symbol(self):
+        assert _transform_param("600000", "prepend_prefix:sh/sz") == "sh600000"
+        assert _transform_param("000001", "prepend_prefix:sh/sz") == "sz000001"
+
 
 # ── _to_pandas_type ──────────────────────────────────────────────────
 class TestToPandasType:

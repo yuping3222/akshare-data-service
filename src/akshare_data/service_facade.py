@@ -67,6 +67,94 @@ class DataService(LegacySourceAdapterMixin):
         """Backward-compatible access to underlying CacheManager."""
         return self._served._reader._cache
 
+    @staticmethod
+    def _result_to_df(result: QueryResult | None) -> pd.DataFrame:
+        if result is None or result.data is None:
+            return pd.DataFrame()
+        return result.data.copy()
+
+    @staticmethod
+    def _ensure_alias_column(df: pd.DataFrame, target: str, *sources: str) -> None:
+        if target in df.columns:
+            return
+        for source in sources:
+            if source in df.columns:
+                df[target] = df[source]
+                return
+
+    def _with_legacy_security_columns(self, df: pd.DataFrame) -> pd.DataFrame:
+        if df is None:
+            return pd.DataFrame()
+        if df.empty:
+            return df.copy()
+
+        result = df.copy()
+        self._ensure_alias_column(
+            result, "code", "symbol", "stock_code", "fund_code", "bond_code"
+        )
+        self._ensure_alias_column(
+            result,
+            "display_name",
+            "name",
+            "stock_name",
+            "fund_name",
+            "bond_name",
+        )
+        self._ensure_alias_column(
+            result, "name", "display_name", "stock_name", "fund_name", "bond_name"
+        )
+        self._ensure_alias_column(result, "start_date", "list_date", "nav_date")
+        self._ensure_alias_column(result, "end_date", "delist_date")
+
+        if "type" not in result.columns and "security_type" in result.columns:
+            result["type"] = result["security_type"]
+        if "security_type" not in result.columns and "type" in result.columns:
+            result["security_type"] = result["type"]
+        if "display_name" not in result.columns and "code" in result.columns:
+            result["display_name"] = result["code"]
+
+        return result
+
+    def _with_index_component_aliases(self, df: pd.DataFrame) -> pd.DataFrame:
+        result = self._with_legacy_security_columns(df)
+        if result.empty:
+            return result
+
+        self._ensure_alias_column(result, "stock_name", "name", "display_name", "code")
+        self._ensure_alias_column(result, "name", "stock_name", "display_name")
+        if "display_name" not in result.columns and "stock_name" in result.columns:
+            result["display_name"] = result["stock_name"]
+
+        return result
+
+    def _extract_codes(self, df: pd.DataFrame) -> List[str]:
+        result = self._with_legacy_security_columns(df)
+        if result.empty or "code" not in result.columns:
+            return []
+        return [str(value) for value in result["code"].dropna().tolist()]
+
+    @staticmethod
+    def _with_legacy_security_info(info: Dict[str, Any]) -> Dict[str, Any]:
+        result = dict(info)
+
+        def set_alias(target: str, *sources: str) -> None:
+            if target in result:
+                return
+            for source in sources:
+                if source in result:
+                    result[target] = result[source]
+                    return
+
+        set_alias("code", "symbol", "stock_code", "fund_code", "bond_code")
+        set_alias("display_name", "name", "stock_name", "fund_name", "bond_name")
+        set_alias("name", "display_name", "stock_name")
+        set_alias("start_date", "list_date", "nav_date")
+        set_alias("end_date", "delist_date")
+        if "type" not in result and "security_type" in result:
+            result["type"] = result["security_type"]
+
+        return result
+
     def _build_security_info_df(self, symbol):
         """Build a security info DataFrame for a given symbol.
 
@@ -156,19 +244,8 @@ class DataService(LegacySourceAdapterMixin):
     def get_index_stocks(
         self, index_code: str, source: Optional[Union[str, List[str]]] = None
     ) -> List[str]:
-        code = normalize_symbol(index_code)
-        result = self._served.query(
-            table="index_components",
-            partition_by="index_code",
-            partition_value=code,
-        )
-        if (
-            result.data is not None
-            and not result.data.empty
-            and "code" in result.data.columns
-        ):
-            return result.data["code"].dropna().tolist()
-        return []
+        df = self.get_index_components(index_code, include_weights=False, source=source)
+        return self._extract_codes(df)
 
     def get_index_components(
         self,
@@ -179,10 +256,12 @@ class DataService(LegacySourceAdapterMixin):
         code = normalize_symbol(index_code)
         result = self._served.query(
             table="index_components",
-            partition_by="index_code",
-            partition_value=code,
+            where={"index_code": code},
         )
-        return result.data
+        df = self._with_index_component_aliases(self._result_to_df(result))
+        if not include_weights and "weight" in df.columns:
+            df = df.drop(columns=["weight"])
+        return df
 
     def get_securities_list(
         self,
@@ -190,12 +269,19 @@ class DataService(LegacySourceAdapterMixin):
         date: Optional[str] = None,
         source: Optional[Union[str, List[str]]] = None,
     ) -> pd.DataFrame:
-        result = self._served.query(
-            table="securities",
-            partition_by="security_type",
-            partition_value=security_type,
+        result = self._served.query(table="securities")
+        df = self._with_legacy_security_columns(self._result_to_df(result))
+
+        filter_col = next(
+            (col for col in ("security_type", "type") if col in df.columns),
+            None,
         )
-        return result.data
+        if filter_col is not None:
+            df = df[df[filter_col].astype(str) == str(security_type)].copy()
+        elif security_type != "stock" and not df.empty:
+            return pd.DataFrame(columns=df.columns)
+
+        return df
 
     def get_industry_stocks(
         self,
@@ -208,13 +294,7 @@ class DataService(LegacySourceAdapterMixin):
             partition_by="industry_code",
             partition_value=industry_code,
         )
-        if (
-            result.data is not None
-            and not result.data.empty
-            and "code" in result.data.columns
-        ):
-            return result.data["code"].dropna().tolist()
-        return []
+        return self._extract_codes(self._result_to_df(result))
 
     def get_trading_days(
         self,
@@ -228,13 +308,13 @@ class DataService(LegacySourceAdapterMixin):
         self, source: Optional[Union[str, List[str]]] = None
     ) -> pd.DataFrame:
         result = self._served.query(table="suspended_stocks")
-        return result.data
+        return self._with_legacy_security_columns(self._result_to_df(result))
 
     def get_st_stocks(
         self, source: Optional[Union[str, List[str]]] = None
     ) -> pd.DataFrame:
         result = self._served.query(table="st_stocks")
-        return result.data
+        return self._with_legacy_security_columns(self._result_to_df(result))
 
     def get_money_flow(
         self,
@@ -273,11 +353,10 @@ class DataService(LegacySourceAdapterMixin):
         sym = normalize_symbol(symbol)
         result = self._served.query(
             table="company_info",
-            partition_by="symbol",
-            partition_value=sym,
+            where={"symbol": sym},
         )
         if result.data is not None and not result.data.empty:
-            return result.data.iloc[0].to_dict()
+            return self._with_legacy_security_info(result.data.iloc[0].to_dict())
         return {}
 
     def get_industry_mapping(
@@ -289,8 +368,7 @@ class DataService(LegacySourceAdapterMixin):
         sym = normalize_symbol(symbol)
         result = self._served.query(
             table="industry_mapping",
-            partition_by="symbol",
-            partition_value=sym,
+            where={"symbol": sym},
         )
         if (
             result.data is not None

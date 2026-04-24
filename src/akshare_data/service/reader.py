@@ -227,54 +227,70 @@ class ServedReader:
     ) -> tuple[Optional[str], Optional[str], Optional[Dict[str, Any]]]:
         """Resolve partition parameters against the schema contract.
 
-        When user-provided partition_by mismatches the schema:
-        - If the requested key is actually a valid column, treat the pair as
-          an extra where filter instead of a partition hint (this is the
-          common case where the legacy facade still passes symbol= even
-          though the table is partitioned by date/report_date).
-        - Otherwise fall back to the schema's partition_by and lift the
-          partition_value into the where clause keyed by the expected
-          partition column.
+        Resolution rules:
+        - If the table is not in the schema registry we cannot validate the
+          partition contract here; pass the caller's hint through unchanged
+          and let the storage backend / soft-miss path decide what to do.
+        - If the caller's ``partition_by`` matches the schema partition key,
+          pass through unchanged.
+        - If the caller's ``partition_by`` is a regular schema column (e.g.
+          ``symbol`` on a ``date``-partitioned or unpartitioned table),
+          rewrite the pair into ``where[partition_by] = partition_value``
+          so storage sees a normal equality filter rather than a partition
+          hint.
+        - Otherwise drop the unsupported partition filter entirely.
 
         Returns:
             (resolved_partition_by, effective_partition_value, effective_where)
         """
+        schema = get_table_schema(table)
         expected = self._resolve_partition_by(table)
+        schema_columns = set(schema.schema.keys()) if schema is not None else set()
 
         if partition_by is None:
             return expected, None, where
 
-        if expected is None or partition_by == expected:
+        # Unregistered tables: pass the caller's hint through so ad-hoc
+        # tables written with an explicit partition_by can still be read by
+        # the same key. The ``read()`` path will log a soft-miss warning for
+        # the unregistered table itself.
+        if schema is None:
             return partition_by, partition_value, where
 
-        schema = get_table_schema(table)
-        schema_cols = set(schema.schema.keys()) if schema else set()
-        effective_where = where.copy() if where else {}
+        if partition_by == expected:
+            return partition_by, partition_value, where
 
-        if partition_by in schema_cols:
+        if partition_value is None:
             logger.warning(
                 "ServedReader partition_by mismatch for table=%s: got=%s expected=%s; "
-                "moving partition_value to where[%s]",
+                "dropping empty partition_value",
+                table,
+                partition_by,
+                expected,
+            )
+            return expected, None, where
+
+        if partition_by in schema_columns:
+            logger.warning(
+                "ServedReader partition_by mismatch for table=%s: got=%s expected=%s; "
+                "converting partition_value to where[%s]",
                 table,
                 partition_by,
                 expected,
                 partition_by,
             )
-            if partition_value is not None:
-                effective_where[partition_by] = partition_value
+            effective_where = where.copy() if where else {}
+            effective_where[partition_by] = partition_value
             return expected, None, effective_where
 
         logger.warning(
             "ServedReader partition_by mismatch for table=%s: got=%s expected=%s; "
-            "converting partition_value to where clause",
+            "ignoring unsupported partition filter",
             table,
             partition_by,
             expected,
         )
-        if partition_value is not None:
-            effective_where[expected] = partition_value
-
-        return expected, None, effective_where
+        return expected, None, where
 
     def _validate_partition_by(
         self,

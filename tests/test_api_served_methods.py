@@ -35,7 +35,8 @@ def create_index_components_df(index_code="000300"):
     return pd.DataFrame(
         {
             "index_code": [index_code] * 5,
-            "code": ["600000", "600519", "000001", "000002", "300001"],
+            "symbol": ["600000", "600519", "000001", "000002", "300001"],
+            "name": ["浦发银行", "贵州茅台", "平安银行", "万科A", "特锐德"],
             "weight": [0.1, 0.08, 0.05, 0.03, 0.02],
         }
     )
@@ -467,7 +468,7 @@ class TestGetIndexComponents:
         ) as mock_query:
             service.get_index_components("sh000300")
             call_kwargs = mock_query.call_args[1]
-            assert call_kwargs["partition_value"] == "000300"
+            assert call_kwargs["where"] == {"index_code": "000300"}
 
     def test_get_index_components_empty(self, service):
         """Test index components returns empty"""
@@ -487,6 +488,33 @@ class TestGetIndexComponents:
         with patch.object(service._served, "query", return_value=mock_result):
             df = service.get_index_components("000300", include_weights=True)
             assert "weight" in df.columns
+
+    def test_get_index_components_without_weights(self, service):
+        """Test get_index_components drops weight when requested"""
+        test_df = create_index_components_df()
+        mock_result = QueryResult(data=test_df, table="index_components", has_data=True)
+
+        with patch.object(service._served, "query", return_value=mock_result):
+            df = service.get_index_components("000300", include_weights=False)
+            assert "weight" not in df.columns
+            assert "stock_name" in df.columns
+
+
+@pytest.mark.unit
+class TestGetIndexStocks:
+    """Tests for get_index_stocks facade method"""
+
+    @pytest.fixture
+    def service(self):
+        return DataService()
+
+    def test_get_index_stocks_reads_symbol_column(self, service):
+        test_df = create_index_components_df()
+        mock_result = QueryResult(data=test_df, table="index_components", has_data=True)
+
+        with patch.object(service._served, "query", return_value=mock_result):
+            stocks = service.get_index_stocks("000300")
+            assert stocks == ["600000", "600519", "000001", "000002", "300001"]
 
 
 @pytest.mark.unit
@@ -513,8 +541,10 @@ class TestGetSecuritiesList:
         ) as mock_query:
             df = service.get_securities_list(security_type="stock")
             assert not df.empty
-            call_kwargs = mock_query.call_args[1]
-            assert call_kwargs["partition_value"] == "stock"
+            assert list(df["code"]) == ["600000", "600519", "000001"]
+            assert list(df["display_name"]) == ["浦发银行", "茅台", "平安银行"]
+            assert "security_type" in df.columns
+            mock_query.assert_called_once_with(table="securities")
 
     def test_get_securities_list_etf(self, service):
         """Test get_securities_list for ETFs"""
@@ -530,9 +560,10 @@ class TestGetSecuritiesList:
         with patch.object(
             service._served, "query", return_value=mock_result
         ) as mock_query:
-            service.get_securities_list(security_type="etf")
-            call_kwargs = mock_query.call_args[1]
-            assert call_kwargs["partition_value"] == "etf"
+            df = service.get_securities_list(security_type="etf")
+            assert list(df["code"]) == ["510300", "159919"]
+            assert list(df["security_type"]) == ["etf", "etf"]
+            mock_query.assert_called_once_with(table="securities")
 
     def test_get_securities_list_empty(self, service):
         """Test get_securities_list returns empty"""
@@ -558,7 +589,7 @@ class TestGetIndustryStocks:
         test_df = pd.DataFrame(
             {
                 "industry_code": ["BK0001"] * 3,
-                "code": ["600000", "600519", "000001"],
+                "symbol": ["600000", "600519", "000001"],
             }
         )
         mock_result = QueryResult(
@@ -585,7 +616,7 @@ class TestGetIndustryStocks:
             assert stocks == []
 
     def test_get_industry_stocks_missing_code_column(self, service):
-        """Test industry stocks when code column missing"""
+        """Test industry stocks returns empty when symbol/code missing"""
         test_df = pd.DataFrame({"industry_code": ["BK0001"]})
         mock_result = QueryResult(
             data=test_df, table="industry_components", has_data=True
@@ -646,6 +677,7 @@ class TestGetSTStocks:
         test_df = pd.DataFrame(
             {
                 "symbol": ["600000", "000001"],
+                "name": ["ST浦发", "*ST平安"],
                 "st_type": ["ST", "*ST"],
                 "st_date": ["2024-01-01", "2024-01-02"],
             }
@@ -657,6 +689,8 @@ class TestGetSTStocks:
         ) as mock_query:
             df = service.get_st_stocks()
             assert not df.empty
+            assert list(df["code"]) == ["600000", "000001"]
+            assert list(df["display_name"]) == ["ST浦发", "*ST平安"]
             mock_query.assert_called_once_with(table="st_stocks")
 
     def test_get_st_stocks_empty(self, service):
@@ -668,6 +702,36 @@ class TestGetSTStocks:
         with patch.object(service._served, "query", return_value=mock_result):
             df = service.get_st_stocks()
             assert df.empty
+
+
+@pytest.mark.unit
+class TestGetSecurityInfo:
+    """Tests for get_security_info facade method"""
+
+    @pytest.fixture
+    def service(self):
+        return DataService()
+
+    def test_get_security_info_adds_legacy_keys(self, service):
+        test_df = pd.DataFrame(
+            {
+                "symbol": ["600000"],
+                "name": ["浦发银行"],
+                "industry": ["银行"],
+                "list_date": ["1999-11-10"],
+            }
+        )
+        mock_result = QueryResult(data=test_df, table="company_info", has_data=True)
+
+        with patch.object(service._served, "query", return_value=mock_result) as mock_query:
+            info = service.get_security_info("sh600000")
+            assert info["code"] == "600000"
+            assert info["display_name"] == "浦发银行"
+            assert info["start_date"] == "1999-11-10"
+            mock_query.assert_called_once_with(
+                table="company_info",
+                where={"symbol": "600000"},
+            )
 
 
 @pytest.mark.unit

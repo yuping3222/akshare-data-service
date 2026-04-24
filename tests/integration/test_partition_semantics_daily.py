@@ -30,6 +30,30 @@ def test_served_reader_partition_contract_warns_and_fallbacks(caplog):
     assert not df.empty
     assert "partition_by mismatch" in caplog.text
     assert cache.read.call_args.kwargs["partition_by"] == "date"
+    assert cache.read.call_args.kwargs["partition_value"] is None
+    assert cache.read.call_args.kwargs["where"] == {"symbol": "sh600000"}
+
+
+@pytest.mark.integration
+def test_served_reader_non_partitioned_symbol_filter_moves_to_where(caplog):
+    cache = MagicMock()
+    cache.read.return_value = pd.DataFrame(
+        {"symbol": ["600000"], "name": ["浦发银行"]}
+    )
+
+    reader = ServedReader(cache_manager=cache)
+    with caplog.at_level("WARNING"):
+        df = reader.read(
+            "company_info",
+            partition_by="symbol",
+            partition_value="600000",
+        )
+
+    assert not df.empty
+    assert "partition_by mismatch" in caplog.text
+    assert cache.read.call_args.kwargs["partition_by"] is None
+    assert cache.read.call_args.kwargs["partition_value"] is None
+    assert cache.read.call_args.kwargs["where"] == {"symbol": "600000"}
 
 
 @pytest.fixture

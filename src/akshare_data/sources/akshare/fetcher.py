@@ -359,12 +359,19 @@ def _transform_param(value: Any, transform: str) -> Any:
         return f"{value}{suffix}"
 
     if transform.startswith("prepend_prefix:SH/SZ"):
-        code = str(value).lstrip("0")
-        return f"SH{value}" if code.startswith("6") else f"SZ{value}"
+        raw = str(value).strip()
+        upper = raw.upper()
+        if upper.startswith("SH") or upper.startswith("SZ"):
+            return upper
+        code = format_stock_symbol(raw)
+        return f"SH{code}" if str(code).startswith("6") else f"SZ{code}"
 
     if transform.startswith("prepend_prefix:sh/sz"):
-        code = str(value).zfill(6)
-        return f"sh{code}" if code.startswith("6") else f"sz{code}"
+        raw = str(value).strip().lower()
+        if raw.startswith("sh") or raw.startswith("sz"):
+            return raw
+        code = format_stock_symbol(raw)
+        return f"sh{code}" if str(code).startswith("6") else f"sz{code}"
 
     return value
 

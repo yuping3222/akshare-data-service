@@ -21,10 +21,12 @@ from akshare_data.offline.core.retry import RetryConfig, retry
 from akshare_data.offline.downloader.rate_limiter import DomainRateLimiter
 from akshare_data.offline.downloader.task_builder import DownloadTask
 from akshare_data.offline.field_mapper import EXTENDED_CN_TO_EN
+from akshare_data.core.schema import get_table_schema
+from akshare_data.core.symbols import normalize_symbol
 
 logger = logging.getLogger("akshare_data")
 
-_RETRY_CONFIG = RetryConfig(max_retries=2, delay=1.0, backoff=1.0)
+_RETRY_CONFIG = RetryConfig(max_retries=4, delay=1.0, backoff=1.0)
 
 
 class TaskExecutor(
@@ -34,6 +36,15 @@ class TaskExecutor(
     """下载任务执行器。"""
 
     mode = ExecutionMode.SYNC
+    # 常见同义字段 -> schema 字段名
+    COLUMN_ALIASES: Dict[str, str] = {
+        "cash_dividend": "dividend_cash",
+        "stock_dividend": "dividend_stock",
+        "announcement_date": "announce_date",
+        "pre_close": "prev_close",
+        "total_revenue": "revenue",
+        "open_interest": "open_interest",
+    }
 
     def __init__(self, rate_limiter: DomainRateLimiter, cache_manager=None):
         self._rate_limiter = rate_limiter
@@ -167,41 +178,112 @@ class TaskExecutor(
             columns={cn: en for cn, en in EXTENDED_CN_TO_EN.items() if cn in df.columns}
         )
 
+    def _fill_required_keys_from_kwargs(
+        self,
+        normalized: pd.DataFrame,
+        task: DownloadTask,
+    ) -> pd.DataFrame:
+        """从任务参数补齐关键主键/日期字段，减少 schema 与落盘字段不一致。"""
+        kwargs = task.kwargs or {}
+        table_schema = get_table_schema(task.table)
+        if table_schema is None:
+            return normalized
+
+        schema_fields = set(table_schema.schema.keys())
+
+        def _first_non_empty(*keys: str):
+            for key in keys:
+                value = kwargs.get(key)
+                if value is not None and value != "":
+                    return value
+            return None
+
+        symbol = _first_non_empty("symbol", "code", "ts_code")
+        date_val = _first_non_empty("date", "start_date", "start", "begin", "end_date")
+
+        # 常见代码类字段兜底
+        if symbol is not None:
+            normalized_symbol = normalize_symbol(str(symbol))
+            code_defaults = {
+                "symbol": normalized_symbol,
+                "stock_code": normalized_symbol,
+                "fund_code": str(symbol),
+                "bond_code": str(symbol),
+                "index_code": str(symbol),
+                "industry_code": str(symbol),
+                "concept_code": str(symbol),
+            }
+            for field, value in code_defaults.items():
+                if field in schema_fields and field not in normalized.columns:
+                    normalized[field] = value
+
+        # 常见日期类字段兜底
+        if date_val is not None:
+            for field in (
+                "date",
+                "report_date",
+                "announce_date",
+                "release_date",
+                "rating_date",
+                "status_date",
+                "transaction_date",
+            ):
+                if field in schema_fields and field not in normalized.columns:
+                    normalized[field] = pd.to_datetime(date_val, errors="coerce")
+
+        if "adjust" in schema_fields and "adjust" not in normalized.columns:
+            adjust = kwargs.get("adjust")
+            if adjust is not None:
+                normalized["adjust"] = str(adjust)
+
+        if "period" in schema_fields and "period" not in normalized.columns:
+            period = kwargs.get("period")
+            if period is not None:
+                normalized["period"] = str(period)
+
+        if "week" in schema_fields and "week" not in normalized.columns:
+            if "datetime" in normalized.columns:
+                dt = pd.to_datetime(normalized["datetime"], errors="coerce")
+                normalized["week"] = dt.dt.strftime("%Y-%U")
+            elif date_val is not None:
+                dt = pd.to_datetime(date_val, errors="coerce")
+                if not pd.isna(dt):
+                    normalized["week"] = dt.strftime("%Y-%U")
+
+        # trade_calendar 兜底：接口通常只返回 date 列。
+        if "is_trading_day" in schema_fields and "is_trading_day" not in normalized.columns:
+            normalized["is_trading_day"] = True
+
+        # 如果 schema 定义了字段但当前不存在，则补空列（保持列契约稳定）
+        for field in schema_fields:
+            if field not in normalized.columns:
+                normalized[field] = pd.NA
+
+        return normalized
+
     def _write_to_cache(self, task: DownloadTask, df: pd.DataFrame) -> None:
         """写入缓存（先做字段规范化）。"""
         if self._cache_manager is None:
             return
 
         normalized = self._map_columns(task.table, df)
-        kwargs = task.kwargs or {}
+        # 统一同义字段命名，避免 schema 字段与接口字段不一致。
+        for old, new in self.COLUMN_ALIASES.items():
+            if old in normalized.columns and new not in normalized.columns:
+                normalized = normalized.rename(columns={old: new})
 
-        # 如果 schema 需要 date 但数据中没有，从 kwargs 中添加
-        if "date" not in normalized.columns:
-            date_val = (
-                kwargs.get("start_date")
-                or kwargs.get("start")
-                or kwargs.get("begin")
-                or kwargs.get("date")
-            )
-            if date_val:
-                normalized["date"] = pd.to_datetime(date_val).date()
-
-        partition_by = None
-        for key in ("symbol", "code", "ts_code"):
-            if key in kwargs and kwargs[key]:
-                partition_by = "symbol"
-                break
+        normalized = self._fill_required_keys_from_kwargs(normalized, task)
 
         # 根据表名确定存储层
-        from akshare_data.core.schema import get_table_schema
         table_schema = get_table_schema(task.table)
         storage_layer = table_schema.storage_layer if table_schema else "daily"
+        partition_by = table_schema.partition_by if table_schema else None
 
         self._cache_manager.write(
             table=task.table,
             data=normalized,
             storage_layer=storage_layer,
-            partition_by=partition_by or "date",
+            partition_by=partition_by,
             schema=None,
             primary_key=None,
         )

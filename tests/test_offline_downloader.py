@@ -19,7 +19,6 @@ from akshare_data.offline.downloader import (
     validate_ohlcv_data,
     convert_wide_to_long,
 )
-
 RateLimiter = DomainRateLimiter
 
 
@@ -100,6 +99,37 @@ class TestBatchDownloaderInit:
         assert "sina_vip" in dl._rate_limits
         assert "em_push2his" in dl._rate_limits
         assert "tushare" in dl._rate_limits
+
+    def test_incremental_cache_check_uses_resolved_table(self):
+        """缓存命中检查应使用 schema 对齐后的表名（如 equity_daily -> stock_daily）"""
+        mock_cache = MagicMock()
+        mock_cache.has_range.return_value = True
+        dl = BatchDownloader(cache_manager=mock_cache, max_workers=1, batch_size=1)
+        dl._registry = {
+            "interfaces": {
+                "equity_daily": {
+                    "signature": ["symbol", "start_date", "end_date"],
+                    "category": "equity",
+                    "sources": [{"func": "stock_zh_a_hist", "enabled": True}],
+                }
+            }
+        }
+        result = dl.download_incremental(days_back=1)
+        assert result["skipped"] == 1
+        mock_cache.has_range.assert_called()
+        args, kwargs = mock_cache.has_range.call_args
+        assert args[0] == "stock_daily"
+
+    def test_get_stock_list_static_filters_non_a_share_codes(self):
+        """_get_stock_list_static 应过滤掉 stock_zh_a_daily 不支持的代码段。"""
+        mock_df = pd.DataFrame({"代码": ["600000", "000001", "300750", "430047", "830799"]})
+        with patch("akshare.stock_zh_a_spot_em", return_value=mock_df):
+            codes = BatchDownloader._get_stock_list_static()
+        assert "600000" in codes
+        assert "000001" in codes
+        assert "300750" in codes
+        assert "430047" not in codes
+        assert "830799" not in codes
 
 
 # ---------------------------------------------------------------------------
@@ -266,6 +296,24 @@ class TestBatchDownloaderIncremental:
         assert result["success_count"] == 1
         assert result["failed_count"] == 0
 
+    def test_incremental_cache_check_uses_resolved_table(self, downloader):
+        """缓存跳过检查应使用 task builder 的表名映射结果。"""
+        downloader._registry = {
+            "interfaces": {
+                "equity_daily": {"signature": ["start_date", "end_date"], "category": "equity"},
+            }
+        }
+        with patch.object(
+            downloader._task_builder,
+            "_resolve_cache_table",
+            return_value="stock_daily",
+        ) as mock_resolve:
+            downloader.download_incremental(start="2024-01-01", days_back=1)
+            mock_resolve.assert_called_with("equity_daily")
+            downloader._cache_manager.has_range.assert_called()
+            called_table = downloader._cache_manager.has_range.call_args.args[0]
+            assert called_table == "stock_daily"
+
     def test_incremental_with_failed_stocks(self, downloader):
         """测试包含失败任务 — adapted: mock TaskExecutor with mixed results"""
         with patch.object(downloader._task_builder, "build_tasks") as mock_build:
@@ -302,7 +350,6 @@ class TestBatchDownloaderIncremental:
         assert result["success_count"] == 1
         assert result["failed_count"] == 1
         assert len(result["failed_stocks"]) == 1
-
 
 # ---------------------------------------------------------------------------
 # TestBatchDownloaderFullMarket — download_full_market() renamed to download_full()

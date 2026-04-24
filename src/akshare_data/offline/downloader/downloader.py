@@ -115,7 +115,7 @@ class BatchDownloader:
         interfaces_to_download = []
         skipped = []
         for iface_name in incremental_interfaces:
-            table = iface_name
+            table = self._task_builder._resolve_cache_table(iface_name)
             if self._cache_manager and self._cache_manager.has_range(
                 table, start=start, end=end
             ):
@@ -222,7 +222,15 @@ class BatchDownloader:
 
         try:
             df = ak.stock_zh_a_spot_em()
-            return df["代码"].tolist()[:100]
+            raw_codes = [str(code).strip() for code in df["代码"].tolist()]
+            # stock_zh_a_daily 仅稳定支持沪深主板/创业板代码，过滤掉北交所等代码，
+            # 避免在 akshare_sina 数据源稳定抛出 KeyError('date')。
+            filtered = [
+                code
+                for code in raw_codes
+                if code.isdigit() and code.startswith(("0", "3", "6"))
+            ]
+            return filtered[:100]
         except Exception:
             return ["000001", "000002", "600000"]
 

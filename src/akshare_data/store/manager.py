@@ -22,7 +22,7 @@ CACHE_KEY_VERSION = "v2"
 
 def _create_cache_config(**kwargs) -> CacheConfig:
     """创建缓存配置（统一使用 core.config.CacheConfig）"""
-    return CacheConfig(**kwargs)
+    return CacheConfig.from_env(**kwargs)
 
 
 class CacheManager:
@@ -544,9 +544,14 @@ def get_cache_manager(
     config: CacheConfig | None = None,
 ) -> "CacheManager":
     """Get or create the global CacheManager singleton."""
-    return CacheManager.get_instance(
-        config=CacheConfig(base_dir=base_dir) if base_dir else config
-    )
+    if config is None:
+        if base_dir:
+            config = CacheConfig.from_env(base_dir=base_dir)
+        else:
+            config = CacheConfig.from_env()
+    elif base_dir:
+        config.base_dir = base_dir
+    return CacheManager.get_instance(config=config)
 
 
 def reset_cache_manager():

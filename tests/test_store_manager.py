@@ -6,6 +6,7 @@ Comprehensive tests for CacheManager and related classes in store/manager.py
 import tempfile
 import threading
 from pathlib import Path
+import os
 
 import pandas as pd
 import pytest
@@ -145,6 +146,20 @@ class TestCacheManagerInit:
         reset_cache_manager()
         manager2 = get_cache_manager(base_dir=temp_cache_dir)
         assert manager1 is not manager2
+
+    def test_get_cache_manager_reads_env_base_dir(self, temp_cache_dir):
+        """Factory should honor AKSHARE_DATA_CACHE_DIR when base_dir is omitted."""
+        old = os.environ.get("AKSHARE_DATA_CACHE_DIR")
+        try:
+            os.environ["AKSHARE_DATA_CACHE_DIR"] = temp_cache_dir
+            reset_cache_manager()
+            manager = get_cache_manager()
+            assert manager.config.base_dir == temp_cache_dir
+        finally:
+            if old is None:
+                os.environ.pop("AKSHARE_DATA_CACHE_DIR", None)
+            else:
+                os.environ["AKSHARE_DATA_CACHE_DIR"] = old
 
 
 class TestCacheManagerRead:

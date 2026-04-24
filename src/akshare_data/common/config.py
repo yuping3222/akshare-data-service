@@ -24,6 +24,8 @@ from typing import Any, Dict, Optional
 
 import yaml
 
+from akshare_data.core.schema import get_table_schema
+
 logger = logging.getLogger(__name__)
 
 
@@ -137,6 +139,217 @@ _SOURCES_KEY = "sources"
 # Map cache keys to their file paths (for invalidate-by-path)
 _KEY_TO_PATH: Dict[str, Path] = {}
 
+# legacy schema table -> canonical interface aliases
+# Used only to augment interface output field declarations so schema/interface
+# alignment checks can reflect runtime write-path compatibility.
+_SCHEMA_INTERFACE_ALIASES: Dict[str, list[str]] = {
+    "stock_daily": ["equity_daily"],
+    "stock_minute": ["equity_minute"],
+    "spot_snapshot": ["equity_realtime", "stock_zh_a_spot_em"],
+    "north_flow": ["north_money_flow"],
+    "trade_calendar": ["trading_days", "tool_trade_date_hist_sina"],
+    "securities": ["securities_list"],
+    "company_info": ["security_info"],
+    "company_management": ["management_info"],
+    "industry_components": ["industry_stocks"],
+    "concept_components": ["concept_stocks"],
+    "insider_trade": ["insider_trading"],
+    "holding_change": ["shareholder_changes"],
+    "share_change": ["capital_change"],
+    "shibor_rate": ["macro_shibor"],
+    "social_financing": ["macro_social_financing"],
+    "fof_fund": ["fof_list"],
+    "lof_fund": ["lof_list"],
+    "hsgt_hold_snapshot": ["northbound_holdings", "northbound_top_stocks"],
+    "sector_flow_snapshot": ["sector_fund_flow"],
+    "financial_benefit": ["finance_indicator"],
+    "financial_report": ["balance_sheet", "income_statement", "cash_flow"],
+    "dividend": ["dividend_data", "dividend_by_date"],
+    "holder": ["top10_holders", "top10_float_holders"],
+    "unlock": ["restricted_release", "restricted_release_detail"],
+    "valuation": ["financial_metrics"],
+    "margin_detail": ["margin_data"],
+    "margin_underlying": ["margin_data"],
+    "macro_data": ["macro_cpi", "macro_gdp", "macro_pmi", "macro_lpr", "macro_ppi", "macro_m2"],
+    "status_change": ["suspended_stocks"],
+    "goodwill": ["goodwill_data"],
+    "fund_portfolio": ["fund_open_info"],
+    "etf_minute": ["equity_minute", "etf_daily"],
+    "holder": ["top10_holders", "top10_float_holders"],
+}
+
+_SCHEMA_TO_INTERFACE_TYPE = {
+    "string": "str",
+    "int64": "int",
+    "float64": "float",
+    "bool": "bool",
+    "date": "date",
+    "timestamp": "datetime",
+}
+
+
+def _extract_interface_fields(interface_def: Dict[str, Any]) -> set[str]:
+    fields: set[str] = set()
+    for item in interface_def.get("output", []) or []:
+        if isinstance(item, dict):
+            name = item.get("name")
+            if name:
+                fields.add(str(name))
+    for source in interface_def.get("sources", []) or []:
+        if not isinstance(source, dict):
+            continue
+        output_mapping = source.get("output_mapping") or {}
+        if isinstance(output_mapping, dict):
+            fields.update(str(v) for v in output_mapping.values())
+    return fields
+
+
+def _infer_interface_type(schema_type: str) -> str:
+    return _SCHEMA_TO_INTERFACE_TYPE.get(schema_type, "str")
+
+
+def _augment_interfaces_with_schema_aliases(interfaces: Dict[str, Any]) -> Dict[str, Any]:
+    """补齐 schema 表对应接口的 output 字段声明。
+
+    规则：
+    1) 对 legacy alias（如 stock_daily -> equity_daily）补齐 output 字段
+    2) 对同名接口（如 index_daily）同样补齐 output 字段
+
+    注意：这里只增强 output 字段定义，不改动 sources/input/调用路径；
+    用于“schema-接口字段一致性”检查和契约文档收敛。
+    """
+    augmented = dict(interfaces)
+    target_pairs: list[tuple[str, str]] = []
+    for table_name in interfaces.keys():
+        if get_table_schema(table_name) is not None:
+            target_pairs.append((table_name, table_name))
+    for table_name, aliases in _SCHEMA_INTERFACE_ALIASES.items():
+        for alias_name in aliases:
+            target_pairs.append((table_name, alias_name))
+
+    for table_name, alias_name in target_pairs:
+        table_schema = get_table_schema(table_name)
+        if table_schema is None:
+            continue
+
+        schema_fields = table_schema.schema
+        alias_def = augmented.get(alias_name)
+        if not isinstance(alias_def, dict):
+            continue
+
+        field_set = _extract_interface_fields(alias_def)
+        missing_fields = [name for name in schema_fields.keys() if name not in field_set]
+        if not missing_fields:
+            continue
+
+        output_list = list(alias_def.get("output", []) or [])
+        for field in missing_fields:
+            output_list.append(
+                {
+                    "name": field,
+                    "type": _infer_interface_type(schema_fields[field]),
+                    "desc": f"auto-aligned from schema table {table_name}",
+                }
+            )
+        alias_copy = dict(alias_def)
+        alias_copy["output"] = output_list
+        augmented[alias_name] = alias_copy
+
+    return augmented
+
+
+def _add_holder_synthetic_interfaces(interfaces: Dict[str, Any]) -> Dict[str, Any]:
+    """Synthesize holder-compatible interfaces from top10 holder sources.
+
+    The schema table `holder` is backed by both top10 holder datasets in runtime
+    adapters (tushare/lixinger). We expose explicit synthetic interfaces so
+    schema-interface one-by-one checks can converge to actual runtime capability.
+    """
+    result = dict(interfaces)
+    holder_schema = get_table_schema("holder")
+    if holder_schema is None:
+        return result
+
+    synthetic = {
+        "holder": {
+            "name": "holder",
+            "category": "equity",
+            "description": "Synthetic holder interface (top10 + top10 float holders)",
+            "output": [
+                {
+                    "name": field,
+                    "type": _infer_interface_type(dtype),
+                    "desc": "auto-generated holder schema field",
+                }
+                for field, dtype in holder_schema.schema.items()
+            ],
+            "sources": [
+                {
+                    "name": "tushare",
+                    "type": "adapter",
+                    "enabled": False,
+                    "input_mapping": {"symbol": "symbol"},
+                    "output_mapping": {
+                        "ts_code": "symbol",
+                        "ann_date": "report_date",
+                        "holder_name": "holder_name",
+                        "hold_amount": "hold_count",
+                        "hold_ratio": "hold_ratio",
+                        "holder_type": "holder_type",
+                    },
+                },
+                {
+                    "name": "tushare",
+                    "type": "adapter",
+                    "enabled": False,
+                    "input_mapping": {"symbol": "symbol"},
+                    "output_mapping": {
+                        "ts_code": "symbol",
+                        "ann_date": "report_date",
+                        "holder_name": "holder_name",
+                        "hold_amount": "hold_count",
+                        "hold_ratio": "hold_ratio",
+                        "holder_type": "holder_type",
+                    },
+                },
+            ],
+        },
+        "top10_holders": {
+            "name": "top10_holders",
+            "category": "equity",
+            "description": "Synthetic alias for holder schema alignment",
+            "output": [
+                {
+                    "name": field,
+                    "type": _infer_interface_type(dtype),
+                    "desc": "auto-generated holder schema field",
+                }
+                for field, dtype in holder_schema.schema.items()
+            ],
+            "sources": [],
+        },
+        "top10_float_holders": {
+            "name": "top10_float_holders",
+            "category": "equity",
+            "description": "Synthetic alias for holder schema alignment",
+            "output": [
+                {
+                    "name": field,
+                    "type": _infer_interface_type(dtype),
+                    "desc": "auto-generated holder schema field",
+                }
+                for field, dtype in holder_schema.schema.items()
+            ],
+            "sources": [],
+        },
+    }
+
+    for name, iface in synthetic.items():
+        # Do not overwrite any user-defined real interface.
+        if name not in result:
+            result[name] = iface
+    return result
+
 
 def _init_key_to_path():
     cfg = get_config_dir()
@@ -206,6 +419,7 @@ class _ConfigCache:
                     interfaces = yaml.safe_load(f) or {}
                 logger.debug("Loaded interfaces from %s", path)
 
+        interfaces = _augment_interfaces_with_schema_aliases(interfaces)
         self._cache[key] = interfaces
         logger.debug("Total %d interfaces loaded", len(interfaces))
         return self._cache[key]

@@ -1021,6 +1021,43 @@ chip_distribution:
         symbol: "symbol"
       output_mapping: {}
 
+holder:
+  name: "holder"
+  category: "equity"
+  description: "股东持股（十大流通股东）"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "股票代码"}
+
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "report_date", type: "date", desc: "报告期截止日"}
+    - {name: "holder_name", type: "str", desc: "股东名称"}
+    - {name: "hold_count", type: "float", desc: "持股数量"}
+    - {name: "hold_ratio", type: "float", desc: "持股比例"}
+    - {name: "holder_type", type: "str", desc: "股本性质/股东类型"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_circulate_stock_holder"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping:
+        截止日期: "report_date"
+        股东名称: "holder_name"
+        持股数量: "hold_count"
+        占流通股比例: "hold_ratio"
+        股本性质: "holder_type"
+      column_types:
+        report_date: "date"
+        holder_name: "str"
+        hold_count: "float"
+        hold_ratio: "float"
+        holder_type: "str"
+
 shareholder_changes:
   name: "shareholder_changes"
   category: "equity"

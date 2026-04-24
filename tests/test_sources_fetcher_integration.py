@@ -282,7 +282,7 @@ class TestFetchStockData:
         assert not result.empty
 
     def test_fetch_index_list(self):
-        """Verify fetch('index_list') calls stock_zh_index_spot_em."""
+        """Verify fetch('index_list') calls stock_zh_index_spot_em and renames columns."""
         mock_df = pd.DataFrame(
             {
                 "代码": ["000001", "000300"],
@@ -292,9 +292,9 @@ class TestFetchStockData:
         ak = self._make_mock_ak({"stock_zh_index_spot_em": mock_df})
         result = fetch("index_list", akshare=ak)
         assert isinstance(result, pd.DataFrame)
-        # output_mapping is empty for this interface, so original columns preserved
-        assert "代码" in result.columns
-        assert "名称" in result.columns
+        # output_mapping translates Chinese column names to unified English names.
+        assert "symbol" in result.columns
+        assert "name" in result.columns
         assert result.attrs.get("source") == "akshare_em"
         assert result.attrs.get("interface") == "index_list"
 

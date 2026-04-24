@@ -106,39 +106,6 @@ option_current_day_sse:
         到期日: expiration_date
         开始日期: start_date
 
-option_sse_daily_sina:
-  name: "option_sse_daily_sina"
-  category: "options"
-  description: "指定期权的日频率历史数据（新浪源）"
-
-  input:
-    - {name: "symbol", type: "str", required: true, desc: "期权代码"}
-
-  output:
-    - {name: "date", type: "date", desc: "日期"}
-    - {name: "open", type: "float", desc: "开盘价"}
-    - {name: "high", type: "float", desc: "最高价"}
-    - {name: "low", type: "float", desc: "最低价"}
-    - {name: "close", type: "float", desc: "收盘价"}
-    - {name: "volume", type: "float", desc: "成交量"}
-
-  rate_limit_key: "default"
-
-  sources:
-    - name: "akshare_sina"
-      func: "option_sse_daily_sina"
-      enabled: true
-      input_mapping:
-        symbol: "symbol"
-      output_mapping:
-        日期: date
-        开盘: open
-        最高: high
-        最低: low
-        收盘: close
-        成交量: volume
-        持仓量: open_interest
-
 options_chain:
   name: "options_chain"
   category: "options"

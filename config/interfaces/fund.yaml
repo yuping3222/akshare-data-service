@@ -1,6 +1,3 @@
-# 基金接口
-# category: fund
-
 etf_daily:
   name: "etf_daily"
   category: "fund"
@@ -52,42 +49,6 @@ etf_daily:
         volume: "float"
         amount: "float"
 
-fund_net_value:
-  name: "fund_net_value"
-  category: "fund"
-  description: "开放式基金净值历史数据"
-
-  input:
-    - {name: "symbol", type: "str", required: true, desc: "基金代码"}
-    - {name: "indicator", type: "str", required: false, default: "单位净值走势", desc: "净值指标"}
-    - {name: "period", type: "str", required: false, default: "成立来", desc: "时间周期"}
-
-  output:
-    - {name: "date", type: "date"}
-    - {name: "nav", type: "float", desc: "单位净值"}
-    - {name: "acc_nav", type: "float", desc: "累计净值"}
-
-  rate_limit_key: "em_datacenter"
-
-  sources:
-    - name: "akshare_em"
-      func: "fund_open_fund_info_em"
-      enabled: true
-      input_mapping:
-        symbol: "symbol"
-        indicator: "indicator"
-        period: "period"
-      output_mapping:
-        净值日期: "date"
-        单位净值: "nav"
-        累计净值: "acc_nav"
-      column_types:
-        date: "date"
-        nav: "float"
-        acc_nav: "float"
-
-      param_defaults:
-        indicator: 单位净值走势
 fund_manager_info:
   name: "fund_manager_info"
   category: "fund"
@@ -156,8 +117,8 @@ etf_list:
         symbol: "str"
         name: "str"
 
-lof_list:
-  name: "lof_list"
+lof_fund:
+  name: "lof_fund"
   category: "fund"
   description: "LOF基金列表"
 
@@ -181,8 +142,10 @@ lof_list:
         symbol: "str"
         name: "str"
 
-fof_list:
-  name: "fof_list"
+  aliases:
+    - lof_list
+fof_fund:
+  name: "fof_fund"
   category: "fund"
   description: "FOF基金列表 — akshare 暂无独立 FOF 列表接口，需后续补充"
 
@@ -193,6 +156,8 @@ fof_list:
   rate_limit_key: "default"
 
   sources: []
+  aliases:
+    - fof_list
 
 fof_nav:
   name: "fof_nav"
@@ -369,47 +334,3 @@ fund_open_info:
 
       param_defaults:
         indicator: 基金规模
-fund_lof_hist_em:
-  name: "fund_lof_hist_em"
-  category: "fund"
-  description: "LOF基金历史数据（东方财富）"
-
-  input:
-    - {name: "symbol", type: "str", required: true, desc: "基金代码"}
-    - {name: "start_date", type: "str", required: false, default: "19700101"}
-    - {name: "end_date", type: "str", required: false, default: "20500101"}
-    - {name: "adjust", type: "str", required: false, default: ""}
-
-  output:
-    - {name: "date", type: "date", desc: "日期"}
-    - {name: "open", type: "float", desc: "开盘价"}
-    - {name: "high", type: "float", desc: "最高价"}
-    - {name: "low", type: "float", desc: "最低价"}
-    - {name: "close", type: "float", desc: "收盘价"}
-    - {name: "volume", type: "float", desc: "成交量"}
-
-  rate_limit_key: "em_push2his"
-
-  sources:
-    - name: "akshare_em"
-      func: "fund_lof_hist_em"
-      enabled: true
-      input_mapping:
-        symbol: "symbol"
-        start_date: "start_date"
-        end_date: "end_date"
-        adjust: "adjust"
-      output_mapping:
-        日期: "date"
-        开盘: "open"
-        最高: "high"
-        最低: "low"
-        收盘: "close"
-        成交量: "volume"
-      column_types:
-        date: "date"
-        open: "float"
-        high: "float"
-        low: "float"
-        close: "float"
-        volume: "float"

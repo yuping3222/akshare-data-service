@@ -276,6 +276,10 @@ class TaskExecutor(
 
         # 根据表名确定存储层
         table_schema = get_table_schema(task.table)
+        # 对有 schema 的表，落盘前按 schema 字段严格收敛，避免历史/原始额外列污染契约。
+        if table_schema is not None:
+            schema_columns = list(table_schema.schema.keys())
+            normalized = normalized.loc[:, [c for c in schema_columns if c in normalized.columns]]
         storage_layer = table_schema.storage_layer if table_schema else "daily"
         partition_by = table_schema.partition_by if table_schema else None
 

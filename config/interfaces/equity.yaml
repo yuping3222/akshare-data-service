@@ -376,7 +376,27 @@ dragon_tiger_summary:
     - {name: "start_date", type: "date", required: true, desc: "起始日期 YYYY-MM-DD"}
     - {name: "end_date", type: "date", required: true, desc: "结束日期 YYYY-MM-DD"}
 
-  output: []
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "name", type: "str", desc: "股票名称"}
+    - {name: "date", type: "date", desc: "上榜日期"}
+    - {name: "interpretation", type: "str", desc: "解读"}
+    - {name: "close", type: "float", desc: "收盘价"}
+    - {name: "pct_change", type: "float", desc: "涨跌幅"}
+    - {name: "net_buy", type: "float", desc: "龙虎榜净买额"}
+    - {name: "buy_amount", type: "float", desc: "龙虎榜买入额"}
+    - {name: "sell_amount", type: "float", desc: "龙虎榜卖出额"}
+    - {name: "turnover_amount", type: "float", desc: "龙虎榜成交额"}
+    - {name: "market_turnover", type: "float", desc: "市场总成交额"}
+    - {name: "net_buy_ratio", type: "float", desc: "净买额占总成交比"}
+    - {name: "turnover_ratio", type: "float", desc: "成交额占总成交比"}
+    - {name: "turnover_rate", type: "float", desc: "换手率"}
+    - {name: "circulating_market_cap", type: "float", desc: "流通市值"}
+    - {name: "reason", type: "str", desc: "上榜原因"}
+    - {name: "post_1d", type: "float", desc: "上榜后1日"}
+    - {name: "post_2d", type: "float", desc: "上榜后2日"}
+    - {name: "post_5d", type: "float", desc: "上榜后5日"}
+    - {name: "post_10d", type: "float", desc: "上榜后10日"}
 
   rate_limit_key: "default"
 
@@ -390,7 +410,48 @@ dragon_tiger_summary:
       param_transforms:
         start_date: "YYYYMMDD"
         end_date: "YYYYMMDD"
-      output_mapping: {}
+      output_mapping:
+        代码: "symbol"
+        名称: "name"
+        上榜日: "date"
+        解读: "interpretation"
+        收盘价: "close"
+        涨跌幅: "pct_change"
+        龙虎榜净买额: "net_buy"
+        龙虎榜买入额: "buy_amount"
+        龙虎榜卖出额: "sell_amount"
+        龙虎榜成交额: "turnover_amount"
+        市场总成交额: "market_turnover"
+        净买额占总成交比: "net_buy_ratio"
+        成交额占总成交比: "turnover_ratio"
+        换手率: "turnover_rate"
+        流通市值: "circulating_market_cap"
+        上榜原因: "reason"
+        上榜后1日: "post_1d"
+        上榜后2日: "post_2d"
+        上榜后5日: "post_5d"
+        上榜后10日: "post_10d"
+      column_types:
+        symbol: "str"
+        name: "str"
+        date: "date"
+        interpretation: "str"
+        close: "float"
+        pct_change: "float"
+        net_buy: "float"
+        buy_amount: "float"
+        sell_amount: "float"
+        turnover_amount: "float"
+        market_turnover: "float"
+        net_buy_ratio: "float"
+        turnover_ratio: "float"
+        turnover_rate: "float"
+        circulating_market_cap: "float"
+        reason: "str"
+        post_1d: "float"
+        post_2d: "float"
+        post_5d: "float"
+        post_10d: "float"
 
 limit_up_pool:
   name: "limit_up_pool"
@@ -400,7 +461,23 @@ limit_up_pool:
   input:
     - {name: "date", type: "date", required: true, desc: "查询日期 YYYY-MM-DD"}
 
-  output: []
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "name", type: "str", desc: "股票名称"}
+    - {name: "date", type: "date", desc: "查询日期"}
+    - {name: "pct_change", type: "float", desc: "涨跌幅"}
+    - {name: "close", type: "float", desc: "最新价"}
+    - {name: "amount", type: "float", desc: "成交额"}
+    - {name: "circulating_market_cap", type: "float", desc: "流通市值"}
+    - {name: "total_market_cap", type: "float", desc: "总市值"}
+    - {name: "turnover_rate", type: "float", desc: "换手率"}
+    - {name: "sealed_amount", type: "float", desc: "封板资金"}
+    - {name: "first_seal_time", type: "str", desc: "首次封板时间"}
+    - {name: "last_seal_time", type: "str", desc: "最后封板时间"}
+    - {name: "open_board_count", type: "int", desc: "炸板次数"}
+    - {name: "limit_up_stats", type: "str", desc: "涨停统计"}
+    - {name: "consecutive_boards", type: "int", desc: "连板数"}
+    - {name: "industry", type: "str", desc: "所属行业"}
 
   rate_limit_key: "default"
 
@@ -412,7 +489,39 @@ limit_up_pool:
         date: "date"
       param_transforms:
         date: "YYYYMMDD"
-      output_mapping: {}
+      output_mapping:
+        序号: "index"
+        代码: "symbol"
+        名称: "name"
+        涨跌幅: "pct_change"
+        最新价: "close"
+        成交额: "amount"
+        流通市值: "circulating_market_cap"
+        总市值: "total_market_cap"
+        换手率: "turnover_rate"
+        封板资金: "sealed_amount"
+        首次封板时间: "first_seal_time"
+        最后封板时间: "last_seal_time"
+        炸板次数: "open_board_count"
+        涨停统计: "limit_up_stats"
+        连板数: "consecutive_boards"
+        所属行业: "industry"
+      column_types:
+        symbol: "str"
+        name: "str"
+        pct_change: "float"
+        close: "float"
+        amount: "float"
+        circulating_market_cap: "float"
+        total_market_cap: "float"
+        turnover_rate: "float"
+        sealed_amount: "float"
+        first_seal_time: "str"
+        last_seal_time: "str"
+        open_board_count: "int"
+        limit_up_stats: "str"
+        consecutive_boards: "int"
+        industry: "str"
 
 limit_down_pool:
   name: "limit_down_pool"
@@ -422,7 +531,23 @@ limit_down_pool:
   input:
     - {name: "date", type: "date", required: true, desc: "查询日期 YYYY-MM-DD"}
 
-  output: []
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "name", type: "str", desc: "股票名称"}
+    - {name: "date", type: "date", desc: "查询日期"}
+    - {name: "pct_change", type: "float", desc: "涨跌幅"}
+    - {name: "close", type: "float", desc: "最新价"}
+    - {name: "amount", type: "float", desc: "成交额"}
+    - {name: "circulating_market_cap", type: "float", desc: "流通市值"}
+    - {name: "total_market_cap", type: "float", desc: "总市值"}
+    - {name: "dynamic_pe", type: "float", desc: "动态市盈率"}
+    - {name: "turnover_rate", type: "float", desc: "换手率"}
+    - {name: "order_amount", type: "float", desc: "封单资金"}
+    - {name: "last_seal_time", type: "str", desc: "最后封板时间"}
+    - {name: "board_turnover", type: "float", desc: "板上成交额"}
+    - {name: "consecutive_limit_down", type: "int", desc: "连续跌停"}
+    - {name: "open_board_count", type: "int", desc: "开板次数"}
+    - {name: "industry", type: "str", desc: "所属行业"}
 
   rate_limit_key: "default"
 
@@ -434,7 +559,39 @@ limit_down_pool:
         date: "date"
       param_transforms:
         date: "YYYYMMDD"
-      output_mapping: {}
+      output_mapping:
+        序号: "index"
+        代码: "symbol"
+        名称: "name"
+        涨跌幅: "pct_change"
+        最新价: "close"
+        成交额: "amount"
+        流通市值: "circulating_market_cap"
+        总市值: "total_market_cap"
+        动态市盈率: "dynamic_pe"
+        换手率: "turnover_rate"
+        封单资金: "order_amount"
+        最后封板时间: "last_seal_time"
+        板上成交额: "board_turnover"
+        连续跌停: "consecutive_limit_down"
+        开板次数: "open_board_count"
+        所属行业: "industry"
+      column_types:
+        symbol: "str"
+        name: "str"
+        pct_change: "float"
+        close: "float"
+        amount: "float"
+        circulating_market_cap: "float"
+        total_market_cap: "float"
+        dynamic_pe: "float"
+        turnover_rate: "float"
+        order_amount: "float"
+        last_seal_time: "str"
+        board_turnover: "float"
+        consecutive_limit_down: "int"
+        open_board_count: "int"
+        industry: "str"
 
 margin_data:
   name: "margin_data"
@@ -493,7 +650,14 @@ margin_summary:
     - {name: "start_date", type: "date", required: true, desc: "起始日期 YYYY-MM-DD"}
     - {name: "end_date", type: "date", required: true, desc: "结束日期 YYYY-MM-DD"}
 
-  output: []
+  output:
+    - {name: "date", type: "date", desc: "日期"}
+    - {name: "margin_balance", type: "float", desc: "融资余额"}
+    - {name: "margin_buy", type: "float", desc: "融资买入额"}
+    - {name: "short_remain", type: "float", desc: "融券余量"}
+    - {name: "short_balance", type: "float", desc: "融券余量金额"}
+    - {name: "short_sell", type: "float", desc: "融券卖出量"}
+    - {name: "total_balance", type: "float", desc: "融资融券余额"}
 
   rate_limit_key: "default"
 
@@ -507,7 +671,22 @@ margin_summary:
       param_transforms:
         start_date: "YYYYMMDD"
         end_date: "YYYYMMDD"
-      output_mapping: {}
+      output_mapping:
+        信用交易日期: "date"
+        融资余额: "margin_balance"
+        融资买入额: "margin_buy"
+        融券余量: "short_remain"
+        融券余量金额: "short_balance"
+        融券卖出量: "short_sell"
+        融资融券余额: "total_balance"
+      column_types:
+        date: "date"
+        margin_balance: "float"
+        margin_buy: "float"
+        short_remain: "float"
+        short_balance: "float"
+        short_sell: "float"
+        total_balance: "float"
 
 suspended_stocks:
   name: "suspended_stocks"
@@ -520,7 +699,11 @@ suspended_stocks:
     - {name: "symbol", type: "str", desc: "股票代码"}
     - {name: "name", type: "str", desc: "股票名称"}
     - {name: "suspend_date", type: "date", desc: "停牌时间"}
+    - {name: "suspend_end_date", type: "date", desc: "停牌截止时间"}
+    - {name: "suspend_period", type: "str", desc: "停牌期限"}
     - {name: "reason", type: "str", desc: "停牌原因"}
+    - {name: "market", type: "str", desc: "所属市场"}
+    - {name: "expected_resume_date", type: "date", desc: "预计复牌时间"}
 
   rate_limit_key: "em_datacenter"
 
@@ -533,12 +716,20 @@ suspended_stocks:
         代码: "symbol"
         名称: "name"
         停牌时间: "suspend_date"
+        停牌截止时间: "suspend_end_date"
+        停牌期限: "suspend_period"
         停牌原因: "reason"
+        所属市场: "market"
+        预计复牌时间: "expected_resume_date"
       column_types:
         symbol: "str"
         name: "str"
         suspend_date: "date"
+        suspend_end_date: "date"
+        suspend_period: "str"
         reason: "str"
+        market: "str"
+        expected_resume_date: "date"
 
 st_stocks:
   name: "st_stocks"
@@ -1240,7 +1431,13 @@ dividend_by_date:
 
   input: []
 
-  output: []
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "announce_date", type: "date", desc: "公告日期"}
+    - {name: "dividend_cash", type: "float", desc: "现金分红"}
+    - {name: "dividend_stock", type: "float", desc: "股票分红"}
+    - {name: "record_date", type: "date", desc: "股权登记日"}
+    - {name: "ex_date", type: "date", desc: "除权除息日"}
 
   rate_limit_key: "default"
 
@@ -1248,7 +1445,20 @@ dividend_by_date:
     - name: "akshare"
       func: "stock_history_dividend"
       enabled: true
-      output_mapping: {}
+      output_mapping:
+        股票代码: "symbol"
+        公告日期: "announce_date"
+        现金分红: "dividend_cash"
+        股票分红: "dividend_stock"
+        股权登记日: "record_date"
+        除权除息日: "ex_date"
+      column_types:
+        symbol: "str"
+        announce_date: "date"
+        dividend_cash: "float"
+        dividend_stock: "float"
+        record_date: "date"
+        ex_date: "date"
 
 repurchase:
   name: "repurchase"
@@ -1470,7 +1680,14 @@ restricted_release_detail:
     - {name: "start_date", type: "str", required: true}
     - {name: "end_date", type: "str", required: true}
 
-  output: []
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "announce_date", type: "date", desc: "公告日期"}
+    - {name: "release_date", type: "date", desc: "解禁日期"}
+    - {name: "release_shares", type: "float", desc: "解禁股份数"}
+    - {name: "release_value", type: "float", desc: "解禁市值"}
+    - {name: "release_type", type: "str", desc: "解禁类型"}
+    - {name: "shareholder_name", type: "str", desc: "股东名称"}
 
   rate_limit_key: "default"
 
@@ -1481,7 +1698,25 @@ restricted_release_detail:
       input_mapping:
         start_date: "start_date"
         end_date: "end_date"
-      output_mapping: {}
+      output_mapping:
+        股票代码: "symbol"
+        公告日期: "announce_date"
+        解禁时间: "release_date"
+        可解禁数量: "release_shares"
+        实际解禁数量: "release_shares"
+        可解禁市值: "release_value"
+        实际解禁市值: "release_value"
+        锁定期: "release_type"
+        解禁股份类型: "release_type"
+        股东名称: "shareholder_name"
+      column_types:
+        symbol: "str"
+        announce_date: "date"
+        release_date: "date"
+        release_shares: "float"
+        release_value: "float"
+        release_type: "str"
+        shareholder_name: "str"
 
 equity_pledge_rank:
   name: "equity_pledge_rank"
@@ -2075,7 +2310,13 @@ dividend_data:
   input:
     - {name: "symbol", type: "str", required: true, desc: "股票代码"}
 
-  output: []
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "announce_date", type: "date", desc: "公告日期"}
+    - {name: "dividend_cash", type: "float", desc: "现金分红"}
+    - {name: "dividend_stock", type: "float", desc: "股票分红"}
+    - {name: "record_date", type: "date", desc: "股权登记日"}
+    - {name: "ex_date", type: "date", desc: "除权除息日"}
 
   rate_limit_key: "default"
 
@@ -2085,7 +2326,20 @@ dividend_data:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        股票代码: "symbol"
+        公告日期: "announce_date"
+        现金分红: "dividend_cash"
+        股票分红: "dividend_stock"
+        股权登记日: "record_date"
+        除权除息日: "ex_date"
+      column_types:
+        symbol: "str"
+        announce_date: "date"
+        dividend_cash: "float"
+        dividend_stock: "float"
+        record_date: "date"
+        ex_date: "date"
 
 equity_freeze:
   name: "equity_freeze"
@@ -2115,7 +2369,14 @@ financial_metrics:
   input:
     - {name: "symbol", type: "str", required: true, desc: "股票代码"}
 
-  output: []
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "date", type: "date", desc: "日期"}
+    - {name: "pe", type: "float", desc: "市盈率"}
+    - {name: "pb", type: "float", desc: "市净率"}
+    - {name: "ps", type: "float", desc: "市销率"}
+    - {name: "market_cap", type: "float", desc: "总市值"}
+    - {name: "circulating_cap", type: "float", desc: "流通市值"}
 
   rate_limit_key: "em_datacenter"
 
@@ -2125,7 +2386,21 @@ financial_metrics:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        日期: "date"
+        市盈率: "pe"
+        市净率: "pb"
+        市销率: "ps"
+        总市值: "market_cap"
+        流通市值: "circulating_cap"
+      column_types:
+        symbol: "str"
+        date: "date"
+        pe: "float"
+        pb: "float"
+        ps: "float"
+        market_cap: "float"
+        circulating_cap: "float"
 
 goodwill_data:
   name: "goodwill_data"
@@ -2134,7 +2409,13 @@ goodwill_data:
 
   input: []
 
-  output: []
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "report_date", type: "date", desc: "报告期"}
+    - {name: "goodwill_balance", type: "float", desc: "商誉余额"}
+    - {name: "goodwill_impairment", type: "float", desc: "商誉减值"}
+    - {name: "net_assets", type: "float", desc: "净资产"}
+    - {name: "goodwill_ratio", type: "float", desc: "商誉占比"}
 
   rate_limit_key: "default"
 
@@ -2142,7 +2423,20 @@ goodwill_data:
     - name: "akshare_em"
       func: "stock_ycfp_em"
       enabled: true
-      output_mapping: {}
+      output_mapping:
+        股票代码: "symbol"
+        报告期: "report_date"
+        商誉账面原值: "goodwill_balance"
+        商誉减值准备: "goodwill_impairment"
+        净资产: "net_assets"
+        商誉净资产占比: "goodwill_ratio"
+      column_types:
+        symbol: "str"
+        report_date: "date"
+        goodwill_balance: "float"
+        goodwill_impairment: "float"
+        net_assets: "float"
+        goodwill_ratio: "float"
 
 goodwill_impairment:
   name: "goodwill_impairment"

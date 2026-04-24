@@ -486,6 +486,64 @@ class TestExecutorBase:
         assert legacy_result["success"] is True
         assert legacy_result["task"] == "stock_zh_a_hist"
 
+    def test_offline_executor_writes_schema_columns_only(self, monkeypatch):
+        """有 schema 的表落盘时应只保留 schema 字段。"""
+
+        class FakeRateLimiter:
+            def wait(self, key):
+                return None
+
+        class FakeCacheManager:
+            def __init__(self):
+                self.last = None
+
+            def write(self, **kwargs):
+                self.last = kwargs
+
+        task = DownloadTask(
+            interface="equity_daily",
+            func="equity_daily",
+            table="stock_daily",
+            kwargs={"symbol": "000001", "adjust": "qfq"},
+            use_multi_source=True,
+        )
+        cache_mgr = FakeCacheManager()
+        executor = TaskExecutor(rate_limiter=FakeRateLimiter(), cache_manager=cache_mgr)
+
+        monkeypatch.setattr(
+            executor,
+            "_call_akshare",
+            lambda *a, **kw: pd.DataFrame(
+                [
+                    {
+                        "日期": "2025-01-02",
+                        "开盘": 10.0,
+                        "最高": 10.2,
+                        "最低": 9.8,
+                        "收盘": 10.1,
+                        "成交量": 1000.0,
+                        "成交额": 10000.0,
+                        "流通股": 5000.0,
+                    }
+                ]
+            ),
+        )
+
+        result = executor.run(task)
+        assert result.success is True
+        written = cache_mgr.last["data"]
+        assert set(written.columns) == {
+            "symbol",
+            "date",
+            "open",
+            "high",
+            "low",
+            "close",
+            "volume",
+            "amount",
+            "adjust",
+        }
+
 
 @pytest.mark.unit
 class TestMockAdapter:

@@ -409,6 +409,134 @@ class TestFetchAliases:
         assert result.attrs.get("interface") == "macro_m2"
 
 
+class TestFetchFieldMappingContracts:
+    """Validate explicit mappings and raw-column contracts for key interfaces."""
+
+    def _make_mock_ak(self, func_map):
+        import types
+
+        ak = types.SimpleNamespace()
+        for func_name, df in func_map.items():
+            setattr(ak, func_name, lambda _df=df, **_kw: _df.copy())
+        return ak
+
+    def test_fetch_suspended_stocks_maps_extended_fields(self):
+        mock_df = pd.DataFrame(
+            {
+                "代码": ["000001"],
+                "名称": ["平安银行"],
+                "停牌时间": ["2025-01-01"],
+                "停牌截止时间": ["2025-01-10"],
+                "停牌期限": ["10天"],
+                "停牌原因": ["重大事项"],
+                "所属市场": ["深交所"],
+                "预计复牌时间": ["2025-01-11"],
+            }
+        )
+        ak = self._make_mock_ak({"stock_tfp_em": mock_df})
+        result = fetch("suspended_stocks", akshare=ak)
+        expected_cols = {
+            "symbol",
+            "name",
+            "suspend_date",
+            "suspend_end_date",
+            "suspend_period",
+            "reason",
+            "market",
+            "expected_resume_date",
+        }
+        assert expected_cols.issubset(set(result.columns))
+
+    def test_fetch_margin_summary_maps_short_balance(self):
+        mock_df = pd.DataFrame(
+            {
+                "信用交易日期": ["2025-01-02"],
+                "融资余额": [100.0],
+                "融资买入额": [20.0],
+                "融券余量": [30.0],
+                "融券余量金额": [40.0],
+                "融券卖出量": [5.0],
+                "融资融券余额": [140.0],
+            }
+        )
+        ak = self._make_mock_ak({"stock_margin_sse": mock_df})
+        result = fetch(
+            "margin_summary", akshare=ak, start_date="2025-01-01", end_date="2025-01-10"
+        )
+        expected_cols = {
+            "date",
+            "margin_balance",
+            "margin_buy",
+            "short_remain",
+            "short_balance",
+            "short_sell",
+            "total_balance",
+        }
+        assert expected_cols.issubset(set(result.columns))
+
+    def test_fetch_dragon_tiger_summary_maps_columns(self):
+        mock_df = pd.DataFrame(
+            {
+                "序号": [1],
+                "代码": ["000001"],
+                "名称": ["平安银行"],
+                "上榜日": ["2025-01-02"],
+                "解读": ["测试"],
+                "收盘价": [10.2],
+                "涨跌幅": [1.2],
+                "龙虎榜净买额": [1000.0],
+            }
+        )
+        ak = self._make_mock_ak({"stock_lhb_detail_em": mock_df})
+        result = fetch(
+            "dragon_tiger_summary",
+            akshare=ak,
+            start_date="2025-01-01",
+            end_date="2025-01-10",
+        )
+        assert "date" in result.columns
+        assert "interpretation" in result.columns
+        assert "net_buy" in result.columns
+        assert "上榜日" not in result.columns
+
+    def test_fetch_limit_up_pool_maps_columns(self):
+        mock_df = pd.DataFrame(
+            {
+                "代码": ["000001"],
+                "名称": ["平安银行"],
+                "涨跌幅": [3.2],
+                "最新价": [10.5],
+                "成交额": [120000.0],
+            }
+        )
+        ak = self._make_mock_ak({"stock_zt_pool_em": mock_df})
+        result = fetch("limit_up_pool", akshare=ak, date="2025-01-02")
+        assert "symbol" in result.columns
+        assert "name" in result.columns
+        assert "pct_change" in result.columns
+        assert "close" in result.columns
+        assert "amount" in result.columns
+        assert "代码" not in result.columns
+
+    def test_fetch_limit_down_pool_maps_columns(self):
+        mock_df = pd.DataFrame(
+            {
+                "代码": ["000001"],
+                "名称": ["平安银行"],
+                "涨跌幅": [-3.2],
+                "最新价": [9.5],
+                "成交额": [98000.0],
+            }
+        )
+        ak = self._make_mock_ak({"stock_zt_pool_dtgc_em": mock_df})
+        result = fetch("limit_down_pool", akshare=ak, date="2025-01-02")
+        assert "symbol" in result.columns
+        assert "name" in result.columns
+        assert "pct_change" in result.columns
+        assert "close" in result.columns
+        assert "amount" in result.columns
+
+
 # ── fetch() error paths ──────────────────────────────────────────────
 class TestFetchErrorPaths:
     def test_fetch_undefined_interface(self):

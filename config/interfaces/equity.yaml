@@ -1791,7 +1791,6 @@ restricted_release:
         release_shares: "float"
         release_ratio: "float"
 
-  cache_table: unlock
 restricted_release_calendar:
   name: "restricted_release_calendar"
   category: "equity"
@@ -2819,3 +2818,55 @@ performance_express:
         所处行业: industry
         最新公告日期: announce_date
 
+
+margin_underlying:
+  name: "margin_underlying"
+  category: "equity"
+  description: "融资融券标的明细（个股融资融券余额）"
+
+  input:
+    - {name: "date", type: "str", required: true, desc: "日期 YYYYMMDD"}
+
+  output:
+    - {name: "symbol", type: "str"}
+    - {name: "date", type: "date"}
+    - {name: "margin_balance", type: "float"}
+    - {name: "short_balance", type: "float"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_szse"
+      func: "stock_margin_detail_szse"
+      enabled: true
+      input_mapping:
+        date: "date"
+      param_transforms:
+        date: "YYYYMMDD"
+      output_mapping:
+        证券代码: "symbol"
+        信用交易日期: "date"
+        融资融券余额: "margin_balance"
+        融券余额: "short_balance"
+      column_types:
+        symbol: "str"
+        date: "date"
+        margin_balance: "float"
+        short_balance: "float"
+    - name: "akshare_sse"
+      func: "stock_margin_detail_sse"
+      enabled: true
+      input_mapping:
+        date: "date"
+      param_transforms:
+        date: "YYYYMMDD"
+      output_mapping:
+        标的证券代码: "symbol"
+        信用交易日期: "date"
+        融资融券余额: "margin_balance"
+        融券余额: "short_balance"
+      column_types:
+        symbol: "str"
+        date: "date"
+        margin_balance: "float"
+        short_balance: "float"

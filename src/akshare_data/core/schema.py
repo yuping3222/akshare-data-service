@@ -1510,6 +1510,755 @@ SW_INDUSTRY_DAILY = CacheTable(
     priority="P2",
 )
 
+# ── P2: schemas backing interfaces that previously had no table ─────────
+
+BASIC_INFO = CacheTable(
+    name="basic_info",
+    partition_by=None,
+    ttl_hours=720,
+    schema={
+        "symbol": "string",
+        "item": "string",
+        "value": "string",
+    },
+    primary_key=["symbol", "item"],
+    aggregation_enabled=False,
+    compaction_threshold=0,
+    storage_layer="meta",
+    priority="P2",
+)
+
+CONVERT_BOND_SPOT = CacheTable(
+    name="convert_bond_spot",
+    partition_by="date",
+    ttl_hours=168,
+    schema={
+        "symbol": "string",
+        "date": "date",
+        "name": "string",
+        "open": "float64",
+        "high": "float64",
+        "low": "float64",
+        "close": "float64",
+        "volume": "float64",
+        "amount": "float64",
+        "change": "float64",
+        "change_pct": "float64",
+    },
+    primary_key=["symbol", "date"],
+    compaction_threshold=1,
+    storage_layer="snapshot",
+    priority="P1",
+)
+
+DISCLOSURE_NEWS = CacheTable(
+    name="disclosure_news",
+    partition_by="publish_date",
+    ttl_hours=720,
+    schema={
+        "symbol": "string",
+        "publish_time": "timestamp",
+        "publish_date": "date",
+        "title": "string",
+        "content": "string",
+        "source": "string",
+        "url": "string",
+        "keyword": "string",
+    },
+    primary_key=["symbol", "publish_time", "title"],
+    compaction_threshold=5,
+    storage_layer="daily",
+    priority="P2",
+)
+
+EARNINGS_FORECAST = CacheTable(
+    name="earnings_forecast",
+    partition_by=None,
+    ttl_hours=720,
+    schema={
+        "symbol": "string",
+        "name": "string",
+        "report_count": "int64",
+        "rank": "int64",
+    },
+    primary_key=["symbol"],
+    aggregation_enabled=False,
+    compaction_threshold=0,
+    storage_layer="meta",
+    priority="P2",
+)
+
+EQUITY_FREEZE = CacheTable(
+    name="equity_freeze",
+    partition_by="freeze_date",
+    ttl_hours=2160,
+    schema={
+        "symbol": "string",
+        "name": "string",
+        "freeze_date": "date",
+        "shareholder_name": "string",
+        "freeze_shares": "float64",
+    },
+    primary_key=["symbol", "freeze_date", "shareholder_name"],
+    compaction_threshold=5,
+    priority="P2",
+    storage_layer="daily",
+)
+
+EQUITY_PLEDGE_RANK = CacheTable(
+    name="equity_pledge_rank",
+    partition_by="pledge_date",
+    ttl_hours=168,
+    schema={
+        "symbol": "string",
+        "name": "string",
+        "pledge_date": "date",
+        "shareholder_name": "string",
+        "pledge_shares": "float64",
+        "pledge_ratio": "float64",
+    },
+    primary_key=["symbol", "pledge_date", "shareholder_name"],
+    compaction_threshold=1,
+    storage_layer="snapshot",
+    priority="P2",
+)
+
+ESG_RANK = CacheTable(
+    name="esg_rank",
+    partition_by="rating_date",
+    ttl_hours=720,
+    schema={
+        "symbol": "string",
+        "rating_date": "date",
+        "esg_score": "float64",
+    },
+    primary_key=["symbol", "rating_date"],
+    compaction_threshold=5,
+    priority="P2",
+    storage_layer="daily",
+)
+
+ETF_LIST = CacheTable(
+    name="etf_list",
+    partition_by=None,
+    ttl_hours=720,
+    schema={
+        "symbol": "string",
+        "name": "string",
+        "fund_type": "string",
+        "nav_date": "date",
+        "nav": "float64",
+    },
+    primary_key=["symbol"],
+    aggregation_enabled=False,
+    compaction_threshold=0,
+    storage_layer="meta",
+    priority="P2",
+)
+
+FOF_NAV = CacheTable(
+    name="fof_nav",
+    partition_by="nav_date",
+    ttl_hours=168,
+    schema={
+        "fund_code": "string",
+        "nav_date": "date",
+        "nav": "float64",
+        "accum_nav": "float64",
+        "change_pct": "float64",
+    },
+    primary_key=["fund_code", "nav_date"],
+    storage_layer="daily",
+    priority="P2",
+)
+
+LOF_NAV = CacheTable(
+    name="lof_nav",
+    partition_by="nav_date",
+    ttl_hours=168,
+    schema={
+        "fund_code": "string",
+        "nav_date": "date",
+        "nav": "float64",
+        "accum_nav": "float64",
+        "change_pct": "float64",
+    },
+    primary_key=["fund_code", "nav_date"],
+    storage_layer="daily",
+    priority="P2",
+)
+
+LOF_SPOT = CacheTable(
+    name="lof_spot",
+    partition_by="date",
+    ttl_hours=168,
+    schema={
+        "fund_code": "string",
+        "date": "date",
+        "fund_name": "string",
+        "open": "float64",
+        "high": "float64",
+        "low": "float64",
+        "close": "float64",
+        "prev_close": "float64",
+        "volume": "float64",
+        "amount": "float64",
+        "change": "float64",
+        "change_pct": "float64",
+        "turnover_rate": "float64",
+        "market_cap": "float64",
+        "circulating_market_cap": "float64",
+    },
+    primary_key=["fund_code", "date"],
+    compaction_threshold=1,
+    storage_layer="snapshot",
+    priority="P2",
+)
+
+FUND_MANAGER_INFO = CacheTable(
+    name="fund_manager_info",
+    partition_by=None,
+    ttl_hours=720,
+    schema={
+        "manager_name": "string",
+        "fund_code": "string",
+        "fund_name": "string",
+        "company": "string",
+        "tenure": "string",
+        "total_return": "float64",
+    },
+    primary_key=["manager_name", "fund_code"],
+    aggregation_enabled=False,
+    compaction_threshold=0,
+    storage_layer="meta",
+    priority="P2",
+)
+
+FUND_OPEN_DAILY = CacheTable(
+    name="fund_open_daily",
+    partition_by="date",
+    ttl_hours=168,
+    schema={
+        "fund_code": "string",
+        "fund_name": "string",
+        "date": "date",
+        "nav": "float64",
+        "accum_nav": "float64",
+        "change": "float64",
+        "change_pct": "float64",
+        "buy_status": "string",
+        "sell_status": "string",
+        "fee": "string",
+    },
+    primary_key=["fund_code", "date"],
+    compaction_threshold=1,
+    storage_layer="snapshot",
+    priority="P2",
+)
+
+FUND_OPEN_INFO = CacheTable(
+    name="fund_open_info",
+    partition_by=None,
+    ttl_hours=2160,
+    schema={
+        "fund_code": "string",
+        "report_date": "date",
+        "indicator": "string",
+        "value": "float64",
+    },
+    primary_key=["fund_code", "report_date", "indicator"],
+    compaction_threshold=5,
+    storage_layer="daily",
+    priority="P2",
+)
+
+FUND_OPEN_NAV = CacheTable(
+    name="fund_open_nav",
+    partition_by="nav_date",
+    ttl_hours=0,
+    schema={
+        "fund_code": "string",
+        "nav_date": "date",
+        "nav": "float64",
+        "accum_nav": "float64",
+        "change_pct": "float64",
+    },
+    primary_key=["fund_code", "nav_date"],
+    storage_layer="daily",
+    priority="P2",
+)
+
+FUTURES_REALTIME = CacheTable(
+    name="futures_realtime",
+    partition_by="date",
+    ttl_hours=24,
+    schema={
+        "symbol": "string",
+        "date": "date",
+        "price": "float64",
+        "open": "float64",
+        "high": "float64",
+        "low": "float64",
+        "prev_close": "float64",
+        "volume": "float64",
+        "open_interest": "float64",
+        "change": "float64",
+        "pct_change": "float64",
+    },
+    primary_key=["symbol", "date"],
+    compaction_threshold=1,
+    storage_layer="snapshot",
+    priority="P1",
+)
+
+GOODWILL_BY_INDUSTRY = CacheTable(
+    name="goodwill_by_industry",
+    partition_by="report_date",
+    ttl_hours=2160,
+    schema={
+        "industry": "string",
+        "report_date": "date",
+        "goodwill_balance": "float64",
+        "goodwill_impairment": "float64",
+        "company_count": "int64",
+    },
+    primary_key=["industry", "report_date"],
+    compaction_threshold=5,
+    storage_layer="daily",
+    priority="P2",
+)
+
+GOODWILL_IMPAIRMENT = CacheTable(
+    name="goodwill_impairment",
+    partition_by="report_date",
+    ttl_hours=2160,
+    schema={
+        "symbol": "string",
+        "name": "string",
+        "report_date": "date",
+        "goodwill_balance": "float64",
+        "goodwill_impairment": "float64",
+        "net_assets": "float64",
+    },
+    primary_key=["symbol", "report_date"],
+    compaction_threshold=5,
+    storage_layer="daily",
+    priority="P2",
+)
+
+HK_DAILY = CacheTable(
+    name="hk_daily",
+    partition_by="date",
+    ttl_hours=0,
+    schema={
+        "symbol": "string",
+        "date": "date",
+        "open": "float64",
+        "high": "float64",
+        "low": "float64",
+        "close": "float64",
+        "volume": "float64",
+        "amount": "float64",
+    },
+    primary_key=["symbol", "date"],
+    storage_layer="daily",
+    priority="P2",
+)
+
+HK_STOCKS = CacheTable(
+    name="hk_stocks",
+    partition_by="date",
+    ttl_hours=24,
+    schema={
+        "symbol": "string",
+        "date": "date",
+        "name": "string",
+        "close": "float64",
+        "change_pct": "float64",
+        "volume": "float64",
+        "amount": "float64",
+        "market_cap": "float64",
+    },
+    primary_key=["symbol", "date"],
+    compaction_threshold=1,
+    storage_layer="snapshot",
+    priority="P2",
+)
+
+INDEX_LIST = CacheTable(
+    name="index_list",
+    partition_by=None,
+    ttl_hours=720,
+    schema={
+        "symbol": "string",
+        "name": "string",
+        "close": "float64",
+        "change_pct": "float64",
+        "change": "float64",
+        "volume": "float64",
+        "amount": "float64",
+    },
+    primary_key=["symbol"],
+    aggregation_enabled=False,
+    compaction_threshold=0,
+    storage_layer="meta",
+    priority="P2",
+)
+
+INDEX_WEIGHTS_HISTORY = CacheTable(
+    name="index_weights_history",
+    partition_by="date",
+    ttl_hours=720,
+    schema={
+        "index_code": "string",
+        "date": "date",
+        "symbol": "string",
+        "name": "string",
+        "weight": "float64",
+    },
+    primary_key=["index_code", "date", "symbol"],
+    storage_layer="daily",
+    priority="P2",
+)
+
+IPO_BENEFIT = CacheTable(
+    name="ipo_benefit",
+    partition_by="list_date",
+    ttl_hours=720,
+    schema={
+        "rank": "int64",
+        "symbol": "string",
+        "name": "string",
+        "close": "float64",
+        "change_pct": "float64",
+        "benefit": "float64",
+        "ipo_symbol": "string",
+        "ipo_name": "string",
+        "list_date": "date",
+    },
+    primary_key=["symbol", "ipo_symbol"],
+    compaction_threshold=5,
+    storage_layer="daily",
+    priority="P2",
+)
+
+IPO_INFO = CacheTable(
+    name="ipo_info",
+    partition_by="list_date",
+    ttl_hours=0,
+    schema={
+        "symbol": "string",
+        "name": "string",
+        "subscribe_code": "string",
+        "issue_price": "float64",
+        "subscribe_date": "date",
+        "list_date": "date",
+        "pe_issue": "float64",
+        "lottery_rate": "float64",
+    },
+    primary_key=["symbol"],
+    compaction_threshold=5,
+    storage_layer="daily",
+    priority="P2",
+)
+
+MAIN_FUND_FLOW_RANK = CacheTable(
+    name="main_fund_flow_rank",
+    partition_by="date",
+    ttl_hours=24,
+    schema={
+        "rank": "int64",
+        "symbol": "string",
+        "name": "string",
+        "date": "date",
+        "close": "float64",
+        "change_pct": "float64",
+        "main_net_inflow": "float64",
+        "main_net_inflow_ratio": "float64",
+        "super_large_net_inflow": "float64",
+        "large_net_inflow": "float64",
+        "medium_net_inflow": "float64",
+        "small_net_inflow": "float64",
+    },
+    primary_key=["symbol", "date"],
+    compaction_threshold=1,
+    storage_layer="snapshot",
+    priority="P1",
+)
+
+NEW_STOCKS = CacheTable(
+    name="new_stocks",
+    partition_by="list_date",
+    ttl_hours=720,
+    schema={
+        "symbol": "string",
+        "name": "string",
+        "subscribe_code": "string",
+        "exchange": "string",
+        "board": "string",
+        "issue_price": "float64",
+        "subscribe_date": "date",
+        "list_date": "date",
+        "pe_issue": "float64",
+        "pe_industry": "float64",
+        "lottery_rate": "float64",
+    },
+    primary_key=["symbol"],
+    compaction_threshold=5,
+    storage_layer="daily",
+    priority="P2",
+)
+
+OPTION_CURRENT_DAY_SSE = CacheTable(
+    name="option_current_day_sse",
+    partition_by=None,
+    ttl_hours=24,
+    schema={
+        "symbol": "string",
+        "trade_code": "string",
+        "name": "string",
+        "underlying": "string",
+        "option_type": "string",
+        "strike": "float64",
+        "contract_unit": "float64",
+        "exercise_date": "date",
+        "expiration_date": "date",
+        "start_date": "date",
+    },
+    primary_key=["symbol"],
+    aggregation_enabled=False,
+    compaction_threshold=0,
+    storage_layer="meta",
+    priority="P3",
+)
+
+OPTION_SSE_GREEKS = CacheTable(
+    name="option_sse_greeks_sina",
+    partition_by="date",
+    ttl_hours=24,
+    schema={
+        "symbol": "string",
+        "date": "date",
+        "item": "string",
+        "value": "string",
+    },
+    primary_key=["symbol", "date", "item"],
+    compaction_threshold=1,
+    storage_layer="snapshot",
+    priority="P3",
+)
+
+OPTIONS_CHAIN = CacheTable(
+    name="options_chain",
+    partition_by="date",
+    ttl_hours=24,
+    schema={
+        "symbol": "string",
+        "date": "date",
+        "underlying": "string",
+        "strike": "float64",
+        "option_type": "string",
+        "close": "float64",
+        "change_pct": "float64",
+        "prev_close": "float64",
+        "open": "float64",
+        "high": "float64",
+        "low": "float64",
+        "volume": "float64",
+        "open_interest": "float64",
+    },
+    primary_key=["symbol", "date"],
+    compaction_threshold=1,
+    storage_layer="snapshot",
+    priority="P3",
+)
+
+OPTIONS_EXPIRATIONS = CacheTable(
+    name="options_expirations",
+    partition_by=None,
+    ttl_hours=168,
+    schema={
+        "symbol": "string",
+        "strike": "float64",
+        "expiration_date": "date",
+    },
+    primary_key=["symbol", "expiration_date"],
+    aggregation_enabled=False,
+    compaction_threshold=0,
+    storage_layer="meta",
+    priority="P3",
+)
+
+OPTIONS_HIST = CacheTable(
+    name="options_hist",
+    partition_by="date",
+    ttl_hours=0,
+    schema={
+        "variety": "string",
+        "date": "date",
+        "close": "float64",
+        "volume": "float64",
+        "option_type": "string",
+        "premium": "float64",
+        "exchange": "string",
+        "remark": "string",
+    },
+    primary_key=["variety", "date"],
+    storage_layer="daily",
+    priority="P3",
+)
+
+OPTIONS_REALTIME = CacheTable(
+    name="options_realtime",
+    partition_by="date",
+    ttl_hours=24,
+    schema={
+        "symbol": "string",
+        "date": "date",
+        "underlying": "string",
+        "close": "float64",
+        "change_pct": "float64",
+        "volume": "float64",
+        "open_interest": "float64",
+        "strike": "float64",
+    },
+    primary_key=["symbol", "date"],
+    compaction_threshold=1,
+    storage_layer="snapshot",
+    priority="P3",
+)
+
+PERFORMANCE_EXPRESS = CacheTable(
+    name="performance_express",
+    partition_by="announce_date",
+    ttl_hours=2160,
+    schema={
+        "symbol": "string",
+        "name": "string",
+        "announce_date": "date",
+        "eps": "float64",
+        "revenue": "float64",
+        "revenue_yoy": "float64",
+        "revenue_qoq": "float64",
+        "net_profit": "float64",
+        "net_profit_yoy": "float64",
+        "net_profit_qoq": "float64",
+        "bps": "float64",
+        "roe": "float64",
+        "ocf_ps": "float64",
+        "gross_margin": "float64",
+        "industry": "string",
+    },
+    primary_key=["symbol", "announce_date"],
+    compaction_threshold=5,
+    storage_layer="daily",
+    priority="P1",
+)
+
+RESTRICTED_RELEASE_CALENDAR = CacheTable(
+    name="restricted_release_calendar",
+    partition_by="release_date",
+    ttl_hours=168,
+    schema={
+        "rank": "int64",
+        "symbol": "string",
+        "name": "string",
+        "release_date": "date",
+        "release_type": "string",
+        "release_shares": "float64",
+        "actual_release_shares": "float64",
+        "release_value": "float64",
+        "release_ratio": "float64",
+        "prev_close": "float64",
+    },
+    primary_key=["symbol", "release_date"],
+    compaction_threshold=1,
+    storage_layer="snapshot",
+    priority="P2",
+)
+
+STOCK_INDUSTRY = CacheTable(
+    name="stock_industry",
+    partition_by="industry_code",
+    ttl_hours=720,
+    schema={
+        "rank": "int64",
+        "industry_code": "string",
+        "symbol": "string",
+        "name": "string",
+        "close": "float64",
+        "change_pct": "float64",
+        "pe_ttm": "float64",
+        "pb": "float64",
+    },
+    primary_key=["industry_code", "symbol"],
+    storage_layer="daily",
+    priority="P2",
+)
+
+SW_INDUSTRY_LIST = CacheTable(
+    name="sw_industry_list",
+    partition_by=None,
+    ttl_hours=720,
+    schema={
+        "rank": "int64",
+        "industry_code": "string",
+        "industry_name": "string",
+        "close": "float64",
+        "change": "float64",
+        "change_pct": "float64",
+        "market_cap": "float64",
+        "turnover_rate": "float64",
+        "up_count": "int64",
+        "down_count": "int64",
+        "top_stock_name": "string",
+        "top_stock_change_pct": "float64",
+    },
+    primary_key=["industry_code"],
+    aggregation_enabled=False,
+    compaction_threshold=0,
+    storage_layer="meta",
+    priority="P2",
+)
+
+US_INDEX_DAILY = CacheTable(
+    name="us_index_daily",
+    partition_by="date",
+    ttl_hours=0,
+    schema={
+        "symbol": "string",
+        "date": "date",
+        "open": "float64",
+        "high": "float64",
+        "low": "float64",
+        "close": "float64",
+        "volume": "float64",
+    },
+    primary_key=["symbol", "date"],
+    storage_layer="daily",
+    priority="P3",
+)
+
+US_STOCKS = CacheTable(
+    name="us_stocks",
+    partition_by="date",
+    ttl_hours=24,
+    schema={
+        "symbol": "string",
+        "date": "date",
+        "name": "string",
+        "close": "float64",
+        "change_pct": "float64",
+        "volume": "float64",
+        "amount": "float64",
+        "market_cap": "float64",
+    },
+    primary_key=["symbol", "date"],
+    compaction_threshold=1,
+    storage_layer="snapshot",
+    priority="P3",
+)
+
 SCHEMA_REGISTRY = TableRegistry()
 
 _DEFAULT_TABLES = (
@@ -1588,6 +2337,45 @@ _DEFAULT_TABLES = (
     SUSPENDED_STOCKS,
     ST_STOCKS,
     SW_INDUSTRY_DAILY,
+    # P2 additions — backed by interfaces previously without schema
+    BASIC_INFO,
+    CONVERT_BOND_SPOT,
+    DISCLOSURE_NEWS,
+    EARNINGS_FORECAST,
+    EQUITY_FREEZE,
+    EQUITY_PLEDGE_RANK,
+    ESG_RANK,
+    ETF_LIST,
+    FOF_NAV,
+    LOF_NAV,
+    LOF_SPOT,
+    FUND_MANAGER_INFO,
+    FUND_OPEN_DAILY,
+    FUND_OPEN_INFO,
+    FUND_OPEN_NAV,
+    FUTURES_REALTIME,
+    GOODWILL_BY_INDUSTRY,
+    GOODWILL_IMPAIRMENT,
+    HK_DAILY,
+    HK_STOCKS,
+    INDEX_LIST,
+    INDEX_WEIGHTS_HISTORY,
+    IPO_BENEFIT,
+    IPO_INFO,
+    MAIN_FUND_FLOW_RANK,
+    NEW_STOCKS,
+    OPTION_CURRENT_DAY_SSE,
+    OPTION_SSE_GREEKS,
+    OPTIONS_CHAIN,
+    OPTIONS_EXPIRATIONS,
+    OPTIONS_HIST,
+    OPTIONS_REALTIME,
+    PERFORMANCE_EXPRESS,
+    RESTRICTED_RELEASE_CALENDAR,
+    STOCK_INDUSTRY,
+    SW_INDUSTRY_LIST,
+    US_INDEX_DAILY,
+    US_STOCKS,
 )
 
 

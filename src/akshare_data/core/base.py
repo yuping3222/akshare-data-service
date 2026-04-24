@@ -17,17 +17,6 @@ from akshare_data.core.errors import DataSourceError
 class FinanceMixin:
     """Mixin for financial data methods: indicators, reports, statements, dividends, and share changes."""
 
-    def get_finance_indicator(
-        self,
-        symbol: str,
-        fields: Optional[List[str]] = None,
-        start_date: Optional[Union[str, date]] = None,
-        end_date: Optional[Union[str, date]] = None,
-        **kwargs,
-    ) -> pd.DataFrame:
-        """获取财务指标数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_finance_indicator")
-
     def get_call_auction(
         self, symbol: str, date: Optional[Union[str, date]] = None, **kwargs
     ) -> pd.DataFrame:
@@ -90,80 +79,6 @@ class ShareholderMixin:
         """获取机构持股数据。"""
         raise NotImplementedError(f"{self.name} 不支持 get_institutional_holders")
 
-    def get_top10_holders_em(self, symbol: str) -> pd.DataFrame:
-        """获取前十大股东数据（东方财富）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_top10_holders_em")
-
-    def get_top10_float_holders_em(self, symbol: str) -> pd.DataFrame:
-        """获取前十大流通股东数据（东方财富）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_top10_float_holders_em")
-
-    def get_share_change_cninfo(
-        self, symbol: str, start_date: str = None, end_date: str = None
-    ) -> pd.DataFrame:
-        """获取巨潮资讯股本变动数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_share_change_cninfo")
-
-    def get_shareholder_change_ths(self, symbol: str) -> pd.DataFrame:
-        """获取同花顺股东变动数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_shareholder_change_ths")
-
-    def get_holding_change_em(
-        self, symbol: str = None, date: str = None
-    ) -> pd.DataFrame:
-        """获取东方财富股东增减持数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_holding_change_em")
-
-    def get_pledge_ratio_em(self, symbol: str) -> pd.DataFrame:
-        """获取股权质押比例数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_pledge_ratio_em")
-
-    def get_equity_mortgage_cninfo(self, symbol: str) -> pd.DataFrame:
-        """获取巨潮资讯股权质押数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_equity_mortgage_cninfo")
-
-    def get_unlock_queue_sina(self, symbol: str) -> pd.DataFrame:
-        """获取新浪限售股解禁排队数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_unlock_queue_sina")
-
-    def get_unlock_summary_em(self, symbol: str) -> pd.DataFrame:
-        """获取东方财富限售股解禁汇总数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_unlock_summary_em")
-
-    def get_unlock_detail_em(self, start_date: str, end_date: str) -> pd.DataFrame:
-        """获取东方财富限售股解禁明细数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_unlock_detail_em")
-
-    def get_unlock_summary(self) -> pd.DataFrame:
-        """获取全市场限售股解禁汇总数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_unlock_summary")
-
-    def get_top10_shareholders(self, symbol: str) -> pd.DataFrame:
-        """获取前十大股东数据（多数据源 fallback）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_top10_shareholders")
-
-    def get_shareholders(self, symbol: str) -> pd.DataFrame:
-        """获取股东数据（多数据源 fallback）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_shareholders")
-
-    def get_shareholder_changes(
-        self, symbol: str, start_date: str = None, end_date: str = None
-    ) -> pd.DataFrame:
-        """获取股东增减持数据（多数据源 fallback）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_shareholder_changes")
-
-    def get_fund_hold_stock(self, symbol: str) -> pd.DataFrame:
-        """获取基金持股数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_fund_hold_stock")
-
-    def get_dividend_fhps(self, symbol: str = None, date: str = None) -> pd.DataFrame:
-        """获取分红送股数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_dividend_fhps")
-
-    def get_dividend_all(self) -> pd.DataFrame:
-        """获取全市场分红数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_dividend_all")
-
 
 class IndustryMixin:
     """Mixin for industry and concept sector methods."""
@@ -190,87 +105,9 @@ class IndustryMixin:
         """获取申万行业数据。level: '1' | '2' | '3'。"""
         raise NotImplementedError(f"{self.name} 不支持 get_sw_industry")
 
-    def get_company_industry_em(self, symbol: str) -> pd.DataFrame:
-        """获取公司行业信息。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_company_industry_em")
-
 
 class FundMixin:
     """Mixin for fund-related methods: NAV, portfolio, dividends, and fund lists."""
-
-    def get_fund_name_list(self) -> pd.DataFrame:
-        """获取基金名称列表。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_fund_name_list")
-
-    def get_fund_of_nav(self, symbol: str) -> pd.DataFrame:
-        """获取场外基金历史净值。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_fund_of_nav")
-
-    def get_fund_open_daily(self) -> pd.DataFrame:
-        """获取场外基金当日净值列表。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_fund_open_daily")
-
-    def get_fund_open_info(self, symbol: str) -> pd.DataFrame:
-        """获取场外基金基本信息。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_fund_open_info")
-
-    def get_fund_net_value_hist(
-        self, fund_code: str, indicator: str = "单位净值走势"
-    ) -> pd.DataFrame:
-        """获取基金历史净值。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_fund_net_value_hist")
-
-    def get_fund_portfolio(self, fund_code: str) -> pd.DataFrame:
-        """获取基金持仓数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_fund_portfolio")
-
-    def get_fund_dividend(self, fund_code: str) -> pd.DataFrame:
-        """获取基金分红拆分数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_fund_dividend")
-
-    def get_lof_spot(self) -> pd.DataFrame:
-        """获取 LOF 实时行情列表。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_lof_spot")
-
-    def get_lof_hist_min(
-        self, symbol: str, start_date: str, end_date: str, period: str, adjust: str = ""
-    ) -> pd.DataFrame:
-        """获取 LOF 分钟行情。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_lof_hist_min")
-
-    def get_fund_etf_spot_em(self) -> pd.DataFrame:
-        """获取ETF实时行情（东方财富）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_fund_etf_spot_em")
-
-    def get_fund_etf_hist_sina(self, symbol: str) -> pd.DataFrame:
-        """获取ETF历史行情（新浪）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_fund_etf_hist_sina")
-
-    def get_fund_index_fund_em(self) -> pd.DataFrame:
-        """获取指数基金列表。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_fund_index_fund_em")
-
-    def get_fund_money_fund_info_em(self) -> pd.DataFrame:
-        """获取货币基金列表。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_fund_money_fund_info_em")
-
-    def get_fund_portfolio_bond_hold_em(self, symbol: str) -> pd.DataFrame:
-        """获取基金债券持仓。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_fund_portfolio_bond_hold_em")
-
-    def get_fund_announcement_dividend_em(self) -> pd.DataFrame:
-        """获取基金分红公告。"""
-        raise NotImplementedError(
-            f"{self.name} 不支持 get_fund_announcement_dividend_em"
-        )
-
-    def get_fund_open_fund_daily_em(self) -> pd.DataFrame:
-        """获取开放式基金每日净值。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_fund_open_fund_daily_em")
-
-    def get_fund_name_em(self) -> pd.DataFrame:
-        """获取基金名称列表。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_fund_name_em")
 
 
 class FuturesMixin:
@@ -280,99 +117,9 @@ class FuturesMixin:
         """获取期货日线数据。"""
         raise NotImplementedError(f"{self.name} 不支持 get_futures_daily")
 
-    def get_futures_main_sina(
-        self, symbol: str, start_date: str = "19900101", end_date: str = "22220101"
-    ) -> pd.DataFrame:
-        """获取期货主力合约数据（新浪）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_futures_main_sina")
-
-    def get_futures_spot(self) -> pd.DataFrame:
-        """获取期货实时行情。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_futures_spot")
-
-    def get_futures_main_em(self, symbol: str) -> pd.DataFrame:
-        """获取期货主力合约行情。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_futures_main_em")
-
-    def get_futures_sina_main(self, symbol: str) -> pd.DataFrame:
-        """获取新浪期货主力合约。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_futures_sina_main")
-
-    def get_futures_display_main(self, symbol: str) -> pd.DataFrame:
-        """获取期货合约列表。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_futures_display_main")
-
-    def get_futures_settlement_price_sina(self, symbol: str) -> pd.DataFrame:
-        """获取期货结算价（新浪）。"""
-        raise NotImplementedError(
-            f"{self.name} 不支持 get_futures_settlement_price_sina"
-        )
-
-    def get_futures_contract_info_shfe_dce_czce(self) -> pd.DataFrame:
-        """获取期货合约信息。"""
-        raise NotImplementedError(
-            f"{self.name} 不支持 get_futures_contract_info_shfe_dce_czce"
-        )
-
-    def get_futures_comm_info(self, symbol: str) -> pd.DataFrame:
-        """获取期货品种信息。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_futures_comm_info")
-
-    def get_futures_warehouse_receipt(self, symbol: str) -> pd.DataFrame:
-        """获取期货仓单。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_futures_warehouse_receipt")
-
-    def get_futures_zh_tick_sina(self, symbol: str) -> pd.DataFrame:
-        """获取期货tick数据（新浪）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_futures_zh_tick_sina")
-
-    def get_futures_zh_minute_sina(self, symbol: str, period: str) -> pd.DataFrame:
-        """获取期货分钟数据（新浪）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_futures_zh_minute_sina")
-
-    def get_futures_global_hist_em(self) -> pd.DataFrame:
-        """获取全球期货历史数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_futures_global_hist_em")
-
-    def get_futures_fees_info(self) -> pd.DataFrame:
-        """获取期货手续费。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_futures_fees_info")
-
 
 class OptionMixin:
     """Mixin for options data methods."""
-
-    def get_option_current_day_sse(self) -> pd.DataFrame:
-        """获取上交所期权当日行情。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_option_current_day_sse")
-
-    def get_option_current_day_szse(self) -> pd.DataFrame:
-        """获取深交所期权当日行情。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_option_current_day_szse")
-
-    def get_option_cffex_hs300_spot(self) -> pd.DataFrame:
-        """获取中金所沪深300期权行情。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_option_cffex_hs300_spot")
-
-    def get_option_sse_greeks(self, symbol: str) -> pd.DataFrame:
-        """获取上交所期权希腊字母。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_option_sse_greeks")
-
-    def get_option_sse_daily(self, symbol: str) -> pd.DataFrame:
-        """获取上交所期权日线数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_option_sse_daily")
-
-    def get_option_sse_tick_sina(self, symbol: str) -> pd.DataFrame:
-        """获取期权tick数据（新浪）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_option_sse_tick_sina")
-
-    def get_option_finance_minute_sina(self, symbol: str) -> pd.DataFrame:
-        """获取期权分钟数据（新浪）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_option_finance_minute_sina")
-
-    def get_option_szse_daily_sina(self, symbol: str) -> pd.DataFrame:
-        """获取深交所期权日线（新浪）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_option_szse_daily_sina")
 
     def get_option_list(self, **kwargs) -> pd.DataFrame:
         """获取期权列表。"""
@@ -392,42 +139,6 @@ class OptionMixin:
 class BondMixin:
     """Mixin for bond and convertible bond data methods."""
 
-    def get_bond_cb_jsl(self) -> pd.DataFrame:
-        """获取可转债数据（集思录）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_bond_cb_jsl")
-
-    def get_bond_zh_hs_daily(self, symbol: str) -> pd.DataFrame:
-        """获取可转债历史行情。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_bond_zh_hs_daily")
-
-    def get_bond_zh_hs_spot(self) -> pd.DataFrame:
-        """获取沪深债券实时行情。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_bond_zh_hs_spot")
-
-    def get_bond_info_cm(self) -> pd.DataFrame:
-        """获取债券基本信息。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_bond_info_cm")
-
-    def get_bond_cash_summary_sina(self) -> pd.DataFrame:
-        """获取债券付息数据（新浪）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_bond_cash_summary_sina")
-
-    def get_bond_zh_repurchase_daily(self, symbol: str = "全部") -> pd.DataFrame:
-        """获取国债逆回购日行情。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_bond_zh_repurchase_daily")
-
-    def get_bond_repo_zh_spot_sina(self) -> pd.DataFrame:
-        """获取债券回购实时行情（新浪）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_bond_repo_zh_spot_sina")
-
-    def get_bond_zh_hs_repo(self) -> pd.DataFrame:
-        """获取债券回购数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_bond_zh_hs_repo")
-
-    def get_bond_zh_cov_info_sina(self, symbol: str) -> pd.DataFrame:
-        """获取可转债基本信息（新浪）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_bond_zh_cov_info_sina")
-
     def get_bond_yield(self, symbol: str) -> pd.DataFrame:
         """获取债券收益率数据。替代 ak.bond_china_yield()。"""
         raise NotImplementedError(f"{self.name} 不支持 get_bond_yield")
@@ -443,44 +154,6 @@ class BondMixin:
 
 class HsgtMixin:
     """Mixin for Hong Kong Stock Connect / northbound fund flow methods."""
-
-    def get_hsgt_north_net_flow(self, symbol: str = "北上") -> pd.DataFrame:
-        """获取北向资金净流入。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_hsgt_north_net_flow")
-
-    def get_hsgt_hold_stock(
-        self, symbol: str = "北向", indicator: str = "今日"
-    ) -> pd.DataFrame:
-        """获取北向资金持股统计。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_hsgt_hold_stock")
-
-    def get_hsgt_individual_stock_flow(
-        self, stock: str, indicator: str = "北向资金"
-    ) -> pd.DataFrame:
-        """获取个股北向资金流入。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_hsgt_individual_stock_flow")
-
-    def get_stock_hsgt_fund_flow_summary_em(self) -> pd.DataFrame:
-        """获取沪深港通资金流向汇总。"""
-        raise NotImplementedError(
-            f"{self.name} 不支持 get_stock_hsgt_fund_flow_summary_em"
-        )
-
-    def get_stock_hsgt_hold_stock_em(self, market: str = "沪深港通") -> pd.DataFrame:
-        """获取沪深港通持股股票。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_hsgt_hold_stock_em")
-
-    def get_stock_hsgt_sh_hk_spot_em(self) -> pd.DataFrame:
-        """获取沪港通实时行情。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_hsgt_sh_hk_spot_em")
-
-    def get_ah_stock_list(self) -> pd.DataFrame:
-        """获取AH股对照列表。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_ah_stock_list")
-
-    def get_ah_stock_spot(self) -> pd.DataFrame:
-        """获取AH股实时行情。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_ah_stock_spot")
 
 
 class QuoteExtensionMixin:
@@ -529,61 +202,6 @@ class QuoteExtensionMixin:
         """获取交易日历 DataFrame。"""
         raise NotImplementedError(f"{self.name} 不支持 get_trade_dates")
 
-    def get_index_daily_raw(self, symbol: str) -> pd.DataFrame:
-        """直接获取指数日线数据（返回原始 DataFrame）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_index_daily_raw")
-
-    def get_index_zh_a_hist(self, symbol: str, period: str = "daily") -> pd.DataFrame:
-        """获取指数A股历史行情。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_index_zh_a_hist")
-
-    def get_stock_minute_raw(
-        self, symbol: str, period: str, start_date: str, end_date: str, adjust: str = ""
-    ) -> pd.DataFrame:
-        """获取股票分钟行情（原始）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_minute_raw")
-
-    def get_etf_minute_raw(
-        self,
-        symbol: str,
-        period: str,
-        start_date: str,
-        end_date: str,
-        adjust: str = "qfq",
-    ) -> pd.DataFrame:
-        """获取 ETF 分钟行情（原始）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_etf_minute_raw")
-
-    def get_call_auction_raw(
-        self, symbol: str, start_time: str = "09:15:00", end_time: str = "09:25:00"
-    ) -> pd.DataFrame:
-        """获取集合竞价原始数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_call_auction_raw")
-
-    def get_stock_valuation_baidu(self, symbol: str, indicator: str) -> pd.DataFrame:
-        """获取百度股票估值数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_valuation_baidu")
-
-    def get_stock_individual_info(self, symbol: str) -> pd.DataFrame:
-        """获取个股基本信息。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_individual_info")
-
-    def get_financial_analysis_indicator(self, symbol: str) -> pd.DataFrame:
-        """获取财务分析指标数据。"""
-        raise NotImplementedError(
-            f"{self.name} 不支持 get_financial_analysis_indicator"
-        )
-
-    def get_stock_zh_index_hist_min_em(
-        self, symbol: str, period: str = "1", adjust: str = ""
-    ) -> pd.DataFrame:
-        """获取指数分钟历史数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_zh_index_hist_min_em")
-
-    def get_stock_zh_a_premarket_em(self, symbol: str = "1") -> pd.DataFrame:
-        """获取盘前竞价数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_zh_a_premarket_em")
-
 
 class CompanyInfoMixin:
     """Mixin for company info methods: announcements, management, index components, and corporate data."""
@@ -600,127 +218,13 @@ class CompanyInfoMixin:
         """获取业绩预告数据。"""
         raise NotImplementedError(f"{self.name} 不支持 get_forecast")
 
-    def get_forecast_ths(self, symbol: str, indicator: str) -> pd.DataFrame:
-        """获取同花顺业绩预告数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_forecast_ths")
-
-    def get_stock_info_index_name_sina(self) -> pd.DataFrame:
-        """获取指数名称列表（新浪）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_info_index_name_sina")
-
-    def get_stock_info_change_name(self, symbol: str) -> pd.DataFrame:
-        """获取公司更名历史。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_info_change_name")
-
-    def get_stock_management_change_ths(self, symbol: str) -> pd.DataFrame:
-        """获取高管变动（同花顺）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_management_change_ths")
-
-    def get_stock_employee_info_em(self) -> pd.DataFrame:
-        """获取员工信息（东方财富）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_employee_info_em")
-
-    def get_stock_management_info_em(self) -> pd.DataFrame:
-        """获取管理人员信息（东方财富）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_management_info_em")
-
-    def get_stock_cixinqr_cninfo(self, symbol: str) -> pd.DataFrame:
-        """获取企业信息披露（巨潮）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_cixinqr_cninfo")
-
-    def get_stock_cixinhhr_cninfo(self, symbol: str) -> pd.DataFrame:
-        """获取企业回答调研（巨潮）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_cixinhhr_cninfo")
-
-    def get_stock_em_performance_letters(self, symbol: str) -> pd.DataFrame:
-        """获取业绩快报（东方财富）。"""
-        raise NotImplementedError(
-            f"{self.name} 不支持 get_stock_em_performance_letters"
-        )
-
-    def get_stock_report_disclosure(self, market: str = "沪深") -> pd.DataFrame:
-        """获取财报披露计划。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_report_disclosure")
-
-    def get_stock_yjkb_em(self, symbol: str) -> pd.DataFrame:
-        """获取业绩快报（东方财富）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_yjkb_em")
-
-    def get_suspension_em(self, date: str) -> pd.DataFrame:
-        """获取停牌数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_suspension_em")
-
-    def get_stock_info_sh_name_code(self, symbol: str = "sh") -> pd.DataFrame:
-        """获取上交所股票代码名称。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_info_sh_name_code")
-
-    def get_stock_info_sz_name_code(self, symbol: str = "sz") -> pd.DataFrame:
-        """获取深交所股票代码名称。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_stock_info_sz_name_code")
-
-    def get_index_stock_info(self) -> pd.DataFrame:
-        """获取指数基本信息列表。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_index_stock_info")
-
-    def get_index_component_sw(self, symbol: str) -> pd.DataFrame:
-        """获取申万行业指数成分股。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_index_component_sw")
-
-    def get_index_stock_cons(self, symbol: str) -> pd.DataFrame:
-        """获取指数成分股。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_index_stock_cons")
-
-    def get_index_stock_cons_weight_csindex(self, symbol: str) -> pd.DataFrame:
-        """获取中证指数成分股及权重。"""
-        raise NotImplementedError(
-            f"{self.name} 不支持 get_index_stock_cons_weight_csindex"
-        )
-
-    def get_sw_index_info(self) -> pd.DataFrame:
-        """获取申万行业指数信息。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_sw_index_info")
-
-    def get_sw_index_cons(self, index_code: str) -> pd.DataFrame:
-        """获取申万行业指数成分股。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_sw_index_cons")
-
-    def get_sw_index_daily(self, index_code: str) -> pd.DataFrame:
-        """获取申万行业指数日线行情。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_sw_index_daily")
-
-    def get_sw_index_daily_spot(self) -> pd.DataFrame:
-        """获取申万行业指数实时行情。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_sw_index_daily_spot")
-
-    def get_index_stocks(self, index_code: str, **kwargs) -> pd.DataFrame:
-        """获取指数成分股列表（仅代码）。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_index_stocks")
-
 
 class MoneyFlowMixin:
     """Mixin for sector and individual stock money flow methods."""
 
-    def get_sector_money_flow(
-        self, sector_type: str = "industry", indicator: str = "今日"
-    ) -> pd.DataFrame:
-        """获取板块资金流向排名。sector_type: 'industry' | 'concept'。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_sector_money_flow")
-
-    def get_individual_fund_flow(self, symbol: str, market: str = "sh") -> pd.DataFrame:
-        """获取个股资金流向历史数据。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_individual_fund_flow")
-
-    def get_individual_fund_flow_rank(self, indicator: str = "今日") -> pd.DataFrame:
-        """获取个股资金流向排名。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_individual_fund_flow_rank")
-
 
 class MiscMixin:
     """Mixin for miscellaneous methods: holidays, ETF/index defaults, margin, macro, and misc data."""
-
-    def get_trade_holidays(self) -> pd.DataFrame:
-        """获取节假日信息。"""
-        raise NotImplementedError(f"{self.name} 不支持 get_trade_holidays")
 
     def get_etf_daily(
         self,

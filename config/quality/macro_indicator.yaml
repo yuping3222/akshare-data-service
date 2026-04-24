@@ -103,3 +103,43 @@ rules:
     tolerance: 0.02
     tolerance_type: relative
     description: 跨源观测值偏差检测（容忍2%相对偏差）
+
+  # ---- 新增业务质量规则 ----
+  - rule_id: macro_value_yoy_pct_range
+    layer: standardized
+    type: range
+    severity: warning
+    gate_action: alert
+    field: value_yoy_pct
+    min: -20
+    max: 20
+    description: 同比增速应在合理范围内 [-20%, 20%]（超出可能为数据错误，如 CPI/GDP 年化变化）
+
+  - rule_id: macro_value_mom_pct_range
+    layer: standardized
+    type: range
+    severity: warning
+    gate_action: alert
+    field: value_mom_pct
+    min: -10
+    max: 10
+    description: 环比增速应在合理范围内 [-10%, 10%]（超出可能为季节性异常或数据错误）
+
+  - rule_id: macro_unit_non_null
+    layer: standardized
+    type: non_null
+    severity: warning
+    gate_action: alert
+    fields: [unit]
+    description: 指标单位字段不应为空，缺失单位影响数据可解释性及下游计算
+
+  - rule_id: macro_value_iqr_anomaly
+    layer: standardized
+    type: numeric_anomaly
+    severity: warning
+    gate_action: alert
+    field: value
+    description: 观测值 IQR 异常检测（IQR 倍数 4.0，与 z-score 方法互补）
+    params:
+      method: iqr
+      iqr_multiplier: 4.0

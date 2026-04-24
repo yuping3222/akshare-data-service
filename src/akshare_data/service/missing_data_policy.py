@@ -11,8 +11,11 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
+from datetime import date
 from enum import Enum
 from typing import Any, Dict, List, Optional
+
+from akshare_data.ingestion.backfill_request import BackfillRequest, get_backfill_registry
 
 logger = logging.getLogger(__name__)
 
@@ -50,38 +53,6 @@ class MissingDataReport:
         }
 
 
-class BackfillRequestRegistry:
-    """Registry for async backfill requests.
-
-    Placeholder: records requests that can later be consumed by an
-    ingestion scheduler. No synchronous fetching here.
-    """
-
-    def __init__(self):
-        self._requests: List[Dict[str, Any]] = []
-
-    def submit(
-        self,
-        table: str,
-        params: Dict[str, Any],
-        priority: str = "normal",
-    ) -> str:
-        request_id = f"bf-{table}-{len(self._requests):06d}"
-        entry = {
-            "request_id": request_id,
-            "table": table,
-            "params": params,
-            "priority": priority,
-            "status": "pending",
-        }
-        self._requests.append(entry)
-        logger.info("Backfill request submitted: %s for table=%s", request_id, table)
-        return request_id
-
-    def list_pending(self) -> List[Dict[str, Any]]:
-        return [r for r in self._requests if r["status"] == "pending"]
-
-
 class MissingDataPolicy:
     """Policy engine for handling missing data in Served layer.
 
@@ -92,11 +63,9 @@ class MissingDataPolicy:
         self,
         default_action: MissingAction = MissingAction.RETURN_EMPTY,
         table_actions: Optional[Dict[str, MissingAction]] = None,
-        backfill_registry: Optional[BackfillRequestRegistry] = None,
     ):
         self._default_action = default_action
         self._table_actions = table_actions or {}
-        self._backfill_registry = backfill_registry or BackfillRequestRegistry()
 
     def resolve_action(self, table: str) -> MissingAction:
         return self._table_actions.get(table, self._default_action)
@@ -128,14 +97,26 @@ class MissingDataPolicy:
             )
 
         if action == MissingAction.REQUEST_BACKFILL:
-            request_id = self._backfill_registry.submit(table, query_params)
+            registry = get_backfill_registry()
+            request = BackfillRequest.new(
+                dataset=table,
+                domain=query_params.get("domain", "cn"),
+                source_name=query_params.get("source_name", ""),
+                interface_name=query_params.get("interface_name", ""),
+                start_date=query_params.get("start_date", date.today()),
+                end_date=query_params.get("end_date", date.today()),
+                reason="missing_data",
+                requested_by="service",
+                params=query_params,
+            )
+            registry.submit(request)
             return MissingDataReport(
                 table=table,
                 query_params=query_params,
                 action=action,
-                message=f"No served data for table='{table}'; backfill request queued",
+                message=f"Backfill request submitted: {request.request_id}",
                 suggested_action="Data will be available after next ingestion cycle",
-                backfill_request_id=request_id,
+                backfill_request_id=request.request_id,
             )
 
         if action == MissingAction.RAISE_ERROR:

@@ -253,7 +253,7 @@ class TestNoForbiddenNames:
     """New configs must not use forbidden legacy names."""
 
     FORBIDDEN_DATASET_NAMES = {
-        "stock_daily",
+        # "stock_daily" removed: now a registered canonical entity (P1-1 YAML migration)
         "quote_daily",
         "indicator",
         "finance_indicator",

@@ -28,6 +28,25 @@ jobs:
       - name: Run ruff format (check only)
         run: ruff format --check src/ tests/
 
+  check-no-legacy-source-access:
+    name: Check No Direct Legacy Source Access
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Forbid self.akshare/lixinger/tushare in service layer
+        run: |
+          # Search for direct self.akshare/lixinger/tushare access (not self._legacy.akshare)
+          # The pattern matches self. immediately followed by akshare/lixinger/tushare
+          if grep -rn 'self\.\(akshare\|lixinger\|tushare\)\b' \
+              src/akshare_data/service/ \
+              src/akshare_data/service_facade.py \
+              src/akshare_data/namespace_assembly.py 2>/dev/null; then
+            echo "ERROR: Found forbidden direct legacy source access in service layer!"
+            echo "Use self._legacy.akshare / self._legacy.lixinger instead."
+            exit 1
+          fi
+          echo "OK: No direct legacy source access found in service layer."
+
   validate-config:
     name: Validate Config Files
     runs-on: ubuntu-latest

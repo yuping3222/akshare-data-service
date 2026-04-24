@@ -1,0 +1,127 @@
+# Entity: fund_daily
+#
+# 公募基金日线净值标准实体配置
+# 优先级: P1
+#
+# 加载方：
+#   - governance catalog：实体注册
+#   - quality DSL：规则字段引用
+#   - service docgen：输出字段文档
+#   - normalizer：schema 校验与 merge
+
+version: '1.0'
+
+entity: fund_daily
+description: 公募基金日线净值（单位净值 / 累计净值）
+priority: P1
+storage_layer: daily
+
+# ---------------------------------------------------------------------------
+# 主键与分区
+# ---------------------------------------------------------------------------
+primary_key:
+  - fund_code
+  - trade_date
+
+partition_by:
+  - trade_date
+
+# ---------------------------------------------------------------------------
+# 时间字段
+# ---------------------------------------------------------------------------
+time_fields:
+  trade_date:
+    description: 净值公布日期
+    role: business
+  ingest_time:
+    description: 入库时间
+    role: system
+
+# ---------------------------------------------------------------------------
+# 必填字段
+# ---------------------------------------------------------------------------
+required_fields:
+  - fund_code
+  - trade_date
+  - nav
+  - acc_nav
+
+# ---------------------------------------------------------------------------
+# 字段定义
+# ---------------------------------------------------------------------------
+fields:
+  fund_code:
+    type: string
+    description: 基金代码（6 位）
+    required: true
+
+  trade_date:
+    type: date
+    description: 净值公布日期
+    required: true
+
+  nav:
+    type: double
+    description: 单位净值
+    unit: CNY
+    required: true
+
+  acc_nav:
+    type: double
+    description: 累计净值
+    unit: CNY
+    required: true
+
+  daily_return:
+    type: double
+    description: 日收益率
+    unit: pct
+    required: false
+
+  subscribe_status:
+    type: string
+    description: 申购状态（开放 / 暂停 / 限大额）
+    required: false
+
+  redeem_status:
+    type: string
+    description: 赎回状态（开放 / 暂停）
+    required: false
+
+  dividend:
+    type: double
+    description: 每份分红金额
+    unit: CNY
+    required: false
+
+# ---------------------------------------------------------------------------
+# 系统字段（所有 Standardized / Served 数据集统一）
+# ---------------------------------------------------------------------------
+system_fields:
+  batch_id:
+    type: string
+    required: true
+  source_name:
+    type: string
+    required: true
+  interface_name:
+    type: string
+    required: true
+  ingest_time:
+    type: timestamp
+    required: true
+  normalize_version:
+    type: string
+    required: true
+  schema_version:
+    type: string
+    required: true
+  quality_status:
+    type: string
+    required: true
+  publish_time:
+    type: timestamp
+    required: false
+  release_version:
+    type: string
+    required: false

@@ -10,8 +10,12 @@ Sources:
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+import warnings
+from dataclasses import dataclass, replace
 from datetime import datetime
+from pathlib import Path
+
+import yaml
 
 
 @dataclass(frozen=True)
@@ -78,7 +82,8 @@ class TableRegistry:
         Args:
             table: CacheTable instance to register.
         """
-        self._tables[table.name] = table
+        patched = _patch_table_fields_from_yaml(table)
+        self._tables[patched.name] = patched
 
     def get(self, name: str) -> CacheTable:
         """Get a table schema by name.
@@ -145,6 +150,73 @@ class TableRegistry:
             True if the table exists in the registry.
         """
         return name in self._tables
+
+
+# ---------------------------------------------------------------------------
+# YAML bridge – loads field definitions from config/standards/entities/*.yaml
+# and patches CacheTable.schema at registration time.
+# ---------------------------------------------------------------------------
+
+_ENTITIES_DIR = (
+    Path(__file__).parent.parent.parent.parent / "config" / "standards" / "entities"
+)
+
+_YAML_TO_PARQUET_TYPE: dict[str, str] = {
+    "double": "float64",
+    "string": "string",
+    "date": "date",
+    "timestamp": "timestamp",
+    "int64": "int64",
+    "bool": "bool",
+}
+
+
+def _load_entity_yaml_fields(entity_name: str) -> dict | None:
+    """Load field definitions from config/standards/entities/{entity}.yaml.
+
+    Returns the 'fields' dict if the YAML file exists, else None.
+    """
+    yaml_path = _ENTITIES_DIR / f"{entity_name}.yaml"
+    if not yaml_path.exists():
+        return None
+    with open(yaml_path, encoding="utf-8") as fh:
+        data = yaml.safe_load(fh)
+    return data.get("fields") if isinstance(data, dict) else None
+
+
+def _yaml_fields_to_schema(yaml_fields: dict) -> dict[str, str]:
+    """Convert YAML field specs to a parquet-compatible {name: type} dict."""
+    return {
+        name: _YAML_TO_PARQUET_TYPE.get(
+            spec.get("type", "string"), spec.get("type", "string")
+        )
+        for name, spec in yaml_fields.items()
+        if isinstance(spec, dict)
+    }
+
+
+def _patch_table_fields_from_yaml(table: CacheTable) -> CacheTable:
+    """Override a CacheTable's schema with YAML-defined fields if available.
+
+    Emits a UserWarning when the YAML introduces fields absent from the
+    hardcoded schema so that migration progress is visible in logs.
+    """
+    yaml_fields = _load_entity_yaml_fields(table.name)
+    if yaml_fields is None:
+        return table  # No YAML override – leave table unchanged
+
+    hardcoded: set[str] = set(table.schema.keys()) if table.schema else set()
+    yaml_keys: set[str] = set(yaml_fields.keys())
+    new_in_yaml = yaml_keys - hardcoded
+    if new_in_yaml:
+        warnings.warn(
+            f"[MigrationWarning] Entity '{table.name}': YAML defines fields not in "
+            f"hardcoded schema: {sorted(new_in_yaml)}. Schema is being migrated to YAML.",
+            UserWarning,
+            stacklevel=3,
+        )
+
+    return replace(table, schema=_yaml_fields_to_schema(yaml_fields))
 
 
 STOCK_DAILY = CacheTable(

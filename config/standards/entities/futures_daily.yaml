@@ -1,0 +1,133 @@
+# Entity: futures_daily
+#
+# 期货合约日线行情标准实体配置
+# 优先级: P1
+#
+# 加载方：
+#   - governance catalog：实体注册
+#   - quality DSL：规则字段引用
+#   - service docgen：输出字段文档
+#   - normalizer：schema 校验与 merge
+#   - core/schema.py YAML bridge：运行时字段修订
+
+version: '1.0'
+
+entity: futures_daily
+description: 期货合约日线行情（商品期货 / 金融期货）
+priority: P1
+storage_layer: daily
+
+# ---------------------------------------------------------------------------
+# 主键与分区
+# ---------------------------------------------------------------------------
+primary_key:
+  - symbol
+  - date
+
+partition_by:
+  - date
+
+# ---------------------------------------------------------------------------
+# 时间字段
+# ---------------------------------------------------------------------------
+time_fields:
+  date:
+    description: 交易日期
+    role: business
+  ingest_time:
+    description: 入库时间
+    role: system
+
+# ---------------------------------------------------------------------------
+# 必填字段
+# ---------------------------------------------------------------------------
+required_fields:
+  - symbol
+  - date
+  - open
+  - high
+  - low
+  - close
+  - volume
+
+# ---------------------------------------------------------------------------
+# 字段定义
+# ---------------------------------------------------------------------------
+fields:
+  symbol:
+    type: string
+    description: 合约代码（如 CU2501）
+    required: true
+
+  date:
+    type: date
+    description: 交易日期
+    required: true
+
+  open:
+    type: double
+    description: 开盘价
+    unit: CNY
+    required: true
+
+  high:
+    type: double
+    description: 最高价
+    unit: CNY
+    required: true
+
+  low:
+    type: double
+    description: 最低价
+    unit: CNY
+    required: true
+
+  close:
+    type: double
+    description: 收盘价（结算价）
+    unit: CNY
+    required: true
+
+  volume:
+    type: double
+    description: 成交量（手）
+    unit: lot
+    required: true
+
+  open_interest:
+    type: double
+    description: 持仓量（手）
+    unit: lot
+    required: false
+
+# ---------------------------------------------------------------------------
+# 系统字段（所有 Standardized / Served 数据集统一）
+# ---------------------------------------------------------------------------
+system_fields:
+  batch_id:
+    type: string
+    required: true
+  source_name:
+    type: string
+    required: true
+  interface_name:
+    type: string
+    required: true
+  ingest_time:
+    type: timestamp
+    required: true
+  normalize_version:
+    type: string
+    required: true
+  schema_version:
+    type: string
+    required: true
+  quality_status:
+    type: string
+    required: true
+  publish_time:
+    type: timestamp
+    required: false
+  release_version:
+    type: string
+    required: false

@@ -144,21 +144,28 @@ class TestMockSourceDataServiceConstruction:
     """DataService construction tests with MockSource."""
 
     def test_service_created_with_mock_source(self, mock_service_with_cache):
-        """DataService accepts a custom DataSource in __init__."""
-        assert mock_service_with_cache._custom_source is not None
-        assert mock_service_with_cache._custom_source.name == "mock"
+        """DataService accepts a custom DataSource in __init__.
+        
+        Legacy source adapters are now accessible via service._legacy (deprecated).
+        """
+        assert mock_service_with_cache._legacy._custom_source is not None
+        assert mock_service_with_cache._legacy._custom_source.name == "mock"
 
     def test_adapters_contain_only_mock(self, mock_service_with_cache):
         """When a custom source is injected, adapters dict contains it."""
-        assert "mock" in mock_service_with_cache.adapters
-        assert mock_service_with_cache.adapters["mock"].name == "mock"
+        assert "mock" in mock_service_with_cache._legacy.adapters
+        assert mock_service_with_cache._legacy.adapters["mock"].name == "mock"
 
     def test_lixinger_and_akshare_point_to_custom_source(self, mock_service_with_cache):
-        """Convenience aliases point at the custom source."""
+        """Convenience aliases point at the custom source (via _legacy)."""
         assert (
-            mock_service_with_cache.lixinger is mock_service_with_cache._custom_source
+            mock_service_with_cache._legacy.lixinger
+            is mock_service_with_cache._legacy._custom_source
         )
-        assert mock_service_with_cache.akshare is mock_service_with_cache._custom_source
+        assert (
+            mock_service_with_cache._legacy.akshare
+            is mock_service_with_cache._legacy._custom_source
+        )
 
 
 @pytest.mark.integration

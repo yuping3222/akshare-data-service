@@ -1,0 +1,135 @@
+# Entity: repo_daily
+#
+# 回购日线行情标准实体配置
+# 优先级: P2
+#
+# 加载方：
+#   - governance catalog：实体注册
+#   - quality DSL：规则字段引用
+#   - service docgen：输出字段文档
+#   - normalizer：schema 校验与 merge
+
+version: '1.0'
+
+entity: repo_daily
+description: 交易所质押式回购日线行情（GC001 / GC007 等）
+priority: P2
+storage_layer: daily
+
+# ---------------------------------------------------------------------------
+# 主键与分区
+# ---------------------------------------------------------------------------
+primary_key:
+  - symbol
+  - trade_date
+
+partition_by:
+  - trade_date
+
+# ---------------------------------------------------------------------------
+# 时间字段
+# ---------------------------------------------------------------------------
+time_fields:
+  trade_date:
+    description: 交易日期
+    role: business
+  ingest_time:
+    description: 入库时间
+    role: system
+
+# ---------------------------------------------------------------------------
+# 必填字段
+# ---------------------------------------------------------------------------
+required_fields:
+  - symbol
+  - trade_date
+  - rate_close
+  - volume
+  - amount
+
+# ---------------------------------------------------------------------------
+# 字段定义
+# ---------------------------------------------------------------------------
+fields:
+  symbol:
+    type: string
+    description: 回购品种代码（如 GC001 / GC007 / GC014 / GC028 / GC091 / GC182）
+    required: true
+
+  trade_date:
+    type: date
+    description: 交易日期
+    required: true
+
+  rate_open:
+    type: double
+    description: 回购利率开盘价
+    unit: pct
+    required: false
+
+  rate_high:
+    type: double
+    description: 回购利率最高价
+    unit: pct
+    required: false
+
+  rate_low:
+    type: double
+    description: 回购利率最低价
+    unit: pct
+    required: false
+
+  rate_close:
+    type: double
+    description: 回购利率收盘价（加权平均利率）
+    unit: pct
+    required: true
+
+  volume:
+    type: double
+    description: 成交量（手，每手 1000 元）
+    unit: lot
+    required: true
+
+  amount:
+    type: double
+    description: 成交额
+    unit: CNY
+    required: true
+
+  maturity_days:
+    type: int64
+    description: 回购期限（天数，如 GC001 = 1 天）
+    required: false
+
+# ---------------------------------------------------------------------------
+# 系统字段（所有 Standardized / Served 数据集统一）
+# ---------------------------------------------------------------------------
+system_fields:
+  batch_id:
+    type: string
+    required: true
+  source_name:
+    type: string
+    required: true
+  interface_name:
+    type: string
+    required: true
+  ingest_time:
+    type: timestamp
+    required: true
+  normalize_version:
+    type: string
+    required: true
+  schema_version:
+    type: string
+    required: true
+  quality_status:
+    type: string
+    required: true
+  publish_time:
+    type: timestamp
+    required: false
+  release_version:
+    type: string
+    required: false

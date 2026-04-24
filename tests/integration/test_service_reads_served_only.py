@@ -217,7 +217,8 @@ class TestBackfillIsAsync:
         request_id = data_service.request_backfill("market_quote_daily")
         status = data_service.get_backfill_status(request_id)
         assert status is not None
-        assert "table" in status
+        # "dataset" replaced legacy "table" key (P1-2 BackfillRegistry migration)
+        assert "dataset" in status or "table" in status
 
 
 # ---------------------------------------------------------------------------
@@ -247,9 +248,18 @@ class TestArchitectureDependency:
                 )
 
     def test_service_module_no_ingestion_import(self):
-        """service/ must not import from ingestion/."""
+        """service/ must not import from ingestion/ except backfill_request.
+
+        Permitted exception: service/missing_data_policy.py and
+        service/data_service.py may import ingestion.backfill_request for
+        async backfill delegation (P1-2 BackfillRegistry unification).
+        All other ingestion imports remain forbidden.
+        """
         service_dir = __import__("akshare_data.service").service.__path__[0]
         import os
+
+        # Ingestion sub-modules that service is permitted to reference
+        allowed_ingestion_refs = {"ingestion.backfill_request"}
 
         for root, dirs, files in os.walk(service_dir):
             for fname in files:
@@ -258,8 +268,12 @@ class TestArchitectureDependency:
                 fpath = os.path.join(root, fname)
                 with open(fpath, encoding="utf-8") as fh:
                     content = fh.read()
-                assert ".ingestion" not in content, (
-                    f"service module imports from ingestion: {fpath}"
+                # Strip allowed references before checking
+                scrubbed = content
+                for allowed in allowed_ingestion_refs:
+                    scrubbed = scrubbed.replace(allowed, "")
+                assert ".ingestion" not in scrubbed, (
+                    f"service module imports from ingestion (non-backfill): {fpath}"
                 )
 
     def test_reader_module_no_source_import(self):

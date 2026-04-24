@@ -1,0 +1,157 @@
+# Entity: convertible_bond_daily
+#
+# 可转债日线行情标准实体配置
+# 优先级: P1
+#
+# 加载方：
+#   - governance catalog：实体注册
+#   - quality DSL：规则字段引用
+#   - service docgen：输出字段文档
+#   - normalizer：schema 校验与 merge
+
+version: '1.0'
+
+entity: convertible_bond_daily
+description: 可转换公司债券日线行情（OHLCV + 转股溢价率）
+priority: P1
+storage_layer: daily
+
+# ---------------------------------------------------------------------------
+# 主键与分区
+# ---------------------------------------------------------------------------
+primary_key:
+  - symbol
+  - trade_date
+
+partition_by:
+  - trade_date
+
+# ---------------------------------------------------------------------------
+# 时间字段
+# ---------------------------------------------------------------------------
+time_fields:
+  trade_date:
+    description: 交易日期
+    role: business
+  ingest_time:
+    description: 入库时间
+    role: system
+
+# ---------------------------------------------------------------------------
+# 必填字段
+# ---------------------------------------------------------------------------
+required_fields:
+  - symbol
+  - trade_date
+  - open
+  - high
+  - low
+  - close
+  - volume
+  - amount
+
+# ---------------------------------------------------------------------------
+# 字段定义
+# ---------------------------------------------------------------------------
+fields:
+  symbol:
+    type: string
+    description: 可转债代码（如 113050.SH）
+    required: true
+
+  trade_date:
+    type: date
+    description: 交易日期
+    required: true
+
+  open:
+    type: double
+    description: 开盘价（全价，单位元/百元面值）
+    unit: CNY
+    required: true
+
+  high:
+    type: double
+    description: 最高价
+    unit: CNY
+    required: true
+
+  low:
+    type: double
+    description: 最低价
+    unit: CNY
+    required: true
+
+  close:
+    type: double
+    description: 收盘价
+    unit: CNY
+    required: true
+
+  volume:
+    type: double
+    description: 成交量（手）
+    unit: lot
+    required: true
+
+  amount:
+    type: double
+    description: 成交额
+    unit: CNY
+    required: true
+
+  premium_rate:
+    type: double
+    description: 转股溢价率（可转债价格相对转股价值的溢价）
+    unit: pct
+    required: false
+
+  parity_value:
+    type: double
+    description: 转股价值（正股价 / 转股价 × 百元面值）
+    unit: CNY
+    required: false
+
+  conversion_price:
+    type: double
+    description: 当前有效转股价
+    unit: CNY
+    required: false
+
+  yield_to_maturity:
+    type: double
+    description: 到期收益率（纯债估算）
+    unit: pct
+    required: false
+
+# ---------------------------------------------------------------------------
+# 系统字段（所有 Standardized / Served 数据集统一）
+# ---------------------------------------------------------------------------
+system_fields:
+  batch_id:
+    type: string
+    required: true
+  source_name:
+    type: string
+    required: true
+  interface_name:
+    type: string
+    required: true
+  ingest_time:
+    type: timestamp
+    required: true
+  normalize_version:
+    type: string
+    required: true
+  schema_version:
+    type: string
+    required: true
+  quality_status:
+    type: string
+    required: true
+  publish_time:
+    type: timestamp
+    required: false
+  release_version:
+    type: string
+    required: false

@@ -1,0 +1,145 @@
+# Entity: sector_daily
+#
+# 行业板块日线行情标准实体配置
+# 优先级: P1
+#
+# 加载方：
+#   - governance catalog：实体注册
+#   - quality DSL：规则字段引用
+#   - service docgen：输出字段文档
+#   - normalizer：schema 校验与 merge
+
+version: '1.0'
+
+entity: sector_daily
+description: 申万/中信行业指数日线行情（OHLCV + 成分股统计）
+priority: P1
+storage_layer: daily
+
+# ---------------------------------------------------------------------------
+# 主键与分区
+# ---------------------------------------------------------------------------
+primary_key:
+  - sector_code
+  - trade_date
+
+partition_by:
+  - trade_date
+
+# ---------------------------------------------------------------------------
+# 时间字段
+# ---------------------------------------------------------------------------
+time_fields:
+  trade_date:
+    description: 交易日期
+    role: business
+  ingest_time:
+    description: 入库时间
+    role: system
+
+# ---------------------------------------------------------------------------
+# 必填字段
+# ---------------------------------------------------------------------------
+required_fields:
+  - sector_code
+  - sector_name
+  - trade_date
+  - close
+
+# ---------------------------------------------------------------------------
+# 字段定义
+# ---------------------------------------------------------------------------
+fields:
+  sector_code:
+    type: string
+    description: 行业板块代码（申万一级 / 中信一级等）
+    required: true
+
+  sector_name:
+    type: string
+    description: 行业板块名称
+    required: true
+
+  trade_date:
+    type: date
+    description: 交易日期
+    required: true
+
+  open:
+    type: double
+    description: 开盘点位
+    unit: point
+    required: false
+
+  high:
+    type: double
+    description: 最高点位
+    unit: point
+    required: false
+
+  low:
+    type: double
+    description: 最低点位
+    unit: point
+    required: false
+
+  close:
+    type: double
+    description: 收盘点位
+    unit: point
+    required: true
+
+  volume:
+    type: double
+    description: 成交量
+    unit: share
+    required: false
+
+  amount:
+    type: double
+    description: 成交额
+    unit: CNY
+    required: false
+
+  change_pct:
+    type: double
+    description: 涨跌幅
+    unit: pct
+    required: false
+
+  stock_count:
+    type: int64
+    description: 成分股数量
+    required: false
+
+# ---------------------------------------------------------------------------
+# 系统字段（所有 Standardized / Served 数据集统一）
+# ---------------------------------------------------------------------------
+system_fields:
+  batch_id:
+    type: string
+    required: true
+  source_name:
+    type: string
+    required: true
+  interface_name:
+    type: string
+    required: true
+  ingest_time:
+    type: timestamp
+    required: true
+  normalize_version:
+    type: string
+    required: true
+  schema_version:
+    type: string
+    required: true
+  quality_status:
+    type: string
+    required: true
+  publish_time:
+    type: timestamp
+    required: false
+  release_version:
+    type: string
+    required: false

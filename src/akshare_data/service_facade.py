@@ -9,12 +9,13 @@ cache data.
 from __future__ import annotations
 
 import logging
+import warnings
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import pandas as pd
 
 from akshare_data.core.symbols import normalize_symbol
-from akshare_data.legacy_adapter import LegacySourceAdapterMixin
+from akshare_data.legacy_adapter import _DeprecatedSourceAdapterHandle, SourceProxy
 from akshare_data.namespace_assembly import (
     CNMarketAPI,
     HKMarketAPI,
@@ -30,7 +31,7 @@ from akshare_data.service.missing_data_policy import MissingAction
 logger = logging.getLogger("akshare_data")
 
 
-class DataService(LegacySourceAdapterMixin):
+class DataService:
     """Unified data service (Read-Only Served strategy).
 
     This facade delegates to the internal ServedDataService for all queries.
@@ -40,6 +41,7 @@ class DataService(LegacySourceAdapterMixin):
     - All existing method signatures are preserved
     - Namespace API (cn, hk, us, macro) still works
     - When Served has no data, returns empty DataFrame
+    - Legacy source adapters accessible via ``self._legacy`` (deprecated)
     """
 
     def __init__(
@@ -53,14 +55,60 @@ class DataService(LegacySourceAdapterMixin):
 
         cm = cache_manager or _get_cm()
         self._served = ServedDataService(cache_manager=cm)
-        self._init_legacy_adapter(
-            router=router, access_logger=access_logger, source=source
-        )
+        with warnings.catch_warnings():
+            warnings.simplefilter("always", DeprecationWarning)
+            self._legacy = _DeprecatedSourceAdapterHandle(
+                router=router, access_logger=access_logger, source=source
+            )
 
         self.cn = CNMarketAPI(self)
         self.hk = HKMarketAPI(self)
         self.us = USMarketAPI(self)
         self.macro = MacroAPI(self)
+
+    # --- Legacy source adapter properties (deprecated) ---
+
+    @property
+    def akshare(self):
+        """Deprecated: access legacy akshare adapter via self._legacy."""
+        return self._legacy.akshare
+
+    @property
+    def lixinger(self):
+        """Deprecated: access legacy lixinger adapter via self._legacy."""
+        return self._legacy.lixinger
+
+    @property
+    def adapters(self):
+        """Deprecated: access legacy adapters dict via self._legacy."""
+        return self._legacy.adapters
+
+    @property
+    def router(self):
+        """Deprecated: access legacy router via self._legacy."""
+        return self._legacy.router
+
+    @router.setter
+    def router(self, value):
+        self._legacy.router = value
+
+    def _get_source(self, requested_source=None):
+        """Deprecated: return a SourceProxy for backward-compatible source dispatch."""
+        logger.warning(
+            "_get_source called but source adapters are disabled in read-only mode. "
+            "Use offline downloader to populate data first."
+        )
+        return SourceProxy(self, requested_source)
+
+    def _execute_source_method(self, method_name, requested_source, *args, **kwargs):
+        """Deprecated: delegate source method execution to the legacy handle."""
+        return self._legacy._execute_source_method(
+            method_name, requested_source, *args, **kwargs
+        )
+
+    def _resolve_sources(self, requested_source, method_name):
+        """Deprecated: delegate source resolution to the legacy handle."""
+        return self._legacy._resolve_sources(requested_source, method_name)
 
     @property
     def cache(self):
@@ -179,7 +227,16 @@ class DataService(LegacySourceAdapterMixin):
 
         `fetch_fn` is kept only for backward-compatible signatures and is ignored.
         Online API never performs synchronous source pull or cache writes.
+
+        .. deprecated:: 0.3.0
+            Use ``DataService.query()`` instead. Will be removed in 0.4.0.
         """
+        warnings.warn(
+            "cached_fetch() is deprecated since 0.3.0 and will be removed in 0.4.0. "
+            "Use DataService.query() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         where = {}
         for k, v in params.items():
             if k in ("start_date", "end_date") and v:

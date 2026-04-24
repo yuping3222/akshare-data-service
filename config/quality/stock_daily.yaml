@@ -1,0 +1,118 @@
+# Quality rules for stock_daily
+#
+# Dataset: stock_daily (P0)
+# Entity: stock_daily
+# Schema: v1
+#
+# 覆盖个股日行情数据的基础质量门禁。
+# 字段命名约定参考 akshare 标准化后的英文字段名：
+#   security_id, trade_date, open, high, low, close, volume, amount, change_pct
+
+version: '1.0'
+dataset: stock_daily
+entity: stock_daily
+schema_version: v1
+
+rules:
+  # ---- Raw layer: technical rules ----
+  - rule_id: sd_raw_sys_fields
+    layer: raw
+    type: system_fields_complete
+    severity: error
+    gate_action: block
+    description: Raw 系统字段必须完整
+    params:
+      system_fields:
+        - batch_id
+        - source_name
+        - interface_name
+        - ingest_time
+
+  - rule_id: sd_raw_record_count
+    layer: raw
+    type: record_count_min
+    severity: error
+    gate_action: block
+    description: Raw 最低记录数不能为 0
+    params:
+      min_count: 1
+
+  # ---- Standardized layer: business rules ----
+  - rule_id: sd_pk_unique
+    layer: standardized
+    type: unique_key
+    severity: error
+    gate_action: block
+    fields: [security_id, trade_date]
+    description: 主键（证券ID + 交易日）必须唯一
+
+  - rule_id: sd_core_non_null
+    layer: standardized
+    type: non_null
+    severity: error
+    gate_action: block
+    fields: [security_id, trade_date, open, high, low, close, volume]
+    description: 核心 OHLCV 字段及主键字段不能为空
+
+  - rule_id: sd_close_non_negative
+    layer: standardized
+    type: range
+    severity: error
+    gate_action: block
+    field: close
+    min: 0
+    description: 收盘价必须 >= 0（负价格为严重数据错误）
+
+  - rule_id: sd_volume_non_negative
+    layer: standardized
+    type: range
+    severity: error
+    gate_action: block
+    field: volume
+    min: 0
+    description: 成交量必须 >= 0（负成交量为严重数据错误）
+
+  - rule_id: sd_price_anomaly_ohlc
+    layer: standardized
+    type: price_anomaly
+    severity: warning
+    gate_action: alert
+    description: OHLC 综合异常检测（高低倒挂、负价格、单日涨跌幅 >20%）
+    params:
+      high_field: high
+      low_field: low
+      open_field: open
+      close_field: close
+      max_change_pct: 20.0
+      date_field: trade_date
+
+  - rule_id: sd_trade_date_continuity
+    layer: standardized
+    type: continuity
+    severity: warning
+    gate_action: alert
+    field: trade_date
+    description: 交易日期连续性检测（最大允许 5 天空档，覆盖节假日与周末）
+    params:
+      max_gap_days: 5
+
+  - rule_id: sd_close_spike_detection
+    layer: standardized
+    type: numeric_anomaly
+    severity: warning
+    gate_action: alert
+    field: close
+    description: 收盘价 z-score 超过 5 标准差视为异常（跳空或数据录入错误）
+    params:
+      method: zscore
+      zscore_threshold: 5.0
+
+  - rule_id: sd_freshness
+    layer: standardized
+    type: freshness
+    severity: warning
+    gate_action: alert
+    field: trade_date
+    description: 数据新鲜度检查（最近交易日距今不超过 3 天）
+    params:
+      max_age_days: 3

@@ -134,3 +134,42 @@ rules:
     tolerance: 0.05
     tolerance_type: relative
     description: 跨源ROE偏差检测（容忍5%相对偏差）
+
+  # ---- 新增业务质量规则 ----
+  - rule_id: fin_indicator_pe_ratio_ttm_range
+    layer: standardized
+    type: range
+    severity: warning
+    gate_action: alert
+    field: pe_ratio_ttm
+    min: -1000
+    max: 10000
+    description: 市盈率（TTM）应在合理范围内 [-1000, 10000]，超出可能为数据错误
+
+  - rule_id: fin_indicator_pb_ratio_non_negative
+    layer: standardized
+    type: range
+    severity: warning
+    gate_action: alert
+    field: pb_ratio
+    min: 0
+    description: 市净率应 >= 0，负值通常表示净资产为负（极端情况）或数据错误
+
+  - rule_id: fin_indicator_report_date_continuity
+    layer: standardized
+    type: continuity
+    severity: warning
+    gate_action: alert
+    field: report_date
+    description: 报告期连续性检测（季报间隔约 90 天，允许最大 200 天空档）
+    params:
+      max_gap_days: 200
+
+  - rule_id: fin_indicator_revenue_non_negative
+    layer: standardized
+    type: range
+    severity: warning
+    gate_action: alert
+    field: revenue
+    min: 0
+    description: 营业收入应 >= 0，异常负值可能为数据录入错误

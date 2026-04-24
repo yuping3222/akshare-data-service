@@ -97,3 +97,68 @@ rules:
     description: 数据新鲜度检查
     params:
       max_age_days: 3
+
+  # ---- 金融量级异常规则 ----
+  - rule_id: mqd_open_price_non_negative
+    layer: standardized
+    type: range
+    severity: error
+    gate_action: block
+    field: open_price
+    min: 0
+    description: 开盘价必须 >= 0（负价格为严重数据错误）
+
+  - rule_id: mqd_high_price_non_negative
+    layer: standardized
+    type: range
+    severity: error
+    gate_action: block
+    field: high_price
+    min: 0
+    description: 最高价必须 >= 0（负价格为严重数据错误）
+
+  - rule_id: mqd_close_price_spike
+    layer: standardized
+    type: numeric_anomaly
+    severity: warning
+    gate_action: alert
+    field: close_price
+    description: 收盘价 z-score 超过 5 标准差视为异常（跳空或数据错误）
+    params:
+      method: zscore
+      zscore_threshold: 5.0
+
+  - rule_id: mqd_trade_date_continuity
+    layer: standardized
+    type: continuity
+    severity: warning
+    gate_action: alert
+    field: trade_date
+    description: 交易日期连续性检测（最大允许 5 天空档，覆盖节假日）
+    params:
+      max_gap_days: 5
+
+  - rule_id: mqd_price_anomaly_ohlc
+    layer: standardized
+    type: price_anomaly
+    severity: warning
+    gate_action: alert
+    description: OHLC 综合异常检测（高低倒挂、负价格、极端涨跌幅 >20%）
+    params:
+      high_field: high_price
+      low_field: low_price
+      open_field: open_price
+      close_field: close_price
+      max_change_pct: 20.0
+      date_field: trade_date
+
+  - rule_id: mqd_volume_spike
+    layer: standardized
+    type: numeric_anomaly
+    severity: warning
+    gate_action: alert
+    field: volume
+    description: 成交量 z-score 超过 5 标准差视为异常（停牌或数据录入错误）
+    params:
+      method: zscore
+      zscore_threshold: 5.0

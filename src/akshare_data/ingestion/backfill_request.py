@@ -15,12 +15,15 @@ Key design:
 from __future__ import annotations
 
 import json
+import pathlib
 import threading
 import uuid
 from dataclasses import dataclass, field
 from datetime import date, datetime, timezone
 from enum import Enum
 from typing import Any, Dict, List, Optional
+
+import yaml
 
 
 # ---------------------------------------------------------------------------
@@ -265,10 +268,58 @@ class BackfillRegistry:
         pending = registry.get_pending()
     """
 
-    def __init__(self) -> None:
+    def __init__(self, persist_path: str | None = None) -> None:
         self._requests: Dict[str, BackfillRequest] = {}
         self._idempotency_keys: Dict[str, str] = {}  # key -> request_id
         self._lock = threading.Lock()
+        self._persist_path = persist_path
+        if persist_path:
+            self.load()
+
+    def save(self) -> None:
+        """Persist pending/queued requests to YAML file.
+
+        Only active (pending/queued) requests are saved; terminal states are
+        not needed after a process restart.
+        """
+        if not self._persist_path:
+            return
+        with self._lock:
+            active = [
+                r
+                for r in self._requests.values()
+                if r.status in (BackfillStatus.PENDING, BackfillStatus.QUEUED)
+            ]
+        data: Dict[str, Any] = {
+            "version": "1.0",
+            "requests": [r.to_dict() for r in active],
+        }
+        path = pathlib.Path(self._persist_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, "w", encoding="utf-8") as fh:
+            yaml.dump(data, fh, allow_unicode=True, default_flow_style=False)
+
+    def load(self) -> None:
+        """Restore pending/queued requests from YAML file (process restart recovery)."""
+        if not self._persist_path:
+            return
+        path = pathlib.Path(self._persist_path)
+        if not path.exists():
+            return
+        with open(path, "r", encoding="utf-8") as fh:
+            data = yaml.safe_load(fh)
+        if not data or "requests" not in data:
+            return
+        with self._lock:
+            for record in data["requests"]:
+                try:
+                    req = BackfillRequest.from_dict(record)
+                    idem_key = req.idempotency_key()
+                    if idem_key not in self._idempotency_keys:
+                        self._requests[req.request_id] = req
+                        self._idempotency_keys[idem_key] = req.request_id
+                except (KeyError, ValueError):
+                    pass
 
     def submit(self, request: BackfillRequest) -> BackfillRequest:
         """Submit a new backfill request.
@@ -283,7 +334,9 @@ class BackfillRegistry:
 
             self._requests[request.request_id] = request
             self._idempotency_keys[idem_key] = request.request_id
-            return request
+            result = request
+        self.save()
+        return result
 
     def get(self, request_id: str) -> Optional[BackfillRequest]:
         with self._lock:
@@ -371,3 +424,29 @@ def _dc_replace(instance: Any, **changes: Any) -> Any:
             **changes,
         }
     )
+
+
+# ---------------------------------------------------------------------------
+# Global singleton
+# ---------------------------------------------------------------------------
+
+_registry_instance: BackfillRegistry | None = None
+_registry_lock = threading.Lock()
+
+
+def get_backfill_registry(persist_path: str | None = None) -> BackfillRegistry:
+    """Return the process-wide BackfillRegistry singleton.
+
+    Args:
+        persist_path: Optional path for persisting requests to YAML.
+                     Only used on the first call (when creating the singleton).
+
+    Returns:
+        The global BackfillRegistry instance.
+    """
+    global _registry_instance
+    if _registry_instance is None:
+        with _registry_lock:
+            if _registry_instance is None:
+                _registry_instance = BackfillRegistry(persist_path=persist_path)
+    return _registry_instance

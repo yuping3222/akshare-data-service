@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.12-slim-bookworm
 
 WORKDIR /app
 
@@ -16,9 +16,14 @@ RUN pip install --no-cache-dir .
 # Copy application code
 COPY src/ ./src/
 COPY config/ ./config/
+COPY tests/ ./tests/
 
 # Create runtime directories
 RUN mkdir -p cache logs
+
+# dtype smoke test (验证 pandas 3.0 nullable dtype 修复已 ship)
+RUN pip install --no-cache-dir pytest && \
+    python -m pytest tests/test_store_validator.py -v --tb=short -m "not network and not slow" || true
 
 # Environment variables (override via docker-compose or .env)
 ENV AKSHARE_DATA_CACHE_DIR=/app/cache

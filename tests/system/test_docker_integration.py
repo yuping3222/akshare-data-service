@@ -81,9 +81,9 @@ class TestDockerfileStructure:
         assert dockerfile_path.exists(), "Dockerfile should exist at project root"
 
     def test_dockerfile_uses_python311(self, dockerfile_content: str) -> None:
-        """Dockerfile uses Python 3.11 base image."""
-        assert re.search(r"python:3\.11", dockerfile_content), (
-            "Dockerfile should use a python:3.11 base image"
+        """Dockerfile uses Python 3.12 base image (upgraded from 3.11 in P2-2)."""
+        assert re.search(r"python:3\.1[12]", dockerfile_content), (
+            "Dockerfile should use a python:3.11 or 3.12 base image"
         )
 
     def test_dockerfile_installs_package(self, dockerfile_content: str) -> None:

@@ -33,7 +33,7 @@ from .source_health import (
     CircuitBreakerConfig,
 )
 from .scheduler import Scheduler, ScheduleDef, Priority, Frequency
-from .backfill_request import BackfillRequest, BackfillRegistry, BackfillStatus
+from .backfill_request import BackfillRequest, BackfillRegistry, BackfillStatus, get_backfill_registry
 from .executor.base import (
     ExecutionContext,
     ExecutionMode,
@@ -74,6 +74,7 @@ __all__ = [
     "BackfillRequest",
     "BackfillRegistry",
     "BackfillStatus",
+    "get_backfill_registry",
     "ExecutionContext",
     "ExecutionMode",
     "Executor",

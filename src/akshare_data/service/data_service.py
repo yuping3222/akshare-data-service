@@ -22,6 +22,7 @@ from akshare_data.service.missing_data_policy import (
     MissingAction,
     MissingDataReport,
 )
+from akshare_data.ingestion.backfill_request import get_backfill_registry, BackfillRequest
 from akshare_data.store.manager import CacheManager
 from akshare_data.core.symbols import normalize_symbol
 
@@ -80,7 +81,6 @@ class DataService:
         self._reader = ServedReader(cache_manager)
         self._missing_policy = missing_policy or MissingDataPolicy()
         self._version_selector = version_selector or VersionSelector()
-        self._backfill_registry = self._missing_policy._backfill_registry
 
     def query(
         self,
@@ -159,18 +159,43 @@ class DataService:
 
         Returns a backfill request ID. Does NOT synchronously fetch data.
         """
-        return self._backfill_registry.submit(table, params or {}, priority=priority)
+        from datetime import date as _date
+        _params = params or {}
+        try:
+            request = BackfillRequest.new(
+                dataset=table,
+                domain=_params.get("domain", "cn"),
+                source_name=_params.get("source_name", ""),
+                interface_name=_params.get("interface_name", ""),
+                start_date=_params.get("start_date", _date.today()),
+                end_date=_params.get("end_date", _date.today()),
+                priority=priority if priority in ("p0", "p1", "p2", "p3") else "p2",
+                reason="service.request_backfill",
+                params=_params,
+            )
+            registry = get_backfill_registry()
+            submitted = registry.submit(request)
+            return submitted.request_id
+        except Exception as exc:
+            logger.warning("Failed to submit backfill request for table=%s: %s", table, exc)
+            return ""
 
     def get_backfill_status(self, request_id: str) -> Optional[Dict[str, Any]]:
         """Get status of a backfill request."""
-        for req in self._backfill_registry._requests:
-            if req["request_id"] == request_id:
-                return req
-        return None
+        registry = get_backfill_registry()
+        req = registry.get(request_id)
+        if req is None:
+            return None
+        return {"request_id": req.request_id, "status": req.status.value,
+                "dataset": req.dataset}
 
     def list_pending_backfills(self) -> List[Dict[str, Any]]:
         """List all pending backfill requests."""
-        return self._backfill_registry.list_pending()
+        registry = get_backfill_registry()
+        return [
+            {"request_id": r.request_id, "status": r.status.value, "dataset": r.dataset}
+            for r in registry.get_pending()
+        ]
 
     def set_missing_action(self, table: str, action: MissingAction) -> None:
         """Configure missing data action for a specific table."""

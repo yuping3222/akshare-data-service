@@ -10,12 +10,15 @@ See docs/design/100-observability-metrics.md for metric-event correlation.
 
 from __future__ import annotations
 
+import json
 import logging
 import threading
 import time
 import uuid
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from enum import Enum
+from pathlib import Path
 from typing import Any, Callable
 
 logger = logging.getLogger(__name__)
@@ -122,15 +125,68 @@ class Event:
 EventHandler = Callable[[Event], None]
 
 
+# ---------------------------------------------------------------------------
+# Pipeline lifecycle event types
+# ---------------------------------------------------------------------------
+
+
+class PipelineEventType(str, Enum):
+    """Standard pipeline lifecycle event types."""
+
+    BATCH_STARTED = "batch_started"
+    RAW_WRITTEN = "raw_written"
+    STANDARDIZED_WRITTEN = "standardized_written"
+    QUALITY_EVALUATED = "quality_evaluated"
+    GATE_DECIDED = "gate_decided"
+    RELEASED = "released"
+    GATE_BLOCKED = "gate_blocked"
+    PIPELINE_FAILED = "pipeline_failed"
+
+
+@dataclass
+class PipelineEvent:
+    """A single pipeline lifecycle event.
+
+    Every event MUST carry batch_id and dataset for traceability.
+    """
+
+    event_type: PipelineEventType
+    batch_id: str
+    dataset: str
+    timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
+    source_name: str = ""
+    layer: str = ""  # "raw" / "standardized" / "quality" / "served"
+    details: dict[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "event_type": self.event_type.value,
+            "batch_id": self.batch_id,
+            "dataset": self.dataset,
+            "timestamp": self.timestamp.isoformat(),
+            "source_name": self.source_name,
+            "layer": self.layer,
+            "details": self.details,
+        }
+
+    def to_json(self) -> str:
+        return json.dumps(self.to_dict())
+
+
 class EventBus:
     """Thread-safe event bus with handler registration and emission."""
 
-    def __init__(self) -> None:
+    def __init__(self, output_dir: str | Path | None = None) -> None:
         self._handlers: dict[str, list[EventHandler]] = {}
         self._global_handlers: list[EventHandler] = []
         self._lock = threading.Lock()
         self._event_log: list[Event] = []
         self._max_log_size = 10000
+        # Pipeline event bus state
+        self._pipeline_handlers: list[Callable[[PipelineEvent], None]] = []
+        self._pipeline_event_log: list[PipelineEvent] = []
+        self._output_dir: Path | None = Path(output_dir) if output_dir else None
+        self._file_lock = threading.Lock()
 
     def on(self, event_type: str, handler: EventHandler) -> None:
         with self._lock:
@@ -183,12 +239,201 @@ class EventBus:
         with self._lock:
             self._event_log.clear()
 
+    # ------------------------------------------------------------------
+    # Pipeline event bus interface
+    # ------------------------------------------------------------------
 
-_global_bus = EventBus()
+    def subscribe(self, handler: Callable[[PipelineEvent], None]) -> None:
+        """Register a pipeline event handler."""
+        with self._lock:
+            self._pipeline_handlers.append(handler)
+
+    def publish(self, event: PipelineEvent) -> None:
+        """Publish a pipeline event to all registered handlers."""
+        handlers_to_call: list[Callable[[PipelineEvent], None]] = []
+        with self._lock:
+            handlers_to_call.extend(self._pipeline_handlers)
+            self._pipeline_event_log.append(event)
+
+        for handler in handlers_to_call:
+            try:
+                handler(event)
+            except Exception as e:
+                logger.error(
+                    "Pipeline event handler error for %s: %s", event.event_type, e
+                )
+
+        self._write_to_file(event)
+
+    def _write_to_file(self, event: PipelineEvent) -> None:
+        """Append event to a date-partitioned JSONL file (thread-safe)."""
+        if self._output_dir is None:
+            return
+        try:
+            date_str = event.timestamp.strftime("%Y-%m-%d")
+            filepath = self._output_dir / f"{date_str}.jsonl"
+            with self._file_lock:
+                self._output_dir.mkdir(parents=True, exist_ok=True)
+                with filepath.open("a", encoding="utf-8") as f:
+                    f.write(event.to_json() + "\n")
+        except Exception as e:
+            logger.error("Failed to write pipeline event to file: %s", e)
+
+    def publish_batch_started(
+        self, batch_id: str, dataset: str, source_name: str = "", **details: Any
+    ) -> None:
+        """Convenience: publish BATCH_STARTED event."""
+        self.publish(
+            PipelineEvent(
+                event_type=PipelineEventType.BATCH_STARTED,
+                batch_id=batch_id,
+                dataset=dataset,
+                source_name=source_name,
+                details=dict(details),
+            )
+        )
+
+    def publish_raw_written(
+        self, batch_id: str, dataset: str, raw_path: str = "", **details: Any
+    ) -> None:
+        """Convenience: publish RAW_WRITTEN event."""
+        self.publish(
+            PipelineEvent(
+                event_type=PipelineEventType.RAW_WRITTEN,
+                batch_id=batch_id,
+                dataset=dataset,
+                layer="raw",
+                details={"raw_path": raw_path, **details},
+            )
+        )
+
+    def publish_standardized_written(
+        self, batch_id: str, dataset: str, **details: Any
+    ) -> None:
+        """Convenience: publish STANDARDIZED_WRITTEN event."""
+        self.publish(
+            PipelineEvent(
+                event_type=PipelineEventType.STANDARDIZED_WRITTEN,
+                batch_id=batch_id,
+                dataset=dataset,
+                layer="standardized",
+                details=dict(details),
+            )
+        )
+
+    def publish_quality_evaluated(
+        self,
+        batch_id: str,
+        dataset: str,
+        passed_count: int = 0,
+        failed_count: int = 0,
+        **details: Any,
+    ) -> None:
+        """Convenience: publish QUALITY_EVALUATED event."""
+        self.publish(
+            PipelineEvent(
+                event_type=PipelineEventType.QUALITY_EVALUATED,
+                batch_id=batch_id,
+                dataset=dataset,
+                layer="quality",
+                details={
+                    "passed_count": passed_count,
+                    "failed_count": failed_count,
+                    **details,
+                },
+            )
+        )
+
+    def publish_gate_decided(
+        self,
+        batch_id: str,
+        dataset: str,
+        decision: str,
+        blocking_rules: list | None = None,
+        **details: Any,
+    ) -> None:
+        """Convenience: publish GATE_DECIDED event."""
+        self.publish(
+            PipelineEvent(
+                event_type=PipelineEventType.GATE_DECIDED,
+                batch_id=batch_id,
+                dataset=dataset,
+                details={
+                    "decision": decision,
+                    "blocking_rules": blocking_rules or [],
+                    **details,
+                },
+            )
+        )
+
+    def publish_released(
+        self, batch_id: str, dataset: str, release_version: str = "", **details: Any
+    ) -> None:
+        """Convenience: publish RELEASED event."""
+        self.publish(
+            PipelineEvent(
+                event_type=PipelineEventType.RELEASED,
+                batch_id=batch_id,
+                dataset=dataset,
+                layer="served",
+                details={"release_version": release_version, **details},
+            )
+        )
+
+    def publish_gate_blocked(
+        self,
+        batch_id: str,
+        dataset: str,
+        blocking_rules: list | None = None,
+        **details: Any,
+    ) -> None:
+        """Convenience: publish GATE_BLOCKED event."""
+        self.publish(
+            PipelineEvent(
+                event_type=PipelineEventType.GATE_BLOCKED,
+                batch_id=batch_id,
+                dataset=dataset,
+                details={"blocking_rules": blocking_rules or [], **details},
+            )
+        )
+
+    def get_events_for_batch(self, batch_id: str) -> list[PipelineEvent]:
+        """Return all in-memory pipeline events for a given batch_id."""
+        with self._lock:
+            return [e for e in self._pipeline_event_log if e.batch_id == batch_id]
+
+    def format_batch_summary(self, batch_id: str) -> str:
+        """Format a human-readable markdown summary of pipeline events for a batch."""
+        events = self.get_events_for_batch(batch_id)
+        if not events:
+            return f"No events found for batch_id={batch_id}"
+
+        lines = [
+            f"## Pipeline Trace: {batch_id}",
+            "",
+            "| 步骤 | 时间 | 数据集 | 详情 |",
+            "|-----|------|--------|------|",
+        ]
+        for ev in sorted(events, key=lambda e: e.timestamp):
+            lines.append(
+                f"| {ev.event_type.value} | {ev.timestamp.strftime('%H:%M:%S')} "
+                f"| {ev.dataset} | {json.dumps(ev.details, ensure_ascii=False)} |"
+            )
+        return "\n".join(lines)
 
 
-def get_event_bus() -> EventBus:
-    return _global_bus
+_default_bus: EventBus | None = None
+_bus_lock = threading.Lock()
+
+
+def get_event_bus(output_dir: str | None = None) -> EventBus:
+    """Get the global EventBus singleton (lazy-initialized, thread-safe)."""
+    global _default_bus
+    if _default_bus is None:
+        with _bus_lock:
+            if _default_bus is None:
+                _default_bus = EventBus(output_dir=output_dir or "reports/events")
+    return _default_bus
 
 
 def emit_event(
@@ -207,7 +452,7 @@ def emit_event(
         context=context,
         payload=payload,
     )
-    _global_bus.emit(event)
+    get_event_bus().emit(event)
     return event
 
 

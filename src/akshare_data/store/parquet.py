@@ -1,7 +1,9 @@
 import logging
 import os
 import uuid
+import warnings
 from pathlib import Path
+from typing import Literal
 
 import pandas as pd
 import pyarrow as pa
@@ -169,12 +171,23 @@ class AtomicWriter:
         base_dir: str | Path,
         compression: str = "snappy",
         row_group_size: int = 100_000,
-        strict_schema: bool = True,
+        strict_level: Literal["none", "warn", "error"] = "error",
+        **kwargs,
     ):
+        # Backward compat: accept deprecated strict_schema bool param
+        if "strict_schema" in kwargs:
+            _legacy = kwargs.pop("strict_schema")
+            if isinstance(_legacy, bool):
+                warnings.warn(
+                    "strict_schema bool is deprecated, use strict_level='error'/'warn'/'none'",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                strict_level = "error" if _legacy else "warn"
         self.base_dir = Path(base_dir)
         self.compression = compression
         self.row_group_size = row_group_size
-        self.strict_schema = strict_schema
+        self.strict_level = strict_level
         self.partition_manager = PartitionManager(self.base_dir)
 
     def write(
@@ -187,14 +200,22 @@ class AtomicWriter:
         schema: dict[str, str] | None = None,
         primary_key: list[str] | None = None,
         skip_validation: bool = False,
+        strict_level: Literal["none", "warn", "error"] | None = None,
     ) -> Path:
         partition_path = self.partition_manager.raw_partition_path(
             table, storage_layer, partition_by, partition_value
         )
         self.partition_manager.ensure_dir(partition_path)
 
+        effective_strict_level = strict_level if strict_level is not None else self.strict_level
         prepared_data = self._validate_and_prepare(
-            table, data, schema, primary_key, skip_validation=skip_validation
+            table,
+            data,
+            schema,
+            primary_key,
+            storage_layer=storage_layer,
+            skip_validation=skip_validation,
+            strict_level=effective_strict_level,
         )
 
         filename = self.partition_manager.generate_filename(partition_value)
@@ -213,7 +234,13 @@ class AtomicWriter:
         self.partition_manager.ensure_dir(meta_path)
 
         prepared_data = self._validate_and_prepare(
-            table, data, schema, primary_key, skip_validation=True
+            table,
+            data,
+            schema,
+            primary_key,
+            storage_layer="meta",
+            skip_validation=True,
+            strict_level=self.strict_level,
         )
 
         target_path = meta_path / f"{table}.parquet"
@@ -225,7 +252,9 @@ class AtomicWriter:
         data: pd.DataFrame,
         schema: dict[str, str] | None,
         primary_key: list[str] | None,
+        storage_layer: str = "raw",
         skip_validation: bool = False,
+        strict_level: str = "error",
     ) -> pd.DataFrame:
         if skip_validation:
             result = data
@@ -244,15 +273,26 @@ class AtomicWriter:
                 try:
                     result = validator.validate_and_cast(data, primary_key=effective_pk)
                 except SchemaValidationError as e:
-                    logger.error(
-                        "Schema validation failed for table=%s: %s. "
-                        "Falling back to legacy type coercion — data may be inconsistent.",
-                        table,
-                        e,
-                    )
-                    if self.strict_schema:
+                    if strict_level == "none":
+                        result = data
+                    elif strict_level == "warn":
+                        logger.warning(
+                            "Schema validation failed for table=%s: %s. "
+                            "Writing failed records to quarantine.",
+                            table,
+                            e,
+                        )
+                        self._write_to_quarantine(
+                            data, table=table, storage_layer=storage_layer, reason=str(e)
+                        )
+                        result = self._coerce_columns(data, effective_schema)
+                    else:  # "error"
+                        logger.error(
+                            "Schema validation failed for table=%s: %s.",
+                            table,
+                            e,
+                        )
                         raise
-                    result = self._coerce_columns(data, effective_schema)
             else:
                 result = data
 
@@ -265,10 +305,39 @@ class AtomicWriter:
 
             if effective_pk is not None:
                 pk_cols = [c for c in effective_pk if c in result.columns]
-            if pk_cols:
-                result = self._deduplicate_by_key(result, pk_cols)
+                if pk_cols:
+                    result = self._deduplicate_by_key(result, pk_cols)
 
         return result
+
+    def _write_to_quarantine(
+        self,
+        data: pd.DataFrame,
+        table: str,
+        storage_layer: str,
+        reason: str,
+    ) -> None:
+        """Write schema validation failures to quarantine storage."""
+        from ..quality.quarantine import QuarantineStore
+
+        quarantine_dir = self.base_dir / "quarantine"
+        store = QuarantineStore(quarantine_dir)
+        batch_id = uuid.uuid4().hex[:16]
+        try:
+            store.store(
+                dataset=table,
+                batch_id=batch_id,
+                layer=storage_layer,
+                failed_df=data,
+                rule_id="schema_validation_failed",
+                reason=reason,
+            )
+        except Exception:
+            logger.exception(
+                "Failed to write quarantine records for table=%s batch=%s",
+                table,
+                batch_id,
+            )
 
     def _coerce_columns(self, df: pd.DataFrame, schema: dict[str, str]) -> pd.DataFrame:
         result = df.copy()

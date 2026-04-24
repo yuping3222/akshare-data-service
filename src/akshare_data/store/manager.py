@@ -40,11 +40,12 @@ class CacheManager:
 
         self.config = cfg
         self.partition_manager = PartitionManager(cfg.base_dir)
+        default_strict_level: str = "error" if cfg.strict_schema else "warn"
         self.writer = AtomicWriter(
             cfg.base_dir,
             compression=cfg.compression,
             row_group_size=cfg.row_group_size,
-            strict_schema=cfg.strict_schema,
+            strict_level=default_strict_level,
         )
         self.engine = DuckDBEngine(
             cfg.base_dir,
@@ -167,6 +168,7 @@ class CacheManager:
         if storage_layer is None:
             storage_layer = "daily"
 
+        layer_strict_level = self._get_strict_level_for_layer(storage_layer)
         file_path = self.writer.write(
             table,
             storage_layer,
@@ -176,6 +178,7 @@ class CacheManager:
             schema=schema,
             primary_key=primary_key,
             skip_validation=schema is None and primary_key is None,
+            strict_level=layer_strict_level,
         )
 
         # Writing modifies persisted data; clear potentially stale query-shape keys
@@ -202,6 +205,18 @@ class CacheManager:
 
         logger.info("Wrote table=%s to %s", table, file_path)
         return str(file_path)
+
+    def _get_strict_level_for_layer(self, storage_layer: str | None) -> str:
+        """Determine strict_level based on storage layer.
+
+        Raw layer uses warn+quarantine; standardized and served layers raise on errors.
+        """
+        layer_map: dict[str, str] = {
+            "raw": "warn",
+            "standardized": "error",
+            "served": "error",
+        }
+        return layer_map.get(storage_layer or "", "error")
 
     def has_range(
         self,

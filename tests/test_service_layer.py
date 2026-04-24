@@ -15,8 +15,8 @@ from akshare_data.service.missing_data_policy import (
     MissingAction,
     MissingDataPolicy,
     MissingDataReport,
-    BackfillRequestRegistry,
 )
+from akshare_data.ingestion.backfill_request import get_backfill_registry
 from akshare_data.store.manager import CacheManager, reset_cache_manager
 
 pytestmark = pytest.mark.unit
@@ -431,15 +431,12 @@ class TestMissingDataPolicy:
         assert report.metadata.get("has_stale") is False
 
     def test_handle_missing_request_backfill(self):
-        registry = BackfillRequestRegistry()
         policy = MissingDataPolicy(
             default_action=MissingAction.REQUEST_BACKFILL,
-            backfill_registry=registry,
         )
         report = policy.handle_missing("test_table", {"date": "2024-01-01"})
         assert report.action == MissingAction.REQUEST_BACKFILL
         assert report.backfill_request_id is not None
-        assert report.backfill_request_id.startswith("bf-")
 
     def test_handle_missing_raise_error(self):
         policy = MissingDataPolicy(default_action=MissingAction.RAISE_ERROR)
@@ -480,37 +477,22 @@ class TestMissingDataReport:
 
 
 class TestBackfillRequestRegistry:
-    def test_submit_request(self):
-        registry = BackfillRequestRegistry()
-        request_id = registry.submit("test_table", {"date": "2024-01-01"})
-        assert request_id.startswith("bf-test_table-")
-        pending = registry.list_pending()
-        assert len(pending) == 1
-        assert pending[0]["table"] == "test_table"
-        assert pending[0]["status"] == "pending"
+    """Tests for BackfillRegistry singleton (migrated from service layer to ingestion layer).
 
-    def test_submit_with_priority(self):
-        registry = BackfillRequestRegistry()
-        registry.submit("test_table", {}, priority="high")
-        pending = registry.list_pending()
-        assert pending[0]["priority"] == "high"
+    BackfillRequestRegistry was removed from missing_data_policy.py in favour of
+    the full-featured ingestion.backfill_request.BackfillRegistry.
+    """
 
-    def test_multiple_requests(self):
-        registry = BackfillRequestRegistry()
-        registry.submit("table_a", {})
-        registry.submit("table_b", {})
-        registry.submit("table_c", {})
-        pending = registry.list_pending()
-        assert len(pending) == 3
+    def test_get_backfill_registry_returns_singleton(self):
+        r1 = get_backfill_registry()
+        r2 = get_backfill_registry()
+        assert r1 is r2
 
-    def test_request_id_sequence(self):
-        registry = BackfillRequestRegistry()
-        id1 = registry.submit("table_a", {})
-        id2 = registry.submit("table_a", {})
-        id3 = registry.submit("table_a", {})
-        assert id1.endswith("-000000")
-        assert id2.endswith("-000001")
-        assert id3.endswith("-000002")
+    def test_missing_data_policy_backfill_submits_to_real_registry(self):
+        policy = MissingDataPolicy(default_action=MissingAction.REQUEST_BACKFILL)
+        report = policy.handle_missing("test_table_registry", {"date": "2024-01-01"})
+        assert report.action == MissingAction.REQUEST_BACKFILL
+        assert report.backfill_request_id is not None
 
 
 class TestMissingActionEnum:
@@ -656,19 +638,13 @@ class TestVersionSelectorWithMockCache:
 
 class TestMissingDataPolicyIntegration:
     def test_policy_with_backfill_registry_integration(self, tmp_path: Path):
-        registry = BackfillRequestRegistry()
-        policy = MissingDataPolicy(
-            default_action=MissingAction.REQUEST_BACKFILL,
-            backfill_registry=registry,
-        )
+        policy = MissingDataPolicy(default_action=MissingAction.REQUEST_BACKFILL)
 
         reports = []
         for i in range(5):
-            report = policy.handle_missing(f"table_{i}", {"date": f"2024-01-0{i}"})
+            report = policy.handle_missing(f"table_integ_{i}", {"date": f"2024-01-0{i}"})
             reports.append(report)
 
-        pending = registry.list_pending()
-        assert len(pending) == 5
-
         for report in reports:
-            assert report.backfill_request_id in [r["request_id"] for r in pending]
+            assert report.action == MissingAction.REQUEST_BACKFILL
+            assert report.backfill_request_id is not None

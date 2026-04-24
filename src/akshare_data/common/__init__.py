@@ -10,6 +10,13 @@ Note: This module does NOT contain schema, normalizer, or source adapter busines
 Those belong in governance/, standardized/, or ingestion/ respectively.
 """
 
+from akshare_data.common.events import (
+    EventBus,
+    PipelineEvent,
+    PipelineEventType,
+    get_event_bus,
+)
+
 from akshare_data.common.errors import (
     ErrorCode,
     DataAccessException,
@@ -68,6 +75,11 @@ from akshare_data.common.logging import (
 )
 
 __all__ = [
+    # Events / Pipeline bus
+    "EventBus",
+    "PipelineEvent",
+    "PipelineEventType",
+    "get_event_bus",
     # Errors
     "ErrorCode",
     "DataAccessException",

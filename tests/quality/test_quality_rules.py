@@ -51,7 +51,9 @@ class TestQualityDslGovernance:
                 )
 
     def test_no_legacy_dataset_names(self):
-        forbidden = {"stock_daily", "finance_indicator", "quote_daily"}
+        # stock_daily is now a valid canonical entity (P1-1 YAML migration);
+        # only truly legacy names remain forbidden.
+        forbidden = {"finance_indicator", "quote_daily"}
         for path in sorted(QUALITY_CONFIG_DIR.glob("*.yaml")):
             cfg = _load_quality_config(path)
             assert cfg.get("dataset") not in forbidden, (

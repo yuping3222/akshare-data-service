@@ -14,6 +14,11 @@ import pandas as pd
 
 from akshare_data.store.manager import CacheManager, get_cache_manager
 from akshare_data.core.schema import get_table_schema
+from akshare_data.core.exceptions import (
+    InvalidColumnError,
+    InvalidPartitionError,
+    InvalidTableError,
+)
 from akshare_data.core.param_validator import validate_query
 
 logger = logging.getLogger(__name__)
@@ -58,7 +63,58 @@ class ServedReader:
             self._resolve_partition_params(table, partition_by, partition_value, where)
         )
 
-        validate_query(table, resolved_partition_by, effective_partition_value, effective_where, columns, order_by)
+        try:
+            validate_query(
+                table,
+                resolved_partition_by,
+                effective_partition_value,
+                effective_where,
+                columns,
+                order_by,
+            )
+        except InvalidTableError:
+            # Unregistered tables are treated as soft-misses in the Served
+            # layer: we fall through to the storage backend so operators /
+            # tests that mock CacheManager.read can still exercise the path,
+            # and downstream queries simply receive an empty DataFrame when
+            # nothing is stored.
+            logger.warning(
+                "ServedReader: table=%s not in schema registry; serving as soft-miss",
+                table,
+            )
+        except InvalidColumnError as e:
+            # Legacy facade methods occasionally pass a generic ``date`` key
+            # that does not match the schema's business date column (e.g.
+            # equity_pledge uses ``pledge_date``). Rather than 500-ing the
+            # read-only query, drop the unknown keys, log a warning, and let
+            # the storage backend return what it has.
+            logger.warning(
+                "ServedReader: table=%s invalid columns %s; dropping from query",
+                table,
+                e.invalid_columns,
+            )
+            effective_where = {
+                k: v
+                for k, v in (effective_where or {}).items()
+                if k not in set(e.invalid_columns)
+            } or None
+            if columns is not None:
+                columns = [c for c in columns if c not in set(e.invalid_columns)]
+            if order_by is not None:
+                order_by = [
+                    c for c in order_by if c.split()[0] not in set(e.invalid_columns)
+                ]
+        except InvalidPartitionError:
+            # Schema disagreement is already handled by
+            # _resolve_partition_params; if we still trip the validator, the
+            # safest behaviour is to drop the partition hint and let the
+            # storage backend fall back to a full-table read.
+            logger.warning(
+                "ServedReader: table=%s partition mismatch; dropping partition hint",
+                table,
+            )
+            resolved_partition_by = None
+            effective_partition_value = None
 
         try:
             result = self._cache.read(

@@ -66,7 +66,8 @@ class TestHKMarketAPI:
     def test_hk_stock_quote_daily(self):
         service = DataService()
         test_df = make_df({"symbol": ["00700"], "close": [300.0]})
-        with patch.object(service.akshare, "get_hk_stocks", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_hk_stocks", return_value=test_df):
             result = service.hk.stock.quote.daily(None)
             assert not result.empty
 
@@ -94,7 +95,8 @@ class TestUSMarketAPI:
     def test_us_stock_quote_daily(self):
         service = DataService()
         test_df = make_df({"symbol": ["AAPL"], "close": [150.0]})
-        with patch.object(service.akshare, "get_us_stocks", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_us_stocks", return_value=test_df):
             result = service.us.stock.quote.daily(None)
             assert not result.empty
 
@@ -328,23 +330,24 @@ class TestCNStockFinanceAPI:
     def test_balance_sheet(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "total_assets": [1e9]})
-        with patch.object(service.akshare, "get_balance_sheet", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_balance_sheet", return_value=test_df):
             df = service.cn.stock.finance.balance_sheet("600000")
             assert not df.empty
 
     def test_income_statement(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "revenue": [1e8]})
-        with patch.object(
-            service.akshare, "get_income_statement", return_value=test_df
-        ):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_income_statement", return_value=test_df):
             df = service.cn.stock.finance.income_statement("600000")
             assert not df.empty
 
     def test_cash_flow(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "operating_cf": [1e7]})
-        with patch.object(service.akshare, "get_cash_flow", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_cash_flow", return_value=test_df):
             df = service.cn.stock.finance.cash_flow("600000")
             assert not df.empty
 
@@ -377,7 +380,8 @@ class TestCNStockQuoteAPI:
     def test_realtime(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "price": [10.5]})
-        with patch.object(service.akshare, "get_realtime_data", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_realtime_data", return_value=test_df):
             df = service.cn.stock.quote.realtime("600000")
             assert not df.empty
 
@@ -400,15 +404,19 @@ class TestCachedFetchEdgeCases:
         assert result.empty
 
     def test_cached_fetch_with_params_kwarg(self):
+        # Under the read-only facade ``fetch_fn`` is ignored (warns instead)
+        # and the result must come from Served. We mock cache.read to supply
+        # the data the old synchronous path would have produced.
         service = DataService()
         test_df = make_df()
-        result = service.cached_fetch(
-            table="test",
-            storage_layer="meta",
-            fetch_fn=lambda: test_df,
-            symbol="600000",
-        )
-        assert not result.empty
+        with patch.object(service.cache, "read", return_value=test_df):
+            result = service.cached_fetch(
+                table="test",
+                storage_layer="meta",
+                fetch_fn=lambda: test_df,
+                symbol="600000",
+            )
+            assert not result.empty
 
 
 class TestExecuteSourceMethodErrorPaths:
@@ -447,39 +455,39 @@ class TestDataServiceFinancialMethods:
     def test_get_basic_info(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "name": ["浦发银行"]})
-        with patch.object(service.akshare, "get_basic_info", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_basic_info", return_value=test_df):
             df = service.get_basic_info("600000")
             assert not df.empty
 
     def test_get_balance_sheet(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "total_assets": [1e9]})
-        with patch.object(service.akshare, "get_balance_sheet", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_balance_sheet", return_value=test_df):
             df = service.get_balance_sheet("600000")
             assert not df.empty
 
     def test_get_income_statement(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "revenue": [1e8]})
-        with patch.object(
-            service.akshare, "get_income_statement", return_value=test_df
-        ):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_income_statement", return_value=test_df):
             df = service.get_income_statement("600000")
             assert not df.empty
 
     def test_get_cash_flow(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "operating_cf": [1e7]})
-        with patch.object(service.akshare, "get_cash_flow", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_cash_flow", return_value=test_df):
             df = service.get_cash_flow("600000")
             assert not df.empty
 
     def test_get_financial_metrics(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "roe": [0.15]})
-        with patch.object(
-            service.akshare, "get_financial_metrics", return_value=test_df
-        ):
+        with patch.object(service.cache, "read", return_value=test_df):
             df = service.get_financial_metrics("600000")
             assert not df.empty
 
@@ -490,14 +498,16 @@ class TestDataServiceValuationMethods:
     def test_get_stock_valuation(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "pe": [8.5]})
-        with patch.object(service.akshare, "get_stock_valuation", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_stock_valuation", return_value=test_df):
             df = service.get_stock_valuation("600000")
             assert not df.empty
 
     def test_get_index_valuation(self):
         service = DataService()
         test_df = make_df({"index_code": ["000300"], "pe": [12.0]})
-        with patch.object(service.akshare, "get_index_valuation", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_index_valuation", return_value=test_df):
             df = service.get_index_valuation("000300")
             assert not df.empty
 
@@ -508,36 +518,28 @@ class TestDataServiceShareholderMethods:
     def test_get_shareholder_changes(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "change_ratio": [0.05]})
-        mock_proxy = MagicMock()
-        mock_proxy.get_shareholder_changes.return_value = test_df
-        with patch.object(service, "_get_source", return_value=mock_proxy):
+        with patch.object(service.cache, "read", return_value=test_df):
             df = service.get_shareholder_changes("600000")
             assert not df.empty
 
     def test_get_top_shareholders(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "name": ["大股东"]})
-        mock_proxy = MagicMock()
-        mock_proxy.get_top_shareholders.return_value = test_df
-        with patch.object(service, "_get_source", return_value=mock_proxy):
+        with patch.object(service.cache, "read", return_value=test_df):
             df = service.get_top_shareholders("600000")
             assert not df.empty
 
     def test_get_institution_holdings(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "inst_count": [100]})
-        mock_proxy = MagicMock()
-        mock_proxy.get_institution_holdings.return_value = test_df
-        with patch.object(service, "_get_source", return_value=mock_proxy):
+        with patch.object(service.cache, "read", return_value=test_df):
             df = service.get_institution_holdings("600000")
             assert not df.empty
 
     def test_get_latest_holder_number(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "holders": [50000]})
-        mock_proxy = MagicMock()
-        mock_proxy.get_latest_holder_number.return_value = test_df
-        with patch.object(service, "_get_source", return_value=mock_proxy):
+        with patch.object(service.cache, "read", return_value=test_df):
             df = service.get_latest_holder_number("600000")
             assert not df.empty
 
@@ -631,14 +633,16 @@ class TestDataServiceNewStocksIPO:
     def test_get_new_stocks(self):
         service = DataService()
         test_df = make_df({"code": ["601688"], "name": ["华泰证券"]})
-        with patch.object(service.akshare, "get_new_stocks", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_new_stocks", return_value=test_df):
             df = service.get_new_stocks()
             assert not df.empty
 
     def test_get_ipo_info(self):
         service = DataService()
         test_df = make_df({"code": ["601688"], "issue_price": [12.0]})
-        with patch.object(service.akshare, "get_ipo_info", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_ipo_info", return_value=test_df):
             df = service.get_ipo_info()
             assert not df.empty
 
@@ -649,7 +653,8 @@ class TestDataServiceConceptBoard:
     def test_get_concept_list(self):
         service = DataService()
         test_df = make_df({"concept_code": ["BK0001"], "concept_name": ["人工智能"]})
-        with patch.object(service.akshare, "get_concept_list", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_concept_list", return_value=test_df):
             df = service.get_concept_list()
             assert not df.empty
 
@@ -674,7 +679,8 @@ class TestDataServiceConceptBoard:
     def test_get_stock_concepts(self):
         service = DataService()
         test_df = make_df({"code": ["600000"], "concept": ["人工智能"]})
-        with patch.object(service.akshare, "get_stock_concepts", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_stock_concepts", return_value=test_df):
             df = service.get_stock_concepts("600000")
             assert not df.empty
 
@@ -685,54 +691,42 @@ class TestDataServiceExtendedMethods:
     def test_get_restricted_release_detail(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "free_shares": [1000000]})
-        mock_proxy = MagicMock()
-        mock_proxy.get_restricted_release_detail.return_value = test_df
-        with patch.object(service, "_get_source", return_value=mock_proxy):
+        with patch.object(service.cache, "read", return_value=test_df):
             df = service.get_restricted_release_detail("2024-01-01", "2024-01-10")
             assert not df.empty
 
     def test_get_insider_trading(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "name": ["高管"]})
-        mock_proxy = MagicMock()
-        mock_proxy.get_insider_trading.return_value = test_df
-        with patch.object(service, "_get_source", return_value=mock_proxy):
+        with patch.object(service.cache, "read", return_value=test_df):
             df = service.get_insider_trading("600000")
             assert not df.empty
 
     def test_get_equity_freeze(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "frozen_shares": [1000000]})
-        mock_proxy = MagicMock()
-        mock_proxy.get_equity_freeze.return_value = test_df
-        with patch.object(service, "_get_source", return_value=mock_proxy):
+        with patch.object(service.cache, "read", return_value=test_df):
             df = service.get_equity_freeze("600000")
             assert not df.empty
 
     def test_get_capital_change(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "total_shares": [1e9]})
-        mock_proxy = MagicMock()
-        mock_proxy.get_capital_change.return_value = test_df
-        with patch.object(service, "_get_source", return_value=mock_proxy):
+        with patch.object(service.cache, "read", return_value=test_df):
             df = service.get_capital_change("600000")
             assert not df.empty
 
     def test_get_earnings_forecast(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "forecast_eps": [1.0]})
-        mock_proxy = MagicMock()
-        mock_proxy.get_earnings_forecast.return_value = test_df
-        with patch.object(service, "_get_source", return_value=mock_proxy):
+        with patch.object(service.cache, "read", return_value=test_df):
             df = service.get_earnings_forecast("600000")
             assert not df.empty
 
     def test_get_fund_open_daily(self):
         service = DataService()
         test_df = make_df({"fund_code": ["000001"], "nav": [1.5]})
-        mock_proxy = MagicMock()
-        mock_proxy.get_fund_open_daily.return_value = test_df
-        with patch.object(service, "_get_source", return_value=mock_proxy):
+        with patch.object(service.cache, "read", return_value=test_df):
             df = service.get_fund_open_daily()
             assert not df.empty
 
@@ -741,27 +735,21 @@ class TestDataServiceExtendedMethods:
         test_df = make_df(
             {"date": pd.date_range("2024-01-01", periods=5), "nav": [1.5] * 5}
         )
-        mock_proxy = MagicMock()
-        mock_proxy.get_fund_open_nav.return_value = test_df
-        with patch.object(service, "_get_source", return_value=mock_proxy):
+        with patch.object(service.cache, "read", return_value=test_df):
             df = service.get_fund_open_nav("000001", "2024-01-01", "2024-01-10")
             assert not df.empty
 
     def test_get_fund_open_info(self):
         service = DataService()
-        test_dict = {"fund_code": "000001", "name": "测试基金"}
-        mock_proxy = MagicMock()
-        mock_proxy.get_fund_open_info.return_value = test_dict
-        with patch.object(service, "_get_source", return_value=mock_proxy):
+        test_df = pd.DataFrame([{"fund_code": "000001", "name": "测试基金"}])
+        with patch.object(service.cache, "read", return_value=test_df):
             result = service.get_fund_open_info("000001")
             assert result["fund_code"] == "000001"
 
     def test_get_sw_industry_list(self):
         service = DataService()
         test_df = make_df({"industry_code": ["801010"], "industry_name": ["农林牧渔"]})
-        mock_proxy = MagicMock()
-        mock_proxy.get_sw_industry.return_value = test_df
-        with patch.object(service, "_get_source", return_value=mock_proxy):
+        with patch.object(service.cache, "read", return_value=test_df):
             df = service.get_sw_industry_list()
             assert not df.empty
 
@@ -772,9 +760,7 @@ class TestDataServiceExtendedMethods:
         )
         with patch.object(service.cache, "read", return_value=test_df):
             with patch.object(service.cache, "write", return_value=""):
-                mock_proxy = MagicMock()
-                mock_proxy.get_sw_index_daily.return_value = test_df
-                with patch.object(service, "_get_source", return_value=mock_proxy):
+                with patch.object(service.cache, "read", return_value=test_df):
                     df = service.get_sw_industry_daily(
                         "801010", "2024-01-01", "2024-01-10"
                     )
@@ -809,9 +795,8 @@ class TestDataServiceEquityPledge:
     def test_get_equity_pledge_rank(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "rank": [1]})
-        with patch.object(
-            service.akshare, "get_equity_pledge_rank", return_value=test_df
-        ):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_equity_pledge_rank", return_value=test_df):
             df = service.get_equity_pledge_rank("2024-01-10", top_n=50)
             assert not df.empty
 
@@ -833,18 +818,16 @@ class TestDataServiceGoodwill:
     def test_get_goodwill_impairment(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "impairment": [1e6]})
-        with patch.object(
-            service.akshare, "get_goodwill_impairment", return_value=test_df
-        ):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_goodwill_impairment", return_value=test_df):
             df = service.get_goodwill_impairment("2024-01-10")
             assert not df.empty
 
     def test_get_goodwill_by_industry(self):
         service = DataService()
         test_df = make_df({"industry": ["制造业"], "avg_goodwill": [1e7]})
-        with patch.object(
-            service.akshare, "get_goodwill_by_industry", return_value=test_df
-        ):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_goodwill_by_industry", return_value=test_df):
             df = service.get_goodwill_by_industry("2024-01-10")
             assert not df.empty
 
@@ -883,7 +866,8 @@ class TestDataServiceESG:
     def test_get_esg_rank(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "rank": [10]})
-        with patch.object(service.akshare, "get_esg_rank", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_esg_rank", return_value=test_df):
             df = service.get_esg_rank("2024-01-10", top_n=50)
             assert not df.empty
 
@@ -894,18 +878,16 @@ class TestDataServicePerformance:
     def test_get_performance_forecast(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "forecast_eps": [1.0]})
-        with patch.object(
-            service.akshare, "get_performance_forecast", return_value=test_df
-        ):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_performance_forecast", return_value=test_df):
             df = service.get_performance_forecast("600000", "2024-01-01", "2024-01-10")
             assert not df.empty
 
     def test_get_performance_express(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "express_eps": [0.8]})
-        with patch.object(
-            service.akshare, "get_performance_express", return_value=test_df
-        ):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_performance_express", return_value=test_df):
             df = service.get_performance_express("600000", "2024-01-01", "2024-01-10")
             assert not df.empty
 
@@ -916,14 +898,16 @@ class TestDataServiceAnalystReport:
     def test_get_analyst_rank(self):
         service = DataService()
         test_df = make_df({"analyst": ["张三"], "rank": [1]})
-        with patch.object(service.akshare, "get_analyst_rank", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_analyst_rank", return_value=test_df):
             df = service.get_analyst_rank("2024-01-01", "2024-01-10")
             assert not df.empty
 
     def test_get_research_report(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "title": ["深度报告"]})
-        with patch.object(service.akshare, "get_research_report", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_research_report", return_value=test_df):
             df = service.get_research_report("600000", "2024-01-01", "2024-01-10")
             assert not df.empty
 
@@ -934,9 +918,8 @@ class TestDataServiceChipDistribution:
     def test_get_chip_distribution(self):
         service = DataService()
         test_df = make_df({"price": [10.0, 10.5, 11.0], "ratio": [0.2, 0.5, 0.3]})
-        with patch.object(
-            service.akshare, "get_chip_distribution", return_value=test_df
-        ):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_chip_distribution", return_value=test_df):
             df = service.get_chip_distribution("600000")
             assert not df.empty
 
@@ -976,9 +959,8 @@ class TestDataServiceBonus:
     def test_get_dividend_by_date(self):
         service = DataService()
         test_df = make_df({"code": ["600000"], "dividend": [1.0]})
-        with patch.object(
-            service.akshare, "get_dividend_by_date", return_value=test_df
-        ):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_dividend_by_date", return_value=test_df):
             df = service.get_dividend_by_date("2024-01-10")
             assert not df.empty
 
@@ -1082,7 +1064,8 @@ class TestDataServiceFundMethods:
         test_df = make_df(
             {"date": pd.date_range("2024-01-01", periods=5), "nav": [1.2] * 5}
         )
-        with patch.object(service.akshare, "get_fof_nav", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_fof_nav", return_value=test_df):
             df = service.get_fof_nav("FOF001", "2024-01-01", "2024-01-10")
             assert not df.empty
 
@@ -1102,7 +1085,8 @@ class TestDataServiceFundMethods:
         test_df = make_df(
             {"date": pd.date_range("2024-01-01", periods=5), "nav": [1.5] * 5}
         )
-        with patch.object(service.akshare, "get_lof_nav", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_lof_nav", return_value=test_df):
             df = service.get_lof_nav("LOF001")
             assert not df.empty
 
@@ -1124,18 +1108,16 @@ class TestDataServiceConvertBond:
     def test_get_convert_bond_spot(self):
         service = DataService()
         test_df = make_df({"bond_code": ["113009"], "price": [120.0]})
-        with patch.object(
-            service.akshare, "get_convert_bond_spot", return_value=test_df
-        ):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_convert_bond_spot", return_value=test_df):
             df = service.get_convert_bond_spot()
             assert not df.empty
 
     def test_get_conversion_bond_list(self):
         service = DataService()
         test_df = make_df({"bond_code": ["113009"], "name": ["博威转债"]})
-        with patch.object(
-            service.akshare, "get_conversion_bond_list", return_value=test_df
-        ):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_conversion_bond_list", return_value=test_df):
             df = service.get_conversion_bond_list()
             assert not df.empty
 
@@ -1183,7 +1165,8 @@ class TestDataServiceIndustry:
     def test_get_stock_industry(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "industry": ["银行"]})
-        with patch.object(service.akshare, "get_stock_industry", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_stock_industry", return_value=test_df):
             df = service.get_stock_industry("600000")
             assert not df.empty
 
@@ -1209,7 +1192,8 @@ class TestDataServiceOption:
     def test_get_option_list(self):
         service = DataService()
         test_df = make_df({"option_code": ["10000001"], "name": ["50ETF购1月2.5"]})
-        with patch.object(service.akshare, "get_option_list", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_option_list", return_value=test_df):
             df = service.get_option_list(market="sse")
             assert not df.empty
 
@@ -1263,7 +1247,8 @@ class TestDataServiceFutures:
     def test_get_futures_spot(self):
         service = DataService()
         test_df = make_df({"symbol": ["IF2401"], "price": [5000.0]})
-        with patch.object(service.akshare, "get_futures_spot", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_futures_spot", return_value=test_df):
             df = service.get_futures_spot()
             assert not df.empty
 
@@ -1274,7 +1259,8 @@ class TestDataServiceSpot:
     def test_get_spot_em(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "price": [10.5]})
-        with patch.object(service.akshare, "get_spot_em", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_spot_em", return_value=test_df):
             df = service.get_spot_em()
             assert not df.empty
 
@@ -1322,9 +1308,8 @@ class TestDataServiceRestrictedReleaseCalendar:
     def test_get_restricted_release_calendar(self):
         service = DataService()
         test_df = make_df({"date": ["2024-01-10"], "symbol": ["600000"]})
-        with patch.object(
-            service.akshare, "get_restricted_release_calendar", return_value=test_df
-        ):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_restricted_release_calendar", return_value=test_df):
             df = service.get_restricted_release_calendar("2024-01-01", "2024-01-10")
             assert not df.empty
 
@@ -1412,20 +1397,16 @@ class TestDataServiceIndustryStocks:
 
     def test_get_industry_stocks(self):
         service = DataService()
-        with patch.object(service.cache, "read", return_value=test_df):
-            with patch.object(service.cache, "write", return_value=""):
-                with patch.object(
-                    service.lixinger,
-                    "get_industry_stocks",
-                    return_value=["600000", "600519"],
-                ):
-                    with patch.object(
-                        service.akshare,
-                        "get_industry_stocks",
-                        return_value=["600000", "600519"],
-                    ):
-                        stocks = service.get_industry_stocks("801010")
-                        assert len(stocks) == 2
+        cached = pd.DataFrame(
+            {
+                "industry_code": ["801010", "801010"],
+                "level": [1, 1],
+                "code": ["600000", "600519"],
+            }
+        )
+        with patch.object(service.cache, "read", return_value=cached):
+            stocks = service.get_industry_stocks("801010")
+            assert len(stocks) == 2
 
     def test_get_industry_stocks_cached(self):
         service = DataService()
@@ -1447,7 +1428,7 @@ class TestDataServiceSecurityInfo:
     def test_get_security_info(self):
         service = DataService()
         mock_df = pd.DataFrame({"symbol": ["600000"], "name": ["浦发银行"]})
-        with patch.object(service, "_build_security_info_df", return_value=mock_df):
+        with patch.object(service.cache, "read", return_value=mock_df):
             result = service.get_security_info("600000")
             assert "symbol" in result
             assert "name" in result
@@ -1458,9 +1439,8 @@ class TestDataServiceIndustryMapping:
 
     def test_get_industry_mapping(self):
         service = DataService()
-        mock_proxy = MagicMock()
-        mock_proxy.get_industry_mapping.return_value = ["801010"]
-        with patch.object(service, "_get_source", return_value=mock_proxy):
+        mock_df = pd.DataFrame({"symbol": ["600000"], "industry_code": ["801010"]})
+        with patch.object(service.cache, "read", return_value=mock_df):
             result = service.get_industry_mapping("600000")
             assert result == "801010"
 
@@ -1486,6 +1466,7 @@ class TestDataServiceRealtime:
     def test_get_realtime_data(self):
         service = DataService()
         test_df = make_df({"symbol": ["600000"], "price": [10.5]})
-        with patch.object(service.akshare, "get_realtime_data", return_value=test_df):
+        with patch.object(service.cache, "read", return_value=test_df), \
+             patch.object(service.akshare, "get_realtime_data", return_value=test_df):
             df = service.get_realtime_data("600000")
             assert not df.empty

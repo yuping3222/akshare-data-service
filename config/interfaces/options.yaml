@@ -94,7 +94,17 @@ option_current_day_sse:
     - name: "akshare_sse"
       func: "option_current_day_sse"
       enabled: true
-      output_mapping: {}
+      output_mapping:
+        合约编码: symbol
+        合约交易代码: trade_code
+        合约简称: name
+        标的券名称及代码: underlying
+        类型: option_type
+        行权价: strike
+        合约单位: contract_unit
+        期权行权日: exercise_date
+        到期日: expiration_date
+        开始日期: start_date
 
 option_sse_daily_sina:
   name: "option_sse_daily_sina"
@@ -120,7 +130,14 @@ option_sse_daily_sina:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        日期: date
+        开盘: open
+        最高: high
+        最低: low
+        收盘: close
+        成交量: volume
+        持仓量: open_interest
 
 options_chain:
   name: "options_chain"
@@ -142,7 +159,17 @@ options_chain:
       input_mapping:
         symbol: "symbol"
         end_month: "end_month"
-      output_mapping: {}
+      output_mapping:
+        合约交易代码: symbol
+        当前价: close
+        涨跌幅: change_pct
+        前收盘价: prev_close
+        开盘价: open
+        最高价: high
+        最低价: low
+        成交量: volume
+        持仓量: open_interest
+        行权价: strike
 
 options_expirations:
   name: "options_expirations"
@@ -164,7 +191,10 @@ options_expirations:
       input_mapping:
         symbol: "symbol"
         end_month: "end_month"
-      output_mapping: {}
+      output_mapping:
+        合约交易代码: symbol
+        行权价: strike
+        到期日: expiration_date
 
 options_hist:
   name: "options_hist"
@@ -184,7 +214,21 @@ options_hist:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        期权品种: variety
+        现价: close
+        涨/跌停板: limit
+        成交量: volume
+        类型: option_type
+        权利金: premium
+        开仓: open_position_fee
+        平昨: close_yesterday_fee
+        平今: close_today_fee
+        行权: exercise_fee
+        备注: remark
+        交易所: exchange
+        手续费更新时间: fee_update_time
+        价格更新时间: price_update_time
 
 option_sse_greeks_sina:
   name: "option_sse_greeks_sina"
@@ -210,4 +254,6 @@ option_sse_greeks_sina:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        字段: item
+        值: value

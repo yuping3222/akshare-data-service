@@ -46,7 +46,17 @@ convert_bond_spot:
     - name: "akshare_em"
       func: "bond_zh_hs_cov_spot"
       enabled: true
-      output_mapping: {}
+      output_mapping:
+        code: symbol
+        name: name
+        trade: close
+        pricechange: change
+        changepercent: change_pct
+        open: open
+        high: high
+        low: low
+        volume: volume
+        amount: amount
 
 conversion_bond_daily:
   name: "conversion_bond_daily"
@@ -66,7 +76,13 @@ conversion_bond_daily:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        date: date
+        open: open
+        high: high
+        low: low
+        close: close
+        volume: volume
 
 bond_zh_cov:
   name: "bond_zh_cov"
@@ -114,4 +130,10 @@ bond_zh_cov_daily:
       enabled: true
       input_mapping:
         symbol: "symbol"
-      output_mapping: {}
+      output_mapping:
+        date: date
+        open: open
+        high: high
+        low: low
+        close: close
+        volume: volume

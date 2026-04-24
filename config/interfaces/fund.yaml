@@ -334,3 +334,53 @@ fund_open_info:
 
       param_defaults:
         indicator: 基金规模
+
+etf_minute:
+  name: "etf_minute"
+  category: "fund"
+  description: "ETF分钟线数据"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "ETF代码"}
+    - {name: "start_date", type: "datetime", required: false}
+    - {name: "end_date", type: "datetime", required: false}
+    - {name: "period", type: "str", required: false, default: "5", desc: "分钟周期: 1/5/15/30/60"}
+    - {name: "adjust", type: "str", required: false, default: ""}
+
+  output:
+    - {name: "datetime", type: "datetime"}
+    - {name: "open", type: "float"}
+    - {name: "high", type: "float"}
+    - {name: "low", type: "float"}
+    - {name: "close", type: "float"}
+    - {name: "volume", type: "float"}
+    - {name: "amount", type: "float"}
+
+  rate_limit_key: "em_push2his"
+
+  sources:
+    - name: "akshare_em"
+      func: "fund_etf_hist_min_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+        start_date: "start_date"
+        end_date: "end_date"
+        period: "period"
+        adjust: "adjust"
+      output_mapping:
+        时间: "datetime"
+        开盘: "open"
+        最高: "high"
+        最低: "low"
+        收盘: "close"
+        成交量: "volume"
+        成交额: "amount"
+      column_types:
+        datetime: "datetime"
+        open: "float"
+        high: "float"
+        low: "float"
+        close: "float"
+        volume: "float"
+        amount: "float"

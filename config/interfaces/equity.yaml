@@ -493,7 +493,14 @@ margin_summary:
     - {name: "start_date", type: "date", required: true, desc: "起始日期 YYYY-MM-DD"}
     - {name: "end_date", type: "date", required: true, desc: "结束日期 YYYY-MM-DD"}
 
-  output: []
+  output:
+    - {name: "date", type: "date", desc: "日期"}
+    - {name: "margin_balance", type: "float", desc: "融资余额"}
+    - {name: "margin_buy", type: "float", desc: "融资买入额"}
+    - {name: "short_remain", type: "float", desc: "融券余量"}
+    - {name: "short_balance", type: "float", desc: "融券余量金额"}
+    - {name: "short_sell", type: "float", desc: "融券卖出量"}
+    - {name: "total_balance", type: "float", desc: "融资融券余额"}
 
   rate_limit_key: "default"
 
@@ -507,7 +514,22 @@ margin_summary:
       param_transforms:
         start_date: "YYYYMMDD"
         end_date: "YYYYMMDD"
-      output_mapping: {}
+      output_mapping:
+        信用交易日期: "date"
+        融资余额: "margin_balance"
+        融资买入额: "margin_buy"
+        融券余量: "short_remain"
+        融券余量金额: "short_balance"
+        融券卖出量: "short_sell"
+        融资融券余额: "total_balance"
+      column_types:
+        date: "date"
+        margin_balance: "float"
+        margin_buy: "float"
+        short_remain: "float"
+        short_balance: "float"
+        short_sell: "float"
+        total_balance: "float"
 
 suspended_stocks:
   name: "suspended_stocks"
@@ -520,7 +542,11 @@ suspended_stocks:
     - {name: "symbol", type: "str", desc: "股票代码"}
     - {name: "name", type: "str", desc: "股票名称"}
     - {name: "suspend_date", type: "date", desc: "停牌时间"}
+    - {name: "suspend_end_date", type: "date", desc: "停牌截止时间"}
+    - {name: "suspend_period", type: "str", desc: "停牌期限"}
     - {name: "reason", type: "str", desc: "停牌原因"}
+    - {name: "market", type: "str", desc: "所属市场"}
+    - {name: "expected_resume_date", type: "date", desc: "预计复牌时间"}
 
   rate_limit_key: "em_datacenter"
 
@@ -533,12 +559,20 @@ suspended_stocks:
         代码: "symbol"
         名称: "name"
         停牌时间: "suspend_date"
+        停牌截止时间: "suspend_end_date"
+        停牌期限: "suspend_period"
         停牌原因: "reason"
+        所属市场: "market"
+        预计复牌时间: "expected_resume_date"
       column_types:
         symbol: "str"
         name: "str"
         suspend_date: "date"
+        suspend_end_date: "date"
+        suspend_period: "str"
         reason: "str"
+        market: "str"
+        expected_resume_date: "date"
 
 st_stocks:
   name: "st_stocks"

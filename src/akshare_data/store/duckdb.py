@@ -27,6 +27,7 @@ class DuckDBEngine:
         table: str,
         storage_layer: str,
         partition_by: str | None = None,
+        partition_value: str | None = None,
         where: dict[str, Any] | None = None,
         columns: list[str] | None = None,
         order_by: list[str] | None = None,
@@ -35,7 +36,11 @@ class DuckDBEngine:
     ) -> pd.DataFrame | None:
         if prefer_aggregated:
             agg_glob = self._list_all_glob_paths(
-                table, storage_layer, partition_by, layer="aggregated"
+                table,
+                storage_layer,
+                partition_by,
+                partition_value=partition_value,
+                layer="aggregated",
             )
             agg_paths = list(
                 Path(self.base_dir).glob(agg_glob.replace(str(self.base_dir) + "/", ""))
@@ -59,7 +64,11 @@ class DuckDBEngine:
                     return result
 
         raw_glob = self._list_all_glob_paths(
-            table, storage_layer, partition_by, layer="raw"
+            table,
+            storage_layer,
+            partition_by,
+            partition_value=partition_value,
+            layer="raw",
         )
         raw_paths = list(
             Path(self.base_dir).glob(raw_glob.replace(str(self.base_dir) + "/", ""))
@@ -383,12 +392,18 @@ class DuckDBEngine:
         table: str,
         storage_layer: str,
         partition_by: str | None,
+        partition_value: str | None = None,
         layer: str = "raw",
     ) -> str:
         if layer == "raw":
             base = self.base_dir / storage_layer / table
         else:
             base = self.base_dir / "aggregated" / storage_layer / table
+
+        if partition_by is not None and partition_value is not None:
+            if layer == "raw":
+                return str(base / f"{partition_by}={partition_value}" / "*.parquet")
+            return str(base / f"{partition_by}={partition_value}.parquet")
 
         if partition_by is None:
             return str(base / "*.parquet")
@@ -434,7 +449,10 @@ class DuckDBEngine:
         # minute/intraday range filters (``"2024-01-02 09:30:00"``) are
         # rendered as date-comparison SQL rather than an ``IN (...)`` list.
         return bool(
-            re.match(r"^\d{4}-\d{2}-\d{2}(?:[ T]\d{2}:\d{2}(?::\d{2})?)?$", value)
+            re.match(
+                r"^(?:\d{4}-\d{2}-\d{2}|\d{8})(?:[ T]\d{2}:\d{2}(?::\d{2})?)?$",
+                value,
+            )
         )
 
     def _build_sql(

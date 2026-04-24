@@ -142,12 +142,27 @@ class DataService:
     ) -> QueryResult:
         """Query daily time-series data from Served."""
         sym = normalize_symbol(symbol)
-        where = {"date": (start_date, end_date), "symbol": sym}
+        where: Dict[str, Any] = {"symbol": sym}
+        normalized_start = self._normalize_date(start_date)
+        normalized_end = self._normalize_date(end_date)
+        if normalized_start and normalized_end:
+            where["date"] = (normalized_start, normalized_end)
         return self.query(
             table=table,
             where=where,
             version=version,
         )
+
+    @staticmethod
+    def _normalize_date(value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        text = str(value).strip()
+        if not text:
+            return None
+        if len(text) == 8 and text.isdigit():
+            return f"{text[:4]}-{text[4:6]}-{text[6:8]}"
+        return text
 
     def request_backfill(
         self,

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import logging
 import warnings
+from datetime import date, timedelta
 from typing import Any, Callable, Dict, List, Optional, Union
 
 import pandas as pd
@@ -1247,11 +1248,42 @@ class DataService:
         source: Optional[Union[str, List[str]]] = None,
     ) -> pd.DataFrame:
         sym = normalize_symbol(symbol)
+        normalized_start = self._normalize_date_input(start_date)
+        normalized_end = self._normalize_date_input(end_date)
+        if period == "daily" and (normalized_start is None or normalized_end is None):
+            # Keep backward-compatible behavior for empty bounds: query a recent window
+            # instead of sending empty date literals downstream.
+            today = date.today()
+            normalized_end = normalized_end or today.strftime("%Y-%m-%d")
+            normalized_start = normalized_start or (today - timedelta(days=365)).strftime(
+                "%Y-%m-%d"
+            )
         if period == "daily":
-            return self.get_daily(sym, start_date, end_date, adjust or "qfq", source)
+            return self.get_daily(
+                sym,
+                normalized_start or "",
+                normalized_end or "",
+                adjust or "qfq",
+                source,
+            )
         return self.cn.stock.quote.minute(
-            sym, freq=period, start_date=start_date, end_date=end_date, source=source
+            sym,
+            freq=period,
+            start_date=normalized_start or "",
+            end_date=normalized_end or "",
+            source=source,
         )
+
+    @staticmethod
+    def _normalize_date_input(value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        text = str(value).strip()
+        if not text:
+            return None
+        if len(text) == 8 and text.isdigit():
+            return f"{text[:4]}-{text[4:6]}-{text[6:8]}"
+        return text
 
     def get_sw_industry_list(
         self,

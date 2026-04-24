@@ -15,6 +15,7 @@ import pandas as pd
 from akshare_data.store.manager import CacheManager, get_cache_manager
 from akshare_data.core.schema import get_table_schema
 from akshare_data.core.exceptions import (
+    DataServiceError,
     InvalidColumnError,
     InvalidPartitionError,
     InvalidTableError,
@@ -128,8 +129,10 @@ class ServedReader:
                 limit=limit,
             )
         except Exception as e:
-            logger.error("Failed to read table=%s from served: %s", table, e)
-            return pd.DataFrame()
+            logger.exception("Failed to read table=%s from served", table)
+            raise DataServiceError(
+                f"Served read failed for table={table}: {e}"
+            ) from e
 
         return result if result is not None else pd.DataFrame()
 

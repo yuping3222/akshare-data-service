@@ -115,6 +115,7 @@ class CacheManager:
             table,
             storage_layer,
             partition_by=partition_by,
+            partition_value=partition_value,
             where=where,
             columns=columns,
             order_by=order_by,

@@ -111,3 +111,48 @@ index_valuation:
       input_mapping:
         index_code: "symbol"
       output_mapping: {}
+
+index_weights:
+  name: "index_weights"
+  category: "index"
+  description: "指数成份权重"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "指数代码"}
+
+  output:
+    - {name: "symbol", type: "str", desc: "成份股代码"}
+    - {name: "name", type: "str", desc: "成份股名称"}
+    - {name: "weight", type: "float", desc: "权重"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_csindex"
+      func: "index_stock_cons_csindex"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+index_weights_history:
+  name: "index_weights_history"
+  category: "index"
+  description: "指数成份权重历史"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "指数代码"}
+    - {name: "start_date", type: "date", required: false}
+    - {name: "end_date", type: "date", required: false}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_csindex"
+      func: "index_stock_cons_csindex"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}

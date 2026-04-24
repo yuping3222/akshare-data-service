@@ -146,3 +146,29 @@ options_hist:
       input_mapping:
         symbol: "symbol"
       output_mapping: {}
+
+option_sse_greeks_sina:
+  name: "option_sse_greeks_sina"
+  category: "options"
+  description: "期权希腊值数据（新浪源）"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "期权代码"}
+
+  output:
+    - {name: "symbol", type: "str", desc: "期权代码"}
+    - {name: "delta", type: "float", desc: "Delta"}
+    - {name: "gamma", type: "float", desc: "Gamma"}
+    - {name: "theta", type: "float", desc: "Theta"}
+    - {name: "vega", type: "float", desc: "Vega"}
+    - {name: "rho", type: "float", desc: "Rho"}
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_sina"
+      func: "option_sse_greeks_sina"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}

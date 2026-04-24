@@ -1731,6 +1731,26 @@ new_stocks:
         symbol: "symbol"
       output_mapping: {}
 
+ipo_info:
+  name: "ipo_info"
+  category: "equity"
+  description: "新股IPO信息"
+
+  input:
+    - {name: "symbol", type: "str", required: false, default: "全部股票", desc: "市场类型"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_xgsglb_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
 ipo_benefit:
   name: "ipo_benefit"
   category: "equity"
@@ -1747,3 +1767,260 @@ ipo_benefit:
       func: "stock_ipo_benefit_ths"
       enabled: true
       output_mapping: {}
+
+stock_zh_a_spot_em:
+  name: "stock_zh_a_spot_em"
+  category: "equity"
+  description: "A股实时行情（东方财富全市场）"
+
+  input: []
+
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "name", type: "str", desc: "股票名称"}
+    - {name: "price", type: "float", desc: "最新价"}
+    - {name: "change", type: "float", desc: "涨跌额"}
+    - {name: "pct_change", type: "float", desc: "涨跌幅"}
+    - {name: "volume", type: "float", desc: "成交量"}
+    - {name: "amount", type: "float", desc: "成交额"}
+
+  rate_limit_key: "em_push2"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_zh_a_spot_em"
+      enabled: true
+      output_mapping:
+        代码: "symbol"
+        名称: "name"
+        最新价: "price"
+        涨跌额: "change"
+        涨跌幅: "pct_change"
+        成交量: "volume"
+        成交额: "amount"
+      column_types:
+        price: "float"
+        change: "float"
+        pct_change: "float"
+        volume: "float"
+        amount: "float"
+
+stock_board_concept_cons_em:
+  name: "stock_board_concept_cons_em"
+  category: "equity"
+  description: "概念板块成份股（东方财富）"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "概念板块代码/名称"}
+
+  output:
+    - {name: "symbol", type: "str", desc: "股票代码"}
+    - {name: "name", type: "str", desc: "股票名称"}
+    - {name: "code_change", type: "float", desc: "涨跌幅"}
+
+  rate_limit_key: "em_push2"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_board_concept_cons_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping:
+        代码: "symbol"
+        名称: "name"
+        涨跌幅: "code_change"
+      column_types:
+        code_change: "float"
+
+dividend_data:
+  name: "dividend_data"
+  category: "equity"
+  description: "分红数据"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "股票代码"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_cninfo"
+      func: "stock_dividend_cninfo"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+equity_freeze:
+  name: "equity_freeze"
+  category: "equity"
+  description: "股权冻结数据"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "股票代码"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_ggcg_em"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+financial_metrics:
+  name: "financial_metrics"
+  category: "equity"
+  description: "财务指标数据"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "股票代码"}
+
+  output: []
+
+  rate_limit_key: "em_datacenter"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_financial_analysis_indicator"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+goodwill_data:
+  name: "goodwill_data"
+  category: "equity"
+  description: "商誉数据"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_ycfp_em"
+      enabled: true
+      output_mapping: {}
+
+goodwill_impairment:
+  name: "goodwill_impairment"
+  category: "equity"
+  description: "商誉减值数据"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_ycfp_em"
+      enabled: true
+      output_mapping: {}
+
+goodwill_by_industry:
+  name: "goodwill_by_industry"
+  category: "equity"
+  description: "按行业商誉数据"
+
+  input: []
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_ycfp_em"
+      enabled: true
+      output_mapping: {}
+
+insider_trading:
+  name: "insider_trading"
+  category: "equity"
+  description: "内部人交易数据"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "股票代码"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_ths"
+      func: "stock_shareholder_change_ths"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+name_history:
+  name: "name_history"
+  category: "equity"
+  description: "股票名称变更历史"
+
+  input:
+    - {name: "symbol", type: "str", required: true, desc: "股票代码"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_cninfo"
+      func: "stock_history_dividend"
+      enabled: true
+      input_mapping:
+        symbol: "symbol"
+      output_mapping: {}
+
+performance_express:
+  name: "performance_express"
+  category: "equity"
+  description: "业绩快报"
+
+  input:
+    - {name: "date", type: "str", required: false, default: "20200331", desc: "报告日期 YYYYMMDD"}
+
+  output: []
+
+  rate_limit_key: "default"
+
+  sources:
+    - name: "akshare_em"
+      func: "stock_yjbb_em"
+      enabled: true
+      input_mapping:
+        date: "date"
+      output_mapping: {}
+
+tool_trade_date_hist_sina:
+  name: "tool_trade_date_hist_sina"
+  category: "equity"
+  description: "交易日历（新浪）"
+
+  input: []
+
+  output:
+    - {name: "date", type: "date", desc: "交易日期"}
+
+  rate_limit_key: "sina_hq"
+
+  sources:
+    - name: "akshare_sina"
+      func: "tool_trade_date_hist_sina"
+      enabled: true
+      output_mapping:
+        trade_date: "date"
+      column_types:
+        date: "date"

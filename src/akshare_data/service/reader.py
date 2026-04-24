@@ -43,17 +43,21 @@ class ServedReader:
         """Read data from Served layer.
 
         Returns empty DataFrame if no data found (never fetches from source).
+        
+        When partition_by mismatches schema, converts partition_value to where clause.
         """
         storage_layer = self._resolve_storage_layer(table)
-        partition_by = self._validate_partition_by(table, partition_by)
+        
+        resolved_partition_by, effective_partition_value, effective_where = \
+            self._resolve_partition_params(table, partition_by, partition_value, where)
 
         try:
             result = self._cache.read(
                 table,
                 storage_layer=storage_layer,
-                partition_by=partition_by,
-                partition_value=partition_value,
-                where=where,
+                partition_by=resolved_partition_by,
+                partition_value=effective_partition_value,
+                where=effective_where,
                 columns=columns,
                 order_by=order_by,
                 limit=limit,
@@ -73,14 +77,16 @@ class ServedReader:
     ) -> bool:
         """Check if data exists in Served layer."""
         storage_layer = self._resolve_storage_layer(table)
-        partition_by = self._validate_partition_by(table, partition_by)
+        
+        resolved_partition_by, effective_partition_value, effective_where = \
+            self._resolve_partition_params(table, partition_by, partition_value, where)
 
         try:
             return self._cache.exists(
                 table,
                 storage_layer=storage_layer,
-                partition_by=partition_by,
-                where=where,
+                partition_by=resolved_partition_by,
+                where=effective_where,
             )
         except Exception as e:
             logger.error("Failed to check existence for table=%s: %s", table, e)
@@ -98,15 +104,16 @@ class ServedReader:
     ) -> bool:
         """Check if Served has data covering the given date range."""
         storage_layer = self._resolve_storage_layer(table)
-        partition_by = self._validate_partition_by(table, partition_by)
+        
+        resolved_partition_by, effective_partition_value, effective_where = \
+            self._resolve_partition_params(table, partition_by, partition_value, where)
 
         try:
             return self._cache.has_range(
                 table,
                 storage_layer=storage_layer,
-                partition_by=partition_by,
-                where=where
-                or ({partition_by: partition_value} if partition_by and partition_value else None),
+                partition_by=resolved_partition_by,
+                where=effective_where,
                 date_col=date_col,
                 start=start,
                 end=end,
@@ -143,6 +150,44 @@ class ServedReader:
         if schema is not None:
             return schema.partition_by
         return None
+
+    def _resolve_partition_params(
+        self,
+        table: str,
+        partition_by: Optional[str],
+        partition_value: Optional[str],
+        where: Optional[Dict[str, Any]],
+    ) -> tuple[Optional[str], Optional[str], Optional[Dict[str, Any]]]:
+        """Resolve partition parameters with schema contract.
+
+        When user-provided partition_by mismatches schema:
+        - Convert partition_value to where clause
+        - Use schema's partition_by instead
+        - Clear partition_value (already moved to where)
+
+        Returns:
+            (resolved_partition_by, effective_partition_value, effective_where)
+        """
+        expected = self._resolve_partition_by(table)
+        
+        if partition_by is None:
+            return expected, None, where
+        
+        if expected is None or partition_by == expected:
+            return partition_by, partition_value, where
+        
+        logger.warning(
+            "ServedReader partition_by mismatch for table=%s: got=%s expected=%s; "
+            "converting partition_value to where clause",
+            table,
+            partition_by,
+            expected,
+        )
+        
+        effective_where = where.copy() if where else {}
+        effective_where[partition_by] = partition_value
+        
+        return expected, None, effective_where
 
     def _validate_partition_by(
         self,

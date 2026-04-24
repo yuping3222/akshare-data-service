@@ -101,6 +101,59 @@ class TestHandleProbe:
 
             _handle_probe(args)
 
+    @pytest.mark.unit
+    def test_handle_probe_single_interface_found(self, capsys):
+        """Test probe with single interface that exists"""
+        from akshare_data.offline.cli.main import _handle_probe
+
+        mock_result = MagicMock()
+        mock_result.status = "Success"
+        mock_result.exec_time = 1.5
+        mock_result.data_size = 100
+        mock_result.func_name = "stock_zh_a_hist"
+        mock_result.domain_group = "stock"
+        mock_result.error_msg = ""
+
+        mock_prober = MagicMock()
+        mock_prober.config = {"stock_zh_a_hist": {"params": {}, "skip": False}}
+        mock_prober.run_check.return_value = {}
+        mock_prober.get_summary.return_value = "1/1 APIs available"
+        mock_prober.get_results.return_value = {"stock_zh_a_hist": mock_result}
+
+        mock_paths = MagicMock()
+        mock_paths.health_reports_dir = "/reports/health"
+
+        with patch("akshare_data.offline.prober.APIProber", return_value=mock_prober):
+            with patch("akshare_data.offline.cli.main.paths", mock_paths):
+                args = MagicMock()
+                args.all = False
+                args.interface = "stock_zh_a_hist"
+                args.status = False
+
+                _handle_probe(args)
+
+    @pytest.mark.unit
+    def test_handle_probe_single_interface_not_found(self, capsys):
+        """Test probe with single interface that doesn't exist"""
+        from akshare_data.offline.cli.main import _handle_probe
+
+        mock_prober = MagicMock()
+        mock_prober.config = {}
+        mock_prober.run_check = MagicMock()
+        mock_prober.get_summary = MagicMock()
+        mock_prober.get_results = MagicMock()
+
+        with patch("akshare_data.offline.prober.APIProber", return_value=mock_prober):
+            args = MagicMock()
+            args.all = False
+            args.interface = "nonexistent_func"
+            args.status = False
+
+            _handle_probe(args)
+
+            captured = capsys.readouterr()
+            assert "not found" in captured.out or "Interface" in captured.out
+
 
 class TestHandleAnalyze:
     """Test _handle_analyze function"""
@@ -372,6 +425,284 @@ class TestHandleReport:
                     _handle_report(args)
 
 
+class TestHandleConfig:
+    """Test _handle_config function"""
+
+    @pytest.mark.unit
+    def test_handle_config_generate(self, capsys):
+        """Test config generate action"""
+        from akshare_data.offline.cli.main import _handle_config
+
+        mock_builder = MagicMock()
+        mock_registry = {"interfaces": {"func1": {}}}
+        mock_builder.build.return_value = mock_registry
+
+        mock_exporter = MagicMock()
+        mock_exporter.export_yaml.return_value = "/path/to/config.yaml"
+
+        with patch(
+            "akshare_data.offline.registry.RegistryBuilder", return_value=mock_builder
+        ):
+            with patch(
+                "akshare_data.offline.registry.RegistryExporter",
+                return_value=mock_exporter,
+            ):
+                args = MagicMock()
+                args.action = "generate"
+
+                _handle_config(args)
+
+    @pytest.mark.unit
+    def test_handle_config_validate_valid(self, capsys):
+        """Test config validate action with valid config"""
+        from akshare_data.offline.cli.main import _handle_config
+
+        registry_data = {"interfaces": {"func1": {"domain": "stock"}}}
+
+        mock_validator = MagicMock()
+        mock_validator.validate.return_value = []
+
+        mock_paths = MagicMock()
+        mock_paths.legacy_registry_file = MagicMock()
+        mock_paths.legacy_registry_file.exists.return_value = True
+
+        with patch("akshare_data.offline.cli.main.paths", mock_paths):
+            with patch(
+                "akshare_data.offline.registry.RegistryValidator",
+                return_value=mock_validator,
+            ):
+                with patch("builtins.open", mock_open(read_data=json.dumps(registry_data))):
+                    args = MagicMock()
+                    args.action = "validate"
+
+                    _handle_config(args)
+
+                    captured = capsys.readouterr()
+                    assert "passed" in captured.out
+
+    @pytest.mark.unit
+    def test_handle_config_validate_with_errors(self, capsys):
+        """Test config validate action with validation errors"""
+        from akshare_data.offline.cli.main import _handle_config
+
+        registry_data = {"interfaces": {"func1": {}}}
+
+        mock_validator = MagicMock()
+        mock_validator.validate.return_value = ["Missing domain field", "Invalid category"]
+
+        mock_paths = MagicMock()
+        mock_paths.legacy_registry_file = MagicMock()
+
+        with patch("akshare_data.offline.cli.main.paths", mock_paths):
+            with patch(
+                "akshare_data.offline.registry.RegistryValidator",
+                return_value=mock_validator,
+            ):
+                with patch("yaml.safe_load", return_value=registry_data):
+                    args = MagicMock()
+                    args.action = "validate"
+
+                    _handle_config(args)
+
+                    captured = capsys.readouterr()
+                    assert "2 issues" in captured.out
+
+    @pytest.mark.unit
+    def test_handle_config_validate_yaml_error(self, capsys):
+        """Test config validate action with YAML syntax error"""
+        from akshare_data.offline.cli.main import _handle_config
+
+        mock_paths = MagicMock()
+        mock_paths.legacy_registry_file = MagicMock()
+
+        with patch("akshare_data.offline.cli.main.paths", mock_paths):
+            with patch("builtins.open", side_effect=Exception("YAML parse error")):
+                args = MagicMock()
+                args.action = "validate"
+
+                _handle_config(args)
+
+                captured = capsys.readouterr()
+                assert "YAML syntax errors" in captured.out
+
+    @pytest.mark.unit
+    def test_handle_config_merge(self, capsys):
+        """Test config merge action"""
+        from akshare_data.offline.cli.main import _handle_config
+
+        mock_registry = {"interfaces": {"func1": {}, "func2": {}}}
+
+        mock_builder = MagicMock()
+        mock_builder.build.return_value = mock_registry
+
+        mock_merger = MagicMock()
+
+        mock_exporter = MagicMock()
+        mock_exporter.export_yaml.return_value = "/path/to/merged.yaml"
+
+        with patch(
+            "akshare_data.offline.registry.RegistryBuilder", return_value=mock_builder
+        ):
+            with patch(
+                "akshare_data.offline.registry.RegistryMerger", return_value=mock_merger
+            ):
+                with patch(
+                    "akshare_data.offline.registry.RegistryExporter",
+                    return_value=mock_exporter,
+                ):
+                    args = MagicMock()
+                    args.action = "merge"
+
+                    _handle_config(args)
+
+                    mock_merger.merge_interfaces.assert_called_once_with(mock_registry)
+                    mock_merger.merge_rate_limits.assert_called_once_with(mock_registry)
+
+
+class TestHandleDownload:
+    """Test _handle_download function"""
+
+    def test_main_download_command(self, capsys):
+        """Test main with download command"""
+        from akshare_data.offline.cli.main import main
+
+        mock_cache_manager = MagicMock()
+
+        mock_paths = MagicMock()
+        mock_paths.ensure_dirs = MagicMock()
+
+        mock_parser = MagicMock()
+        mock_parser.parse_args.return_value = MagicMock(
+            command="download",
+            mode="incremental",
+            days=1,
+            interface=None,
+            start=None,
+            end=None,
+            workers=4,
+            schedule=False,
+        )
+
+        with patch("argparse.ArgumentParser", return_value=mock_parser):
+            with patch("akshare_data.offline.cli.main.paths", mock_paths):
+                with patch(
+                    "akshare_data.offline.core.data_loader.get_cache_manager_instance",
+                    return_value=mock_cache_manager,
+                ):
+                    with patch(
+                        "akshare_data.offline.downloader.BatchDownloader"
+                    ) as mock_bd:
+                        mock_bd.return_value.download_incremental.return_value = {
+                            "success": 10
+                        }
+                        main()
+
+    @pytest.mark.unit
+    def test_handle_download_scheduler_mode(self, capsys):
+        """Test download with --schedule flag starts scheduler"""
+        from akshare_data.offline.cli.main import _handle_download
+
+        mock_cache_manager = MagicMock()
+
+        mock_downloader = MagicMock()
+        mock_downloader.download_incremental.return_value = {"success": 5}
+
+        mock_scheduler = MagicMock()
+        mock_scheduler.start = MagicMock()
+        mock_scheduler.stop = MagicMock()
+        mock_scheduler.set_downloader = MagicMock()
+
+        with patch(
+            "akshare_data.offline.core.data_loader.get_cache_manager_instance",
+            return_value=mock_cache_manager,
+        ):
+            with patch(
+                "akshare_data.offline.downloader.BatchDownloader",
+                return_value=mock_downloader,
+            ):
+                with patch(
+                    "akshare_data.offline.scheduler.Scheduler",
+                    return_value=mock_scheduler,
+                ):
+                    with patch("time.sleep", side_effect=KeyboardInterrupt):
+                        args = MagicMock()
+                        args.schedule = True
+                        args.mode = "incremental"
+                        args.days = 1
+                        args.interface = None
+                        args.start = None
+                        args.end = None
+                        args.workers = 4
+
+                        _handle_download(args)
+
+                        mock_scheduler.set_downloader.assert_called_once()
+                        mock_scheduler.start.assert_called_once()
+                        mock_scheduler.stop.assert_called_once()
+
+    @pytest.mark.unit
+    def test_handle_download_full_mode(self, capsys):
+        """Test download with full mode"""
+        from akshare_data.offline.cli.main import _handle_download
+
+        mock_cache_manager = MagicMock()
+
+        mock_downloader = MagicMock()
+        mock_downloader.download_full.return_value = {"success": 20}
+
+        with patch(
+            "akshare_data.offline.core.data_loader.get_cache_manager_instance",
+            return_value=mock_cache_manager,
+        ):
+            with patch(
+                "akshare_data.offline.downloader.BatchDownloader",
+                return_value=mock_downloader,
+            ):
+                args = MagicMock()
+                args.schedule = False
+                args.mode = "full"
+                args.interface = "stock_zh_a_hist"
+                args.start = "2024-01-01"
+                args.end = "2024-01-31"
+                args.days = 1
+                args.workers = 4
+
+                _handle_download(args)
+
+                mock_downloader.download_full.assert_called_once()
+
+    @pytest.mark.unit
+    def test_handle_download_incremental_mode(self, capsys):
+        """Test download with incremental mode"""
+        from akshare_data.offline.cli.main import _handle_download
+
+        mock_cache_manager = MagicMock()
+
+        mock_downloader = MagicMock()
+        mock_downloader.download_incremental.return_value = {"success": 15}
+
+        with patch(
+            "akshare_data.offline.core.data_loader.get_cache_manager_instance",
+            return_value=mock_cache_manager,
+        ):
+            with patch(
+                "akshare_data.offline.downloader.BatchDownloader",
+                return_value=mock_downloader,
+            ):
+                args = MagicMock()
+                args.schedule = False
+                args.mode = "incremental"
+                args.days = 7
+                args.interface = None
+                args.start = None
+                args.end = None
+                args.workers = 8
+
+                _handle_download(args)
+
+                mock_downloader.download_incremental.assert_called_once_with(days_back=7)
+
+
 class TestLoadTableData:
     """Test _load_table_data function"""
 
@@ -418,37 +749,54 @@ class TestMain:
 
                 assert exc_info.value.code == 1
 
-    def test_main_download_command(self, capsys):
-        """Test main with download command"""
-        from akshare_data.offline.cli.main import main
 
-        mock_cache_manager = MagicMock()
+class TestParameterMissingErrors:
+    """Test error handling for missing required parameters"""
+
+    @pytest.mark.unit
+    def test_analyze_cache_missing_table(self):
+        """Test analyze cache exits when table is missing"""
+        from akshare_data.offline.cli.main import _handle_analyze
+
+        args = MagicMock()
+        args.type = "cache"
+        args.table = None
+        args.window = 7
+        args.category = None
+
+        with pytest.raises(SystemExit) as exc_info:
+            _handle_analyze(args)
+
+        assert exc_info.value.code == 1
+
+    @pytest.mark.unit
+    def test_report_quality_missing_table(self):
+        """Test quality report exits when table is missing"""
+        from akshare_data.offline.cli.main import _handle_report
+
+        args = MagicMock()
+        args.type = "quality"
+        args.table = None
+
+        with pytest.raises(SystemExit) as exc_info:
+            _handle_report(args)
+
+        assert exc_info.value.code == 1
+
+    @pytest.mark.unit
+    def test_report_health_missing_probe_data(self):
+        """Test health report exits when probe data is missing"""
+        from akshare_data.offline.cli.main import _handle_report
 
         mock_paths = MagicMock()
-        mock_paths.ensure_dirs = MagicMock()
+        mock_paths.prober_state_file.exists.return_value = False
 
-        mock_parser = MagicMock()
-        mock_parser.parse_args.return_value = MagicMock(
-            command="download",
-            mode="incremental",
-            days=1,
-            interface=None,
-            start=None,
-            end=None,
-            workers=4,
-            schedule=False,
-        )
+        with patch("akshare_data.offline.cli.main.paths", mock_paths):
+            args = MagicMock()
+            args.type = "health"
+            args.table = None
 
-        with patch("argparse.ArgumentParser", return_value=mock_parser):
-            with patch("akshare_data.offline.cli.main.paths", mock_paths):
-                with patch(
-                    "akshare_data.offline.core.data_loader.get_cache_manager_instance",
-                    return_value=mock_cache_manager,
-                ):
-                    with patch(
-                        "akshare_data.offline.downloader.BatchDownloader"
-                    ) as mock_bd:
-                        mock_bd.return_value.download_incremental.return_value = {
-                            "success": 10
-                        }
-                        main()
+            with pytest.raises(SystemExit) as exc_info:
+                _handle_report(args)
+
+            assert exc_info.value.code == 1

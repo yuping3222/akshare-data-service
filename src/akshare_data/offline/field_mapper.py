@@ -642,16 +642,26 @@ class FieldMapper:
             # 获取样本值
             if len(df) > 0:
                 val = df[col].iloc[0]
-                col_info.sample_value = str(val)[:100] if pd.notna(val) else ""
+                is_missing = False
+                try:
+                    na_flag = pd.isna(val)
+                    if hasattr(na_flag, "all"):
+                        is_missing = bool(na_flag.all())
+                    else:
+                        is_missing = bool(na_flag)
+                except Exception:
+                    is_missing = False
+                col_info.sample_value = "" if is_missing else str(val)[:100]
 
             # 尝试匹配
-            mapped = EXTENDED_CN_TO_EN.get(col)
+            col_name = str(col)
+            mapped = EXTENDED_CN_TO_EN.get(col_name)
             if mapped:
                 col_info.mapped_name = mapped
                 col_info.is_mapped = True
-            elif col.islower() and re.match(r"^[a-z][a-z0-9_]*$", col):
+            elif col_name.islower() and re.match(r"^[a-z][a-z0-9_]*$", col_name):
                 # 已经是英文小写下划线格式，保持原样
-                col_info.mapped_name = col
+                col_info.mapped_name = col_name
                 col_info.is_mapped = True
             else:
                 col_info.is_mapped = False

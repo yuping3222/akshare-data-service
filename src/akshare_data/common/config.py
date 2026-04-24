@@ -175,7 +175,10 @@ _SCHEMA_INTERFACE_ALIASES: Dict[str, list[str]] = {
     "goodwill": ["goodwill_data"],
     "fund_portfolio": ["fund_open_info"],
     "etf_minute": ["equity_minute", "etf_daily"],
-    "holder": ["top10_holders", "top10_float_holders"],
+    "dragon_tiger_summary": ["dragon_tiger_summary"],
+    "limit_up_pool": ["limit_up_pool"],
+    "limit_down_pool": ["limit_down_pool"],
+    "margin_summary": ["margin_summary"],
 }
 
 _SCHEMA_TO_INTERFACE_TYPE = {

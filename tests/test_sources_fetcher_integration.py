@@ -474,11 +474,16 @@ class TestFetchFieldMappingContracts:
         }
         assert expected_cols.issubset(set(result.columns))
 
-    def test_fetch_dragon_tiger_summary_keeps_raw_columns(self):
+    def test_fetch_dragon_tiger_summary_maps_columns(self):
         mock_df = pd.DataFrame(
             {
+                "序号": [1],
+                "代码": ["000001"],
+                "名称": ["平安银行"],
                 "上榜日": ["2025-01-02"],
                 "解读": ["测试"],
+                "收盘价": [10.2],
+                "涨跌幅": [1.2],
                 "龙虎榜净买额": [1000.0],
             }
         )
@@ -489,23 +494,47 @@ class TestFetchFieldMappingContracts:
             start_date="2025-01-01",
             end_date="2025-01-10",
         )
-        assert "上榜日" in result.columns
-        assert "解读" in result.columns
-        assert "龙虎榜净买额" in result.columns
+        assert "date" in result.columns
+        assert "interpretation" in result.columns
+        assert "net_buy" in result.columns
+        assert "上榜日" not in result.columns
 
-    def test_fetch_limit_up_pool_keeps_raw_columns(self):
+    def test_fetch_limit_up_pool_maps_columns(self):
         mock_df = pd.DataFrame(
             {
                 "代码": ["000001"],
                 "名称": ["平安银行"],
                 "涨跌幅": [3.2],
+                "最新价": [10.5],
+                "成交额": [120000.0],
             }
         )
         ak = self._make_mock_ak({"stock_zt_pool_em": mock_df})
         result = fetch("limit_up_pool", akshare=ak, date="2025-01-02")
-        assert "代码" in result.columns
-        assert "名称" in result.columns
-        assert "涨跌幅" in result.columns
+        assert "symbol" in result.columns
+        assert "name" in result.columns
+        assert "pct_change" in result.columns
+        assert "close" in result.columns
+        assert "amount" in result.columns
+        assert "代码" not in result.columns
+
+    def test_fetch_limit_down_pool_maps_columns(self):
+        mock_df = pd.DataFrame(
+            {
+                "代码": ["000001"],
+                "名称": ["平安银行"],
+                "涨跌幅": [-3.2],
+                "最新价": [9.5],
+                "成交额": [98000.0],
+            }
+        )
+        ak = self._make_mock_ak({"stock_zt_pool_dtgc_em": mock_df})
+        result = fetch("limit_down_pool", akshare=ak, date="2025-01-02")
+        assert "symbol" in result.columns
+        assert "name" in result.columns
+        assert "pct_change" in result.columns
+        assert "close" in result.columns
+        assert "amount" in result.columns
 
 
 # ── fetch() error paths ──────────────────────────────────────────────

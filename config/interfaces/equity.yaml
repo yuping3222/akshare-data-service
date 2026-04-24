@@ -1,8 +1,5 @@
-# 股票行情接口
-# category: equity
-
-equity_daily:
-  name: "equity_daily"
+stock_daily:
+  name: "stock_daily"
   category: "equity"
   description: "A股日线数据（含复权）"
 
@@ -109,8 +106,10 @@ equity_daily:
         volume: "float"
         amount: "float"
 
-equity_minute:
-  name: "equity_minute"
+  aliases:
+    - equity_daily
+stock_minute:
+  name: "stock_minute"
   category: "equity"
   description: "A股分钟线数据"
 
@@ -186,8 +185,10 @@ equity_minute:
         volume: "float"
         amount: "float"
 
-equity_realtime:
-  name: "equity_realtime"
+  aliases:
+    - equity_minute
+spot_snapshot:
+  name: "spot_snapshot"
   category: "equity"
   description: "A股实时行情"
 
@@ -263,8 +264,10 @@ equity_realtime:
         low: "float"
         prev_close: "float"
 
-securities_list:
-  name: "securities_list"
+  aliases:
+    - equity_realtime
+securities:
+  name: "securities"
   category: "equity"
   description: "A股股票列表"
 
@@ -288,6 +291,8 @@ securities_list:
         symbol: "str"
         name: "str"
 
+  aliases:
+    - securities_list
 block_deal:
   name: "block_deal"
   category: "equity"
@@ -593,8 +598,8 @@ limit_down_pool:
         open_board_count: "int"
         industry: "str"
 
-margin_data:
-  name: "margin_data"
+margin_detail:
+  name: "margin_detail"
   category: "equity"
   description: "融资融券明细数据"
 
@@ -639,6 +644,8 @@ margin_data:
         short_sell: "float"
         short_repay: "float"
 
+  aliases:
+    - margin_data
 margin_summary:
   name: "margin_summary"
   category: "equity"
@@ -754,8 +761,8 @@ st_stocks:
         symbol: "str"
         name: "str"
 
-security_info:
-  name: "security_info"
+company_info:
+  name: "company_info"
   category: "meta"
   description: "个股基本信息"
 
@@ -787,8 +794,10 @@ security_info:
         industry: "str"
         list_date: "date"
 
-industry_stocks:
-  name: "industry_stocks"
+  aliases:
+    - security_info
+industry_components:
+  name: "industry_components"
   category: "equity"
   description: "申万行业成份股"
 
@@ -816,6 +825,8 @@ industry_stocks:
         symbol: "str"
         name: "str"
 
+  aliases:
+    - industry_stocks
 industry_mapping:
   name: "industry_mapping"
   category: "equity"
@@ -964,6 +975,7 @@ balance_sheet:
         TOTAL_LIABILITIES: total_liabilities
         TOTAL_EQUITY: total_equity
 
+  cache_table: financial_report
 income_statement:
   name: "income_statement"
   category: "equity"
@@ -1002,6 +1014,7 @@ income_statement:
         BASIC_EPS: basic_eps
         DILUTED_EPS: diluted_eps
 
+  cache_table: financial_report
 cash_flow:
   name: "cash_flow"
   category: "equity"
@@ -1039,6 +1052,7 @@ cash_flow:
 
 # ── 个股信息 ─────────────────────────────────────────────
 
+  cache_table: financial_report
 basic_info:
   name: "basic_info"
   category: "equity"
@@ -1106,8 +1120,8 @@ money_flow:
         medium_net_inflow: "float"
         small_net_inflow: "float"
 
-north_money_flow:
-  name: "north_money_flow"
+north_flow:
+  name: "north_flow"
   category: "equity"
   description: "北向资金流向汇总"
 
@@ -1136,6 +1150,8 @@ north_money_flow:
         buy_amount: "float"
         sell_amount: "float"
 
+  aliases:
+    - north_money_flow
 northbound_holdings:
   name: "northbound_holdings"
   category: "equity"
@@ -1169,8 +1185,8 @@ northbound_holdings:
         hold_ratio: "float"
         net_buy: "float"
 
-northbound_top_stocks:
-  name: "northbound_top_stocks"
+hsgt_hold_snapshot:
+  name: "hsgt_hold_snapshot"
   category: "equity"
   description: "北向资金增持行业板块排行"
 
@@ -1198,6 +1214,8 @@ northbound_top_stocks:
 
 # ── 股权质押/冻结 ────────────────────────────────────────
 
+  aliases:
+    - northbound_top_stocks
 equity_pledge:
   name: "equity_pledge"
   category: "equity"
@@ -1305,8 +1323,8 @@ holder:
         hold_ratio: "float"
         holder_type: "str"
 
-shareholder_changes:
-  name: "shareholder_changes"
+holding_change:
+  name: "holding_change"
   category: "equity"
   description: "股东增减持"
 
@@ -1334,6 +1352,8 @@ shareholder_changes:
 
 # ── ESG ─────────────────────────────────────────────────
 
+  aliases:
+    - shareholder_changes
 esg_rating:
   name: "esg_rating"
   category: "equity"
@@ -1548,6 +1568,7 @@ dividend_by_date:
         record_date: "date"
         ex_date: "date"
 
+  cache_table: dividend
 repurchase:
   name: "repurchase"
   category: "equity"
@@ -1642,8 +1663,8 @@ rights_issue:
 
 # ── 管理层/资本变动 ─────────────────────────────────────
 
-management_info:
-  name: "management_info"
+company_management:
+  name: "company_management"
   category: "equity"
   description: "公司管理层信息"
 
@@ -1676,8 +1697,10 @@ management_info:
         期末市值: market_value
         持股变动原因: change_reason
 
-capital_change:
-  name: "capital_change"
+  aliases:
+    - management_info
+share_change:
+  name: "share_change"
   category: "equity"
   description: "股本变动"
 
@@ -1703,6 +1726,8 @@ capital_change:
 
 # ── 新闻/公告 ───────────────────────────────────────────
 
+  aliases:
+    - capital_change
 disclosure_news:
   name: "disclosure_news"
   category: "equity"
@@ -1766,6 +1791,7 @@ restricted_release:
         release_shares: "float"
         release_ratio: "float"
 
+  cache_table: unlock
 restricted_release_calendar:
   name: "restricted_release_calendar"
   category: "equity"
@@ -1847,6 +1873,7 @@ restricted_release_detail:
         release_type: "str"
         shareholder_name: "str"
 
+  cache_table: unlock
 equity_pledge_rank:
   name: "equity_pledge_rank"
   category: "equity"
@@ -1922,8 +1949,8 @@ concept_list:
         concept_code: "str"
         concept_name: "str"
 
-concept_stocks:
-  name: "concept_stocks"
+concept_components:
+  name: "concept_components"
   category: "equity"
   description: "概念板块成份股"
 
@@ -1958,32 +1985,8 @@ concept_stocks:
         市盈率-动态: pe_ttm
         市净率: pb
 
-stock_concepts:
-  name: "stock_concepts"
-  category: "equity"
-  description: "个股所属概念"
-
-  input:
-    - {name: "symbol", type: "str", required: true}
-
-  output: []
-
-  rate_limit_key: "default"
-
-  sources:
-    - name: "akshare_em"
-      func: "stock_board_concept_cons_em"
-      enabled: false  # stock_board_concept_cons_em 只接受概念名，非股票代码。禁用待替换
-      input_mapping:
-        symbol: "symbol"
-      output_mapping:
-        序号: rank
-        代码: symbol
-        名称: name
-        最新价: close
-        涨跌幅: change_pct
-        涨跌额: change
-
+  aliases:
+    - concept_stocks
 concept_performance:
   name: "concept_performance"
   category: "equity"
@@ -2217,8 +2220,8 @@ main_fund_flow_rank:
         今日中单净流入-净额: medium_net_inflow
         今日小单净流入-净额: small_net_inflow
 
-sector_fund_flow:
-  name: "sector_fund_flow"
+sector_flow_snapshot:
+  name: "sector_flow_snapshot"
   category: "equity"
   description: "行业资金流向"
 
@@ -2252,8 +2255,10 @@ sector_fund_flow:
 
 # ── 交易日历 ────────────────────────────────────────────
 
-trading_days:
-  name: "trading_days"
+  aliases:
+    - sector_fund_flow
+trade_calendar:
+  name: "trade_calendar"
   category: "equity"
   description: "交易日历"
 
@@ -2272,6 +2277,8 @@ trading_days:
 
 # ── 港股 / 美股 / 新股 ────────────────────────────────
 
+  aliases:
+    - trading_days
 hk_stocks:
   name: "hk_stocks"
   category: "equity"
@@ -2499,71 +2506,6 @@ ipo_benefit:
         关联新股名称: ipo_name
         上市日期: list_date
 
-stock_zh_a_spot_em:
-  name: "stock_zh_a_spot_em"
-  category: "equity"
-  description: "A股实时行情（东方财富全市场）"
-
-  input: []
-
-  output:
-    - {name: "symbol", type: "str", desc: "股票代码"}
-    - {name: "name", type: "str", desc: "股票名称"}
-    - {name: "price", type: "float", desc: "最新价"}
-    - {name: "change", type: "float", desc: "涨跌额"}
-    - {name: "pct_change", type: "float", desc: "涨跌幅"}
-    - {name: "volume", type: "float", desc: "成交量"}
-    - {name: "amount", type: "float", desc: "成交额"}
-
-  rate_limit_key: "em_push2"
-
-  sources:
-    - name: "akshare_em"
-      func: "stock_zh_a_spot_em"
-      enabled: true
-      output_mapping:
-        代码: "symbol"
-        名称: "name"
-        最新价: "price"
-        涨跌额: "change"
-        涨跌幅: "pct_change"
-        成交量: "volume"
-        成交额: "amount"
-      column_types:
-        price: "float"
-        change: "float"
-        pct_change: "float"
-        volume: "float"
-        amount: "float"
-
-stock_board_concept_cons_em:
-  name: "stock_board_concept_cons_em"
-  category: "equity"
-  description: "概念板块成份股（东方财富）"
-
-  input:
-    - {name: "symbol", type: "str", required: true, desc: "概念板块代码/名称"}
-
-  output:
-    - {name: "symbol", type: "str", desc: "股票代码"}
-    - {name: "name", type: "str", desc: "股票名称"}
-    - {name: "code_change", type: "float", desc: "涨跌幅"}
-
-  rate_limit_key: "em_push2"
-
-  sources:
-    - name: "akshare_em"
-      func: "stock_board_concept_cons_em"
-      enabled: true
-      input_mapping:
-        symbol: "symbol"
-      output_mapping:
-        代码: "symbol"
-        名称: "name"
-        涨跌幅: "code_change"
-      column_types:
-        code_change: "float"
-
 dividend_data:
   name: "dividend_data"
   category: "equity"
@@ -2603,6 +2545,7 @@ dividend_data:
         record_date: "date"
         ex_date: "date"
 
+  cache_table: dividend
 equity_freeze:
   name: "equity_freeze"
   category: "equity"
@@ -2629,8 +2572,8 @@ equity_freeze:
 
       param_defaults:
         symbol: 股东减持
-financial_metrics:
-  name: "financial_metrics"
+valuation:
+  name: "valuation"
   category: "equity"
   description: "财务指标数据"
 
@@ -2664,8 +2607,10 @@ financial_metrics:
         PE(TTM): pe
         市净率: pb
         市销率: ps
-goodwill_data:
-  name: "goodwill_data"
+  aliases:
+    - financial_metrics
+goodwill:
+  name: "goodwill"
   category: "equity"
   description: "商誉数据"
 
@@ -2700,6 +2645,8 @@ goodwill_data:
         net_assets: "float"
         goodwill_ratio: "float"
 
+  aliases:
+    - goodwill_data
 goodwill_impairment:
   name: "goodwill_impairment"
   category: "equity"
@@ -2744,8 +2691,8 @@ goodwill_by_industry:
         商誉减值: goodwill_impairment
         净资产: net_assets
 
-insider_trading:
-  name: "insider_trading"
+insider_trade:
+  name: "insider_trade"
   category: "equity"
   description: "内部人交易数据"
 
@@ -2805,6 +2752,8 @@ insider_trading:
         变动后持有股份数量: shares_after
         董监高姓名: director_name
         与董监高关系: relationship
+  aliases:
+    - insider_trading
 name_history:
   name: "name_history"
   category: "equity"
@@ -2870,23 +2819,3 @@ performance_express:
         所处行业: industry
         最新公告日期: announce_date
 
-tool_trade_date_hist_sina:
-  name: "tool_trade_date_hist_sina"
-  category: "equity"
-  description: "交易日历（新浪）"
-
-  input: []
-
-  output:
-    - {name: "date", type: "date", desc: "交易日期"}
-
-  rate_limit_key: "sina_hq"
-
-  sources:
-    - name: "akshare_sina"
-      func: "tool_trade_date_hist_sina"
-      enabled: true
-      output_mapping:
-        trade_date: "date"
-      column_types:
-        date: "date"

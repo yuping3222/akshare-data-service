@@ -90,6 +90,18 @@ def _load_interfaces() -> Dict:
             if alias not in merged:
                 merged[alias] = iface_def
 
+    # Expose each interface under all of its declared `aliases` so that
+    # legacy call sites (e.g. `fetch("equity_daily")`, fetch_xxx() wrappers)
+    # continue to work after interfaces were renamed to match schema tables.
+    alias_entries: Dict[str, Any] = {}
+    for iface_name, iface_def in merged.items():
+        if not isinstance(iface_def, dict):
+            continue
+        for alias in iface_def.get("aliases") or []:
+            if alias and alias not in merged and alias not in alias_entries:
+                alias_entries[alias] = iface_def
+    merged.update(alias_entries)
+
     logger.debug("Total %d interfaces after merge", len(merged))
     return merged
 

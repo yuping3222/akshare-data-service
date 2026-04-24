@@ -408,7 +408,7 @@ domains:
     rate_limit_key: default
   zs.zjpwq.net:
     rate_limit_key: default
-generated_at: '2026-04-20T16:50:32.637103'
+generated_at: '2026-04-24T01:23:10.523980'
 interfaces:
   air_city_table:
     category: other
@@ -480,9 +480,9 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -546,8 +546,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -1401,9 +1401,9 @@ interfaces:
       check_interval: 2592000
       params:
         bondType: CYCC000&reference=1
-        end_date: '20260420'
+        end_date: '20260424'
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -1441,9 +1441,9 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         startDate: 2019-02-07&endDate=2020-02-04&gjqx=0&qxId=ycqx&locale=cn_ZH
-        start_date: '20260417'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -1510,8 +1510,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -1561,8 +1561,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -1653,8 +1653,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - stock.finance.sina.com.cn
     - bond.finance.sina.com.cn
+    - stock.finance.sina.com.cn
     name: bond_gb_us_sina
     probe:
       check_interval: 2592000
@@ -1680,8 +1680,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - stock.finance.sina.com.cn
     - bond.finance.sina.com.cn
+    - stock.finance.sina.com.cn
     name: bond_gb_zh_sina
     probe:
       check_interval: 2592000
@@ -1753,8 +1753,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -1899,8 +1899,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -2092,18 +2092,18 @@ interfaces:
       :rtype: pandas.DataFrame'
     domains:
     - quote.eastmoney.com
-    - push2his.eastmoney.com
     - push2.eastmoney.com
+    - push2his.eastmoney.com
     name: bond_zh_hs_cov_min
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
-    rate_limit_key: em_push2his
+    rate_limit_key: em_push2
     signature:
     - symbol
     - period
@@ -2230,7 +2230,7 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        start_date: '20260417'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -2458,8 +2458,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: crypto_bitcoin_cme
     probe:
       check_interval: 2592000
@@ -2479,8 +2479,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: crypto_bitcoin_hold_report
     probe:
       check_interval: 2592000
@@ -2498,8 +2498,8 @@ interfaces:
 
       :return: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: crypto_js_spot
     probe:
       check_interval: 2592000
@@ -2556,8 +2556,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         startdate: 2012-01-01&enddate=2021-06-14&money_code=EUR&type=0
         symbol: '000001'
       skip: false
@@ -2594,8 +2594,8 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - api.currencyscoop.com
     - currencyscoop.com
+    - api.currencyscoop.com
     name: currency_convert
     probe:
       check_interval: 2592000
@@ -2627,8 +2627,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - api.currencyscoop.com
     - currencyscoop.com
+    - api.currencyscoop.com
     name: currency_currencies
     probe:
       check_interval: 2592000
@@ -2667,8 +2667,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - api.currencyscoop.com
     - currencyscoop.com
+    - api.currencyscoop.com
     name: currency_history
     probe:
       check_interval: 2592000
@@ -2705,8 +2705,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - api.currencyscoop.com
     - currencyscoop.com
+    - api.currencyscoop.com
     name: currency_latest
     probe:
       check_interval: 2592000
@@ -2777,14 +2777,14 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - api.currencyscoop.com
     - currencyscoop.com
+    - api.currencyscoop.com
     name: currency_time_series
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -2857,8 +2857,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - k.tanjiaoyi.com
     - www.tanjiaoyi.com
+    - k.tanjiaoyi.com
     name: energy_carbon_domestic
     probe:
       check_interval: 2592000
@@ -3130,8 +3130,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - fundf10.eastmoney.com
     - api.fund.eastmoney.com
+    - fundf10.eastmoney.com
     name: fund_announcement_dividend_em
     probe:
       check_interval: 2592000
@@ -3156,8 +3156,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - fundf10.eastmoney.com
     - api.fund.eastmoney.com
+    - fundf10.eastmoney.com
     name: fund_announcement_personnel_em
     probe:
       check_interval: 2592000
@@ -3182,8 +3182,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - fundf10.eastmoney.com
     - api.fund.eastmoney.com
+    - fundf10.eastmoney.com
     name: fund_announcement_report_em
     probe:
       check_interval: 2592000
@@ -3450,14 +3450,14 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - fundf10.eastmoney.com
     - api.fund.eastmoney.com
+    - fundf10.eastmoney.com
     name: fund_etf_fund_info_em
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -3501,9 +3501,9 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_push2his
@@ -3550,9 +3550,9 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_push2his
@@ -3602,8 +3602,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.sse.com.cn
     - query.sse.com.cn
+    - www.sse.com.cn
     name: fund_etf_scale_sse
     probe:
       check_interval: 2592000
@@ -3813,8 +3813,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - fund.eastmoney.com
     - api.fund.eastmoney.com
+    - fund.eastmoney.com
     name: fund_financial_fund_daily_em
     probe:
       check_interval: 2592000
@@ -3837,8 +3837,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - fundf10.eastmoney.com
     - api.fund.eastmoney.com
+    - fundf10.eastmoney.com
     name: fund_financial_fund_info_em
     probe:
       check_interval: 2592000
@@ -3882,8 +3882,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - fundf10.eastmoney.com
     - api.fund.eastmoney.com
+    - fundf10.eastmoney.com
     name: fund_graded_fund_info_em
     probe:
       check_interval: 2592000
@@ -4168,8 +4168,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - fund.eastmoney.com
     - api.fund.eastmoney.com
+    - fund.eastmoney.com
     name: fund_info_index_em
     probe:
       check_interval: 2592000
@@ -4193,8 +4193,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - fund.eastmoney.com
     - api.fund.eastmoney.com
+    - fund.eastmoney.com
     name: fund_lcx_rank_em
     probe:
       check_interval: 2592000
@@ -4258,9 +4258,9 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_push2his
@@ -4307,9 +4307,9 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_push2his
@@ -4392,8 +4392,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - fundf10.eastmoney.com
     - api.fund.eastmoney.com
+    - fundf10.eastmoney.com
     name: fund_money_fund_info_em
     probe:
       check_interval: 2592000
@@ -4414,8 +4414,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - fund.eastmoney.com
     - api.fund.eastmoney.com
+    - fund.eastmoney.com
     name: fund_money_rank_em
     probe:
       check_interval: 2592000
@@ -4529,9 +4529,9 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
+    - api.fund.eastmoney.com
     - fund.eastmoney.com
     - fundf10.eastmoney.com
-    - api.fund.eastmoney.com
     name: fund_open_fund_info_em
     probe:
       check_interval: 2592000
@@ -4708,8 +4708,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - fundf10.eastmoney.com
     - api.fund.eastmoney.com
+    - fundf10.eastmoney.com
     name: fund_portfolio_industry_allocation_em
     probe:
       check_interval: 2592000
@@ -4950,8 +4950,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -5038,8 +5038,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - fund.eastmoney.com
     - api.fund.eastmoney.com
+    - fund.eastmoney.com
     name: fund_value_estimation_em
     probe:
       check_interval: 2592000
@@ -5116,8 +5116,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - mp-api.jin10.com
     - www.jin10.com
+    - mp-api.jin10.com
     name: futures_comm_js
     probe:
       check_interval: 2592000
@@ -5166,8 +5166,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - quote.eastmoney.com
     - futsse-static.eastmoney.com
+    - quote.eastmoney.com
     name: futures_contract_detail_em
     probe:
       check_interval: 2592000
@@ -5614,8 +5614,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - stock2.finance.sina.com.cn
     - finance.sina.com.cn
+    - stock2.finance.sina.com.cn
     name: futures_foreign_hist
     probe:
       check_interval: 2592000
@@ -5781,9 +5781,9 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_push2his
@@ -5826,8 +5826,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - xt.yangzhu.vip
     - zhujia.zhuwang.com.cn
+    - xt.yangzhu.vip
     name: futures_hog_core
     probe:
       check_interval: 2592000
@@ -5852,8 +5852,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - xt.yangzhu.vip
     - zhujia.zhuwang.com.cn
+    - xt.yangzhu.vip
     name: futures_hog_cost
     probe:
       check_interval: 2592000
@@ -5880,8 +5880,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - xt.yangzhu.vip
     - zhujia.zhuwang.com.cn
+    - xt.yangzhu.vip
     name: futures_hog_supply
     probe:
       check_interval: 2592000
@@ -5985,8 +5985,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - centerapi.fx168api.com
     - www.99qh.com
+    - centerapi.fx168api.com
     name: futures_inventory_99
     probe:
       check_interval: 2592000
@@ -6052,8 +6052,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: sina_vip
@@ -6503,8 +6503,8 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: futures_stock_shfe_js
     probe:
       check_interval: 2592000
@@ -6653,8 +6653,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - stock2.finance.sina.com.cn
     - finance.sina.com.cn
+    - stock2.finance.sina.com.cn
     name: futures_zh_daily_sina
     probe:
       check_interval: 2592000
@@ -6811,8 +6811,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - gushitong.baidu.com
     - finance.pae.baidu.com
+    - gushitong.baidu.com
     name: fx_quote_baidu
     probe:
       check_interval: 2592000
@@ -7068,8 +7068,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -7317,8 +7317,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -7496,8 +7496,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -7823,8 +7823,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -8287,8 +8287,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - gi.finance.sina.com.cn
     - finance.sina.com.cn
+    - gi.finance.sina.com.cn
     name: index_global_hist_sina
     probe:
       check_interval: 2592000
@@ -8360,15 +8360,15 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.cnindex.com.cn
     - hq.cnindex.com.cn
+    - www.cnindex.com.cn
     name: index_hist_cni
     probe:
       check_interval: 2592000
       params:
         act_menu: 1&indexCode=399001
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -8514,8 +8514,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - api.idx365.com
     - ss.kqindex.cn
+    - api.idx365.com
     name: index_kq_fashion
     probe:
       check_interval: 2592000
@@ -9243,8 +9243,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.csindex.com.cn
     - oss-ch.csindex.com.cn
+    - www.csindex.com.cn
     name: index_stock_cons_csindex
     probe:
       check_interval: 2592000
@@ -9294,8 +9294,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.csindex.com.cn
     - oss-ch.csindex.com.cn
+    - www.csindex.com.cn
     name: index_stock_cons_weight_csindex
     probe:
       check_interval: 2592000
@@ -9377,8 +9377,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - stock.finance.sina.com.cn
     - finance.sina.com.cn
+    - stock.finance.sina.com.cn
     name: index_us_stock_sina
     probe:
       check_interval: 2592000
@@ -9472,9 +9472,9 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_push2his
@@ -9516,9 +9516,9 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_push2his
@@ -9680,8 +9680,8 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_bank_australia_interest_rate
     probe:
       check_interval: 2592000
@@ -9703,8 +9703,8 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_bank_brazil_interest_rate
     probe:
       check_interval: 2592000
@@ -9726,8 +9726,8 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_bank_china_interest_rate
     probe:
       check_interval: 2592000
@@ -9749,8 +9749,8 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_bank_english_interest_rate
     probe:
       check_interval: 2592000
@@ -9772,8 +9772,8 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_bank_euro_interest_rate
     probe:
       check_interval: 2592000
@@ -9795,8 +9795,8 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_bank_india_interest_rate
     probe:
       check_interval: 2592000
@@ -9818,8 +9818,8 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_bank_japan_interest_rate
     probe:
       check_interval: 2592000
@@ -9841,8 +9841,8 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_bank_newzealand_interest_rate
     probe:
       check_interval: 2592000
@@ -9864,8 +9864,8 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_bank_russia_interest_rate
     probe:
       check_interval: 2592000
@@ -9887,8 +9887,8 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_bank_switzerland_interest_rate
     probe:
       check_interval: 2592000
@@ -10165,8 +10165,8 @@ interfaces:
 
       :return: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_china_au_report
     probe:
       check_interval: 2592000
@@ -10441,8 +10441,8 @@ interfaces:
 
       :return: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_china_cx_services_pmi_yearly
     probe:
       check_interval: 2592000
@@ -10872,8 +10872,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_china_hk_market_info
     probe:
       check_interval: 2592000
@@ -10952,8 +10952,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_china_imports_yoy
     probe:
       check_interval: 2592000
@@ -10975,8 +10975,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_china_industrial_production_yoy
     probe:
       check_interval: 2592000
@@ -11113,8 +11113,8 @@ interfaces:
 
       :return: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_china_market_margin_sh
     probe:
       check_interval: 2592000
@@ -11131,8 +11131,8 @@ interfaces:
 
       :return: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_china_market_margin_sz
     probe:
       check_interval: 2592000
@@ -11542,8 +11542,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_china_rmb
     probe:
       check_interval: 2592000
@@ -11564,8 +11564,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_china_shibor_all
     probe:
       check_interval: 2592000
@@ -11698,8 +11698,8 @@ interfaces:
       check_interval: 2592000
       params:
         cfgItemType: 72&curveType=FR007
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -11718,8 +11718,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_china_trade_balance
     probe:
       check_interval: 2592000
@@ -11876,8 +11876,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_cons_gold
     probe:
       check_interval: 2592000
@@ -11902,8 +11902,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_cons_opec_month
     probe:
       check_interval: 2592000
@@ -11922,8 +11922,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_cons_silver
     probe:
       check_interval: 2592000
@@ -11944,9 +11944,9 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_euro_cpi_mom
     probe:
       check_interval: 2592000
@@ -11968,9 +11968,9 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_euro_cpi_yoy
     probe:
       check_interval: 2592000
@@ -11992,9 +11992,9 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_euro_current_account_mom
     probe:
       check_interval: 2592000
@@ -12016,9 +12016,9 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_euro_employment_change_qoq
     probe:
       check_interval: 2592000
@@ -12038,8 +12038,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_euro_gdp_yoy
     probe:
       check_interval: 2592000
@@ -12060,9 +12060,9 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_euro_industrial_production_mom
     probe:
       check_interval: 2592000
@@ -12084,8 +12084,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_euro_lme_holding
     probe:
       check_interval: 2592000
@@ -12107,8 +12107,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_euro_lme_stock
     probe:
       check_interval: 2592000
@@ -12130,9 +12130,9 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_euro_manufacturing_pmi
     probe:
       check_interval: 2592000
@@ -12154,9 +12154,9 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_euro_ppi_mom
     probe:
       check_interval: 2592000
@@ -12178,9 +12178,9 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_euro_retail_sales_mom
     probe:
       check_interval: 2592000
@@ -12202,9 +12202,9 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_euro_sentix_investor_confidence
     probe:
       check_interval: 2592000
@@ -12226,9 +12226,9 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_euro_services_pmi
     probe:
       check_interval: 2592000
@@ -12250,9 +12250,9 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_euro_trade_balance
     probe:
       check_interval: 2592000
@@ -12274,9 +12274,9 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_euro_unemployment_rate_mom
     probe:
       check_interval: 2592000
@@ -12298,9 +12298,9 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_euro_zew_economic_sentiment
     probe:
       check_interval: 2592000
@@ -12321,14 +12321,14 @@ interfaces:
       :type start_date: str\n:param end_date: 具体交易日, 与 end_date 相同\n:type end_date:\
       \ str\n:return: 投机情绪报告\n:rtype: pandas.DataFrame"
     domains:
-    - datacenter.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: macro_fx_sentiment
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -12521,8 +12521,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - wallstreetcn.com
     - api-one-wscn.awtmt.com
+    - wallstreetcn.com
     name: macro_info_ws
     probe:
       check_interval: 2592000
@@ -13190,8 +13190,8 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_usa_api_crude_stock
     probe:
       check_interval: 2592000
@@ -13268,8 +13268,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_usa_cftc_c_holding
     probe:
       check_interval: 2592000
@@ -13288,8 +13288,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_usa_cftc_merchant_currency_holding
     probe:
       check_interval: 2592000
@@ -13308,8 +13308,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_usa_cftc_merchant_goods_holding
     probe:
       check_interval: 2592000
@@ -13328,8 +13328,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_usa_cftc_nc_holding
     probe:
       check_interval: 2592000
@@ -13348,8 +13348,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_usa_cme_merchant_goods_holding
     probe:
       check_interval: 2592000
@@ -13464,8 +13464,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_usa_crude_inner
     probe:
       check_interval: 2592000
@@ -13562,8 +13562,8 @@ interfaces:
 
       :rtype: pandas.Series'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_usa_export_price
     probe:
       check_interval: 2592000
@@ -14021,8 +14021,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - cdn.jin10.com
+    - datacenter.jin10.com
     name: macro_usa_rig_count
     probe:
       check_interval: 2592000
@@ -14162,8 +14162,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - qianxi.baidu.com
     - huiyan.baidu.com
+    - qianxi.baidu.com
     name: migration_area_baidu
     probe:
       check_interval: 2592000
@@ -14196,8 +14196,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - qianxi.baidu.com
     - huiyan.baidu.com
+    - qianxi.baidu.com
     name: migration_scale_baidu
     probe:
       check_interval: 2592000
@@ -14528,8 +14528,8 @@ interfaces:
 
       :rtype: list or dict or pandas.DataFrame'
     domains:
-    - ownthink.com
     - api.ownthink.com
+    - ownthink.com
     name: nlp_answer
     probe:
       check_interval: 2592000
@@ -14557,8 +14557,8 @@ interfaces:
 
       :rtype: list or dict or pandas.DataFrame'
     domains:
-    - ownthink.com
     - api.ownthink.com
+    - ownthink.com
     name: nlp_ownthink
     probe:
       check_interval: 2592000
@@ -14933,8 +14933,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.sse.com.cn
     - query.sse.com.cn
+    - www.sse.com.cn
     name: option_current_day_sse
     probe:
       check_interval: 2592000
@@ -14996,8 +14996,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.sse.com.cn
     - query.sse.com.cn
+    - www.sse.com.cn
     name: option_daily_stats_sse
     probe:
       check_interval: 2592000
@@ -15369,8 +15369,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - wap.eastmoney.com
     - push2.eastmoney.com
+    - wap.eastmoney.com
     name: option_minute_em
     probe:
       check_interval: 2592000
@@ -15435,8 +15435,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.sse.com.cn
     - query.sse.com.cn
+    - www.sse.com.cn
     name: option_risk_indicator_sse
     probe:
       check_interval: 2592000
@@ -16011,8 +16011,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - 95.push2.eastmoney.com
     - quote.eastmoney.com
+    - 95.push2.eastmoney.com
     name: reits_realtime_em
     probe:
       check_interval: 2592000
@@ -16044,8 +16044,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -16143,10 +16143,10 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         from: classic
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -16222,8 +16222,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - stock.finance.sina.com.cn
     - finance.sina.com.cn
+    - stock.finance.sina.com.cn
     name: spot_goods
     probe:
       check_interval: 2592000
@@ -16393,8 +16393,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - centerapi.fx168api.com
     - www.99qh.com
+    - centerapi.fx168api.com
     name: spot_price_qh
     probe:
       check_interval: 2592000
@@ -16741,8 +16741,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -16820,8 +16820,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_balance_sheet_by_report_delisted_em
     probe:
       check_interval: 2592000
@@ -16918,8 +16918,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - 82.push2.eastmoney.com
     - quote.eastmoney.com
+    - 82.push2.eastmoney.com
     name: stock_bj_a_spot_em
     probe:
       check_interval: 2592000
@@ -17010,9 +17010,9 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_push2his
@@ -17084,8 +17084,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -17129,8 +17129,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - quote.eastmoney.com
     - 79.push2.eastmoney.com
+    - quote.eastmoney.com
     name: stock_board_concept_name_em
     probe:
       check_interval: 2592000
@@ -17172,8 +17172,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - quote.eastmoney.com
     - 91.push2.eastmoney.com
+    - quote.eastmoney.com
     name: stock_board_concept_spot_em
     probe:
       check_interval: 2592000
@@ -17265,9 +17265,9 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_push2his
@@ -17296,9 +17296,9 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
+    - 7.push2his.eastmoney.com
     - quote.eastmoney.com
     - push2his.eastmoney.com
-    - 7.push2his.eastmoney.com
     name: stock_board_industry_hist_min_em
     probe:
       check_interval: 2592000
@@ -17339,8 +17339,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -17384,8 +17384,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - quote.eastmoney.com
     - 17.push2.eastmoney.com
+    - quote.eastmoney.com
     name: stock_board_industry_name_em
     probe:
       check_interval: 2592000
@@ -17427,8 +17427,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - quote.eastmoney.com
     - 91.push2.eastmoney.com
+    - quote.eastmoney.com
     name: stock_board_industry_spot_em
     probe:
       check_interval: 2592000
@@ -17516,8 +17516,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_cash_flow_sheet_by_report_delisted_em
     probe:
       check_interval: 2592000
@@ -17629,8 +17629,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -17666,8 +17666,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -18112,8 +18112,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_datacenter
@@ -18146,8 +18146,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: em_datacenter
     signature:
@@ -18529,8 +18529,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_financial_analysis_indicator_em
     probe:
       check_interval: 2592000
@@ -18749,8 +18749,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_financial_hk_analysis_indicator_em
     probe:
       check_interval: 2592000
@@ -18784,8 +18784,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_financial_hk_report_em
     probe:
       check_interval: 2592000
@@ -18848,8 +18848,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_financial_us_analysis_indicator_em
     probe:
       check_interval: 2592000
@@ -18884,8 +18884,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_financial_us_report_em
     probe:
       check_interval: 2592000
@@ -19612,8 +19612,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_hk_company_profile_em
     probe:
       check_interval: 2592000
@@ -19669,8 +19669,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_hk_dividend_payout_em
     probe:
       check_interval: 2592000
@@ -19716,8 +19716,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - stockpage.10jqka.com.cn
     - basic.10jqka.com.cn
+    - stockpage.10jqka.com.cn
     name: stock_hk_fhpx_detail_ths
     probe:
       check_interval: 2592000
@@ -19742,8 +19742,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_hk_financial_indicator_em
     probe:
       check_interval: 2592000
@@ -19765,8 +19765,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - 33.push2.eastmoney.com
     - quote.eastmoney.com
+    - 33.push2.eastmoney.com
     name: stock_hk_ggt_components_em
     probe:
       check_interval: 2592000
@@ -19789,8 +19789,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_hk_growth_comparison_em
     probe:
       check_interval: 2592000
@@ -19851,15 +19851,15 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - quote.eastmoney.com
     - 33.push2his.eastmoney.com
+    - quote.eastmoney.com
     name: stock_hk_hist
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_push2his
@@ -19906,9 +19906,9 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_push2his
@@ -19933,8 +19933,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - guba.eastmoney.com
     - emappdata.eastmoney.com
+    - guba.eastmoney.com
     name: stock_hk_hot_rank_detail_em
     probe:
       check_interval: 2592000
@@ -19960,8 +19960,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - guba.eastmoney.com
     - emappdata.eastmoney.com
+    - guba.eastmoney.com
     name: stock_hk_hot_rank_detail_realtime_em
     probe:
       check_interval: 2592000
@@ -19983,9 +19983,9 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
+    - emappdata.eastmoney.com
     - guba.eastmoney.com
     - push2.eastmoney.com
-    - emappdata.eastmoney.com
     name: stock_hk_hot_rank_em
     probe:
       check_interval: 2592000
@@ -20008,8 +20008,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - guba.eastmoney.com
     - emappdata.eastmoney.com
+    - guba.eastmoney.com
     name: stock_hk_hot_rank_latest_em
     probe:
       check_interval: 2592000
@@ -20061,8 +20061,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - stock.finance.sina.com.cn
     - finance.sina.com.cn
+    - stock.finance.sina.com.cn
     name: stock_hk_index_daily_sina
     probe:
       check_interval: 2592000
@@ -20083,8 +20083,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - quote.eastmoney.com
     - 15.push2.eastmoney.com
+    - quote.eastmoney.com
     name: stock_hk_index_spot_em
     probe:
       check_interval: 2592000
@@ -20155,8 +20155,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - 81.push2.eastmoney.com
     - quote.eastmoney.com
+    - 81.push2.eastmoney.com
     name: stock_hk_main_board_spot_em
     probe:
       check_interval: 2592000
@@ -20210,8 +20210,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_hk_scale_comparison_em
     probe:
       check_interval: 2592000
@@ -20237,8 +20237,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_hk_security_profile_em
     probe:
       check_interval: 2592000
@@ -20279,8 +20279,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - quote.eastmoney.com
     - 72.push2.eastmoney.com
+    - quote.eastmoney.com
     name: stock_hk_spot_em
     probe:
       check_interval: 2592000
@@ -20339,8 +20339,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_hk_valuation_comparison_em
     probe:
       check_interval: 2592000
@@ -20568,8 +20568,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - guba.eastmoney.com
     - emappdata.eastmoney.com
+    - guba.eastmoney.com
     name: stock_hot_keyword_em
     probe:
       check_interval: 2592000
@@ -20595,8 +20595,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - guba.eastmoney.com
     - emappdata.eastmoney.com
+    - guba.eastmoney.com
     name: stock_hot_rank_detail_em
     probe:
       check_interval: 2592000
@@ -20622,8 +20622,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - guba.eastmoney.com
     - emappdata.eastmoney.com
+    - guba.eastmoney.com
     name: stock_hot_rank_detail_realtime_em
     probe:
       check_interval: 2592000
@@ -20645,9 +20645,9 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
+    - emappdata.eastmoney.com
     - guba.eastmoney.com
     - push2.eastmoney.com
-    - emappdata.eastmoney.com
     name: stock_hot_rank_em
     probe:
       check_interval: 2592000
@@ -20670,8 +20670,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - guba.eastmoney.com
     - emappdata.eastmoney.com
+    - guba.eastmoney.com
     name: stock_hot_rank_latest_em
     probe:
       check_interval: 2592000
@@ -20697,8 +20697,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - guba.eastmoney.com
     - emappdata.eastmoney.com
+    - guba.eastmoney.com
     name: stock_hot_rank_relate_em
     probe:
       check_interval: 2592000
@@ -20732,8 +20732,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - gushitong.baidu.com
     - finance.pae.baidu.com
+    - gushitong.baidu.com
     name: stock_hot_search_baidu
     probe:
       check_interval: 2592000
@@ -20783,9 +20783,9 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
+    - emappdata.eastmoney.com
     - guba.eastmoney.com
     - push2.eastmoney.com
-    - emappdata.eastmoney.com
     name: stock_hot_up_em
     probe:
       check_interval: 2592000
@@ -20956,8 +20956,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_datacenter
@@ -21019,8 +21019,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: em_datacenter
     signature:
@@ -21080,9 +21080,9 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         market: '003'
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_datacenter
@@ -21370,7 +21370,7 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -21474,8 +21474,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -21653,8 +21653,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - zhibo.sina.com.cn
     - finance.sina.com.cn
+    - zhibo.sina.com.cn
     name: stock_info_global_sina
     probe:
       check_interval: 2592000
@@ -21696,8 +21696,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.sse.com.cn
     - query.sse.com.cn
+    - www.sse.com.cn
     name: stock_info_sh_delist
     probe:
       check_interval: 2592000
@@ -21970,8 +21970,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter-web.eastmoney.com
     - pdf.dfcfw.com
+    - datacenter-web.eastmoney.com
     - data.eastmoney.com
     name: stock_ipo_declare_em
     probe:
@@ -22224,8 +22224,8 @@ interfaces:
 
       :rtype: dict'
     domains:
-    - datacenter.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: stock_js_weibo_nlp_time
     probe:
       check_interval: 2592000
@@ -22249,8 +22249,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.jin10.com
     - datacenter-api.jin10.com
+    - datacenter.jin10.com
     name: stock_js_weibo_report
     probe:
       check_interval: 2592000
@@ -22385,8 +22385,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: em_datacenter
     signature:
@@ -22443,8 +22443,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: em_datacenter
     signature:
@@ -22475,8 +22475,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: em_datacenter
     signature:
@@ -22884,8 +22884,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.sse.com.cn
     - query.sse.com.cn
+    - www.sse.com.cn
     name: stock_margin_detail_sse
     probe:
       check_interval: 2592000
@@ -22968,14 +22968,14 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.sse.com.cn
     - query.sse.com.cn
+    - www.sse.com.cn
     name: stock_margin_sse
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: default
     signature:
@@ -23130,8 +23130,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - 82.push2.eastmoney.com
     - quote.eastmoney.com
+    - 82.push2.eastmoney.com
     name: stock_new_a_spot_em
     probe:
       check_interval: 2592000
@@ -23192,8 +23192,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - finance.eastmoney.com
     - so.eastmoney.com
+    - finance.eastmoney.com
     - search-api-web.eastmoney.com
     name: stock_news_em
     probe:
@@ -23426,8 +23426,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_profit_sheet_by_report_delisted_em
     probe:
       check_interval: 2592000
@@ -23803,8 +23803,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter-web.eastmoney.com
     - pdf.dfcfw.com
+    - datacenter-web.eastmoney.com
     - data.eastmoney.com
     name: stock_register_all_em
     probe:
@@ -23824,8 +23824,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter-web.eastmoney.com
     - pdf.dfcfw.com
+    - datacenter-web.eastmoney.com
     - data.eastmoney.com
     name: stock_register_bj
     probe:
@@ -23845,8 +23845,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter-web.eastmoney.com
     - pdf.dfcfw.com
+    - datacenter-web.eastmoney.com
     - data.eastmoney.com
     name: stock_register_cyb
     probe:
@@ -23886,8 +23886,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter-web.eastmoney.com
     - pdf.dfcfw.com
+    - datacenter-web.eastmoney.com
     - data.eastmoney.com
     name: stock_register_kcb
     probe:
@@ -23907,8 +23907,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter-web.eastmoney.com
     - pdf.dfcfw.com
+    - datacenter-web.eastmoney.com
     - data.eastmoney.com
     name: stock_register_sh
     probe:
@@ -23928,8 +23928,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter-web.eastmoney.com
     - pdf.dfcfw.com
+    - datacenter-web.eastmoney.com
     - data.eastmoney.com
     name: stock_register_sz
     probe:
@@ -24104,8 +24104,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: em_datacenter
     signature:
@@ -24222,8 +24222,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_datacenter
@@ -24359,10 +24359,10 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - biz.finance.sina.com.cn
     - vip.stock.finance.sina.com.cn
-    - finance.sina.com.cn
+    - biz.finance.sina.com.cn
     - money.finance.sina.com.cn
+    - finance.sina.com.cn
     name: stock_sector_spot
     probe:
       check_interval: 2592000
@@ -24382,8 +24382,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.sse.com.cn
     - query.sse.com.cn
+    - www.sse.com.cn
     name: stock_sgt_reference_exchange_rate_sse
     probe:
       check_interval: 2592000
@@ -24421,8 +24421,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.sse.com.cn
     - query.sse.com.cn
+    - www.sse.com.cn
     name: stock_sgt_settlement_exchange_rate_sse
     probe:
       check_interval: 2592000
@@ -24460,8 +24460,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - 82.push2.eastmoney.com
     - quote.eastmoney.com
+    - 82.push2.eastmoney.com
     name: stock_sh_a_spot_em
     probe:
       check_interval: 2592000
@@ -24499,8 +24499,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -24548,8 +24548,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.sse.com.cn
     - query.sse.com.cn
+    - www.sse.com.cn
     name: stock_share_hold_change_sse
     probe:
       check_interval: 2592000
@@ -24650,8 +24650,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.sse.com.cn
     - query.sse.com.cn
+    - www.sse.com.cn
     name: stock_sse_deal_daily
     probe:
       check_interval: 2592000
@@ -24671,8 +24671,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.sse.com.cn
     - query.sse.com.cn
+    - www.sse.com.cn
     name: stock_sse_summary
     probe:
       check_interval: 2592000
@@ -24831,8 +24831,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - 82.push2.eastmoney.com
     - quote.eastmoney.com
+    - 82.push2.eastmoney.com
     name: stock_sz_a_spot_em
     probe:
       check_interval: 2592000
@@ -24883,8 +24883,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.szse.cn
     - docs.static.szse.cn
+    - www.szse.cn
     name: stock_szse_sector_summary
     probe:
       check_interval: 2592000
@@ -25037,15 +25037,15 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - quote.eastmoney.com
     - 63.push2his.eastmoney.com
+    - quote.eastmoney.com
     name: stock_us_hist
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_push2his
@@ -25084,8 +25084,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_push2his
@@ -25143,8 +25143,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - quote.eastmoney.com
     - 72.push2.eastmoney.com
+    - quote.eastmoney.com
     name: stock_us_spot_em
     probe:
       check_interval: 2592000
@@ -25496,8 +25496,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
       skip: false
     rate_limit_key: em_datacenter
     signature:
@@ -25531,8 +25531,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -25573,8 +25573,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -25615,8 +25615,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
         url: data/yypl
       skip: false
@@ -25644,8 +25644,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
         url: disclosure/list/search
       skip: false
@@ -25672,8 +25672,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_zh_a_gbjg_em
     probe:
       check_interval: 2592000
@@ -25776,10 +25776,10 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         from: classic
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_push2his
@@ -25827,10 +25827,10 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         from: classic
         period: daily
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_push2his
@@ -25914,8 +25914,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -25992,8 +25992,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - quote.eastmoney.com
     - 40.push2.eastmoney.com
+    - quote.eastmoney.com
     name: stock_zh_a_new_em
     probe:
       check_interval: 2592000
@@ -26031,8 +26031,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - 82.push2.eastmoney.com
     - quote.eastmoney.com
+    - 82.push2.eastmoney.com
     name: stock_zh_a_spot_em
     probe:
       check_interval: 2592000
@@ -26051,8 +26051,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - quote.eastmoney.com
     - 40.push2.eastmoney.com
+    - quote.eastmoney.com
     name: stock_zh_a_st_em
     probe:
       check_interval: 2592000
@@ -26071,8 +26071,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - quote.eastmoney.com
     - 40.push2.eastmoney.com
+    - quote.eastmoney.com
     name: stock_zh_a_stop_em
     probe:
       check_interval: 2592000
@@ -26153,8 +26153,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - gu.qq.com
     - web.ifzq.gtimg.cn
+    - gu.qq.com
     name: stock_zh_ah_daily
     probe:
       check_interval: 2592000
@@ -26260,8 +26260,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -26337,8 +26337,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - quote.eastmoney.com
     - 28.push2.eastmoney.com
+    - quote.eastmoney.com
     name: stock_zh_b_spot_em
     probe:
       check_interval: 2592000
@@ -26361,8 +26361,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_zh_dupont_comparison_em
     probe:
       check_interval: 2592000
@@ -26387,8 +26387,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_zh_growth_comparison_em
     probe:
       check_interval: 2592000
@@ -26452,8 +26452,8 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
-        start_date: '20260417'
+        end_date: '20260424'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: em_push2his
@@ -26521,9 +26521,9 @@ interfaces:
     probe:
       check_interval: 2592000
       params:
-        end_date: '20260420'
+        end_date: '20260424'
         indexCode: H30374
-        start_date: '20260417'
+        start_date: '20260421'
         symbol: '000001'
       skip: false
     rate_limit_key: default
@@ -26593,8 +26593,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - www.csindex.com.cn
     - oss-ch.csindex.com.cn
+    - www.csindex.com.cn
     name: stock_zh_index_value_csindex
     probe:
       check_interval: 2592000
@@ -26698,8 +26698,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_zh_scale_comparison_em
     probe:
       check_interval: 2592000
@@ -26760,8 +26760,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - datacenter.eastmoney.com
     - emweb.securities.eastmoney.com
+    - datacenter.eastmoney.com
     name: stock_zh_valuation_comparison_em
     probe:
       check_interval: 2592000
@@ -26790,8 +26790,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - gushitong.baidu.com
     - finance.pae.baidu.com
+    - gushitong.baidu.com
     name: stock_zh_vote_baidu
     probe:
       check_interval: 2592000
@@ -27261,8 +27261,8 @@ interfaces:
 
       :rtype: pandas.DataFrame'
     domains:
-    - service.ikuyu.cn
     - www.xcf.cn
+    - service.ikuyu.cn
     name: xincaifu_rank
     probe:
       check_interval: 2592000
@@ -27274,6 +27274,15 @@ interfaces:
     - year
     sources: []
 rate_limits:
+  cffex:
+    description: 中国金融期货交易所 (cffex.com.cn)
+    interval: 1.0
+  czce:
+    description: 郑州商品交易所 (czce.com.cn)
+    interval: 1.0
+  dce:
+    description: 大连商品交易所 (dce.com.cn)
+    interval: 1.0
   default:
     description: 默认限速
     interval: 0.5
@@ -27289,12 +27298,18 @@ rate_limits:
   lixinger:
     description: 理杏仁 OpenAPI (open.lixinger.com)
     interval: 2.0
+  shfe:
+    description: 上海期货交易所 (shfe.com.cn)
+    interval: 1.0
   sina_hq:
     description: 新浪行情 (hq.sinajs.cn)
     interval: 0.3
   sina_vip:
     description: 新浪财经VIP (vip.stock.finance.sina.com.cn)
     interval: 1.0
+  stats:
+    description: 国家统计局 (stats.gov.cn)
+    interval: 0.5
   tushare:
     description: Tushare Pro (tushare.pro)
     interval: 0.2

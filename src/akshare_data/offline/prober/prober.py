@@ -87,36 +87,42 @@ class APIProber:
         """运行健康检查"""
         start_time = time.time()
         tasks = self.task_builder.build_tasks(self.config)
+        processed = 0
 
-        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
-            futures = {}
-            for task in tasks:
-                future = executor.submit(self._run_single_task, task)
-                futures[future] = task
+        try:
+            with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+                futures = {}
+                for task in tasks:
+                    future = executor.submit(self._run_single_task, task)
+                    futures[future] = task
 
-            for future in as_completed(futures):
-                task = futures[future]
-                try:
-                    result = future.result()
-                    if result:
-                        self.results[task.func_name] = result
-                        self.checkpoint_mgr.set_result(
-                            ProbeResult(
-                                func_name=result.func_name,
-                                domain_group=result.domain_group,
-                                status=result.status,
-                                error_msg=result.error_msg,
-                                exec_time=result.exec_time,
-                                data_size=result.data_size,
-                                last_check=time.time(),
-                                check_count=1,
+                for future in as_completed(futures):
+                    task = futures[future]
+                    try:
+                        result = future.result()
+                        if result:
+                            self.results[task.func_name] = result
+                            self.checkpoint_mgr.set_result(
+                                ProbeResult(
+                                    func_name=result.func_name,
+                                    domain_group=result.domain_group,
+                                    status=result.status,
+                                    error_msg=result.error_msg,
+                                    exec_time=result.exec_time,
+                                    data_size=result.data_size,
+                                    last_check=time.time(),
+                                    check_count=1,
+                                )
                             )
-                        )
-                except Exception as e:
-                    logger.error(f"Task {task.func_name} failed: {e}")
+                            processed += 1
+                            if processed % 10 == 0:
+                                self.checkpoint_mgr.save()
+                    except Exception as e:
+                        logger.error(f"Task {task.func_name} failed: {e}")
+        finally:
+            self.total_elapsed = time.time() - start_time
+            self.checkpoint_mgr.save()
 
-        self.total_elapsed = time.time() - start_time
-        self.checkpoint_mgr.save()
         logger.info(f"Probe completed in {self.total_elapsed:.2f}s")
         return self.results
 
